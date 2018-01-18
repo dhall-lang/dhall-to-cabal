@@ -98,7 +98,8 @@ packageDescription =
           >>= fmap toList . Dhall.extract ( Dhall.vector foreignLib )
 
       subLibraries <-
-        return []
+        field "sub-libraries"
+          >>= fmap toList . Dhall.extract ( Dhall.vector library )
 
       library <-
         field "library"
@@ -195,6 +196,7 @@ packageDescription =
       , ( "executables", Dhall.expected ( Dhall.vector executable ) )
       , ( "foreign-libraries", Dhall.expected ( Dhall.vector foreignLib ) )
       , ( "library", Dhall.expected ( Dhall.maybe library ) )
+      , ( "sub-libraries", Dhall.expected ( Dhall.vector library ) )
       , ( "x-fields"
         , Dhall.expected ( Dhall.auto @[(LazyText.Text, LazyText.Text)] )
         )

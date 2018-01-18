@@ -21,6 +21,12 @@
          }
 , package           = { name = "dhall-to-cabal", version = [ +0, +1, +0 ] }
 , source-repos      = [] : List {}
+, sub-libraries     =
+    [] : List
+         { build-dependencies : List { package : Text }
+         , name               : Optional Text
+         , other-modules      : List Text
+         }
 , tests             =
     [] : List
          { build-dependencies : List { package : Text }
