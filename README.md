@@ -4,54 +4,48 @@
 and submit pull requests!
 
 `dhall-to-cabal` takes a Dhall expression that evaluates to a record containing
-fields fo a `.cabal` file. For example, the following Dhall expression...
+fields fo a `.cabal` file and produces a valid `.cabal` file. For a large
+example, this very project has a
+[`dhall-to-cabal.dhall`](./dhall-to-cabal.dhall) file which generates
+[`dhall-to-cabal.cabal`](./dhall-to-cabal.cabal). Don't be put off by the
+verbosity, [issue #3](https://github.com/ocharles/dhall-to-cabal/issues/3)
+tracks providing a much nicer standard library (in Dhall-land) to generate these
+Dhall expressions. Such is the beauty of having a powerful language behind us!
 
-``` dhall
-{ benchmarks        = [ { main-is = "hello", name = "a-benchmark" } ]
-, executables       = [ { main-is = "Main", name = "exe" } ]
-, foreign-libraries = [ { name = "foo", type = < Shared = {=} > } ]
-, library           =
-    [ { name = [ "Hello" ] : Optional Text } ] : Optional
-                                                 { name : Optional Text }
-, package           = { name = "test-package", version = [ +1, +0, +3 ] }
-, tests             = [ { main-is = "Main.hs", name = "tests" } ]
-, x-fields          = [ { _1 = "x-foo", _2 = "bar" } ]
-, source-repos = [ {=} ]
-} 
-```
+## y tho?
 
-produces
+I love Cabal, and `.cabal` files aren't *bad*, but they are hardly great either.
+A major limitation is the lack of a way to import things. This leads to code
+duplication and repetition, and we all know this is a bad thing. The means of
+abstraction in a cabal file a pretty rudimentary too - why not just give us
+proper variables and let us figure out how best to abstract things?
 
-``` cabal
-name: test-package
-version: 1.0.3
-cabal-version: 2.0
-build-type: Simple
-license: OtherLicense
-x-foo: bar
+If you accept the above argument, then Dhall-to-Cabal might be of interest to
+you. This approach enables a few nice things:
 
-source-repository head
+* The ability to share your Cabal configuration files inside the configuration
+  of other services without having to write a bunch of Haskell code. It's just
+  Dhall, so you can just import it and manipulate it as you'd like.
+  
+* The ability for projects to provide a template that can be included by users.
+  Large frameworks such as Yesod could provide a `yesod.dhall` that is imported
+  by users. One might imagine:
+  
+  ```dhall
+  let yesodProject = http://.../yesod in
+  yesodProject {
+    name = "my-cool-website",
+    handlers = [ "Handler.Index", "Handler.CoolThing" ],
+    models = [ "Model.Cat", "Model.Dog" ]
+  } 
+  ```
+  
+  and have `yesodProject` turn this into a valid Cabal plan, bringing down
+  Yesod, enabling type extensions, turning on specific warnings, all that
+  goodness.
 
-library
-    exposed: True
-    buildable: True
-
-foreign library foo
-    type: native-shared
-    buildable: True
-
-executable exe
-    main-is: Main
-    scope: public
-    buildable: True
-
-test-suite tests
-    type: exitcode-stdio-1.0
-    main-is: Main.hs
-    buildable: True
-
-benchmark a-benchmark
-    type: exitcode-stdio-1.0
-    main-is: hello
-    buildable: True
-```
+  We can also see the desire to have this import/reuse functionality in core
+  libraries. The [`network`](https://hackage.haskell.org/package/network) opens
+  with a stanza about how you have to add the library to your cabal file which
+  is totally non-standard. Just give me an expression to import, and then I
+  don't have to worry about the details!
