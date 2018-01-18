@@ -7,6 +7,7 @@
           , { package = "dhall" }
           , { package = "text" }
           , { package = "containers" }
+          , { package = "optparse-applicative" }
           ]
       , main-is            = "Main.hs"
       , name               = "dhall-to-cabal"
