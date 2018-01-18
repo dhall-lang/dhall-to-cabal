@@ -4,7 +4,8 @@ let
 
   inherit (nixpkgs) pkgs;
 
-  f = { mkDerivation, base, Cabal, containers, dhall, stdenv, text
+  f = { mkDerivation, base, Cabal, containers, dhall
+      , optparse-applicative, stdenv, text
       }:
       mkDerivation {
         pname = "dhall-to-cabal";
@@ -12,7 +13,9 @@ let
         src = ./.;
         isLibrary = false;
         isExecutable = true;
-        executableHaskellDepends = [ base Cabal containers dhall text ];
+        executableHaskellDepends = [
+          base Cabal containers dhall optparse-applicative text
+        ];
         license = "unknown";
       };
 
