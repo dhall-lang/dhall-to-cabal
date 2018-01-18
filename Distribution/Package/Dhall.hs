@@ -48,7 +48,7 @@ packageIdentifier =
       Expr.Record
         ( Map.fromList
             [ ( "name", Expr.Text )
-            , ( "version", Dhall.expected ( toList <$> Dhall.vector version ) )
+            , ( "version", Dhall.expected version )
             ] )
 
   in Dhall.Type { .. }
@@ -122,7 +122,7 @@ packageDescription =
           >>= fmap toList . Dhall.extract ( Dhall.vector sourceRepo )
 
       specVersionRaw <-
-        return ( Left ( Cabal.mkVersion [ 2, 0 ] ) )
+        field "cabal-version" >>= fmap Left . Dhall.extract version
 
       buildType <-
         return ( Just Cabal.Simple )
@@ -201,6 +201,7 @@ packageDescription =
         , Dhall.expected ( Dhall.auto @[(LazyText.Text, LazyText.Text)] )
         )
       , ( "source-repos", Dhall.expected ( Dhall.vector sourceRepo ) )
+      , ( "cabal-version", Dhall.expected version )
       ]
 
     expected =
@@ -228,7 +229,7 @@ version =
         & fmap (Cabal.mkVersion . toList)
 
     expected =
-      Expr.Natural
+      Dhall.expected ( Dhall.vector Dhall.natural )
         
   in Dhall.Type { .. }
 

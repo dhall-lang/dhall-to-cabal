@@ -1,4 +1,5 @@
 { benchmarks        = [] : List { main-is : Text, name : Text }
+, cabal-version     = [ +2, +0 ]
 , executables       =
     [ { build-dependencies =
           [ { package = "base" }
