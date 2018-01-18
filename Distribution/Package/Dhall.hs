@@ -6,14 +6,19 @@ module Distribution.Package.Dhall where
 
 import Data.Foldable ( toList )
 import Data.Function ( (&) )
+import Control.Monad ( (>=>) )
 
+import qualified Distribution.Text as Cabal ( simpleParse )
 import qualified Data.Map as Map
 import qualified Data.Text.Lazy as LazyText
 import qualified Data.Text.Lazy.Builder as Builder
+import qualified Distribution.ModuleName as Cabal
 import qualified Dhall
-import qualified Dhall.Core as Expr (Expr(..))
+import qualified Dhall.Core as Dhall ( Expr )
+import qualified Dhall.Core as Expr ( Expr(..) )
 import qualified Distribution.License as Cabal
 import qualified Distribution.PackageDescription as Cabal
+import qualified Distribution.Types.Dependency as Cabal
 import qualified Distribution.Types.ExecutableScope as Cabal
 import qualified Distribution.Types.ForeignLib as Cabal
 import qualified Distribution.Types.ForeignLibType as Cabal
@@ -47,11 +52,8 @@ packageIdentifier =
 packageName :: Dhall.Type Cabal.PackageName
 packageName =
   let
-    extract expr = do
-      Expr.TextLit builder <- return expr
-      return
-        ( Cabal.mkPackageName
-            ( LazyText.unpack ( Builder.toLazyText builder ) ) )
+    extract =
+      fmap Cabal.mkPackageName . exprToString
 
     expected =
       Expr.Text
@@ -201,7 +203,9 @@ buildInfo =
       cSources <- return []
       jsSources <- return []
       hsSourceDirs <- return []
-      otherModules <- return []
+      otherModules <-
+        Map.lookup "other-modules" fields
+          >>= fmap toList . Dhall.extract ( Dhall.vector moduleName )
       autogenModules <- return []
       defaultLanguage <- return Nothing
       otherLanguages <- return []
@@ -218,14 +222,25 @@ buildInfo =
       profOptions <- return []
       sharedOptions <- return []
       customFieldsBI <- return []
-      targetBuildDepends <- return []
+      targetBuildDepends <-
+        Map.lookup "build-dependencies" fields
+          >>= fmap toList . Dhall.extract ( Dhall.vector dependency )
       mixins <- return []
       return Cabal.BuildInfo { ..  }
 
     expected =
-      Expr.Record Map.empty
+      Expr.Record buildInfoFields
 
   in Dhall.Type { .. }
+
+
+
+buildInfoFields =
+  Map.fromList
+    [ ( "build-dependencies"
+        , Dhall.expected ( Dhall.vector dependency ) )
+    , ( "other-modules", Dhall.expected ( Dhall.vector moduleName ) )
+    ]
 
 
 
@@ -243,10 +258,13 @@ testSuite =
 
     expected =
       Expr.Record
-        ( Map.fromList
-            [ ( "name", Dhall.expected string )
-            , ( "main-is", Dhall.expected string )
-            ] )
+        ( Map.union 
+            ( Map.fromList
+                [ ( "name", Dhall.expected string )
+                , ( "main-is", Dhall.expected string )
+                ] )
+            buildInfoFields
+        )
 
   in Dhall.Type { .. }
 
@@ -270,10 +288,13 @@ executable =
 
     expected =
       Expr.Record
-        ( Map.fromList
-            [ ( "name", Dhall.expected string )
-            , ( "main-is", Dhall.expected string )
-            ] )
+        ( Map.union 
+            ( Map.fromList
+                [ ( "name", Dhall.expected string )
+                , ( "main-is", Dhall.expected string )
+                ] )
+            buildInfoFields
+        )
 
   in Dhall.Type { .. }
 
@@ -335,9 +356,12 @@ library =
 
     expected =
       Expr.Record
-        ( Map.fromList
-            [ ( "name", Dhall.expected ( Dhall.maybe unqualComponentName ) )
-            ] )
+        ( Map.union 
+            ( Map.fromList
+                [ ( "name", Dhall.expected ( Dhall.maybe unqualComponentName ) )
+                ] )
+            buildInfoFields
+        )
 
   in Dhall.Type { .. }
 
@@ -361,3 +385,42 @@ sourceRepo =
       Expr.Record Map.empty
 
   in Dhall.Type { .. }
+
+
+
+dependency :: Dhall.Type Cabal.Dependency
+dependency =
+  let
+    extract expr = do
+      Expr.RecordLit fields <- return expr
+      packageName <-
+        Map.lookup "package" fields
+          >>= Dhall.extract packageName
+      versionRange <- return Cabal.anyVersion
+      return ( Cabal.Dependency packageName versionRange )
+
+    expected =
+      Expr.Record ( Map.fromList [ ( "package", Dhall.expected packageName ) ] )
+
+  in Dhall.Type { .. }
+
+
+
+moduleName :: Dhall.Type Cabal.ModuleName
+moduleName =
+  let
+    extract = do
+      exprToString >=> Cabal.simpleParse
+
+    expected =
+      Expr.Text
+
+  in Dhall.Type { .. }
+
+
+
+exprToString :: Dhall.Expr a b -> Maybe String
+exprToString expr = do
+  Expr.TextLit builder <- return expr
+  return
+    ( LazyText.unpack ( Builder.toLazyText builder ) )
