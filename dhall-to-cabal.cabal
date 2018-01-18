@@ -13,6 +13,7 @@ executable dhall-to-cabal
         Cabal -any,
         dhall -any,
         text -any,
-        containers -any
+        containers -any,
+        optparse-applicative -any
     other-modules:
         Distribution.Package.Dhall
