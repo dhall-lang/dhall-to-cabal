@@ -11,6 +11,7 @@ import Control.Monad ( (>=>) )
 import qualified Distribution.Text as Cabal ( simpleParse )
 import qualified Data.Map as Map
 import qualified Data.Text.Lazy as LazyText
+import qualified Data.Text.Lazy.IO as LazyText
 import qualified Data.Text.Lazy.Builder as Builder
 import qualified Distribution.ModuleName as Cabal
 import qualified Dhall
@@ -315,7 +316,8 @@ buildInfo =
         return []
 
       hsSourceDirs <-
-        return []
+        Map.lookup "hs-source-dirs" fields
+          >>= fmap toList . Dhall.extract ( Dhall.vector string )
 
       otherModules <-
         Map.lookup "other-modules" fields
@@ -390,6 +392,7 @@ buildInfoFields =
     [ ( "build-dependencies"
         , Dhall.expected ( Dhall.vector dependency ) )
     , ( "other-modules", Dhall.expected ( Dhall.vector moduleName ) )
+    , ( "hs-source-dirs", Dhall.expected ( Dhall.vector string ) )
     ]
 
 
@@ -547,7 +550,8 @@ library =
         Dhall.extract buildInfo expr
 
       exposedModules <-
-        return []
+        Map.lookup "exposed-modules" fields
+          >>= fmap toList . Dhall.extract ( Dhall.vector moduleName )
 
       reexportedModules <-
         return []
@@ -565,6 +569,9 @@ library =
         ( Map.union 
             ( Map.fromList
                 [ ( "name", Dhall.expected ( Dhall.maybe unqualComponentName ) )
+                , ( "exposed-modules"
+                  , Dhall.expected ( Dhall.vector moduleName )
+                  )
                 ] )
             buildInfoFields
         )
@@ -653,3 +660,9 @@ exprToString expr = do
 
   return
     ( LazyText.unpack ( Builder.toLazyText builder ) )
+
+
+dhallFileToCabal :: FilePath -> IO Cabal.PackageDescription
+dhallFileToCabal =
+  LazyText.readFile
+    >=> Dhall.detailed . Dhall.input packageDescription
