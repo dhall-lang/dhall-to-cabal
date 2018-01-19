@@ -711,7 +711,7 @@ input source t = do
     throws ( Dhall.Parser.exprFromText delta source )
 
   expr' <-
-    Dhall.Import.load expr
+    Dhall.Import.loadWithContext cabalContext expr
 
   let
     suffix =
