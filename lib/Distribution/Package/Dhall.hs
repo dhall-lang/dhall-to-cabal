@@ -5,7 +5,7 @@
 module Distribution.Package.Dhall where
 
 import Control.Exception ( Exception, throwIO )
-import Control.Monad ( (>=>) )
+import Control.Monad ( (>=>), guard )
 import Data.Foldable ( toList )
 import Data.Function ( (&) )
 import Data.Monoid
@@ -146,7 +146,7 @@ packageDescription =
         field "cabal-version" >>= fmap Left . Dhall.extract version
 
       buildType <-
-        return ( Just Cabal.Simple )
+        field "build-type" >>= Dhall.extract ( Dhall.maybe buildType )
 
       license <-
         return Cabal.OtherLicense
@@ -224,6 +224,7 @@ packageDescription =
         )
       , ( "source-repos", Dhall.expected ( Dhall.vector sourceRepo ) )
       , ( "cabal-version", Dhall.expected version )
+      , ( "build-type", Dhall.expected ( Dhall.maybe buildType ) )
       ]
 
     expected =
@@ -538,8 +539,10 @@ foreignLibType :: Dhall.Type Cabal.ForeignLibType
 foreignLibType =
   let
     extract expr = do
-      Expr.UnionLit t _ _ <-
+      Expr.UnionLit t ( Expr.RecordLit fields ) _ <-
         return expr
+
+      guard (Map.null fields)
 
       case t of
         "Shared" ->
@@ -799,5 +802,44 @@ versionRange =
 
     expected =
       Expr.Var ( Expr.V "VersionRange" 0 )
+
+  in Dhall.Type { .. }
+
+
+
+buildType :: Dhall.Type Cabal.BuildType
+buildType =
+  let
+    extract expr = do
+      Expr.UnionLit ctor ( Expr.RecordLit fields ) _ <-
+        return expr
+
+      guard (Map.null fields)
+
+      case ctor of
+        "Simple" ->
+          return Cabal.Simple
+
+        "Configure" ->
+          return Cabal.Configure
+
+        "Make" ->
+          return Cabal.Make
+
+        "Custom" ->
+          return Cabal.Custom
+
+        _ ->
+          Nothing
+
+    expected =
+      Expr.Union
+        ( Map.fromList
+            [ ("Simple", Expr.Record Map.empty)
+            , ("Configure", Expr.Record Map.empty)
+            , ("Make", Expr.Record Map.empty)
+            , ("Custom", Expr.Record Map.empty)
+            ]
+        )
 
   in Dhall.Type { .. }

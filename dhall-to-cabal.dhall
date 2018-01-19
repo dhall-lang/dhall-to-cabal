@@ -10,6 +10,9 @@ in  let dhall = { bounds = majorVersion [ +1, +8 ], package = "dhall" }
 in  let text = { bounds = majorVersion [ +1, +2 ], package = "text" }
 
 in  { benchmarks        = [] : List { main-is : Text, name : Text }
+    , build-type        =
+        [ < Simple = {=} | Configure : {} | Custom : {} | Make : {} >
+        ] : Optional < Configure : {} | Custom : {} | Make : {} | Simple : {} >
     , cabal-version     = [ +2, +0 ]
     , executables       =
         [ { build-dependencies =
