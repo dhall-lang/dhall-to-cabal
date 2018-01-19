@@ -149,7 +149,7 @@ packageDescription =
         field "build-type" >>= Dhall.extract ( Dhall.maybe buildType )
 
       license <-
-        return Cabal.OtherLicense
+        field "license" >>= Dhall.extract license
 
       licenseFiles <-
         return []
@@ -225,6 +225,7 @@ packageDescription =
       , ( "source-repos", Dhall.expected ( Dhall.vector sourceRepo ) )
       , ( "cabal-version", Dhall.expected version )
       , ( "build-type", Dhall.expected ( Dhall.maybe buildType ) )
+      , ( "license", Dhall.expected license )
       ]
 
     expected =
@@ -839,6 +840,34 @@ buildType =
             , ("Configure", Expr.Record Map.empty)
             , ("Make", Expr.Record Map.empty)
             , ("Custom", Expr.Record Map.empty)
+            ]
+        )
+
+  in Dhall.Type { .. }
+
+
+
+license :: Dhall.Type Cabal.License
+license = 
+  let
+    extract expr = do
+      Expr.UnionLit ctor ctorFields _ <-
+        return expr
+
+      case ctor of
+        "GPL" -> do
+          gplVersion <-
+            Dhall.extract ( Dhall.maybe version ) ctorFields
+
+          return ( Cabal.GPL gplVersion )
+
+        _ ->
+          Nothing
+
+    expected =
+      Expr.Union
+        ( Map.fromList
+            [ ("GPL", Dhall.expected ( Dhall.maybe version ) )
             ]
         )
 
