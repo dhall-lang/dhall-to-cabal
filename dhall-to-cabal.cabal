@@ -30,7 +30,7 @@ executable dhall-to-cabal
     build-depends:
         base ^>=4.10,
         dhall-to-cabal -any,
-        optparse-applicative ^>=0.14,
+        optparse-applicative ^>=0.13.2,
         text ^>=1.2,
         dhall ^>=1.8,
         Cabal ^>=2.0

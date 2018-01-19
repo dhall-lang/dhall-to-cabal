@@ -18,7 +18,7 @@ in  { benchmarks        = [] : List { main-is : Text, name : Text }
         [ { build-dependencies =
               [ base
               , { bounds = anyVersion, package = "dhall-to-cabal" }
-              , { bounds  = majorVersion [ +0, +14 ]
+              , { bounds  = majorVersion [ +0, +13, +2 ]
                 , package = "optparse-applicative"
                 }
               , text
