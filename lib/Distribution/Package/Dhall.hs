@@ -152,7 +152,8 @@ packageDescription =
         field "license" >>= Dhall.extract license
 
       licenseFiles <-
-        return []
+        field "license-files"
+          >>= fmap toList . Dhall.extract ( Dhall.vector string )
 
       copyright <-
         return ""
@@ -226,6 +227,7 @@ packageDescription =
       , ( "cabal-version", Dhall.expected version )
       , ( "build-type", Dhall.expected ( Dhall.maybe buildType ) )
       , ( "license", Dhall.expected license )
+      , ( "license-files", Dhall.expected ( Dhall.vector string ) )
       ]
 
     expected =

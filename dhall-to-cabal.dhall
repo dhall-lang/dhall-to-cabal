@@ -60,6 +60,7 @@ in  { benchmarks        = [] : List { main-is : Text, name : Text }
     , license           =
           < GPL = [ [ +3, +0 ] ] : Optional (List Natural) >
         : < GPL : Optional (List Natural) >
+    , license-files     = [] : List Text
     , package           = { name = "dhall-to-cabal", version = [ +0, +1, +0 ] }
     , source-repos      = [] : List {}
     , sub-libraries     =
