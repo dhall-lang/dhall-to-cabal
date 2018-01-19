@@ -20,8 +20,6 @@ library
         trifecta ^>=1.7,
         text-format ^>=0.3
     hs-source-dirs: lib
-    other-modules:
-        DhallToCabal
 
 executable dhall-to-cabal
     main-is: Main.hs

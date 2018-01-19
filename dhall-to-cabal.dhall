@@ -48,7 +48,7 @@ in  { benchmarks        = [] : List { main-is : Text, name : Text }
           , exposed-modules    = [ "Distribution.Package.Dhall" ]
           , hs-source-dirs     = [ "lib" ]
           , name               = [] : Optional Text
-          , other-modules      = [ "DhallToCabal" ]
+          , other-modules      = [] : List Text
           }
         ] : Optional
             { build-dependencies :
