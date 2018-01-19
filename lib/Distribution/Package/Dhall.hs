@@ -156,7 +156,7 @@ packageDescription =
           >>= fmap toList . Dhall.extract ( Dhall.vector string )
 
       copyright <-
-        return ""
+        field "copyright" >>= Dhall.extract string
 
       maintainer <-
         return ""
@@ -228,6 +228,7 @@ packageDescription =
       , ( "build-type", Dhall.expected ( Dhall.maybe buildType ) )
       , ( "license", Dhall.expected license )
       , ( "license-files", Dhall.expected ( Dhall.vector string ) )
+      , ( "copyright", Dhall.expected string )
       ]
 
     expected =
