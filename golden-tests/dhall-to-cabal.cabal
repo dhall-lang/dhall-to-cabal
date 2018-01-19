@@ -10,24 +10,30 @@ library
     exposed: True
     buildable: True
     build-depends:
-        base -any,
-        Cabal -any,
-        dhall -any,
-        text -any,
-        containers -any
+        base ^>=4.10,
+        Cabal ^>=2.0,
+        dhall ^>=1.8,
+        text ^>=1.2,
+        containers ^>=0.5,
+        vector ^>=0.12,
+        bytestring ^>=0.10,
+        trifecta ^>=1.7,
+        text-format ^>=0.3
     hs-source-dirs: lib
+    other-modules:
+        DhallToCabal
 
 executable dhall-to-cabal
     main-is: Main.hs
     scope: public
     buildable: True
     build-depends:
-        base -any,
+        base ^>=4.10,
         dhall-to-cabal -any,
-        optparse-applicative -any,
-        text -any,
-        dhall -any,
-        Cabal -any
+        optparse-applicative ^>=0.14,
+        text ^>=1.2,
+        dhall ^>=1.8,
+        Cabal ^>=2.0
     hs-source-dirs: exe
 
 test-suite golden-tests
@@ -35,12 +41,12 @@ test-suite golden-tests
     main-is: GoldenTests.hs
     buildable: True
     build-depends:
-        tasty-golden -any,
+        tasty-golden ^>=2.3,
         dhall-to-cabal -any,
-        bytestring -any,
-        filepath -any,
-        base -any,
-        tasty -any,
-        Cabal -any,
-        text -any
+        bytestring ^>=0.10,
+        filepath ^>=1.4,
+        base ^>=4.10,
+        tasty ^>=0.11,
+        Cabal ^>=2.0,
+        text ^>=1.2
     hs-source-dirs: golden-tests

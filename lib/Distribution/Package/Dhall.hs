@@ -4,21 +4,31 @@
 
 module Distribution.Package.Dhall where
 
+import Control.Exception ( Exception, throwIO )
+import Control.Monad ( (>=>) )
 import Data.Foldable ( toList )
 import Data.Function ( (&) )
-import Control.Monad ( (>=>) )
+import Data.Monoid
+import Data.Text.Buildable ( Buildable(..) )
+import Text.Trifecta.Delta ( Delta(..) )
 
-import qualified Distribution.Text as Cabal ( simpleParse )
+import qualified Data.ByteString.Lazy as LazyByteString
 import qualified Data.Map as Map
 import qualified Data.Text.Lazy as LazyText
-import qualified Data.Text.Lazy.IO as LazyText
 import qualified Data.Text.Lazy.Builder as Builder
-import qualified Distribution.ModuleName as Cabal
-import qualified Dhall
+import qualified Data.Text.Lazy.Encoding as LazyText
+import qualified Data.Text.Lazy.IO as LazyText
+import qualified Dhall hiding ( Type(..), lazyText, maybe, natural, vector )
+import qualified Dhall.Context as Ctx
+import qualified Dhall.Core
 import qualified Dhall.Core as Dhall ( Expr )
-import qualified Dhall.Core as Expr ( Expr(..) )
+import qualified Dhall.Import
+import qualified Dhall.Parser
+import qualified Dhall.TypeCheck
 import qualified Distribution.License as Cabal
+import qualified Distribution.ModuleName as Cabal
 import qualified Distribution.PackageDescription as Cabal
+import qualified Distribution.Text as Cabal ( simpleParse )
 import qualified Distribution.Types.Dependency as Cabal
 import qualified Distribution.Types.ExecutableScope as Cabal
 import qualified Distribution.Types.ForeignLib as Cabal
@@ -28,6 +38,11 @@ import qualified Distribution.Types.PackageName as Cabal
 import qualified Distribution.Types.UnqualComponentName as Cabal
 import qualified Distribution.Version as Cabal
 
+import qualified DhallToCabal as Dhall
+  ( Type(..), lazyText, maybe, natural, pair, vector )
+
+import qualified Dhall.Core as Expr
+  ( Const(..), Expr(..), Normalizer, Var(..) )
 
 
 packageIdentifier :: Dhall.Type Cabal.PackageIdentifier
@@ -86,7 +101,7 @@ packageDescription =
         field "benchmarks"
           >>= fmap toList . Dhall.extract ( Dhall.vector benchmark )
 
-      testSuites <- 
+      testSuites <-
         field "tests"
           >>= fmap toList . Dhall.extract ( Dhall.vector testSuite )
 
@@ -94,7 +109,7 @@ packageDescription =
         field "executables"
           >>= fmap toList . Dhall.extract ( Dhall.vector executable )
 
-      foreignLibs <- 
+      foreignLibs <-
         field "foreign-libraries"
           >>= fmap toList . Dhall.extract ( Dhall.vector foreignLib )
 
@@ -111,7 +126,12 @@ packageDescription =
           field "x-fields"
 
         pairs <-
-          fmap toList ( Dhall.extract ( Dhall.vector Dhall.auto ) expr )
+          fmap
+            toList
+            ( Dhall.extract
+                ( Dhall.vector ( Dhall.pair Dhall.lazyText Dhall.lazyText ) )
+                expr
+            )
 
         return
           ( fmap
@@ -199,7 +219,8 @@ packageDescription =
       , ( "library", Dhall.expected ( Dhall.maybe library ) )
       , ( "sub-libraries", Dhall.expected ( Dhall.vector library ) )
       , ( "x-fields"
-        , Dhall.expected ( Dhall.auto @[(LazyText.Text, LazyText.Text)] )
+        , Dhall.expected
+            ( Dhall.vector ( Dhall.pair Dhall.lazyText Dhall.lazyText ) )
         )
       , ( "source-repos", Dhall.expected ( Dhall.vector sourceRepo ) )
       , ( "cabal-version", Dhall.expected version )
@@ -219,8 +240,8 @@ version =
       Expr.NaturalLit n <-
         return expr
 
-      return (fromIntegral n) 
-    
+      return (fromIntegral n)
+
     extract expr = do
       Expr.ListLit _ components <-
         return expr
@@ -231,7 +252,7 @@ version =
 
     expected =
       Dhall.expected ( Dhall.vector Dhall.natural )
-        
+
   in Dhall.Type { .. }
 
 
@@ -254,7 +275,7 @@ benchmark =
         return ( Cabal.BenchmarkExeV10 ( Cabal.mkVersion [ 1, 0 ] ) mainIs )
 
       benchmarkBuildInfo <-
-        Dhall.extract buildInfo expr 
+        Dhall.extract buildInfo expr
 
       return Cabal.Benchmark { .. }
 
@@ -420,7 +441,7 @@ testSuite =
 
     expected =
       Expr.Record
-        ( Map.union 
+        ( Map.union
             ( Map.fromList
                 [ ( "name", Dhall.expected string )
                 , ( "main-is", Dhall.expected string )
@@ -460,7 +481,7 @@ executable =
 
     expected =
       Expr.Record
-        ( Map.union 
+        ( Map.union
             ( Map.fromList
                 [ ( "name", Dhall.expected string )
                 , ( "main-is", Dhall.expected string )
@@ -514,7 +535,7 @@ foreignLib =
 
 
 foreignLibType :: Dhall.Type Cabal.ForeignLibType
-foreignLibType = 
+foreignLibType =
   let
     extract expr = do
       Expr.UnionLit t _ _ <-
@@ -566,7 +587,7 @@ library =
 
     expected =
       Expr.Record
-        ( Map.union 
+        ( Map.union
             ( Map.fromList
                 [ ( "name", Dhall.expected ( Dhall.maybe unqualComponentName ) )
                 , ( "exposed-modules"
@@ -629,12 +650,17 @@ dependency =
           >>= Dhall.extract packageName
 
       versionRange <-
-        return Cabal.anyVersion
+        Map.lookup "bounds" fields
+          >>= Dhall.extract versionRange
 
       return ( Cabal.Dependency packageName versionRange )
 
     expected =
-      Expr.Record ( Map.fromList [ ( "package", Dhall.expected packageName ) ] )
+      Expr.Record
+        ( Map.fromList
+            [ ( "package", Dhall.expected packageName )
+            , ( "bounds", Expr.Var ( Expr.V "VersionRange" 0 ) )
+            ] )
 
   in Dhall.Type { .. }
 
@@ -663,6 +689,115 @@ exprToString expr = do
 
 
 dhallFileToCabal :: FilePath -> IO Cabal.PackageDescription
-dhallFileToCabal =
-  LazyText.readFile
-    >=> Dhall.detailed . Dhall.input packageDescription
+dhallFileToCabal file = do
+  source <-
+    LazyText.readFile file
+
+  Dhall.detailed ( input source packageDescription )
+
+input :: LazyText.Text -> Dhall.Type a -> IO a
+input source t = do
+  delta <-
+    return ( Directed "(input)" 0 0 0 0 )
+
+  expr  <-
+    throws ( Dhall.Parser.exprFromText delta source )
+
+  expr' <-
+    Dhall.Import.load expr
+
+  let
+    suffix =
+      Dhall.expected t
+        & build
+        & Builder.toLazyText
+        & LazyText.encodeUtf8
+        & LazyByteString.toStrict
+
+  let
+    annot =
+      case expr' of
+        Expr.Note ( Dhall.Parser.Src begin end bytes ) _ ->
+          Expr.Note
+            ( Dhall.Parser.Src begin end bytes' )
+            ( Expr.Annot expr' ( Dhall.expected t ) )
+
+          where
+
+          bytes' =
+            bytes <> " : " <> suffix
+
+        _ ->
+          Expr.Annot expr' ( Dhall.expected t )
+
+  _ <-
+    throws (Dhall.TypeCheck.typeWith cabalContext annot)
+
+  case
+    Dhall.extract
+      t
+      ( Dhall.Core.normalizeWith
+          cabalFunctions
+          ( Dhall.Core.subst
+              ( Expr.V "anyVersion" 0 )
+              ( Expr.Embed Cabal.anyVersion )
+              ( fmap Dhall.TypeCheck.absurd expr' )
+          )
+      )
+    of
+    Just x  ->
+      return x
+
+    Nothing ->
+      throwIO Dhall.InvalidType
+
+  where
+
+    throws :: Exception e => Either e a -> IO a
+    throws =
+      either throwIO return
+
+
+
+cabalContext
+  :: Ctx.Context ( Expr.Expr Dhall.Parser.Src Dhall.TypeCheck.X )
+cabalContext =
+  Ctx.empty
+    & Ctx.insert
+        "majorVersion"
+        ( Expr.Pi
+            "_"
+            ( Dhall.expected ( Dhall.vector Dhall.natural ) )
+            ( Dhall.expected versionRange )
+        )
+    & Ctx.insert "VersionRange" ( Expr.Const Expr.Type )
+    & Ctx.insert "anyVersion" ( Dhall.expected versionRange )
+
+
+
+cabalFunctions :: Expr.Normalizer Cabal.VersionRange
+cabalFunctions expr =
+  case expr of
+    Expr.Var ( Expr.V "majorVersion" 0 ) `Expr.App` versionExpr -> do
+      version <-
+        Dhall.extract
+          version
+          ( Dhall.Core.normalizeWith cabalFunctions versionExpr )
+
+      return ( Expr.Embed ( Cabal.majorBoundVersion version ) )
+
+
+
+versionRange :: Dhall.Type Cabal.VersionRange
+versionRange =
+  let
+    extract expr = do
+      Expr.Embed r <-
+        return expr
+
+      return r
+
+    expected =
+      Expr.Var ( Expr.V "VersionRange" 0 )
+
+  in Dhall.Type { .. }
