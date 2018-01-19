@@ -1,5 +1,7 @@
-let bytestring = { package = "bytestring" , bounds = majorVersion [ +0, +10 ] } in
-    let base = { bounds = majorVersion [ +4, +10 ], package = "base" }
+    let bytestring =
+          { bounds = majorVersion [ +0, +10 ], package = "bytestring" }
+
+in  let base = { bounds = majorVersion [ +4, +10 ], package = "base" }
 
 in  let Cabal = { bounds = majorVersion [ +2, +0 ], package = "Cabal" }
 
@@ -45,7 +47,8 @@ in  { benchmarks        = [] : List { main-is : Text, name : Text }
           , other-modules      = [ "DhallToCabal" ]
           }
         ] : Optional
-            { build-dependencies : List { package : Text, bounds : VersionRange }
+            { build-dependencies :
+                List { bounds : VersionRange, package : Text }
             , exposed-modules    : List Text
             , hs-source-dirs     : List Text
             , name               : Optional Text
@@ -55,7 +58,8 @@ in  { benchmarks        = [] : List { main-is : Text, name : Text }
     , source-repos      = [] : List {}
     , sub-libraries     =
         [] : List
-             { build-dependencies : List { package : Text, bounds : VersionRange }
+             { build-dependencies :
+                 List { bounds : VersionRange, package : Text }
              , exposed-modules    : List Text
              , hs-source-dirs     : List Text
              , name               : Optional Text
@@ -63,12 +67,12 @@ in  { benchmarks        = [] : List { main-is : Text, name : Text }
              }
     , tests             =
         [ { build-dependencies =
-              [ { package = "tasty-golden", bounds = majorVersion [ +2, +3 ] }
-              , { package = "dhall-to-cabal" , bounds = anyVersion }
+              [ { bounds = majorVersion [ +2, +3 ], package = "tasty-golden" }
+              , { bounds = anyVersion, package = "dhall-to-cabal" }
               , bytestring
-              , { package = "filepath" , bounds = majorVersion [ +1, +4 ] }
+              , { bounds = majorVersion [ +1, +4 ], package = "filepath" }
               , base
-              , { package = "tasty" , bounds = majorVersion [ +0, +11 ] }
+              , { bounds = majorVersion [ +0, +11 ], package = "tasty" }
               , Cabal
               , text
               ]
