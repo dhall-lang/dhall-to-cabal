@@ -14,6 +14,7 @@ in  { benchmarks        = [] : List { main-is : Text, name : Text }
         [ < Simple = {=} | Configure : {} | Custom : {} | Make : {} >
         ] : Optional < Configure : {} | Custom : {} | Make : {} | Simple : {} >
     , cabal-version     = [ +2, +0 ]
+    , copyright = ""
     , executables       =
         [ { build-dependencies =
               [ base

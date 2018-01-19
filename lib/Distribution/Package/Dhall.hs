@@ -18,7 +18,7 @@ import qualified Data.Text.Lazy as LazyText
 import qualified Data.Text.Lazy.Builder as Builder
 import qualified Data.Text.Lazy.Encoding as LazyText
 import qualified Data.Text.Lazy.IO as LazyText
-import qualified Dhall hiding ( Type(..), lazyText, maybe, natural, vector )
+import qualified Dhall
 import qualified Dhall.Context as Ctx
 import qualified Dhall.Core
 import qualified Dhall.Core as Dhall ( Expr )
@@ -37,9 +37,6 @@ import qualified Distribution.Types.PackageId as Cabal
 import qualified Distribution.Types.PackageName as Cabal
 import qualified Distribution.Types.UnqualComponentName as Cabal
 import qualified Distribution.Version as Cabal
-
-import qualified DhallToCabal as Dhall
-  ( Type(..), lazyText, maybe, natural, pair, vector )
 
 import qualified Dhall.Core as Expr
   ( Const(..), Expr(..), Normalizer, Var(..) )
@@ -129,7 +126,7 @@ packageDescription =
           fmap
             toList
             ( Dhall.extract
-                ( Dhall.vector ( Dhall.pair Dhall.lazyText Dhall.lazyText ) )
+                ( Dhall.vector ( pair Dhall.lazyText Dhall.lazyText ) )
                 expr
             )
 
@@ -221,7 +218,7 @@ packageDescription =
       , ( "sub-libraries", Dhall.expected ( Dhall.vector library ) )
       , ( "x-fields"
         , Dhall.expected
-            ( Dhall.vector ( Dhall.pair Dhall.lazyText Dhall.lazyText ) )
+            ( Dhall.vector ( pair Dhall.lazyText Dhall.lazyText ) )
         )
       , ( "source-repos", Dhall.expected ( Dhall.vector sourceRepo ) )
       , ( "cabal-version", Dhall.expected version )
@@ -695,12 +692,15 @@ exprToString expr = do
     ( LazyText.unpack ( Builder.toLazyText builder ) )
 
 
+
 dhallFileToCabal :: FilePath -> IO Cabal.PackageDescription
 dhallFileToCabal file = do
   source <-
     LazyText.readFile file
 
   Dhall.detailed ( input source packageDescription )
+
+
 
 input :: LazyText.Text -> Dhall.Type a -> IO a
 input source t = do
@@ -740,18 +740,7 @@ input source t = do
   _ <-
     throws (Dhall.TypeCheck.typeWith cabalContext annot)
 
-  case
-    Dhall.extract
-      t
-      ( Dhall.Core.normalizeWith
-          cabalFunctions
-          ( Dhall.Core.subst
-              ( Expr.V "anyVersion" 0 )
-              ( Expr.Embed Cabal.anyVersion )
-              ( fmap Dhall.TypeCheck.absurd expr' )
-          )
-      )
-    of
+  case Dhall.extract t ( Dhall.Core.normalize expr' ) of
     Just x  ->
       return x
 
@@ -782,27 +771,19 @@ cabalContext =
 
 
 
-cabalFunctions :: Expr.Normalizer Cabal.VersionRange
-cabalFunctions expr =
-  case expr of
-    Expr.Var ( Expr.V "majorVersion" 0 ) `Expr.App` versionExpr -> do
-      version <-
-        Dhall.extract
-          version
-          ( Dhall.Core.normalizeWith cabalFunctions versionExpr )
-
-      return ( Expr.Embed ( Cabal.majorBoundVersion version ) )
-
-
-
 versionRange :: Dhall.Type Cabal.VersionRange
 versionRange =
   let
-    extract expr = do
-      Expr.Embed r <-
-        return expr
+    extract expr =
+      case expr of
+        Expr.App ( Expr.Var ( Expr.V "majorVersion" 0 ) ) components ->
+          Cabal.majorBoundVersion <$> Dhall.extract version components
 
-      return r
+        Expr.Var ( Expr.V "anyVersion" 0 ) ->
+          return Cabal.anyVersion
+
+        _ ->
+          Nothing
 
     expected =
       Expr.Var ( Expr.V "VersionRange" 0 )
@@ -851,7 +832,7 @@ buildType =
 
 
 license :: Dhall.Type Cabal.License
-license = 
+license =
   let
     extract expr = do
       Expr.UnionLit ctor ctorFields _ <-
@@ -871,6 +852,25 @@ license =
       Expr.Union
         ( Map.fromList
             [ ("GPL", Dhall.expected ( Dhall.maybe version ) )
+            ]
+        )
+
+  in Dhall.Type { .. }
+
+
+
+pair :: Dhall.Type a -> Dhall.Type b -> Dhall.Type ( a, b )
+pair l r =
+  let
+    extract ( Expr.RecordLit elems ) = do
+      (,) <$> ( Map.lookup "_1" elems >>= Dhall.extract l )
+          <*> ( Map.lookup "_2" elems >>= Dhall.extract r )
+
+    expected =
+      Expr.Record
+        ( Map.fromList
+            [ ( "_1", Dhall.expected l )
+            , ( "_2", Dhall.expected r )
             ]
         )
 
