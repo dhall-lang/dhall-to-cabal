@@ -1,5 +1,6 @@
 { author            = ""
 , benchmarks        = [] : List { main-is : Text, name : Text }
+, bug-reports       = ""
 , build-type        =
     [] : Optional < Configure : {} | Custom : {} | Make : {} | Simple : {} >
 , cabal-version     = [ +2, +0 ]
