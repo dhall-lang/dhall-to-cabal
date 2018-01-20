@@ -177,7 +177,7 @@ packageDescription =
         return Nothing
 
       dataFiles <-
-        return []
+        field "data-files" >>= Dhall.extract ( list string )
 
       dataDir <-
         return []
@@ -217,6 +217,7 @@ packageDescription =
       , ( "synopsis", Dhall.expected string )
       , ( "description", Dhall.expected string )
       , ( "category", Dhall.expected string )
+      , ( "data-files", Dhall.expected ( list string ) )
       ]
 
     expected =

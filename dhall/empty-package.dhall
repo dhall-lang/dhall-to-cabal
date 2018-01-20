@@ -6,6 +6,7 @@
 , cabal-version     = [ +2, +0 ]
 , category          = ""
 , copyright         = ""
+, data-files        = [] : List Text
 , description       = ""
 , executables       =
     [] : List
