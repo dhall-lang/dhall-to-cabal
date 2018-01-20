@@ -5,6 +5,7 @@
     [] : Optional < Configure : {} | Custom : {} | Make : {} | Simple : {} >
 , cabal-version     = [ +2, +0 ]
 , copyright         = ""
+, description       = ""
 , executables       =
     [] : List
          { build-dependencies : List { bounds : VersionRange, package : Text }

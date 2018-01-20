@@ -182,7 +182,7 @@ packageDescription =
         field "synopsis" >>= Dhall.extract string
 
       description <-
-        return ""
+        field "description" >>= Dhall.extract string
 
       category <-
         return ""
@@ -235,6 +235,7 @@ packageDescription =
       , ( "homepage", Dhall.expected string )
       , ( "bug-reports", Dhall.expected string )
       , ( "synopsis", Dhall.expected string )
+      , ( "description", Dhall.expected string )
       ]
 
     expected =
