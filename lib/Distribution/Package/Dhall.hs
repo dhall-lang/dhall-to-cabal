@@ -96,52 +96,32 @@ packageDescription =
         field "package" >>= Dhall.extract packageIdentifier
 
       benchmarks <-
-        field "benchmarks"
-          >>= fmap toList . Dhall.extract ( Dhall.vector benchmark )
+        field "benchmarks" >>= Dhall.extract ( list benchmark )
 
       testSuites <-
-        field "tests"
-          >>= fmap toList . Dhall.extract ( Dhall.vector testSuite )
+        field "tests" >>= Dhall.extract ( list testSuite )
 
       executables <-
-        field "executables"
-          >>= fmap toList . Dhall.extract ( Dhall.vector executable )
+        field "executables" >>= Dhall.extract ( list executable )
 
       foreignLibs <-
-        field "foreign-libraries"
-          >>= fmap toList . Dhall.extract ( Dhall.vector foreignLib )
+        field "foreign-libraries" >>= Dhall.extract ( list foreignLib )
 
       subLibraries <-
-        field "sub-libraries"
-          >>= fmap toList . Dhall.extract ( Dhall.vector library )
+        field "sub-libraries" >>= Dhall.extract ( list library )
 
       library <-
-        field "library"
-          >>= Dhall.extract ( Dhall.maybe library )
+        field "library" >>= Dhall.extract ( Dhall.maybe library )
 
-      customFieldsPD <- do
-        expr <-
-          field "x-fields"
-
-        pairs <-
-          fmap
-            toList
-            ( Dhall.extract
-                ( Dhall.vector ( pair Dhall.lazyText Dhall.lazyText ) )
-                expr
-            )
-
-        return
-          ( fmap
-              ( \( a, b ) -> ( LazyText.unpack a, LazyText.unpack b ) )
-              pairs )
+      customFieldsPD <-
+        field "x-fields"
+          >>= Dhall.extract ( list ( pair string string ) )
 
       sourceRepos <-
-        field "source-repos"
-          >>= fmap toList . Dhall.extract ( Dhall.vector sourceRepo )
+        field "source-repos" >>= Dhall.extract ( list sourceRepo )
 
       specVersionRaw <-
-        field "cabal-version" >>= fmap Left . Dhall.extract version
+        Left <$> ( field "cabal-version" >>= Dhall.extract version )
 
       buildType <-
         field "build-type" >>= Dhall.extract ( Dhall.maybe buildType )
@@ -150,8 +130,7 @@ packageDescription =
         field "license" >>= Dhall.extract license
 
       licenseFiles <-
-        field "license-files"
-          >>= fmap toList . Dhall.extract ( Dhall.vector string )
+        field "license-files" >>= Dhall.extract ( list string )
 
       copyright <-
         field "copyright" >>= Dhall.extract string
@@ -166,8 +145,7 @@ packageDescription =
         field "stability" >>= Dhall.extract string
 
       testedWith <-
-        field "tested-with"
-          >>= Dhall.extract ( toList <$> Dhall.vector compiler )
+        field "tested-with" >>= Dhall.extract ( list compiler )
 
       homepage <-
         field "homepage" >>= Dhall.extract string
@@ -187,6 +165,11 @@ packageDescription =
       category <-
         field "category" >>= Dhall.extract string
 
+      -- Cabal documentation states
+      --
+      --   > YOU PROBABLY DON'T WANT TO USE THIS FIELD.
+      --
+      -- So I guess we won't use this field.
       buildDepends <-
         return []
 
@@ -212,26 +195,23 @@ packageDescription =
 
     fieldTypes =
       [ ( "package", Dhall.expected packageIdentifier )
-      , ( "benchmarks", Dhall.expected ( Dhall.vector benchmark ) )
-      , ( "tests", Dhall.expected ( Dhall.vector testSuite ) )
-      , ( "executables", Dhall.expected ( Dhall.vector executable ) )
-      , ( "foreign-libraries", Dhall.expected ( Dhall.vector foreignLib ) )
+      , ( "benchmarks", Dhall.expected ( list benchmark ) )
+      , ( "tests", Dhall.expected ( list testSuite ) )
+      , ( "executables", Dhall.expected ( list executable ) )
+      , ( "foreign-libraries", Dhall.expected ( list foreignLib ) )
       , ( "library", Dhall.expected ( Dhall.maybe library ) )
-      , ( "sub-libraries", Dhall.expected ( Dhall.vector library ) )
-      , ( "x-fields"
-        , Dhall.expected
-            ( Dhall.vector ( pair Dhall.lazyText Dhall.lazyText ) )
-        )
-      , ( "source-repos", Dhall.expected ( Dhall.vector sourceRepo ) )
+      , ( "sub-libraries", Dhall.expected ( list library ) )
+      , ( "x-fields" , Dhall.expected ( list ( pair string string ) ) )
+      , ( "source-repos", Dhall.expected ( list sourceRepo ) )
       , ( "cabal-version", Dhall.expected version )
       , ( "build-type", Dhall.expected ( Dhall.maybe buildType ) )
       , ( "license", Dhall.expected license )
-      , ( "license-files", Dhall.expected ( Dhall.vector string ) )
+      , ( "license-files", Dhall.expected ( list string ) )
       , ( "copyright", Dhall.expected string )
       , ( "maintainer", Dhall.expected string )
       , ( "author", Dhall.expected string )
       , ( "stability", Dhall.expected string )
-      , ( "tested-with", Dhall.expected ( Dhall.vector compiler ) )
+      , ( "tested-with", Dhall.expected ( list compiler ) )
       , ( "homepage", Dhall.expected string )
       , ( "bug-reports", Dhall.expected string )
       , ( "synopsis", Dhall.expected string )
@@ -248,25 +228,7 @@ packageDescription =
 
 version :: Dhall.Type Cabal.Version
 version =
-  let
-    naturalToInt expr = do
-      Expr.NaturalLit n <-
-        return expr
-
-      return (fromIntegral n)
-
-    extract expr = do
-      Expr.ListLit _ components <-
-        return expr
-
-      components
-        & traverse naturalToInt
-        & fmap (Cabal.mkVersion . toList)
-
-    expected =
-      Dhall.expected ( Dhall.vector Dhall.natural )
-
-  in Dhall.Type { .. }
+  Cabal.mkVersion <$> list ( fromIntegral <$> Dhall.natural )
 
 
 
@@ -350,12 +312,10 @@ buildInfo =
         return []
 
       hsSourceDirs <-
-        Map.lookup "hs-source-dirs" fields
-          >>= fmap toList . Dhall.extract ( Dhall.vector string )
+        Map.lookup "hs-source-dirs" fields >>= Dhall.extract ( list string )
 
       otherModules <-
-        Map.lookup "other-modules" fields
-          >>= fmap toList . Dhall.extract ( Dhall.vector moduleName )
+        Map.lookup "other-modules" fields >>= Dhall.extract ( list moduleName )
 
       autogenModules <-
         return []
@@ -407,7 +367,7 @@ buildInfo =
 
       targetBuildDepends <-
         Map.lookup "build-dependencies" fields
-          >>= fmap toList . Dhall.extract ( Dhall.vector dependency )
+          >>= Dhall.extract ( list dependency )
 
       mixins <-
         return []
@@ -423,10 +383,9 @@ buildInfo =
 
 buildInfoFields =
   Map.fromList
-    [ ( "build-dependencies"
-        , Dhall.expected ( Dhall.vector dependency ) )
-    , ( "other-modules", Dhall.expected ( Dhall.vector moduleName ) )
-    , ( "hs-source-dirs", Dhall.expected ( Dhall.vector string ) )
+    [ ( "build-dependencies" , Dhall.expected ( list dependency ) )
+    , ( "other-modules", Dhall.expected ( list moduleName ) )
+    , ( "hs-source-dirs", Dhall.expected ( list string ) )
     ]
 
 
@@ -587,7 +546,7 @@ library =
 
       exposedModules <-
         Map.lookup "exposed-modules" fields
-          >>= fmap toList . Dhall.extract ( Dhall.vector moduleName )
+          >>= Dhall.extract ( list moduleName )
 
       reexportedModules <-
         return []
@@ -605,8 +564,7 @@ library =
         ( Map.union
             ( Map.fromList
                 [ ( "name", Dhall.expected ( Dhall.maybe unqualComponentName ) )
-                , ( "exposed-modules"
-                  , Dhall.expected ( Dhall.vector moduleName )
+                , ( "exposed-modules" , Dhall.expected ( list moduleName )
                   )
                 ] )
             buildInfoFields
@@ -774,7 +732,7 @@ cabalContext =
         "majorVersion"
         ( Expr.Pi
             "_"
-            ( Dhall.expected ( Dhall.vector Dhall.natural ) )
+            ( Dhall.expected ( list Dhall.natural ) )
             ( Dhall.expected versionRange )
         )
     & Ctx.insert "VersionRange" ( Expr.Const Expr.Type )
@@ -937,3 +895,9 @@ compilerFlavor =
         )
 
   in Dhall.Type { .. }
+
+
+
+list :: Dhall.Type a -> Dhall.Type [a]
+list t =
+  toList <$> Dhall.vector t
