@@ -1,15 +1,15 @@
-{ author            = ""
-, benchmarks        = [] : List { main-is : Text, name : Text }
-, bug-reports       = ""
-, build-type        =
+{ author             = ""
+, benchmarks         = [] : List { main-is : Text, name : Text }
+, bug-reports        = ""
+, build-type         =
     [] : Optional < Configure : {} | Custom : {} | Make : {} | Simple : {} >
-, cabal-version     = [ +2, +0 ]
-, category          = ""
-, copyright         = ""
-, data-directory    = ""
-, data-files        = [] : List Text
-, description       = ""
-, executables       =
+, cabal-version      = [ +2, +0 ]
+, category           = ""
+, copyright          = ""
+, data-directory     = ""
+, data-files         = [] : List Text
+, description        = ""
+, executables        =
     [] : List
          { build-dependencies : List { bounds : VersionRange, package : Text }
          , hs-source-dirs     : List Text
@@ -17,9 +17,10 @@
          , name               : Text
          , other-modules      : List Text
          }
-, foreign-libraries = [] : List { name : Text, type : < Shared : {} > }
-, homepage          = ""
-, library           =
+, extra-source-files = [] : List Text
+, foreign-libraries  = [] : List { name : Text, type : < Shared : {} > }
+, homepage           = ""
+, library            =
     [] : Optional
          { build-dependencies : List { bounds : VersionRange, package : Text }
          , exposed-modules    : List Text
@@ -27,15 +28,15 @@
          , name               : Optional Text
          , other-modules      : List Text
          }
-, license           =
+, license            =
       < GPL = [ [ +3, +0 ] ] : Optional (List Natural) >
     : < GPL : Optional (List Natural) >
-, license-files     = [] : List Text
-, maintainer        = ""
-, package           = { name = "", version = [] : List Natural }
-, source-repos      = [] : List {}
-, stability         = ""
-, sub-libraries     =
+, license-files      = [] : List Text
+, maintainer         = ""
+, package            = { name = "", version = [] : List Natural }
+, source-repos       = [] : List {}
+, stability          = ""
+, sub-libraries      =
     [] : List
          { build-dependencies : List { bounds : VersionRange, package : Text }
          , exposed-modules    : List Text
@@ -43,10 +44,10 @@
          , name               : Optional Text
          , other-modules      : List Text
          }
-, synopsis          = ""
-, tested-with       =
+, synopsis           = ""
+, tested-with        =
     [] : List { compiler : < GHC : {} >, version : VersionRange }
-, tests             =
+, tests              =
     [] : List
          { build-dependencies : List { bounds : VersionRange, package : Text }
          , hs-source-dirs     : List Text
@@ -54,5 +55,5 @@
          , name               : Text
          , other-modules      : List Text
          }
-, x-fields          = [] : List { _1 : Text, _2 : Text }
+, x-fields           = [] : List { _1 : Text, _2 : Text }
 }

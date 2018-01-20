@@ -183,7 +183,7 @@ packageDescription =
         field "data-directory" >>= Dhall.extract string
 
       extraSrcFiles <-
-        return []
+        field "extra-source-files" >>= Dhall.extract ( list string )
 
       extraTmpFiles <-
         return []
@@ -219,6 +219,7 @@ packageDescription =
       , ( "category", Dhall.expected string )
       , ( "data-files", Dhall.expected ( list string ) )
       , ( "data-directory", Dhall.expected string )
+      , ( "extra-source-files", Dhall.expected ( list string ) )
       ]
 
     expected =
