@@ -9,7 +9,9 @@ in  let common-deps =
           , text       = { bounds = majorVersion [ +1, +2 ], package = "text" }
           }
 
-in    empty-package
+in  let gitHub-project = ./dhall/gitHubProject.dhall 
+
+in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
     ⫽ { executables =
           [ { build-dependencies =
                 [ common-deps.base
@@ -44,8 +46,7 @@ in    empty-package
             , name               = [] : Optional Text
             , other-modules      = [] : List Text
             }
-          ] : Optional
-              ./dhall/types/Library
+          ] : Optional ./dhall/types/Library 
       , package     = { name = "dhall-to-cabal", version = [ +0, +1, +0 ] }
       , tests       =
           [ { build-dependencies =

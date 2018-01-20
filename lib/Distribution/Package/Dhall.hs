@@ -590,10 +590,10 @@ sourceRepo =
         return Cabal.RepoHead
 
       repoType <-
-        return Nothing
+        Map.lookup "type" fields >>= Dhall.extract ( Dhall.maybe repoType )
 
       repoLocation <-
-        return Nothing
+        Map.lookup "location" fields >>= Dhall.extract ( Dhall.maybe string )
 
       repoModule <-
         return Nothing
@@ -610,7 +610,12 @@ sourceRepo =
       return Cabal.SourceRepo { .. }
 
     expected =
-      Expr.Record Map.empty
+      Expr.Record
+        ( Map.fromList
+            [ ( "location", Dhall.expected ( Dhall.maybe string ) )
+            , ( "type", Dhall.expected ( Dhall.maybe repoType ) )
+            ]
+        )
 
   in Dhall.Type { .. }
 
@@ -906,3 +911,24 @@ compilerFlavor =
 list :: Dhall.Type a -> Dhall.Type [a]
 list t =
   toList <$> Dhall.vector t
+
+
+
+repoType :: Dhall.Type Cabal.RepoType
+repoType =
+  let
+    extract expr = do
+      Expr.UnionLit ctor v _ <-
+        return expr
+
+      case ctor of
+        "Git" ->
+          return Cabal.Git
+
+    expected =
+      Expr.Union
+        ( Map.fromList
+            [ ( "Git", Expr.Record Map.empty ) ]
+        )
+
+  in Dhall.Type { .. }
