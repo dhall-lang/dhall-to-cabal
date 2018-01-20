@@ -1,6 +1,7 @@
 name: dhall-to-cabal
 version: 0.1.0
 cabal-version: 2.0
+build-type: Simple
 license: GPL-3.0
 homepage: https://github.com/ocharles/dhall-to-cabal
 bug-reports: https://github.com/ocharles/dhall-to-cabal/issues

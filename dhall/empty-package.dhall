@@ -2,7 +2,8 @@
 , benchmarks         = [] : List { main-is : Text, name : Text }
 , bug-reports        = ""
 , build-type         =
-    [] : Optional < Configure : {} | Custom : {} | Make : {} | Simple : {} >
+    [ < Simple = {=} | Configure : {} | Custom : {} | Make : {} >
+    ] : Optional < Configure : {} | Custom : {} | Make : {} | Simple : {} >
 , cabal-version      = [ +2, +0 ]
 , category           = ""
 , copyright          = ""
