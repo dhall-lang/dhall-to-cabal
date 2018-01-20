@@ -1,0 +1,5 @@
+name: Name
+version: 1
+cabal-version: 2.0
+build-type: Simple
+license: GPL-3.0
