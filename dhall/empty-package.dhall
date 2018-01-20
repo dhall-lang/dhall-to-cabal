@@ -18,6 +18,7 @@
          , other-modules      : List Text
          }
 , extra-source-files = [] : List Text
+, extra-temp-files   = [] : List Text
 , foreign-libraries  = [] : List { name : Text, type : < Shared : {} > }
 , homepage           = ""
 , library            =
