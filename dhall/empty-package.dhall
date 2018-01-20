@@ -37,7 +37,8 @@
 , license-files      = [] : List Text
 , maintainer         = ""
 , package            = { name = "", version = [] : List Natural }
-, source-repos       = [] : List {}
+, source-repos       =
+    [] : List { location : Optional Text, type : Optional < Git : {} > }
 , stability          = ""
 , sub-libraries      =
     [] : List
