@@ -39,6 +39,7 @@
          , name               : Optional Text
          , other-modules      : List Text
          }
+, synopsis          = ""
 , tested-with       =
     [] : List { compiler : < GHC : {} >, version : VersionRange }
 , tests             =

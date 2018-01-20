@@ -179,7 +179,7 @@ packageDescription =
         field "bug-reports" >>= Dhall.extract string
 
       synopsis <-
-        return ""
+        field "synopsis" >>= Dhall.extract string
 
       description <-
         return ""
@@ -234,6 +234,7 @@ packageDescription =
       , ( "tested-with", Dhall.expected ( Dhall.vector compiler ) )
       , ( "homepage", Dhall.expected string )
       , ( "bug-reports", Dhall.expected string )
+      , ( "synopsis", Dhall.expected string )
       ]
 
     expected =
