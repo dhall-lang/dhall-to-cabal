@@ -1,5 +1,5 @@
-{ benchmarks        = [] : List { main-is : Text, name : Text }
-, maintainer = ""
+{ author            = ""
+, benchmarks        = [] : List { main-is : Text, name : Text }
 , build-type        =
     [] : Optional < Configure : {} | Custom : {} | Make : {} | Simple : {} >
 , cabal-version     = [ +2, +0 ]
@@ -25,6 +25,7 @@
       < GPL = [ [ +3, +0 ] ] : Optional (List Natural) >
     : < GPL : Optional (List Natural) >
 , license-files     = [] : List Text
+, maintainer        = ""
 , package           = { name = "", version = [] : List Natural }
 , source-repos      = [] : List {}
 , sub-libraries     =
