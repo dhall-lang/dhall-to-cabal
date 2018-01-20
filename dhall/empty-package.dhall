@@ -1,4 +1,5 @@
 { benchmarks        = [] : List { main-is : Text, name : Text }
+, maintainer = ""
 , build-type        =
     [] : Optional < Configure : {} | Custom : {} | Make : {} | Simple : {} >
 , cabal-version     = [ +2, +0 ]

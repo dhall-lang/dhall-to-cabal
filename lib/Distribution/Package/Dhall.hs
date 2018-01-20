@@ -156,7 +156,7 @@ packageDescription =
         field "copyright" >>= Dhall.extract string
 
       maintainer <-
-        return ""
+        field "maintainer" >>= Dhall.extract string
 
       author <-
         return ""
@@ -226,6 +226,7 @@ packageDescription =
       , ( "license", Dhall.expected license )
       , ( "license-files", Dhall.expected ( Dhall.vector string ) )
       , ( "copyright", Dhall.expected string )
+      , ( "maintainer", Dhall.expected string )
       ]
 
     expected =
