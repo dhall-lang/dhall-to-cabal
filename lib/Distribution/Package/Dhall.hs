@@ -865,7 +865,10 @@ license =
 pair :: Dhall.Type a -> Dhall.Type b -> Dhall.Type ( a, b )
 pair l r =
   let
-    extract ( Expr.RecordLit elems ) = do
+    extract expr = do
+      Expr.RecordLit elems <-
+        return expr
+
       (,) <$> ( Map.lookup "_1" elems >>= Dhall.extract l )
           <*> ( Map.lookup "_2" elems >>= Dhall.extract r )
 
