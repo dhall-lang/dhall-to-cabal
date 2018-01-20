@@ -189,7 +189,7 @@ packageDescription =
         field "extra-temp-files" >>= Dhall.extract ( list string )
 
       extraDocFiles <-
-        return []
+        field "extra-doc-files" >>= Dhall.extract ( list string )
 
       return Cabal.PackageDescription { .. }
 
@@ -221,6 +221,7 @@ packageDescription =
       , ( "data-directory", Dhall.expected string )
       , ( "extra-source-files", Dhall.expected ( list string ) )
       , ( "extra-temp-files", Dhall.expected ( list string ) )
+      , ( "extra-doc-files", Dhall.expected ( list string ) )
       ]
 
     expected =

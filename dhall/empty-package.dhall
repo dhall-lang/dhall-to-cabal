@@ -17,6 +17,7 @@
          , name               : Text
          , other-modules      : List Text
          }
+, extra-doc-files    = [] : List Text
 , extra-source-files = [] : List Text
 , extra-temp-files   = [] : List Text
 , foreign-libraries  = [] : List { name : Text, type : < Shared : {} > }
