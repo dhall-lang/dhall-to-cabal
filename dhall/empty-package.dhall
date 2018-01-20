@@ -13,6 +13,7 @@
          , other-modules      : List Text
          }
 , foreign-libraries = [] : List { name : Text, type : < Shared : {} > }
+, homepage          = ""
 , library           =
     [] : Optional
          { build-dependencies : List { bounds : VersionRange, package : Text }

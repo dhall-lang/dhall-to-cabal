@@ -170,7 +170,7 @@ packageDescription =
           >>= Dhall.extract ( toList <$> Dhall.vector compiler )
 
       homepage <-
-        return ""
+        field "homepage" >>= Dhall.extract string
 
       pkgUrl <-
         return ""
@@ -232,6 +232,7 @@ packageDescription =
       , ( "author", Dhall.expected string )
       , ( "stability", Dhall.expected string )
       , ( "tested-with", Dhall.expected ( Dhall.vector compiler ) )
+      , ( "homepage", Dhall.expected string )
       ]
 
     expected =
