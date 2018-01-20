@@ -25,6 +25,7 @@ import qualified Dhall.Core as Dhall ( Expr )
 import qualified Dhall.Import
 import qualified Dhall.Parser
 import qualified Dhall.TypeCheck
+import qualified Distribution.Compiler as Cabal
 import qualified Distribution.License as Cabal
 import qualified Distribution.ModuleName as Cabal
 import qualified Distribution.PackageDescription as Cabal
@@ -165,7 +166,8 @@ packageDescription =
         field "stability" >>= Dhall.extract string
 
       testedWith <-
-        return []
+        field "tested-with"
+          >>= Dhall.extract ( toList <$> Dhall.vector compiler )
 
       homepage <-
         return ""
@@ -229,6 +231,7 @@ packageDescription =
       , ( "maintainer", Dhall.expected string )
       , ( "author", Dhall.expected string )
       , ( "stability", Dhall.expected string )
+      , ( "tested-with", Dhall.expected ( Dhall.vector compiler ) )
       ]
 
     expected =
@@ -877,6 +880,54 @@ pair l r =
         ( Map.fromList
             [ ( "_1", Dhall.expected l )
             , ( "_2", Dhall.expected r )
+            ]
+        )
+
+  in Dhall.Type { .. }
+
+
+
+compiler :: Dhall.Type ( Cabal.CompilerFlavor, Cabal.VersionRange )
+compiler =
+  let
+    extract expr = do
+      Expr.RecordLit fields <-
+        return expr
+
+      (,)
+        <$> ( Map.lookup "compiler" fields >>= Dhall.extract compilerFlavor )
+        <*> ( Map.lookup "version" fields >>= Dhall.extract versionRange )
+
+    expected =
+      Expr.Record
+        ( Map.fromList
+            [ ( "compiler", Dhall.expected compilerFlavor )
+            , ( "version", Dhall.expected versionRange )
+            ]
+        )
+
+  in Dhall.Type { .. }
+
+
+
+compilerFlavor :: Dhall.Type Cabal.CompilerFlavor
+compilerFlavor =
+  let
+    extract expr = do
+      Expr.UnionLit ctor v _ <-
+        return expr
+
+      case ctor of
+        "GHC" ->
+          return Cabal.GHC
+
+        _ ->
+          Nothing
+
+    expected =
+      Expr.Union
+        ( Map.fromList
+            [ ( "GHC", Expr.Record Map.empty )
             ]
         )
 

@@ -37,6 +37,8 @@
          , name               : Optional Text
          , other-modules      : List Text
          }
+, tested-with       =
+    [] : List { compiler : < GHC : {} >, version : VersionRange }
 , tests             =
     [] : List
          { build-dependencies : List { bounds : VersionRange, package : Text }
