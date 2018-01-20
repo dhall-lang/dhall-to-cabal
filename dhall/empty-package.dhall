@@ -28,6 +28,7 @@
 , maintainer        = ""
 , package           = { name = "", version = [] : List Natural }
 , source-repos      = [] : List {}
+, stability         = ""
 , sub-libraries     =
     [] : List
          { build-dependencies : List { bounds : VersionRange, package : Text }

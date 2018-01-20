@@ -162,7 +162,7 @@ packageDescription =
         field "author" >>= Dhall.extract string
 
       stability <-
-        return ""
+        field "stability" >>= Dhall.extract string
 
       testedWith <-
         return []
@@ -228,6 +228,7 @@ packageDescription =
       , ( "copyright", Dhall.expected string )
       , ( "maintainer", Dhall.expected string )
       , ( "author", Dhall.expected string )
+      , ( "stability", Dhall.expected string )
       ]
 
     expected =
