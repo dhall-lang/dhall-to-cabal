@@ -185,7 +185,7 @@ packageDescription =
         field "description" >>= Dhall.extract string
 
       category <-
-        return ""
+        field "category" >>= Dhall.extract string
 
       buildDepends <-
         return []
@@ -236,6 +236,7 @@ packageDescription =
       , ( "bug-reports", Dhall.expected string )
       , ( "synopsis", Dhall.expected string )
       , ( "description", Dhall.expected string )
+      , ( "category", Dhall.expected string )
       ]
 
     expected =

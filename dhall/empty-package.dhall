@@ -4,6 +4,7 @@
 , build-type        =
     [] : Optional < Configure : {} | Custom : {} | Make : {} | Simple : {} >
 , cabal-version     = [ +2, +0 ]
+, category          = ""
 , copyright         = ""
 , description       = ""
 , executables       =
