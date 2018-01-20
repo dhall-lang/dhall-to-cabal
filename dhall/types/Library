@@ -1,4 +1,3 @@
-Optional
 { build-dependencies : List { bounds : VersionRange, package : Text }
 , exposed-modules    : List Text
 , hs-source-dirs     : List Text

@@ -28,26 +28,24 @@ in    empty-package
             }
           ]
       , library     =
-            [ { build-dependencies =
-                  [ common-deps.base
-                  , common-deps.Cabal
-                  , common-deps.dhall
-                  , common-deps.text
-                  , common-deps.bytestring
-                  , { bounds = majorVersion [ +0, +5 ], package = "containers" }
-                  , { bounds = majorVersion [ +0, +12 ], package = "vector" }
-                  , { bounds = majorVersion [ +1, +7 ], package = "trifecta" }
-                  , { bounds  = majorVersion [ +0, +3 ]
-                    , package = "text-format"
-                    }
-                  ]
-              , exposed-modules    = [ "Distribution.Package.Dhall" ]
-              , hs-source-dirs     = [ "lib" ]
-              , name               = [] : Optional Text
-              , other-modules      = [] : List Text
-              }
-            ]
-          : ./dhall/types/Library
+          [ { build-dependencies =
+                [ common-deps.base
+                , common-deps.Cabal
+                , common-deps.dhall
+                , common-deps.text
+                , common-deps.bytestring
+                , { bounds = majorVersion [ +0, +5 ], package = "containers" }
+                , { bounds = majorVersion [ +0, +12 ], package = "vector" }
+                , { bounds = majorVersion [ +1, +7 ], package = "trifecta" }
+                , { bounds = majorVersion [ +0, +3 ], package = "text-format" }
+                ]
+            , exposed-modules    = [ "Distribution.Package.Dhall" ]
+            , hs-source-dirs     = [ "lib" ]
+            , name               = [] : Optional Text
+            , other-modules      = [] : List Text
+            }
+          ] : Optional
+              ./dhall/types/Library
       , package     = { name = "dhall-to-cabal", version = [ +0, +1, +0 ] }
       , tests       =
           [ { build-dependencies =
