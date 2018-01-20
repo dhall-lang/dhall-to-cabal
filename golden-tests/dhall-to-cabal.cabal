@@ -3,6 +3,12 @@ version: 0.1.0
 cabal-version: 2.0
 build-type: Simple
 license: GPL-3.0
+homepage: https://github.com/ocharles/dhall-to-cabal
+bug-reports: https://github.com/ocharles/dhall-to-cabal/issues
+
+source-repository head
+    type: git
+    location: https://github.com/ocharles/dhall-to-cabal
 
 library
     exposed-modules:
@@ -14,14 +20,12 @@ library
         Cabal ^>=2.0,
         dhall ^>=1.8,
         text ^>=1.2,
+        bytestring ^>=0.10,
         containers ^>=0.5,
         vector ^>=0.12,
-        bytestring ^>=0.10,
         trifecta ^>=1.7,
         text-format ^>=0.3
     hs-source-dirs: lib
-    other-modules:
-        DhallToCabal
 
 executable dhall-to-cabal
     main-is: Main.hs
@@ -41,12 +45,12 @@ test-suite golden-tests
     main-is: GoldenTests.hs
     buildable: True
     build-depends:
-        tasty-golden ^>=2.3,
-        dhall-to-cabal -any,
         bytestring ^>=0.10,
-        filepath ^>=1.4,
         base ^>=4.10,
-        tasty ^>=0.11,
         Cabal ^>=2.0,
-        text ^>=1.2
+        text ^>=1.2,
+        tasty ^>=0.11,
+        filepath ^>=1.4,
+        dhall-to-cabal -any,
+        tasty-golden ^>=2.3
     hs-source-dirs: golden-tests
