@@ -26,6 +26,7 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
             , build-tools        =
                 [] : List { exe : Text, version : VersionRange }
             , buildable          = True
+            , compiler-options   = { GHC = { build-options = [] : List Text } }
             , hs-source-dirs     = [ "exe" ]
             , main-is            = "Main.hs"
             , name               = "dhall-to-cabal"
@@ -50,6 +51,10 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
             , build-tools        =
                 [] : List { exe : Text, version : VersionRange }
             , buildable          = True
+            , compiler-options   =
+                { GHC =
+                    { build-options = [ "-Wall", "-fno-warn-name-shadowing" ] }
+                }
             , exposed-modules    = [ "Distribution.Package.Dhall" ]
             , hs-source-dirs     = [ "lib" ]
             , name               = [] : Optional Text

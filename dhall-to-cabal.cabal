@@ -29,6 +29,7 @@ library
     hs-source-dirs: lib
     other-modules:
         Dhall.Extra
+    ghc-options: -Wall -fno-warn-name-shadowing
 
 executable dhall-to-cabal
     main-is: Main.hs

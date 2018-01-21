@@ -7,14 +7,8 @@
 
 module Distribution.Package.Dhall where
 
-import Control.Applicative ( Const(..) )
 import Control.Exception ( Exception, throwIO )
-import Control.Monad ( (>=>), guard, join )
-import Control.Monad.Trans.Reader ( Reader, reader, runReader )
-import Data.Foldable ( toList )
 import Data.Function ( (&) )
-import Data.Functor.Compose ( Compose(..) )
-import Data.Functor.Product ( Product(..) )
 import Data.Monoid ( (<>) )
 import Data.Text.Buildable ( Buildable(..) )
 import Text.Trifecta.Delta ( Delta(..) )
@@ -48,7 +42,7 @@ import qualified Distribution.Types.UnqualComponentName as Cabal
 import qualified Distribution.Version as Cabal
 
 import qualified Dhall.Core as Expr
-  ( Const(..), Expr(..), Normalizer, Var(..) )
+  ( Const(..), Expr(..), Var(..) )
 
 import Dhall.Extra
 
@@ -283,7 +277,7 @@ buildInfo = do
     pure []
 
   options <-
-    pure []
+    keyValue "compiler-options" compilerOptions
 
   profOptions <-
     pure []
@@ -633,5 +627,15 @@ legacyExeDependency =
 
 
 
+compilerOptions :: Dhall.Type [ ( Cabal.CompilerFlavor, [ String ] ) ]
+compilerOptions =
+  makeRecord $
+    sequenceA
+      [ (,) <$> pure Cabal.GHC <*> keyValue "GHC" optionsRecord
+      ]
 
+  where
 
+    optionsRecord =
+      makeRecord $
+        keyValue "build-options" ( list string )

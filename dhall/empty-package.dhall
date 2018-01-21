@@ -4,6 +4,7 @@
          { build-dependencies : List { bounds : VersionRange, package : Text }
          , build-tools        : List { exe : Text, version : VersionRange }
          , buildable          : Bool
+         , compiler-options   : { GHC : { build-options : List Text } }
          , hs-source-dirs     : List Text
          , main-is            : Text
          , name               : Text
@@ -24,6 +25,7 @@
          { build-dependencies : List { bounds : VersionRange, package : Text }
          , build-tools        : List { exe : Text, version : VersionRange }
          , buildable          : Bool
+         , compiler-options   : { GHC : { build-options : List Text } }
          , hs-source-dirs     : List Text
          , main-is            : Text
          , name               : Text
@@ -37,6 +39,7 @@
          { build-dependencies : List { bounds : VersionRange, package : Text }
          , build-tools        : List { exe : Text, version : VersionRange }
          , buildable          : Bool
+         , compiler-options   : { GHC : { build-options : List Text } }
          , hs-source-dirs     : List Text
          , name               : Text
          , other-modules      : List Text
@@ -48,6 +51,7 @@
          { build-dependencies : List { bounds : VersionRange, package : Text }
          , build-tools        : List { exe : Text, version : VersionRange }
          , buildable          : Bool
+         , compiler-options   : { GHC : { build-options : List Text } }
          , exposed-modules    : List Text
          , hs-source-dirs     : List Text
          , name               : Optional Text
@@ -67,6 +71,7 @@
          { build-dependencies : List { bounds : VersionRange, package : Text }
          , build-tools        : List { exe : Text, version : VersionRange }
          , buildable          : Bool
+         , compiler-options   : { GHC : { build-options : List Text } }
          , exposed-modules    : List Text
          , hs-source-dirs     : List Text
          , name               : Optional Text
@@ -80,6 +85,7 @@
          { build-dependencies : List { bounds : VersionRange, package : Text }
          , build-tools        : List { exe : Text, version : VersionRange }
          , buildable          : Bool
+         , compiler-options   : { GHC : { build-options : List Text } }
          , hs-source-dirs     : List Text
          , main-is            : Text
          , name               : Text

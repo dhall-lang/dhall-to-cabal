@@ -19,63 +19,25 @@ module Dhall.Extra
   where
 
 import Control.Applicative ( Const(..) )
-import Control.Exception ( Exception, throwIO )
-import Control.Monad ( (>=>), guard, join )
+import Control.Monad ( guard, join )
 import Control.Monad.Trans.Reader ( Reader, reader, runReader )
 import Data.Foldable ( toList )
-import Data.Function ( (&) )
 import Data.Functor.Compose ( Compose(..) )
 import Data.Functor.Product ( Product(..) )
-import Data.Monoid ( (<>) )
-import Data.Text.Buildable ( Buildable(..) )
-import Text.Trifecta.Delta ( Delta(..) )
 
-import qualified Data.ByteString.Lazy as LazyByteString
 import qualified Data.Map as Map
 import qualified Data.Text.Lazy as LazyText
-import qualified Data.Text.Lazy.Builder as Builder
-import qualified Data.Text.Lazy.Encoding as LazyText
-import qualified Data.Text.Lazy.IO as LazyText
 import qualified Dhall
-import qualified Dhall.Context as Ctx
-import qualified Dhall.Core
 import qualified Dhall.Core as Dhall ( Expr )
-import qualified Dhall.Import
+import qualified Dhall.Core as Expr ( Expr(..) )
 import qualified Dhall.Parser
-import qualified Dhall.TypeCheck
-import qualified Distribution.Compiler as Cabal
-import qualified Distribution.License as Cabal
-import qualified Distribution.ModuleName as Cabal
-import qualified Distribution.PackageDescription as Cabal
-import qualified Distribution.Text as Cabal ( simpleParse )
-import qualified Distribution.Types.Dependency as Cabal
-import qualified Distribution.Types.ExecutableScope as Cabal
-import qualified Distribution.Types.ForeignLib as Cabal
-import qualified Distribution.Types.ForeignLibType as Cabal
-import qualified Distribution.Types.LegacyExeDependency as Cabal
-import qualified Distribution.Types.PackageId as Cabal
-import qualified Distribution.Types.PackageName as Cabal
-import qualified Distribution.Types.UnqualComponentName as Cabal
-import qualified Distribution.Version as Cabal
-
-import qualified Dhall.Core as Expr
-  ( Const(..), Expr(..), Normalizer, Var(..) )
+import qualified Dhall.TypeCheck 
 
 
 
 string :: Dhall.Type String
 string =
   LazyText.unpack <$> Dhall.lazyText
-
-
-
-exprToString :: Dhall.Expr a b -> Maybe String
-exprToString expr = do
-  Expr.TextLit builder <-
-    return expr
-
-  return
-    ( LazyText.unpack ( Builder.toLazyText builder ) )
 
 
 
@@ -93,22 +55,21 @@ list t =
 
 newtype RecordBuilder a =
   RecordBuilder
-    { unRecordBuilder ::
-        Product
-          ( Const
-              ( Map.Map
-                  LazyText.Text
-                  ( Dhall.Expr Dhall.Parser.Src Dhall.TypeCheck.X )
-              )
-          )
-          ( Compose
-              ( Reader
-                  ( Dhall.Expr Dhall.Parser.Src Dhall.TypeCheck.X )
-              )
-              Maybe
-          )
-          a
-    }
+    ( Product
+        ( Const
+            ( Map.Map
+                LazyText.Text
+                ( Dhall.Expr Dhall.Parser.Src Dhall.TypeCheck.X )
+            )
+        )
+        ( Compose
+            ( Reader
+                ( Dhall.Expr Dhall.Parser.Src Dhall.TypeCheck.X )
+            )
+            Maybe
+        )
+        a
+    )
   deriving (Functor, Applicative)
 
 
