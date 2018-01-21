@@ -1,4 +1,5 @@
 { autogen-modules      = [] : List Text
+, build-dependencies   = [] : List { bounds : VersionRange, package : Text }
 , build-tool-depends   =
     [] : List { component : Text, package : Text, version : VersionRange }
 , build-tools          = [] : List { exe : Text, version : VersionRange }

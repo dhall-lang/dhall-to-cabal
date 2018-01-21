@@ -526,15 +526,108 @@ cabalContext
   :: Ctx.Context ( Expr.Expr Dhall.Parser.Src Dhall.TypeCheck.X )
 cabalContext =
   Ctx.empty
+    & Ctx.insert "anyVersion" ( Dhall.expected versionRange )
+    & Ctx.insert "noVersion" ( Dhall.expected versionRange )
     & Ctx.insert
-        "majorVersion"
+        "thisVersion"
+        ( Expr.Pi "_"
+            ( Dhall.expected version )
+            ( Dhall.expected versionRange )
+        )
+    & Ctx.insert
+        "notThisVersion"
         ( Expr.Pi
             "_"
-            ( Dhall.expected ( list Dhall.natural ) )
+            ( Dhall.expected version )
+            ( Dhall.expected versionRange )
+        )
+    & Ctx.insert
+        "laterVersion"
+        ( Expr.Pi
+            "_"
+            ( Dhall.expected version )
+            ( Dhall.expected versionRange )
+        )
+    & Ctx.insert
+        "earlierVersion"
+        ( Expr.Pi
+            "_"
+            ( Dhall.expected version )
+            ( Dhall.expected versionRange )
+        )
+    & Ctx.insert
+        "orLaterVersion"
+        ( Expr.Pi
+            "_"
+            ( Dhall.expected version )
+            ( Dhall.expected versionRange )
+        )
+    & Ctx.insert
+        "orEarlierVersion"
+        ( Expr.Pi
+            "_"
+            ( Dhall.expected version )
+            ( Dhall.expected versionRange )
+        )
+    & Ctx.insert
+        "unionVersionRanges"
+        ( Expr.Pi
+            "_"
+            ( Dhall.expected versionRange )
+            ( Expr.Pi
+                "_"
+                ( Dhall.expected versionRange )
+                ( Dhall.expected versionRange  )
+            )
+        )
+    & Ctx.insert
+        "intersectVersionRanges"
+        ( Expr.Pi
+            "_"
+            ( Dhall.expected versionRange )
+            ( Expr.Pi
+                "_"
+                ( Dhall.expected versionRange )
+                ( Dhall.expected versionRange  )
+            )
+        )
+    & Ctx.insert
+        "differenceVersionRanges"
+        ( Expr.Pi
+            "_"
+            ( Dhall.expected versionRange )
+            ( Expr.Pi
+                "_"
+                ( Dhall.expected versionRange )
+                ( Dhall.expected versionRange  )
+            )
+        )
+    & Ctx.insert
+        "invertVersionRange"
+        ( Expr.Pi
+            "_"
+            ( Dhall.expected versionRange )
+            ( Expr.Pi
+                "_"
+                ( Dhall.expected versionRange )
+                ( Dhall.expected versionRange  )
+            )
+        )
+    & Ctx.insert
+        "withinVersion"
+        ( Expr.Pi
+            "_"
+            ( Dhall.expected version )
+            ( Dhall.expected versionRange )
+        )
+    & Ctx.insert
+        "majorBoundVersion"
+        ( Expr.Pi
+            "_"
+            ( Dhall.expected version )
             ( Dhall.expected versionRange )
         )
     & Ctx.insert "VersionRange" ( Expr.Const Expr.Type )
-    & Ctx.insert "anyVersion" ( Dhall.expected versionRange )
 
 
 
@@ -543,11 +636,53 @@ versionRange =
   let
     extract expr =
       case expr of
-        Expr.App ( Expr.Var ( Expr.V "majorVersion" 0 ) ) components ->
-          Cabal.majorBoundVersion <$> Dhall.extract version components
-
         Expr.Var ( Expr.V "anyVersion" 0 ) ->
           return Cabal.anyVersion
+
+        Expr.Var ( Expr.V "noVersion" 0 ) ->
+          return Cabal.noVersion
+
+        Expr.App ( Expr.Var ( Expr.V "thisVersion" 0 ) ) components ->
+          Cabal.thisVersion <$> Dhall.extract version components
+
+        Expr.App ( Expr.Var ( Expr.V "notThisVersion" 0 ) ) components ->
+          Cabal.notThisVersion <$> Dhall.extract version components
+
+        Expr.App ( Expr.Var ( Expr.V "laterVersion" 0 ) ) components ->
+          Cabal.laterVersion <$> Dhall.extract version components
+
+        Expr.App ( Expr.Var ( Expr.V "earlierVersion" 0 ) ) components ->
+          Cabal.earlierVersion <$> Dhall.extract version components
+
+        Expr.App ( Expr.Var ( Expr.V "orLaterVersion" 0 ) ) components ->
+          Cabal.orLaterVersion <$> Dhall.extract version components
+
+        Expr.App ( Expr.Var ( Expr.V "orEarlierVersion" 0 ) ) components ->
+          Cabal.orEarlierVersion <$> Dhall.extract version components
+
+        Expr.App ( Expr.App ( Expr.Var ( Expr.V "unionVersionRanges" 0 ) ) a ) b ->
+          Cabal.unionVersionRanges
+            <$> Dhall.extract versionRange a
+            <*> Dhall.extract versionRange b
+
+        Expr.App ( Expr.App ( Expr.Var ( Expr.V "intersectVersionRanges" 0 ) ) a ) b ->
+          Cabal.intersectVersionRanges
+            <$> Dhall.extract versionRange a
+            <*> Dhall.extract versionRange b
+
+        Expr.App ( Expr.App ( Expr.Var ( Expr.V "differenceVersionRanges" 0 ) ) a ) b ->
+          Cabal.differenceVersionRanges
+            <$> Dhall.extract versionRange a
+            <*> Dhall.extract versionRange b
+
+        Expr.App ( Expr.Var ( Expr.V "invertVersionRange" 0 ) ) components ->
+          Cabal.invertVersionRange <$> Dhall.extract versionRange components
+
+        Expr.App ( Expr.Var ( Expr.V "withinVersion" 0 ) ) components ->
+          Cabal.withinVersion <$> Dhall.extract version components
+
+        Expr.App ( Expr.Var ( Expr.V "majorBoundVersion" 0 ) ) components ->
+          Cabal.majorBoundVersion <$> Dhall.extract version components
 
         _ ->
           Nothing

@@ -3,12 +3,16 @@
 in  let licenses = constructors ./dhall/types/License 
 
 in  let common-deps =
-          { Cabal      = { bounds = majorVersion [ +2, +0 ], package = "Cabal" }
-          , base       = { bounds = majorVersion [ +4, +10 ], package = "base" }
+          { Cabal      =
+              { bounds = majorBoundVersion [ +2, +0 ], package = "Cabal" }
+          , base       =
+              { bounds = majorBoundVersion [ +4, +10 ], package = "base" }
           , bytestring =
-              { bounds = majorVersion [ +0, +10 ], package = "bytestring" }
-          , dhall      = { bounds = majorVersion [ +1, +8 ], package = "dhall" }
-          , text       = { bounds = majorVersion [ +1, +2 ], package = "text" }
+              { bounds = majorBoundVersion [ +0, +10 ], package = "bytestring" }
+          , dhall      =
+              { bounds = majorBoundVersion [ +1, +8 ], package = "dhall" }
+          , text       =
+              { bounds = majorBoundVersion [ +1, +2 ], package = "text" }
           }
 
 in  let gitHub-project = ./dhall/gitHubProject.dhall 
@@ -19,7 +23,7 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
             ⫽ { build-dependencies =
                   [ common-deps.base
                   , { bounds = anyVersion, package = "dhall-to-cabal" }
-                  , { bounds  = majorVersion [ +0, +13, +2 ]
+                  , { bounds  = majorBoundVersion [ +0, +13, +2 ]
                     , package = "optparse-applicative"
                     }
                   , common-deps.text
@@ -40,13 +44,19 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                   , common-deps.dhall
                   , common-deps.text
                   , common-deps.bytestring
-                  , { bounds = majorVersion [ +0, +5 ], package = "containers" }
-                  , { bounds = majorVersion [ +0, +12 ], package = "vector" }
-                  , { bounds = majorVersion [ +1, +7 ], package = "trifecta" }
-                  , { bounds  = majorVersion [ +0, +3 ]
+                  , { bounds  = majorBoundVersion [ +0, +5 ]
+                    , package = "containers"
+                    }
+                  , { bounds  = majorBoundVersion [ +0, +12 ]
+                    , package = "vector"
+                    }
+                  , { bounds  = majorBoundVersion [ +1, +7 ]
+                    , package = "trifecta"
+                    }
+                  , { bounds  = majorBoundVersion [ +0, +3 ]
                     , package = "text-format"
                     }
-                  , { bounds  = majorVersion [ +0, +5, +2 ]
+                  , { bounds  = majorBoundVersion [ +0, +5, +2 ]
                     , package = "transformers"
                     }
                   ]
@@ -77,10 +87,14 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                   , common-deps.base
                   , common-deps.Cabal
                   , common-deps.text
-                  , { bounds = majorVersion [ +0, +11 ], package = "tasty" }
-                  , { bounds = majorVersion [ +1, +4 ], package = "filepath" }
+                  , { bounds  = majorBoundVersion [ +0, +11 ]
+                    , package = "tasty"
+                    }
+                  , { bounds  = majorBoundVersion [ +1, +4 ]
+                    , package = "filepath"
+                    }
                   , { bounds = anyVersion, package = "dhall-to-cabal" }
-                  , { bounds  = majorVersion [ +2, +3 ]
+                  , { bounds  = majorBoundVersion [ +2, +3 ]
                     , package = "tasty-golden"
                     }
                   ]
