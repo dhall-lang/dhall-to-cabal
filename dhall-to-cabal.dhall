@@ -19,7 +19,7 @@ in  let gitHub-project = ./dhall/gitHubProject.dhall
 
 in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
     ⫽ { executables =
-          [   ./dhall/defaults/BuildInfo 
+          [   ./dhall/defaults/Executable.dhall 
             ⫽ { build-dependencies =
                   [ common-deps.base
                   , { bounds = anyVersion, package = "dhall-to-cabal" }
@@ -36,11 +36,10 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
               , hs-source-dirs     = [ "exe" ]
               , main-is            = "Main.hs"
               , name               = "dhall-to-cabal"
-              , scope              = < Public = {=} | Private : {} >
               }
           ]
       , library     =
-          [   ./dhall/defaults/BuildInfo 
+          [   ./dhall/defaults/Library.dhall 
             ⫽ { build-dependencies =
                   [ common-deps.base
                   , common-deps.Cabal
@@ -72,19 +71,13 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                     }
               , exposed-modules    = [ "Distribution.Package.Dhall" ]
               , hs-source-dirs     = [ "lib" ]
-              , name               = [] : Optional Text
               , other-modules      = [ "Dhall.Extra" ]
-              , reexported-modules =
-                  [] : List
-                       { name     : Text
-                       , original : { name : Text, package : Optional Text }
-                       }
               }
           ] : Optional ./dhall/types/Library 
       , license     = licenses.MIT {=}
       , package     = { name = "dhall-to-cabal", version = [ +0, +1, +0 ] }
       , tests       =
-          [   ./dhall/defaults/BuildInfo 
+          [   ./dhall/defaults/TestSuite.dhall 
             ⫽ { build-dependencies =
                   [ common-deps.bytestring
                   , common-deps.base
