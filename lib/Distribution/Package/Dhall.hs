@@ -399,7 +399,7 @@ library =
       keyValue "exposed-modules" ( list moduleName )
 
     reexportedModules <-
-      pure []
+      keyValue "reexported-modules" ( list moduleReexport )
 
     signatures <-
       pure []
@@ -708,3 +708,29 @@ executableScope =
         , ( "Private", Cabal.ExecutablePrivate <$ emptyRecord )
         ]
     )
+
+
+
+moduleReexport :: Dhall.Type Cabal.ModuleReexport
+moduleReexport =
+  makeRecord $ do
+    original <-
+      keyValue "original" $
+      makeRecord $ do
+        package <-
+          keyValue "package" ( Dhall.maybe packageName )
+
+        name <-
+          keyValue "name" moduleName
+
+        pure ( package, name ) 
+
+    moduleReexportName <-
+      keyValue "name" moduleName
+    
+    pure
+      Cabal.ModuleReexport
+        { moduleReexportOriginalPackage = fst original
+        , moduleReexportOriginalName = snd original
+        , ..
+        }

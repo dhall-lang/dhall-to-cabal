@@ -159,6 +159,11 @@
          , other-modules        : List Text
          , pkgconfig-depends    : List { name : Text, version : VersionRange }
          , profiling-options    : { GHC : { build-options : List Text } }
+         , reexported-modules   :
+             List
+             { name     : Text
+             , original : { name : Text, package : Optional Text }
+             }
          , shared-options       : { GHC : { build-options : List Text } }
          }
 , synopsis           = ""

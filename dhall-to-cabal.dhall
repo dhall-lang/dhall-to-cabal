@@ -123,6 +123,11 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                 [] : List { name : Text, version : VersionRange }
             , profiling-options    =
                 { GHC = { build-options = [] : List Text } }
+            , reexported-modules   =
+                [] : List
+                     { name     : Text
+                     , original : { name : Text, package : Optional Text }
+                     }
             , shared-options       =
                 { GHC = { build-options = [] : List Text } }
             }
