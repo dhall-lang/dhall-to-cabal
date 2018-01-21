@@ -5,7 +5,7 @@
 {-# language RecordWildCards #-}
 {-# language TypeApplications #-}
 
-module Distribution.Package.Dhall where
+module Distribution.Package.Dhall ( dhallFileToCabal ) where
 
 import Control.Exception ( Exception, throwIO )
 import Data.Function ( (&) )
@@ -22,7 +22,6 @@ import qualified Data.Text.Lazy.IO as LazyText
 import qualified Dhall
 import qualified Dhall.Context as Ctx
 import qualified Dhall.Core
-import qualified Dhall.Core as Dhall ( Expr )
 import qualified Dhall.Import
 import qualified Dhall.Parser
 import qualified Dhall.TypeCheck
@@ -456,16 +455,6 @@ moduleName :: Dhall.Type Cabal.ModuleName
 moduleName =
   validateType $
     Cabal.simpleParse <$> string
-
-
-
-exprToString :: Dhall.Expr a b -> Maybe String
-exprToString expr = do
-  Expr.TextLit builder <-
-    return expr
-
-  return
-    ( LazyText.unpack ( Builder.toLazyText builder ) )
 
 
 
