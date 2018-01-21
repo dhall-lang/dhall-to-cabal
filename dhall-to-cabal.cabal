@@ -24,7 +24,8 @@ library
         containers ^>=0.5,
         vector ^>=0.12,
         trifecta ^>=1.7,
-        text-format ^>=0.3
+        text-format ^>=0.3,
+        transformers ^>=0.5.2
     hs-source-dirs: lib
 
 executable dhall-to-cabal

@@ -43,6 +43,9 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                 , { bounds = majorVersion [ +0, +12 ], package = "vector" }
                 , { bounds = majorVersion [ +1, +7 ], package = "trifecta" }
                 , { bounds = majorVersion [ +0, +3 ], package = "text-format" }
+                , { bounds  = majorVersion [ +0, +5, +2 ]
+                  , package = "transformers"
+                  }
                 ]
             , build-tools        =
                 [] : List { exe : Text, version : VersionRange }

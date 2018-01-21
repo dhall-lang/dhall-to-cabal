@@ -1,14 +1,21 @@
-{-# language RecordWildCards #-}
+{-# language ApplicativeDo #-}
+{-# language GADTs #-}
+{-# language GeneralizedNewtypeDeriving #-}
 {-# language OverloadedStrings #-}
+{-# language RecordWildCards #-}
 {-# language TypeApplications #-}
 
 module Distribution.Package.Dhall where
 
+import Control.Applicative ( Const(..) )
 import Control.Exception ( Exception, throwIO )
 import Control.Monad ( (>=>), guard )
+import Control.Monad.Trans.Reader ( Reader, reader, runReader )
 import Data.Foldable ( toList )
 import Data.Function ( (&) )
-import Data.Monoid
+import Data.Functor.Compose ( Compose(..) )
+import Data.Functor.Product ( Product(..) )
+import Data.Monoid ( (<>) )
 import Data.Text.Buildable ( Buildable(..) )
 import Text.Trifecta.Delta ( Delta(..) )
 
@@ -46,27 +53,14 @@ import qualified Dhall.Core as Expr
 
 packageIdentifier :: Dhall.Type Cabal.PackageIdentifier
 packageIdentifier =
-  let
-    extract expr = do
-      Expr.RecordLit fields <-
-        return expr
+  makeRecord $ do
+    pkgName <-
+      keyValue "name" packageName
 
-      pkgName <-
-        Map.lookup "name" fields >>= Dhall.extract packageName
+    pkgVersion <-
+      keyValue "version" version
 
-      pkgVersion <-
-        Map.lookup "version" fields >>= Dhall.extract version
-
-      return Cabal.PackageIdentifier { .. }
-
-    expected =
-      Expr.Record
-        ( Map.fromList
-            [ ( "name", Expr.Text )
-            , ( "version", Dhall.expected version )
-            ] )
-
-  in Dhall.Type { .. }
+    return Cabal.PackageIdentifier { .. }
 
 
 
@@ -85,150 +79,106 @@ packageName =
 
 packageDescription :: Dhall.Type Cabal.PackageDescription
 packageDescription =
-  let
-    extract expr = do
-      Expr.RecordLit fields <-
-        return expr
+  makeRecord $ do
+    package <-
+      keyValue "package" packageIdentifier
 
-      field <-
-        return ( flip Map.lookup fields )
+    benchmarks <-
+      keyValue "benchmarks" ( list benchmark )
 
-      package <-
-        field "package" >>= Dhall.extract packageIdentifier
+    testSuites <-
+      keyValue "tests" ( list testSuite )
 
-      benchmarks <-
-        field "benchmarks" >>= Dhall.extract ( list benchmark )
+    executables <-
+      keyValue "executables" ( list executable )
 
-      testSuites <-
-        field "tests" >>= Dhall.extract ( list testSuite )
+    foreignLibs <-
+      keyValue "foreign-libraries" ( list foreignLib )
 
-      executables <-
-        field "executables" >>= Dhall.extract ( list executable )
+    subLibraries <-
+      keyValue "sub-libraries" ( list library )
 
-      foreignLibs <-
-        field "foreign-libraries" >>= Dhall.extract ( list foreignLib )
+    library <-
+      keyValue "library" ( Dhall.maybe library )
 
-      subLibraries <-
-        field "sub-libraries" >>= Dhall.extract ( list library )
+    customFieldsPD <-
+      keyValue "x-fields" ( list ( pair string string ) )
 
-      library <-
-        field "library" >>= Dhall.extract ( Dhall.maybe library )
+    sourceRepos <-
+      keyValue "source-repos" ( list sourceRepo )
 
-      customFieldsPD <-
-        field "x-fields"
-          >>= Dhall.extract ( list ( pair string string ) )
+    specVersionRaw <-
+      Left <$> ( keyValue "cabal-version" version )
 
-      sourceRepos <-
-        field "source-repos" >>= Dhall.extract ( list sourceRepo )
+    buildType <-
+      keyValue "build-type" ( Dhall.maybe buildType )
 
-      specVersionRaw <-
-        Left <$> ( field "cabal-version" >>= Dhall.extract version )
+    license <-
+      keyValue "license" license
 
-      buildType <-
-        field "build-type" >>= Dhall.extract ( Dhall.maybe buildType )
+    licenseFiles <-
+      keyValue "license-files" ( list string )
 
-      license <-
-        field "license" >>= Dhall.extract license
+    copyright <-
+      keyValue "copyright" string
 
-      licenseFiles <-
-        field "license-files" >>= Dhall.extract ( list string )
+    maintainer <-
+      keyValue "maintainer" string
 
-      copyright <-
-        field "copyright" >>= Dhall.extract string
+    author <-
+      keyValue "author" string
 
-      maintainer <-
-        field "maintainer" >>= Dhall.extract string
+    stability <-
+      keyValue "stability" string
 
-      author <-
-        field "author" >>= Dhall.extract string
+    testedWith <-
+      keyValue "tested-with" ( list compiler )
 
-      stability <-
-        field "stability" >>= Dhall.extract string
+    homepage <-
+      keyValue "homepage" string
 
-      testedWith <-
-        field "tested-with" >>= Dhall.extract ( list compiler )
+    pkgUrl <-
+      pure ""
 
-      homepage <-
-        field "homepage" >>= Dhall.extract string
+    bugReports <-
+      keyValue "bug-reports" string
 
-      pkgUrl <-
-        return ""
+    synopsis <-
+      keyValue "synopsis" string
 
-      bugReports <-
-        field "bug-reports" >>= Dhall.extract string
+    description <-
+      keyValue "description" string
 
-      synopsis <-
-        field "synopsis" >>= Dhall.extract string
+    category <-
+      keyValue "category" string
 
-      description <-
-        field "description" >>= Dhall.extract string
+    -- Cabal documentation states
+    --
+    --   > YOU PROBABLY DON'T WANT TO USE THIS FIELD.
+    --
+    -- So I guess we won't use this field.
+    buildDepends <-
+      pure []
 
-      category <-
-        field "category" >>= Dhall.extract string
+    setupBuildInfo <-
+      pure Nothing
 
-      -- Cabal documentation states
-      --
-      --   > YOU PROBABLY DON'T WANT TO USE THIS FIELD.
-      --
-      -- So I guess we won't use this field.
-      buildDepends <-
-        return []
+    dataFiles <-
+      keyValue "data-files" ( list string )
 
-      setupBuildInfo <-
-        return Nothing
+    dataDir <-
+      keyValue "data-directory" string
 
-      dataFiles <-
-        field "data-files" >>= Dhall.extract ( list string )
+    extraSrcFiles <-
+      keyValue "extra-source-files" ( list string )
 
-      dataDir <-
-        field "data-directory" >>= Dhall.extract string
+    extraTmpFiles <-
+      keyValue "extra-temp-files" ( list string )
 
-      extraSrcFiles <-
-        field "extra-source-files" >>= Dhall.extract ( list string )
+    extraDocFiles <-
+      keyValue "extra-doc-files" ( list string )
 
-      extraTmpFiles <-
-        field "extra-temp-files" >>= Dhall.extract ( list string )
-
-      extraDocFiles <-
-        field "extra-doc-files" >>= Dhall.extract ( list string )
-
-      return Cabal.PackageDescription { .. }
-
-    fieldTypes =
-      [ ( "package", Dhall.expected packageIdentifier )
-      , ( "benchmarks", Dhall.expected ( list benchmark ) )
-      , ( "tests", Dhall.expected ( list testSuite ) )
-      , ( "executables", Dhall.expected ( list executable ) )
-      , ( "foreign-libraries", Dhall.expected ( list foreignLib ) )
-      , ( "library", Dhall.expected ( Dhall.maybe library ) )
-      , ( "sub-libraries", Dhall.expected ( list library ) )
-      , ( "x-fields" , Dhall.expected ( list ( pair string string ) ) )
-      , ( "source-repos", Dhall.expected ( list sourceRepo ) )
-      , ( "cabal-version", Dhall.expected version )
-      , ( "build-type", Dhall.expected ( Dhall.maybe buildType ) )
-      , ( "license", Dhall.expected license )
-      , ( "license-files", Dhall.expected ( list string ) )
-      , ( "copyright", Dhall.expected string )
-      , ( "maintainer", Dhall.expected string )
-      , ( "author", Dhall.expected string )
-      , ( "stability", Dhall.expected string )
-      , ( "tested-with", Dhall.expected ( list compiler ) )
-      , ( "homepage", Dhall.expected string )
-      , ( "bug-reports", Dhall.expected string )
-      , ( "synopsis", Dhall.expected string )
-      , ( "description", Dhall.expected string )
-      , ( "category", Dhall.expected string )
-      , ( "data-files", Dhall.expected ( list string ) )
-      , ( "data-directory", Dhall.expected string )
-      , ( "extra-source-files", Dhall.expected ( list string ) )
-      , ( "extra-temp-files", Dhall.expected ( list string ) )
-      , ( "extra-doc-files", Dhall.expected ( list string ) )
-      ]
-
-    expected =
-      Expr.Record ( Map.fromList fieldTypes )
-
-  in Dhall.Type { .. }
+    return Cabal.PackageDescription { .. }
 
 
 
@@ -240,34 +190,22 @@ version =
 
 benchmark :: Dhall.Type Cabal.Benchmark
 benchmark =
-  let
-    extract expr = do
-      Expr.RecordLit fields <-
-        return expr
+  makeRecord $ do
+    mainIs <-
+      keyValue "main-is" string
 
-      mainIs <-
-        Map.lookup "main-is" fields >>= Dhall.extract string
+    benchmarkName <-
+      keyValue "name" unqualComponentName
 
-      benchmarkName <-
-        Map.lookup "name" fields
-          >>= Dhall.extract unqualComponentName
+    benchmarkBuildInfo <-
+      buildInfo
 
-      benchmarkInterface <-
-        return ( Cabal.BenchmarkExeV10 ( Cabal.mkVersion [ 1, 0 ] ) mainIs )
-
-      benchmarkBuildInfo <-
-        Dhall.extract buildInfo expr
-
-      return Cabal.Benchmark { .. }
-
-    expected =
-      Expr.Record
-        ( Map.fromList
-            [ ( "name", Dhall.expected string )
-            , ( "main-is", Dhall.expected string )
-            ] )
-
-  in Dhall.Type { .. }
+    pure
+      Cabal.Benchmark
+        { benchmarkInterface = 
+            Cabal.BenchmarkExeV10 ( Cabal.mkVersion [ 1, 0 ] ) mainIs 
+        , ..
+        }
 
 
 
@@ -277,114 +215,102 @@ string =
 
 
 
-buildInfo :: Dhall.Type Cabal.BuildInfo
-buildInfo =
-  let
-    extract expr = do
-      Expr.RecordLit fields <-
-        return expr
+buildInfo :: RecordBuilder Cabal.BuildInfo
+buildInfo = do
+  buildable <-
+    keyValue "buildable" Dhall.bool
 
-      buildable <-
-        Map.lookup "buildable" fields >>= Dhall.extract Dhall.bool
+  buildTools <-
+    keyValue "build-tools" ( list legacyExeDependency )
 
-      buildTools <-
-        Map.lookup "build-tools" fields
-          >>= Dhall.extract ( list legacyExeDependency )
+  buildToolDepends <-
+    pure []
 
-      buildToolDepends <-
-        return []
+  cppOptions <-
+    pure []
 
-      cppOptions <-
-        return []
+  ccOptions <-
+    pure []
 
-      ccOptions <-
-        return []
+  ldOptions <-
+    pure []
 
-      ldOptions <-
-        return []
+  pkgconfigDepends <-
+    pure []
 
-      pkgconfigDepends <-
-        return []
+  frameworks <-
+    pure []
 
-      frameworks <-
-        return []
+  extraFrameworkDirs <-
+    pure []
 
-      extraFrameworkDirs <-
-        return []
+  cSources <-
+    pure []
 
-      cSources <-
-        return []
+  jsSources <-
+    pure []
 
-      jsSources <-
-        return []
+  hsSourceDirs <-
+    keyValue "hs-source-dirs" ( list string )
 
-      hsSourceDirs <-
-        Map.lookup "hs-source-dirs" fields >>= Dhall.extract ( list string )
+  otherModules <-
+    keyValue "other-modules" ( list moduleName )
 
-      otherModules <-
-        Map.lookup "other-modules" fields >>= Dhall.extract ( list moduleName )
+  autogenModules <-
+    pure []
 
-      autogenModules <-
-        return []
+  defaultLanguage <-
+    pure Nothing
 
-      defaultLanguage <-
-        return Nothing
+  otherLanguages <-
+    pure []
 
-      otherLanguages <-
-        return []
+  defaultExtensions <-
+    pure []
 
-      defaultExtensions <-
-        return []
+  otherExtensions <-
+    pure []
 
-      otherExtensions <-
-        return []
+  oldExtensions <-
+    pure []
 
-      oldExtensions <-
-        return []
+  extraLibs <-
+    pure []
 
-      extraLibs <-
-        return []
+  extraGHCiLibs <-
+    pure []
 
-      extraGHCiLibs <-
-        return []
+  extraLibDirs <-
+    pure []
 
-      extraLibDirs <-
-        return []
+  includeDirs <-
+    pure []
 
-      includeDirs <-
-        return []
+  includes <-
+    pure []
 
-      includes <-
-        return []
+  installIncludes <-
+    pure []
 
-      installIncludes <-
-        return []
+  options <-
+    pure []
 
-      options <-
-        return []
+  profOptions <-
+    pure []
 
-      profOptions <-
-        return []
+  sharedOptions <-
+    pure []
 
-      sharedOptions <-
-        return []
+  customFieldsBI <-
+    pure []
 
-      customFieldsBI <-
-        return []
+  targetBuildDepends <-
+    keyValue "build-dependencies" ( list dependency )
 
-      targetBuildDepends <-
-        Map.lookup "build-dependencies" fields
-          >>= Dhall.extract ( list dependency )
+  mixins <-
+    pure []
 
-      mixins <-
-        return []
-
-      return Cabal.BuildInfo { ..  }
-
-    expected =
-      Expr.Record buildInfoFields
-
-  in Dhall.Type { .. }
+  return Cabal.BuildInfo { ..  }
 
 
 
@@ -401,36 +327,24 @@ buildInfoFields =
 
 testSuite :: Dhall.Type Cabal.TestSuite
 testSuite =
-  let
-    extract expr = do
-      Expr.RecordLit fields <-
-        return expr
+  makeRecord $ do
+    testName <-
+      keyValue "name" unqualComponentName
 
-      testName <-
-        Map.lookup "name" fields >>= Dhall.extract unqualComponentName
+    mainIs <-
+      keyValue "main-is" string
 
-      mainIs <-
-        Map.lookup "main-is" fields >>= Dhall.extract string
+    testBuildInfo <-
+      buildInfo
 
-      testInterface <-
-        return ( Cabal.TestSuiteExeV10 ( Cabal.mkVersion [ 1, 0 ] ) mainIs )
+    pure
+      Cabal.TestSuite
+        { testInterface =
+            Cabal.TestSuiteExeV10 ( Cabal.mkVersion [ 1, 0 ] ) mainIs
+        , ..
+        }
 
-      testBuildInfo <-
-        Dhall.extract buildInfo expr
 
-      return Cabal.TestSuite { .. }
-
-    expected =
-      Expr.Record
-        ( Map.union
-            ( Map.fromList
-                [ ( "name", Dhall.expected string )
-                , ( "main-is", Dhall.expected string )
-                ] )
-            buildInfoFields
-        )
-
-  in Dhall.Type { .. }
 
 
 unqualComponentName :: Dhall.Type Cabal.UnqualComponentName
@@ -441,77 +355,48 @@ unqualComponentName =
 
 executable :: Dhall.Type Cabal.Executable
 executable =
-  let
-    extract expr = do
-      Expr.RecordLit fields <-
-        return expr
+  makeRecord $ do
+    exeName <-
+      keyValue "name" unqualComponentName
 
-      exeName <-
-        Map.lookup "name" fields >>= Dhall.extract unqualComponentName
+    modulePath <-
+      keyValue "main-is" string
 
-      modulePath <-
-        Map.lookup "main-is" fields >>= Dhall.extract string
+    exeScope <-
+      pure Cabal.ExecutablePublic
 
-      exeScope <-
-        return Cabal.ExecutablePublic
+    buildInfo <-
+      buildInfo
 
-      buildInfo <-
-        Dhall.extract buildInfo expr
-
-      return Cabal.Executable { .. }
-
-    expected =
-      Expr.Record
-        ( Map.union
-            ( Map.fromList
-                [ ( "name", Dhall.expected string )
-                , ( "main-is", Dhall.expected string )
-                ] )
-            buildInfoFields
-        )
-
-  in Dhall.Type { .. }
+    pure Cabal.Executable { .. }
 
 
 
 foreignLib :: Dhall.Type Cabal.ForeignLib
 foreignLib =
-  let
-    extract expr = do
-      Expr.RecordLit fields <-
-        return expr
+  makeRecord $ do
+    foreignLibName <-
+      keyValue "name" unqualComponentName
 
-      foreignLibName <-
-        Map.lookup "name" fields >>= Dhall.extract unqualComponentName
+    foreignLibType <-
+      keyValue "type" foreignLibType
 
-      foreignLibType <-
-        Map.lookup "type" fields >>= Dhall.extract foreignLibType
+    foreignLibOptions <-
+      pure []
 
-      foreignLibOptions <-
-        return []
+    foreignLibBuildInfo <-
+      buildInfo
 
-      foreignLibBuildInfo <-
-        Dhall.extract buildInfo expr
+    foreignLibVersionInfo <-
+      pure Nothing
 
-      foreignLibVersionInfo <-
-        return Nothing
+    foreignLibVersionLinux <-
+      pure Nothing
 
-      foreignLibVersionLinux <-
-        return Nothing
+    foreignLibModDefFile <-
+      pure []
 
-      foreignLibModDefFile <-
-        return []
-
-      return Cabal.ForeignLib { .. }
-
-    expected =
-      Expr.Record
-        ( Map.fromList
-            [ ( "name", Dhall.expected unqualComponentName )
-            , ( "type", Dhall.expected foreignLibType )
-            ] )
-
-  in Dhall.Type { .. }
+    pure Cabal.ForeignLib { .. }
 
 
 
@@ -541,115 +426,67 @@ foreignLibType =
 
 library :: Dhall.Type Cabal.Library
 library =
-  let
-    extract expr = do
-      Expr.RecordLit fields <-
-        return expr
+  makeRecord $ do
+    libName <-
+      keyValue "name" ( Dhall.maybe unqualComponentName )
 
-      libName <-
-        Map.lookup "name" fields
-          >>= Dhall.extract ( Dhall.maybe unqualComponentName )
+    libBuildInfo <-
+      buildInfo
 
-      libBuildInfo <-
-        Dhall.extract buildInfo expr
+    exposedModules <-
+      keyValue "exposed-modules" ( list moduleName )
 
-      exposedModules <-
-        Map.lookup "exposed-modules" fields
-          >>= Dhall.extract ( list moduleName )
+    reexportedModules <-
+      pure []
 
-      reexportedModules <-
-        return []
+    signatures <-
+      pure []
 
-      signatures <-
-        return []
+    libExposed <-
+      pure True
 
-      libExposed <-
-        return True
-
-      return Cabal.Library { .. }
-
-    expected =
-      Expr.Record
-        ( Map.union
-            ( Map.fromList
-                [ ( "name", Dhall.expected ( Dhall.maybe unqualComponentName ) )
-                , ( "exposed-modules" , Dhall.expected ( list moduleName )
-                  )
-                ] )
-            buildInfoFields
-        )
-
-  in Dhall.Type { .. }
+    pure Cabal.Library { .. }
 
 
 
 sourceRepo :: Dhall.Type Cabal.SourceRepo
 sourceRepo =
-  let
-    extract expr = do
-      Expr.RecordLit fields <-
-        return expr
+  makeRecord $ do
+    repoKind <-
+      pure Cabal.RepoHead
 
-      repoKind <-
-        return Cabal.RepoHead
+    repoType <-
+      keyValue "type" ( Dhall.maybe repoType )
 
-      repoType <-
-        Map.lookup "type" fields >>= Dhall.extract ( Dhall.maybe repoType )
+    repoLocation <-
+      keyValue "location" ( Dhall.maybe string )
 
-      repoLocation <-
-        Map.lookup "location" fields >>= Dhall.extract ( Dhall.maybe string )
+    repoModule <-
+      pure Nothing
 
-      repoModule <-
-        return Nothing
+    repoBranch <-
+      pure Nothing
 
-      repoBranch <-
-        return Nothing
+    repoTag <-
+      pure Nothing
 
-      repoTag <-
-        return Nothing
+    repoSubdir <-
+      pure Nothing
 
-      repoSubdir <-
-        return Nothing
-
-      return Cabal.SourceRepo { .. }
-
-    expected =
-      Expr.Record
-        ( Map.fromList
-            [ ( "location", Dhall.expected ( Dhall.maybe string ) )
-            , ( "type", Dhall.expected ( Dhall.maybe repoType ) )
-            ]
-        )
-
-  in Dhall.Type { .. }
+    pure Cabal.SourceRepo { .. }
 
 
 
 dependency :: Dhall.Type Cabal.Dependency
 dependency =
-  let
-    extract expr = do
-      Expr.RecordLit fields <-
-        return expr
+  makeRecord $ do
+    packageName <-
+      keyValue "package" packageName
 
-      packageName <-
-        Map.lookup "package" fields
-          >>= Dhall.extract packageName
+    versionRange <-
+      keyValue "bounds" versionRange
 
-      versionRange <-
-        Map.lookup "bounds" fields
-          >>= Dhall.extract versionRange
-
-      return ( Cabal.Dependency packageName versionRange )
-
-    expected =
-      Expr.Record
-        ( Map.fromList
-            [ ( "package", Dhall.expected packageName )
-            , ( "bounds", Expr.Var ( Expr.V "VersionRange" 0 ) )
-            ] )
-
-  in Dhall.Type { .. }
+    pure ( Cabal.Dependency packageName versionRange )
 
 
 
@@ -844,46 +681,16 @@ license =
 
 pair :: Dhall.Type a -> Dhall.Type b -> Dhall.Type ( a, b )
 pair l r =
-  let
-    extract expr = do
-      Expr.RecordLit elems <-
-        return expr
-
-      (,) <$> ( Map.lookup "_1" elems >>= Dhall.extract l )
-          <*> ( Map.lookup "_2" elems >>= Dhall.extract r )
-
-    expected =
-      Expr.Record
-        ( Map.fromList
-            [ ( "_1", Dhall.expected l )
-            , ( "_2", Dhall.expected r )
-            ]
-        )
-
-  in Dhall.Type { .. }
+  makeRecord $ (,) <$> keyValue "_1" l <*> keyValue "_2" r
 
 
 
 compiler :: Dhall.Type ( Cabal.CompilerFlavor, Cabal.VersionRange )
 compiler =
-  let
-    extract expr = do
-      Expr.RecordLit fields <-
-        return expr
-
-      (,)
-        <$> ( Map.lookup "compiler" fields >>= Dhall.extract compilerFlavor )
-        <*> ( Map.lookup "version" fields >>= Dhall.extract versionRange )
-
-    expected =
-      Expr.Record
-        ( Map.fromList
-            [ ( "compiler", Dhall.expected compilerFlavor )
-            , ( "version", Dhall.expected versionRange )
-            ]
-        )
-
-  in Dhall.Type { .. }
+  makeRecord $
+    (,)
+      <$> keyValue "compiler" compilerFlavor
+      <*> keyValue "version" versionRange 
 
 
 
@@ -941,26 +748,64 @@ repoType =
 
 legacyExeDependency :: Dhall.Type Cabal.LegacyExeDependency
 legacyExeDependency =
+  makeRecord $ do
+    exe <-
+      keyValue "exe" string
+
+    version <-
+      keyValue "version" versionRange
+
+    pure ( Cabal.LegacyExeDependency exe version )
+
+
+
+newtype RecordBuilder a =
+  RecordBuilder
+    { unRecordBuilder ::
+        Product
+          ( Const
+              ( Map.Map
+                  LazyText.Text
+                  ( Dhall.Expr Dhall.Parser.Src Dhall.TypeCheck.X )
+              )
+          )
+          ( Compose
+              ( Reader
+                  ( Dhall.Expr Dhall.Parser.Src Dhall.TypeCheck.X )
+              )
+              Maybe
+          )
+          a
+    }
+  deriving (Functor, Applicative)
+
+
+
+makeRecord :: RecordBuilder a -> Dhall.Type a
+makeRecord ( RecordBuilder ( Pair ( Const fields ) ( Compose extractF ) ) ) =
+  let
+    extract =
+      runReader extractF
+
+    expected =
+      Expr.Record fields
+
+  in Dhall.Type { .. }
+
+
+
+keyValue :: LazyText.Text -> Dhall.Type a -> RecordBuilder a
+keyValue key valueType =
   let
     extract expr = do
       Expr.RecordLit fields <-
         return expr
 
-      exe <-
-        Map.lookup "exe" fields >>= Dhall.extract string
+      Map.lookup key fields >>= Dhall.extract valueType
 
-      version <-
-        Map.lookup "version" fields >>= Dhall.extract versionRange
-
-      return ( Cabal.LegacyExeDependency exe version )
-
-
-    expected =
-      Expr.Record
-        ( Map.fromList
-            [ ( "exe", Dhall.expected string )
-            , ( "version", Dhall.expected versionRange )
-            ]
-        )
-
-  in Dhall.Type { .. }
+  in
+    RecordBuilder
+      ( Pair
+          ( Const ( Map.singleton key ( Dhall.expected valueType ) ) )
+          ( Compose ( reader extract ) )
+      )

@@ -1,5 +1,14 @@
 { author             = ""
-, benchmarks         = [] : List { main-is : Text, name : Text }
+, benchmarks         =
+    [] : List
+         { build-dependencies : List { bounds : VersionRange, package : Text }
+         , build-tools        : List { exe : Text, version : VersionRange }
+         , buildable          : Bool
+         , hs-source-dirs     : List Text
+         , main-is            : Text
+         , name               : Text
+         , other-modules      : List Text
+         }
 , bug-reports        = ""
 , build-type         =
     [ < Simple = {=} | Configure : {} | Custom : {} | Make : {} >
@@ -23,7 +32,16 @@
 , extra-doc-files    = [] : List Text
 , extra-source-files = [] : List Text
 , extra-temp-files   = [] : List Text
-, foreign-libraries  = [] : List { name : Text, type : < Shared : {} > }
+, foreign-libraries  =
+    [] : List
+         { build-dependencies : List { bounds : VersionRange, package : Text }
+         , build-tools        : List { exe : Text, version : VersionRange }
+         , buildable          : Bool
+         , hs-source-dirs     : List Text
+         , name               : Text
+         , other-modules      : List Text
+         , type               : < Shared : {} >
+         }
 , homepage           = ""
 , library            =
     [] : Optional
