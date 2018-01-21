@@ -587,9 +587,9 @@ license =
         , ( "MPL", Cabal.MPL <$> version )
         , ( "Apache", Cabal.Apache <$> Dhall.maybe version )
         , ( "PublicDomain", Cabal.PublicDomain <$ emptyRecord )
-        , ( "AllRightsReserved", Cabal.AllRightsReserved<$ emptyRecord ) 
-        , ( "Unspecified", Cabal.UnspecifiedLicense <$ emptyRecord ) 
-        , ( "Other", Cabal.OtherLicense <$ emptyRecord ) 
+        , ( "AllRightsReserved", Cabal.AllRightsReserved<$ emptyRecord )
+        , ( "Unspecified", Cabal.UnspecifiedLicense <$ emptyRecord )
+        , ( "Other", Cabal.OtherLicense <$ emptyRecord )
         ]
     )
 
@@ -608,7 +608,17 @@ compilerFlavor :: Dhall.Type Cabal.CompilerFlavor
 compilerFlavor =
   makeUnion
     ( Map.fromList
-        [ ( "GHC", Cabal.GHC <$ emptyRecord ) ]
+        [ ( "GHC", Cabal.GHC <$ emptyRecord )
+        , ( "GHCJS", Cabal.GHCJS <$ emptyRecord )
+        , ( "NHC", Cabal.NHC <$ emptyRecord )
+        , ( "YHC", Cabal.YHC <$ emptyRecord )
+        , ( "Hugs", Cabal.Hugs <$ emptyRecord )
+        , ( "HBC", Cabal.HBC <$ emptyRecord )
+        , ( "Helium", Cabal.Helium <$ emptyRecord )
+        , ( "JHC", Cabal.JHC <$ emptyRecord )
+        , ( "LHC", Cabal.LHC <$ emptyRecord )
+        , ( "UHC", Cabal.UHC <$ emptyRecord )
+        ]
     )
 
 
@@ -640,6 +650,15 @@ compilerOptions =
   makeRecord $
     sequenceA
       [ (,) <$> pure Cabal.GHC <*> keyValue "GHC" optionsRecord
+      , (,) <$> pure Cabal.GHCJS <*> keyValue "GHCJS" optionsRecord
+      , (,) <$> pure Cabal.NHC <*> keyValue "NHC" optionsRecord
+      , (,) <$> pure Cabal.YHC <*> keyValue "YHC" optionsRecord
+      , (,) <$> pure Cabal.Hugs <*> keyValue "Hugs" optionsRecord
+      , (,) <$> pure Cabal.HBC <*> keyValue "HBC" optionsRecord
+      , (,) <$> pure Cabal.Helium <*> keyValue "Helium" optionsRecord
+      , (,) <$> pure Cabal.JHC <*> keyValue "JHC" optionsRecord
+      , (,) <$> pure Cabal.LHC <*> keyValue "LHC" optionsRecord
+      , (,) <$> pure Cabal.UHC <*> keyValue "UHC" optionsRecord
       ]
 
   where
@@ -674,7 +693,7 @@ language =
         , ( "Haskell2010", Cabal.Haskell2010 <$ emptyRecord )
         ]
     )
-  
+
 
 
 pkgconfigDependency :: Dhall.Type Cabal.PkgconfigDependency
@@ -705,7 +724,7 @@ extension =
 
 
 executableScope :: Dhall.Type Cabal.ExecutableScope
-executableScope = 
+executableScope =
   makeUnion
     ( Map.fromList
         [ ( "Public", Cabal.ExecutablePublic <$ emptyRecord )
@@ -727,11 +746,11 @@ moduleReexport =
         name <-
           keyValue "name" moduleName
 
-        pure ( package, name ) 
+        pure ( package, name )
 
     moduleReexportName <-
       keyValue "name" moduleName
-    
+
     pure
       Cabal.ModuleReexport
         { moduleReexportOriginalPackage = fst original
@@ -744,7 +763,7 @@ foreignLibOption :: Dhall.Type Cabal.ForeignLibOption
 foreignLibOption =
   makeUnion
     ( Map.fromList
-        [ ( "Standalone", Cabal.ForeignLibStandalone <$ emptyRecord ) ] 
+        [ ( "Standalone", Cabal.ForeignLibStandalone <$ emptyRecord ) ]
     )
 
 

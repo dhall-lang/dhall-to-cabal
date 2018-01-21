@@ -35,8 +35,7 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
             , buildable            = True
             , c-sources            = [] : List Text
             , cc-options           = [] : List Text
-            , compiler-options     =
-                { GHC = { build-options = [] : List Text } }
+            , compiler-options     = ./dhall/defaults/CompilerOptions 
             , cpp-options          = [] : List Text
             , default-extensions   = [] : List <>
             , default-language     =
@@ -60,11 +59,9 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
             , other-modules        = [] : List Text
             , pkgconfig-depends    =
                 [] : List { name : Text, version : VersionRange }
-            , profiling-options    =
-                { GHC = { build-options = [] : List Text } }
+            , profiling-options    = ./dhall/defaults/CompilerOptions 
             , scope                = < Public = {=} | Private : {} >
-            , shared-options       =
-                { GHC = { build-options = [] : List Text } }
+            , shared-options       = ./dhall/defaults/CompilerOptions 
             }
           ]
       , library     =
@@ -95,9 +92,11 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
             , c-sources            = [] : List Text
             , cc-options           = [] : List Text
             , compiler-options     =
-                { GHC =
-                    { build-options = [ "-Wall", "-fno-warn-name-shadowing" ] }
-                }
+                  ./dhall/defaults/CompilerOptions 
+                ⫽ { GHC =
+                      { build-options = [ "-Wall", "-fno-warn-name-shadowing" ]
+                      }
+                  }
             , cpp-options          = [] : List Text
             , default-extensions   = [] : List <>
             , default-language     =
@@ -121,15 +120,13 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
             , other-modules        = [ "Dhall.Extra" ]
             , pkgconfig-depends    =
                 [] : List { name : Text, version : VersionRange }
-            , profiling-options    =
-                { GHC = { build-options = [] : List Text } }
+            , profiling-options    = ./dhall/defaults/CompilerOptions 
             , reexported-modules   =
                 [] : List
                      { name     : Text
                      , original : { name : Text, package : Optional Text }
                      }
-            , shared-options       =
-                { GHC = { build-options = [] : List Text } }
+            , shared-options       = ./dhall/defaults/CompilerOptions 
             }
           ] : Optional ./dhall/types/Library 
       , license     =
@@ -187,8 +184,7 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
             , buildable            = True
             , c-sources            = [] : List Text
             , cc-options           = [] : List Text
-            , compiler-options     =
-                { GHC = { build-options = [] : List Text } }
+            , compiler-options     = ./dhall/defaults/CompilerOptions 
             , cpp-options          = [] : List Text
             , default-extensions   = [] : List <>
             , default-language     =
@@ -212,10 +208,8 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
             , other-modules        = [] : List Text
             , pkgconfig-depends    =
                 [] : List { name : Text, version : VersionRange }
-            , profiling-options    =
-                { GHC = { build-options = [] : List Text } }
-            , shared-options       =
-                { GHC = { build-options = [] : List Text } }
+            , profiling-options    = ./dhall/defaults/CompilerOptions 
+            , shared-options       = ./dhall/defaults/CompilerOptions 
             }
           ]
       }

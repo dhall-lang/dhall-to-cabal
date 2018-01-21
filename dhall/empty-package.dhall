@@ -9,7 +9,7 @@
          , buildable            : Bool
          , c-sources            : List Text
          , cc-options           : List Text
-         , compiler-options     : { GHC : { build-options : List Text } }
+         , compiler-options     : ./types/CompilerOptions 
          , cpp-options          : List Text
          , default-extensions   : List <>
          , default-language     : Optional < Haskell2010 : {} | Haskell98 : {} >
@@ -30,8 +30,8 @@
          , other-languages      : List < Haskell2010 : {} | Haskell98 : {} >
          , other-modules        : List Text
          , pkgconfig-depends    : List { name : Text, version : VersionRange }
-         , profiling-options    : { GHC : { build-options : List Text } }
-         , shared-options       : { GHC : { build-options : List Text } }
+         , profiling-options    : ./types/CompilerOptions 
+         , shared-options       : ./types/CompilerOptions 
          }
 , bug-reports        = ""
 , build-type         =
@@ -53,7 +53,7 @@
          , buildable            : Bool
          , c-sources            : List Text
          , cc-options           : List Text
-         , compiler-options     : { GHC : { build-options : List Text } }
+         , compiler-options     : ./types/CompilerOptions 
          , cpp-options          : List Text
          , default-extensions   : List <>
          , default-language     : Optional < Haskell2010 : {} | Haskell98 : {} >
@@ -74,9 +74,9 @@
          , other-languages      : List < Haskell2010 : {} | Haskell98 : {} >
          , other-modules        : List Text
          , pkgconfig-depends    : List { name : Text, version : VersionRange }
-         , profiling-options    : { GHC : { build-options : List Text } }
+         , profiling-options    : ./types/CompilerOptions 
          , scope                : < Private : {} | Public : {} >
-         , shared-options       : { GHC : { build-options : List Text } }
+         , shared-options       : ./types/CompilerOptions 
          }
 , extra-doc-files    = [] : List Text
 , extra-source-files = [] : List Text
@@ -92,7 +92,7 @@
          , buildable               : Bool
          , c-sources               : List Text
          , cc-options              : List Text
-         , compiler-options        : { GHC : { build-options : List Text } }
+         , compiler-options        : ./types/CompilerOptions 
          , cpp-options             : List Text
          , default-extensions      : List <>
          , default-language        :
@@ -117,8 +117,8 @@
          , other-modules           : List Text
          , pkgconfig-depends       :
              List { name : Text, version : VersionRange }
-         , profiling-options       : { GHC : { build-options : List Text } }
-         , shared-options          : { GHC : { build-options : List Text } }
+         , profiling-options       : ./types/CompilerOptions 
+         , shared-options          : ./types/CompilerOptions 
          , type                    : < Shared : {} | Static : {} >
          , version-info            :
              Optional { age : Natural, current : Natural, revision : Natural }
@@ -173,7 +173,7 @@
          , buildable            : Bool
          , c-sources            : List Text
          , cc-options           : List Text
-         , compiler-options     : { GHC : { build-options : List Text } }
+         , compiler-options     : ./types/CompilerOptions 
          , cpp-options          : List Text
          , default-extensions   : List <>
          , default-language     : Optional < Haskell2010 : {} | Haskell98 : {} >
@@ -194,17 +194,31 @@
          , other-languages      : List < Haskell2010 : {} | Haskell98 : {} >
          , other-modules        : List Text
          , pkgconfig-depends    : List { name : Text, version : VersionRange }
-         , profiling-options    : { GHC : { build-options : List Text } }
+         , profiling-options    : ./types/CompilerOptions 
          , reexported-modules   :
              List
              { name     : Text
              , original : { name : Text, package : Optional Text }
              }
-         , shared-options       : { GHC : { build-options : List Text } }
+         , shared-options       : ./types/CompilerOptions 
          }
 , synopsis           = ""
 , tested-with        =
-    [] : List { compiler : < GHC : {} >, version : VersionRange }
+    [] : List
+         { compiler :
+             < GHC    : {}
+             | GHCJS  : {}
+             | HBC    : {}
+             | Helium : {}
+             | Hugs   : {}
+             | JHC    : {}
+             | LHC    : {}
+             | NHC    : {}
+             | UHC    : {}
+             | YHC    : {}
+             >
+         , version  : VersionRange
+         }
 , tests              =
     [] : List
          { autogen-modules      : List Text
@@ -215,7 +229,7 @@
          , buildable            : Bool
          , c-sources            : List Text
          , cc-options           : List Text
-         , compiler-options     : { GHC : { build-options : List Text } }
+         , compiler-options     : ./types/CompilerOptions 
          , cpp-options          : List Text
          , default-extensions   : List <>
          , default-language     : Optional < Haskell2010 : {} | Haskell98 : {} >
@@ -236,8 +250,8 @@
          , other-languages      : List < Haskell2010 : {} | Haskell98 : {} >
          , other-modules        : List Text
          , pkgconfig-depends    : List { name : Text, version : VersionRange }
-         , profiling-options    : { GHC : { build-options : List Text } }
-         , shared-options       : { GHC : { build-options : List Text } }
+         , profiling-options    : ./types/CompilerOptions 
+         , shared-options       : ./types/CompilerOptions 
          }
 , x-fields           = [] : List { _1 : Text, _2 : Text }
 }
