@@ -23,7 +23,10 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
             ⫽ { build-dependencies =
                   [ common-deps.base
                   , { bounds = anyVersion, package = "dhall-to-cabal" }
-                  , { bounds  = majorBoundVersion [ +0, +13, +2 ]
+                  , { bounds  =
+                        unionVersionRanges
+                        (majorBoundVersion [ +0, +13, +2 ])
+                        (majorBoundVersion [ +0, +14 ])
                     , package = "optparse-applicative"
                     }
                   , common-deps.text
