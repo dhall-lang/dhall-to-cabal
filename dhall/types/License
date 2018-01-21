@@ -1,0 +1,15 @@
+< AGPL              : Optional (List Natural)
+| AllRightsReserved : {}
+| Apache            : Optional (List Natural)
+| BSD2              : {}
+| BSD3              : {}
+| BSD4              : {}
+| GPL               : Optional (List Natural)
+| ISC               : {}
+| LGPL              : Optional (List Natural)
+| MIT               : {}
+| MPL               : List Natural
+| Other             : {}
+| PublicDomain      : {}
+| Unspecified       : {}
+>

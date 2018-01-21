@@ -1,5 +1,7 @@
     let empty-package = ./dhall/empty-package.dhall 
 
+in  let licenses = constructors ./dhall/types/License 
+
 in  let common-deps =
           { Cabal      = { bounds = majorVersion [ +2, +0 ], package = "Cabal" }
           , base       = { bounds = majorVersion [ +4, +10 ], package = "base" }
@@ -66,37 +68,7 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                        }
               }
           ] : Optional ./dhall/types/Library 
-      , license     =
-            < MIT               = {=}
-            | AGPL              : Optional (List Natural)
-            | AllRightsReserved : {}
-            | Apache            : Optional (List Natural)
-            | BSD2              : {}
-            | BSD3              : {}
-            | BSD4              : {}
-            | GPL               : Optional (List Natural)
-            | ISC               : {}
-            | LGPL              : Optional (List Natural)
-            | MPL               : List Natural
-            | Other             : {}
-            | PublicDomain      : {}
-            | Unspecified       : {}
-            >
-          : < AGPL              : Optional (List Natural)
-            | AllRightsReserved : {}
-            | Apache            : Optional (List Natural)
-            | BSD2              : {}
-            | BSD3              : {}
-            | BSD4              : {}
-            | GPL               : Optional (List Natural)
-            | ISC               : {}
-            | LGPL              : Optional (List Natural)
-            | MIT               : {}
-            | MPL               : List Natural
-            | Other             : {}
-            | PublicDomain      : {}
-            | Unspecified       : {}
-            >
+      , license     = licenses.MIT {=}
       , package     = { name = "dhall-to-cabal", version = [ +0, +1, +0 ] }
       , tests       =
           [   ./dhall/defaults/BuildInfo 
