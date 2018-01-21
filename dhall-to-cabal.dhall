@@ -23,6 +23,8 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                 , common-deps.dhall
                 , common-deps.Cabal
                 ]
+            , build-tools        =
+                [] : List { exe : Text, version : VersionRange }
             , buildable          = True
             , hs-source-dirs     = [ "exe" ]
             , main-is            = "Main.hs"
@@ -42,6 +44,8 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                 , { bounds = majorVersion [ +1, +7 ], package = "trifecta" }
                 , { bounds = majorVersion [ +0, +3 ], package = "text-format" }
                 ]
+            , build-tools        =
+                [] : List { exe : Text, version : VersionRange }
             , buildable          = True
             , exposed-modules    = [ "Distribution.Package.Dhall" ]
             , hs-source-dirs     = [ "lib" ]
@@ -61,6 +65,8 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                 , { bounds = anyVersion, package = "dhall-to-cabal" }
                 , { bounds = majorVersion [ +2, +3 ], package = "tasty-golden" }
                 ]
+            , build-tools        =
+                [] : List { exe : Text, version : VersionRange }
             , buildable          = True
             , hs-source-dirs     = [ "golden-tests" ]
             , main-is            = "GoldenTests.hs"

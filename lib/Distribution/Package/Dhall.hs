@@ -34,6 +34,7 @@ import qualified Distribution.Types.Dependency as Cabal
 import qualified Distribution.Types.ExecutableScope as Cabal
 import qualified Distribution.Types.ForeignLib as Cabal
 import qualified Distribution.Types.ForeignLibType as Cabal
+import qualified Distribution.Types.LegacyExeDependency as Cabal
 import qualified Distribution.Types.PackageId as Cabal
 import qualified Distribution.Types.PackageName as Cabal
 import qualified Distribution.Types.UnqualComponentName as Cabal
@@ -287,7 +288,8 @@ buildInfo =
         Map.lookup "buildable" fields >>= Dhall.extract Dhall.bool
 
       buildTools <-
-        return []
+        Map.lookup "build-tools" fields
+          >>= Dhall.extract ( list legacyExeDependency )
 
       buildToolDepends <-
         return []
@@ -392,6 +394,7 @@ buildInfoFields =
     , ( "other-modules", Dhall.expected ( list moduleName ) )
     , ( "hs-source-dirs", Dhall.expected ( list string ) )
     , ( "buildable", Dhall.expected Dhall.bool )
+    , ( "build-tools", Dhall.expected ( list legacyExeDependency ) )
     ]
 
 
@@ -930,6 +933,34 @@ repoType =
       Expr.Union
         ( Map.fromList
             [ ( "Git", Expr.Record Map.empty ) ]
+        )
+
+  in Dhall.Type { .. }
+
+
+
+legacyExeDependency :: Dhall.Type Cabal.LegacyExeDependency
+legacyExeDependency =
+  let
+    extract expr = do
+      Expr.RecordLit fields <-
+        return expr
+
+      exe <-
+        Map.lookup "exe" fields >>= Dhall.extract string
+
+      version <-
+        Map.lookup "version" fields >>= Dhall.extract versionRange
+
+      return ( Cabal.LegacyExeDependency exe version )
+
+
+    expected =
+      Expr.Record
+        ( Map.fromList
+            [ ( "exe", Dhall.expected string )
+            , ( "version", Dhall.expected versionRange )
+            ]
         )
 
   in Dhall.Type { .. }
