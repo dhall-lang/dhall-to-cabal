@@ -34,6 +34,7 @@ import qualified Distribution.Types.Dependency as Cabal
 import qualified Distribution.Types.ExeDependency as Cabal
 import qualified Distribution.Types.ExecutableScope as Cabal
 import qualified Distribution.Types.ForeignLib as Cabal
+import qualified Distribution.Types.ForeignLibOption as Cabal
 import qualified Distribution.Types.ForeignLibType as Cabal
 import qualified Distribution.Types.LegacyExeDependency as Cabal
 import qualified Distribution.Types.PackageId as Cabal
@@ -357,19 +358,19 @@ foreignLib =
       keyValue "type" foreignLibType
 
     foreignLibOptions <-
-      pure []
+      keyValue "options" ( list foreignLibOption )
 
     foreignLibBuildInfo <-
       buildInfo
 
     foreignLibVersionInfo <-
-      pure Nothing
+      keyValue "version-info" ( Dhall.maybe versionInfo )
 
     foreignLibVersionLinux <-
-      pure Nothing
+      keyValue "linux-version" ( Dhall.maybe version )
 
     foreignLibModDefFile <-
-      pure []
+      keyValue "module-definition-files" ( list string )
 
     pure Cabal.ForeignLib { .. }
 
@@ -723,3 +724,21 @@ moduleReexport =
         , moduleReexportOriginalName = snd original
         , ..
         }
+
+
+foreignLibOption :: Dhall.Type Cabal.ForeignLibOption
+foreignLibOption =
+  makeUnion
+    ( Map.fromList
+        [ ( "Standalone", Cabal.ForeignLibStandalone <$ emptyRecord ) ] 
+    )
+
+
+versionInfo :: Dhall.Type Cabal.LibVersionInfo
+versionInfo =
+  makeRecord $
+  fmap Cabal.mkLibVersionInfo $
+    (,,)
+      <$> ( fromIntegral <$> keyValue "current" Dhall.natural )
+      <*> ( fromIntegral <$> keyValue "revision" Dhall.natural )
+      <*> ( fromIntegral <$> keyValue "age" Dhall.natural )
