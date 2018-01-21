@@ -126,8 +126,36 @@
 , homepage           = ""
 , library            = [] : Optional ./types/Library 
 , license            =
-      < GPL = [ [ +3, +0 ] ] : Optional (List Natural) >
-    : < GPL : Optional (List Natural) >
+      < Unspecified       = {=}
+      | AGPL              : Optional (List Natural)
+      | AllRightsReserved : {}
+      | Apache            : Optional (List Natural)
+      | BSD2              : {}
+      | BSD3              : {}
+      | BSD4              : {}
+      | GPL               : Optional (List Natural)
+      | ISC               : {}
+      | LGPL              : Optional (List Natural)
+      | MIT               : {}
+      | MPL               : List Natural
+      | Other             : {}
+      | PublicDomain      : {}
+      >
+    : < AGPL              : Optional (List Natural)
+      | AllRightsReserved : {}
+      | Apache            : Optional (List Natural)
+      | BSD2              : {}
+      | BSD3              : {}
+      | BSD4              : {}
+      | GPL               : Optional (List Natural)
+      | ISC               : {}
+      | LGPL              : Optional (List Natural)
+      | MIT               : {}
+      | MPL               : List Natural
+      | Other             : {}
+      | PublicDomain      : {}
+      | Unspecified       : {}
+      >
 , license-files      = [] : List Text
 , maintainer         = ""
 , package            = { name = "", version = [] : List Natural }

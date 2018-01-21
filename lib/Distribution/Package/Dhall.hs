@@ -577,6 +577,19 @@ license =
   makeUnion
     ( Map.fromList
         [ ( "GPL", Cabal.GPL <$> Dhall.maybe version )
+        , ( "AGPL", Cabal.AGPL <$> Dhall.maybe version )
+        , ( "LGPL", Cabal.LGPL <$> Dhall.maybe version )
+        , ( "BSD2", Cabal.BSD2 <$ emptyRecord )
+        , ( "BSD3", Cabal.BSD3 <$ emptyRecord )
+        , ( "BSD4", Cabal.BSD4 <$ emptyRecord )
+        , ( "MIT", Cabal.MIT <$ emptyRecord )
+        , ( "ISC", Cabal.ISC <$ emptyRecord )
+        , ( "MPL", Cabal.MPL <$> version )
+        , ( "Apache", Cabal.Apache <$> Dhall.maybe version )
+        , ( "PublicDomain", Cabal.PublicDomain <$ emptyRecord )
+        , ( "AllRightsReserved", Cabal.AllRightsReserved<$ emptyRecord ) 
+        , ( "Unspecified", Cabal.UnspecifiedLicense <$ emptyRecord ) 
+        , ( "Other", Cabal.OtherLicense <$ emptyRecord ) 
         ]
     )
 

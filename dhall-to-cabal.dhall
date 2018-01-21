@@ -132,6 +132,37 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                 { GHC = { build-options = [] : List Text } }
             }
           ] : Optional ./dhall/types/Library 
+      , license     =
+            < MIT               = {=}
+            | AGPL              : Optional (List Natural)
+            | AllRightsReserved : {}
+            | Apache            : Optional (List Natural)
+            | BSD2              : {}
+            | BSD3              : {}
+            | BSD4              : {}
+            | GPL               : Optional (List Natural)
+            | ISC               : {}
+            | LGPL              : Optional (List Natural)
+            | MPL               : List Natural
+            | Other             : {}
+            | PublicDomain      : {}
+            | Unspecified       : {}
+            >
+          : < AGPL              : Optional (List Natural)
+            | AllRightsReserved : {}
+            | Apache            : Optional (List Natural)
+            | BSD2              : {}
+            | BSD3              : {}
+            | BSD4              : {}
+            | GPL               : Optional (List Natural)
+            | ISC               : {}
+            | LGPL              : Optional (List Natural)
+            | MIT               : {}
+            | MPL               : List Natural
+            | Other             : {}
+            | PublicDomain      : {}
+            | Unspecified       : {}
+            >
       , package     = { name = "dhall-to-cabal", version = [ +0, +1, +0 ] }
       , tests       =
           [ { autogen-modules      = [] : List Text
