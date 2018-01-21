@@ -128,7 +128,7 @@ packageDescription =
       keyValue "homepage" string
 
     pkgUrl <-
-      pure ""
+      keyValue "package-url" string
 
     bugReports <-
       keyValue "bug-reports" string

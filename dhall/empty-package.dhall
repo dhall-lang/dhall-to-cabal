@@ -63,6 +63,7 @@
 , license-files      = [] : List Text
 , maintainer         = ""
 , package            = { name = "", version = [] : List Natural }
+, package-url        = ""
 , source-repos       =
     [] : List { location : Optional Text, type : Optional < Git : {} > }
 , stability          = ""
