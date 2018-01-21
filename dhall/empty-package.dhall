@@ -13,6 +13,7 @@
 , executables        =
     [] : List
          { build-dependencies : List { bounds : VersionRange, package : Text }
+         , buildable          : Bool
          , hs-source-dirs     : List Text
          , main-is            : Text
          , name               : Text
@@ -26,6 +27,7 @@
 , library            =
     [] : Optional
          { build-dependencies : List { bounds : VersionRange, package : Text }
+         , buildable          : Bool
          , exposed-modules    : List Text
          , hs-source-dirs     : List Text
          , name               : Optional Text
@@ -43,6 +45,7 @@
 , sub-libraries      =
     [] : List
          { build-dependencies : List { bounds : VersionRange, package : Text }
+         , buildable          : Bool
          , exposed-modules    : List Text
          , hs-source-dirs     : List Text
          , name               : Optional Text
@@ -54,6 +57,7 @@
 , tests              =
     [] : List
          { build-dependencies : List { bounds : VersionRange, package : Text }
+         , buildable          : Bool
          , hs-source-dirs     : List Text
          , main-is            : Text
          , name               : Text

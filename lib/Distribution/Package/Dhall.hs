@@ -284,7 +284,7 @@ buildInfo =
         return expr
 
       buildable <-
-        return True
+        Map.lookup "buildable" fields >>= Dhall.extract Dhall.bool
 
       buildTools <-
         return []
@@ -391,6 +391,7 @@ buildInfoFields =
     [ ( "build-dependencies" , Dhall.expected ( list dependency ) )
     , ( "other-modules", Dhall.expected ( list moduleName ) )
     , ( "hs-source-dirs", Dhall.expected ( list string ) )
+    , ( "buildable", Dhall.expected Dhall.bool )
     ]
 
 
