@@ -339,7 +339,7 @@ executable =
       keyValue "main-is" string
 
     exeScope <-
-      pure Cabal.ExecutablePublic
+      keyValue "scope" executableScope
 
     buildInfo <-
       buildInfo
@@ -697,4 +697,14 @@ extension =
   makeUnion
     ( Map.fromList
         [ ]
+    )
+
+
+executableScope :: Dhall.Type Cabal.ExecutableScope
+executableScope = 
+  makeUnion
+    ( Map.fromList
+        [ ( "Public", Cabal.ExecutablePublic <$ emptyRecord )
+        , ( "Private", Cabal.ExecutablePrivate <$ emptyRecord )
+        ]
     )

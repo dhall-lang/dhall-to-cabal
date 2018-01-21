@@ -75,6 +75,7 @@
          , other-modules        : List Text
          , pkgconfig-depends    : List { name : Text, version : VersionRange }
          , profiling-options    : { GHC : { build-options : List Text } }
+         , scope                : < Private : {} | Public : {} >
          , shared-options       : { GHC : { build-options : List Text } }
          }
 , extra-doc-files    = [] : List Text

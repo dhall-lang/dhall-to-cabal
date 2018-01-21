@@ -62,6 +62,7 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                 [] : List { name : Text, version : VersionRange }
             , profiling-options    =
                 { GHC = { build-options = [] : List Text } }
+            , scope                = < Public = {=} | Private : {} >
             , shared-options       =
                 { GHC = { build-options = [] : List Text } }
             }
