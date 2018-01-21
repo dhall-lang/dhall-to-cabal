@@ -381,6 +381,7 @@ foreignLibType =
   makeUnion
     ( Map.fromList
         [ ( "Shared", Cabal.ForeignLibNativeShared <$ emptyRecord )
+        , ( "Static", Cabal.ForeignLibNativeStatic <$ emptyRecord )
         ]
     )
 

@@ -119,7 +119,7 @@
              List { name : Text, version : VersionRange }
          , profiling-options       : { GHC : { build-options : List Text } }
          , shared-options          : { GHC : { build-options : List Text } }
-         , type                    : < Shared : {} >
+         , type                    : < Shared : {} | Static : {} >
          , version-info            :
              Optional { age : Natural, current : Natural, revision : Natural }
          }
