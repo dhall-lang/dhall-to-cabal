@@ -9,7 +9,7 @@ module Distribution.Package.Dhall where
 
 import Control.Applicative ( Const(..) )
 import Control.Exception ( Exception, throwIO )
-import Control.Monad ( (>=>), guard )
+import Control.Monad ( (>=>), guard, join )
 import Control.Monad.Trans.Reader ( Reader, reader, runReader )
 import Data.Foldable ( toList )
 import Data.Function ( (&) )
@@ -60,20 +60,13 @@ packageIdentifier =
     pkgVersion <-
       keyValue "version" version
 
-    return Cabal.PackageIdentifier { .. }
+    pure Cabal.PackageIdentifier { .. }
 
 
 
 packageName :: Dhall.Type Cabal.PackageName
 packageName =
-  let
-    extract =
-      fmap Cabal.mkPackageName . exprToString
-
-    expected =
-      Expr.Text
-
-  in Dhall.Type { .. }
+  Cabal.mkPackageName <$> string
 
 
 
@@ -314,17 +307,6 @@ buildInfo = do
 
 
 
-buildInfoFields =
-  Map.fromList
-    [ ( "build-dependencies" , Dhall.expected ( list dependency ) )
-    , ( "other-modules", Dhall.expected ( list moduleName ) )
-    , ( "hs-source-dirs", Dhall.expected ( list string ) )
-    , ( "buildable", Dhall.expected Dhall.bool )
-    , ( "build-tools", Dhall.expected ( list legacyExeDependency ) )
-    ]
-
-
-
 testSuite :: Dhall.Type Cabal.TestSuite
 testSuite =
   makeRecord $ do
@@ -342,8 +324,7 @@ testSuite =
         { testInterface =
             Cabal.TestSuiteExeV10 ( Cabal.mkVersion [ 1, 0 ] ) mainIs
         , ..
-        }
-
+        } 
 
 
 
@@ -402,25 +383,11 @@ foreignLib =
 
 foreignLibType :: Dhall.Type Cabal.ForeignLibType
 foreignLibType =
-  let
-    extract expr = do
-      Expr.UnionLit t ( Expr.RecordLit fields ) _ <-
-        return expr
-
-      guard (Map.null fields)
-
-      case t of
-        "Shared" ->
-          return Cabal.ForeignLibNativeShared
-
-        _ ->
-          Nothing
-
-
-    expected =
-      Expr.Union ( Map.fromList [ ( "Shared", Expr.Record Map.empty ) ] )
-
-  in Dhall.Type { .. }
+  makeUnion
+    ( Map.fromList
+        [ ( "Shared", Cabal.ForeignLibNativeShared <$ emptyRecord )
+        ]
+    )
 
 
 
@@ -492,14 +459,8 @@ dependency =
 
 moduleName :: Dhall.Type Cabal.ModuleName
 moduleName =
-  let
-    extract =
-      exprToString >=> Cabal.simpleParse
-
-    expected =
-      Expr.Text
-
-  in Dhall.Type { .. }
+  validateType $
+    Cabal.simpleParse <$> string
 
 
 
@@ -614,68 +575,24 @@ versionRange =
 
 buildType :: Dhall.Type Cabal.BuildType
 buildType =
-  let
-    extract expr = do
-      Expr.UnionLit ctor ( Expr.RecordLit fields ) _ <-
-        return expr
-
-      guard (Map.null fields)
-
-      case ctor of
-        "Simple" ->
-          return Cabal.Simple
-
-        "Configure" ->
-          return Cabal.Configure
-
-        "Make" ->
-          return Cabal.Make
-
-        "Custom" ->
-          return Cabal.Custom
-
-        _ ->
-          Nothing
-
-    expected =
-      Expr.Union
-        ( Map.fromList
-            [ ("Simple", Expr.Record Map.empty)
-            , ("Configure", Expr.Record Map.empty)
-            , ("Make", Expr.Record Map.empty)
-            , ("Custom", Expr.Record Map.empty)
-            ]
-        )
-
-  in Dhall.Type { .. }
+  makeUnion
+    ( Map.fromList
+        [ ( "Simple", Cabal.Simple <$ emptyRecord )
+        , ( "Configure", Cabal.Configure <$ emptyRecord )
+        , ( "Make", Cabal.Make <$ emptyRecord )
+        , ( "Custom", Cabal.Custom <$ emptyRecord )
+        ]
+    )
 
 
 
 license :: Dhall.Type Cabal.License
 license =
-  let
-    extract expr = do
-      Expr.UnionLit ctor ctorFields _ <-
-        return expr
-
-      case ctor of
-        "GPL" -> do
-          gplVersion <-
-            Dhall.extract ( Dhall.maybe version ) ctorFields
-
-          return ( Cabal.GPL gplVersion )
-
-        _ ->
-          Nothing
-
-    expected =
-      Expr.Union
-        ( Map.fromList
-            [ ("GPL", Dhall.expected ( Dhall.maybe version ) )
-            ]
-        )
-
-  in Dhall.Type { .. }
+  makeUnion
+    ( Map.fromList
+        [ ( "GPL", Cabal.GPL <$> Dhall.maybe version )
+        ]
+    )
 
 
 
@@ -696,26 +613,10 @@ compiler =
 
 compilerFlavor :: Dhall.Type Cabal.CompilerFlavor
 compilerFlavor =
-  let
-    extract expr = do
-      Expr.UnionLit ctor v _ <-
-        return expr
-
-      case ctor of
-        "GHC" ->
-          return Cabal.GHC
-
-        _ ->
-          Nothing
-
-    expected =
-      Expr.Union
-        ( Map.fromList
-            [ ( "GHC", Expr.Record Map.empty )
-            ]
-        )
-
-  in Dhall.Type { .. }
+  makeUnion
+    ( Map.fromList
+        [ ( "GHC", Cabal.GHC <$ emptyRecord ) ]
+    )
 
 
 
@@ -727,22 +628,10 @@ list t =
 
 repoType :: Dhall.Type Cabal.RepoType
 repoType =
-  let
-    extract expr = do
-      Expr.UnionLit ctor v _ <-
-        return expr
-
-      case ctor of
-        "Git" ->
-          return Cabal.Git
-
-    expected =
-      Expr.Union
-        ( Map.fromList
-            [ ( "Git", Expr.Record Map.empty ) ]
-        )
-
-  in Dhall.Type { .. }
+  makeUnion
+    ( Map.fromList
+        [ ( "Git", Cabal.Git <$ emptyRecord ) ]
+    )
 
 
 
@@ -809,3 +698,44 @@ keyValue key valueType =
           ( Const ( Map.singleton key ( Dhall.expected valueType ) ) )
           ( Compose ( reader extract ) )
       )
+
+
+
+emptyRecord :: Dhall.Type ()
+emptyRecord =
+  let
+    extract expr = do
+      Expr.RecordLit fields <-
+        return expr
+
+      guard ( Map.null fields )
+
+    expected =
+      Expr.Record Map.empty
+      
+  in Dhall.Type { .. }
+
+
+
+makeUnion :: Map.Map LazyText.Text ( Dhall.Type a ) -> Dhall.Type a
+makeUnion alts =
+  let
+    extract expr = do
+      Expr.UnionLit ctor v _ <-
+        return expr
+
+      t <-
+        Map.lookup ctor alts
+
+      Dhall.extract t v
+
+    expected =
+      Expr.Union ( Dhall.expected <$> alts )
+
+  in Dhall.Type { .. }
+
+
+
+validateType :: Dhall.Type ( Maybe a ) -> Dhall.Type a
+validateType a =
+  a { Dhall.extract = join . Dhall.extract a }
