@@ -2,6 +2,8 @@
 , benchmarks         =
     [] : List
          { build-dependencies : List { bounds : VersionRange, package : Text }
+         , build-tool-depends :
+             List { component : Text, package : Text, version : VersionRange }
          , build-tools        : List { exe : Text, version : VersionRange }
          , buildable          : Bool
          , compiler-options   : { GHC : { build-options : List Text } }
@@ -23,6 +25,8 @@
 , executables        =
     [] : List
          { build-dependencies : List { bounds : VersionRange, package : Text }
+         , build-tool-depends :
+             List { component : Text, package : Text, version : VersionRange }
          , build-tools        : List { exe : Text, version : VersionRange }
          , buildable          : Bool
          , compiler-options   : { GHC : { build-options : List Text } }
@@ -37,6 +41,8 @@
 , foreign-libraries  =
     [] : List
          { build-dependencies : List { bounds : VersionRange, package : Text }
+         , build-tool-depends :
+             List { component : Text, package : Text, version : VersionRange }
          , build-tools        : List { exe : Text, version : VersionRange }
          , buildable          : Bool
          , compiler-options   : { GHC : { build-options : List Text } }
@@ -46,17 +52,7 @@
          , type               : < Shared : {} >
          }
 , homepage           = ""
-, library            =
-    [] : Optional
-         { build-dependencies : List { bounds : VersionRange, package : Text }
-         , build-tools        : List { exe : Text, version : VersionRange }
-         , buildable          : Bool
-         , compiler-options   : { GHC : { build-options : List Text } }
-         , exposed-modules    : List Text
-         , hs-source-dirs     : List Text
-         , name               : Optional Text
-         , other-modules      : List Text
-         }
+, library            = [] : Optional ./types/Library 
 , license            =
       < GPL = [ [ +3, +0 ] ] : Optional (List Natural) >
     : < GPL : Optional (List Natural) >
@@ -70,6 +66,8 @@
 , sub-libraries      =
     [] : List
          { build-dependencies : List { bounds : VersionRange, package : Text }
+         , build-tool-depends :
+             List { component : Text, package : Text, version : VersionRange }
          , build-tools        : List { exe : Text, version : VersionRange }
          , buildable          : Bool
          , compiler-options   : { GHC : { build-options : List Text } }
@@ -84,6 +82,8 @@
 , tests              =
     [] : List
          { build-dependencies : List { bounds : VersionRange, package : Text }
+         , build-tool-depends :
+             List { component : Text, package : Text, version : VersionRange }
          , build-tools        : List { exe : Text, version : VersionRange }
          , buildable          : Bool
          , compiler-options   : { GHC : { build-options : List Text } }

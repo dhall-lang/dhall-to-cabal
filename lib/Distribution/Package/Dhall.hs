@@ -32,6 +32,7 @@ import qualified Distribution.ModuleName as Cabal
 import qualified Distribution.PackageDescription as Cabal
 import qualified Distribution.Text as Cabal ( simpleParse )
 import qualified Distribution.Types.Dependency as Cabal
+import qualified Distribution.Types.ExeDependency as Cabal
 import qualified Distribution.Types.ExecutableScope as Cabal
 import qualified Distribution.Types.ForeignLib as Cabal
 import qualified Distribution.Types.ForeignLibType as Cabal
@@ -208,7 +209,7 @@ buildInfo = do
     keyValue "build-tools" ( list legacyExeDependency )
 
   buildToolDepends <-
-    pure []
+    keyValue "build-tool-depends" ( list exeDependency )
 
   cppOptions <-
     pure []
@@ -639,3 +640,19 @@ compilerOptions =
     optionsRecord =
       makeRecord $
         keyValue "build-options" ( list string )
+
+
+
+exeDependency :: Dhall.Type Cabal.ExeDependency
+exeDependency =
+  makeRecord $ do
+    packageName <-
+      keyValue "package" packageName
+
+    component <-
+      keyValue "component" unqualComponentName
+
+    version <-
+      keyValue "version" versionRange
+
+    pure ( Cabal.ExeDependency packageName component version )

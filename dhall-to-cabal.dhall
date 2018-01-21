@@ -1,4 +1,4 @@
-    let empty-package = ./dhall/empty-package.dhall
+    let empty-package = ./dhall/empty-package.dhall 
 
 in  let common-deps =
           { Cabal      = { bounds = majorVersion [ +2, +0 ], package = "Cabal" }
@@ -23,6 +23,12 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                 , common-deps.dhall
                 , common-deps.Cabal
                 ]
+            , build-tool-depends =
+                [] : List
+                     { component : Text
+                     , package   : Text
+                     , version   : VersionRange
+                     }
             , build-tools        =
                 [] : List { exe : Text, version : VersionRange }
             , buildable          = True
@@ -48,6 +54,12 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                   , package = "transformers"
                   }
                 ]
+            , build-tool-depends =
+                [] : List
+                     { component : Text
+                     , package   : Text
+                     , version   : VersionRange
+                     }
             , build-tools        =
                 [] : List { exe : Text, version : VersionRange }
             , buildable          = True
@@ -73,6 +85,12 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                 , { bounds = anyVersion, package = "dhall-to-cabal" }
                 , { bounds = majorVersion [ +2, +3 ], package = "tasty-golden" }
                 ]
+            , build-tool-depends =
+                [] : List
+                     { component : Text
+                     , package   : Text
+                     , version   : VersionRange
+                     }
             , build-tools        =
                 [] : List { exe : Text, version : VersionRange }
             , buildable          = True

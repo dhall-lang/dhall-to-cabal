@@ -6,4 +6,6 @@
 , hs-source-dirs     : List Text
 , name               : Optional Text
 , other-modules      : List Text
+         , build-tool-depends :
+             List { component : Text, package : Text, version : VersionRange }
 }
