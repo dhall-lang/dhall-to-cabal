@@ -1,0 +1,11 @@
+{ GHC    : { build-options : List Text }
+, GHCJS  : { build-options : List Text }
+, HBC    : { build-options : List Text }
+, Helium : { build-options : List Text }
+, Hugs   : { build-options : List Text }
+, JHC    : { build-options : List Text }
+, LHC    : { build-options : List Text }
+, NHC    : { build-options : List Text }
+, UHC    : { build-options : List Text }
+, YHC    : { build-options : List Text }
+}
