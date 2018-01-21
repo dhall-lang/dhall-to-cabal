@@ -53,7 +53,7 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
             , exposed-modules    = [ "Distribution.Package.Dhall" ]
             , hs-source-dirs     = [ "lib" ]
             , name               = [] : Optional Text
-            , other-modules      = [] : List Text
+            , other-modules      = [ "Dhall.Extra" ]
             }
           ] : Optional ./dhall/types/Library 
       , package     = { name = "dhall-to-cabal", version = [ +0, +1, +0 ] }
@@ -71,6 +71,7 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
             , build-tools        =
                 [] : List { exe : Text, version : VersionRange }
             , buildable          = True
+            , compiler-options   = { GHC = { build-options = [] : List Text } }
             , hs-source-dirs     = [ "golden-tests" ]
             , main-is            = "GoldenTests.hs"
             , name               = "golden-tests"

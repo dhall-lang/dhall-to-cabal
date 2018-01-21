@@ -50,6 +50,9 @@ import qualified Distribution.Version as Cabal
 import qualified Dhall.Core as Expr
   ( Const(..), Expr(..), Normalizer, Var(..) )
 
+import Dhall.Extra
+
+
 
 packageIdentifier :: Dhall.Type Cabal.PackageIdentifier
 packageIdentifier =
@@ -195,16 +198,10 @@ benchmark =
 
     pure
       Cabal.Benchmark
-        { benchmarkInterface = 
-            Cabal.BenchmarkExeV10 ( Cabal.mkVersion [ 1, 0 ] ) mainIs 
+        { benchmarkInterface =
+            Cabal.BenchmarkExeV10 ( Cabal.mkVersion [ 1, 0 ] ) mainIs
         , ..
         }
-
-
-
-string :: Dhall.Type String
-string =
-  LazyText.unpack <$> Dhall.lazyText
 
 
 
@@ -324,7 +321,7 @@ testSuite =
         { testInterface =
             Cabal.TestSuiteExeV10 ( Cabal.mkVersion [ 1, 0 ] ) mainIs
         , ..
-        } 
+        }
 
 
 
@@ -596,18 +593,12 @@ license =
 
 
 
-pair :: Dhall.Type a -> Dhall.Type b -> Dhall.Type ( a, b )
-pair l r =
-  makeRecord $ (,) <$> keyValue "_1" l <*> keyValue "_2" r
-
-
-
 compiler :: Dhall.Type ( Cabal.CompilerFlavor, Cabal.VersionRange )
 compiler =
   makeRecord $
     (,)
       <$> keyValue "compiler" compilerFlavor
-      <*> keyValue "version" versionRange 
+      <*> keyValue "version" versionRange
 
 
 
@@ -617,12 +608,6 @@ compilerFlavor =
     ( Map.fromList
         [ ( "GHC", Cabal.GHC <$ emptyRecord ) ]
     )
-
-
-
-list :: Dhall.Type a -> Dhall.Type [a]
-list t =
-  toList <$> Dhall.vector t
 
 
 
@@ -648,94 +633,5 @@ legacyExeDependency =
 
 
 
-newtype RecordBuilder a =
-  RecordBuilder
-    { unRecordBuilder ::
-        Product
-          ( Const
-              ( Map.Map
-                  LazyText.Text
-                  ( Dhall.Expr Dhall.Parser.Src Dhall.TypeCheck.X )
-              )
-          )
-          ( Compose
-              ( Reader
-                  ( Dhall.Expr Dhall.Parser.Src Dhall.TypeCheck.X )
-              )
-              Maybe
-          )
-          a
-    }
-  deriving (Functor, Applicative)
 
 
-
-makeRecord :: RecordBuilder a -> Dhall.Type a
-makeRecord ( RecordBuilder ( Pair ( Const fields ) ( Compose extractF ) ) ) =
-  let
-    extract =
-      runReader extractF
-
-    expected =
-      Expr.Record fields
-
-  in Dhall.Type { .. }
-
-
-
-keyValue :: LazyText.Text -> Dhall.Type a -> RecordBuilder a
-keyValue key valueType =
-  let
-    extract expr = do
-      Expr.RecordLit fields <-
-        return expr
-
-      Map.lookup key fields >>= Dhall.extract valueType
-
-  in
-    RecordBuilder
-      ( Pair
-          ( Const ( Map.singleton key ( Dhall.expected valueType ) ) )
-          ( Compose ( reader extract ) )
-      )
-
-
-
-emptyRecord :: Dhall.Type ()
-emptyRecord =
-  let
-    extract expr = do
-      Expr.RecordLit fields <-
-        return expr
-
-      guard ( Map.null fields )
-
-    expected =
-      Expr.Record Map.empty
-      
-  in Dhall.Type { .. }
-
-
-
-makeUnion :: Map.Map LazyText.Text ( Dhall.Type a ) -> Dhall.Type a
-makeUnion alts =
-  let
-    extract expr = do
-      Expr.UnionLit ctor v _ <-
-        return expr
-
-      t <-
-        Map.lookup ctor alts
-
-      Dhall.extract t v
-
-    expected =
-      Expr.Union ( Dhall.expected <$> alts )
-
-  in Dhall.Type { .. }
-
-
-
-validateType :: Dhall.Type ( Maybe a ) -> Dhall.Type a
-validateType a =
-  a { Dhall.extract = join . Dhall.extract a }
