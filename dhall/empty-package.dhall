@@ -1,16 +1,37 @@
 { author             = ""
 , benchmarks         =
     [] : List
-         { build-dependencies : List { bounds : VersionRange, package : Text }
-         , build-tool-depends :
+         { autogen-modules      : List Text
+         , build-dependencies   : List { bounds : VersionRange, package : Text }
+         , build-tool-depends   :
              List { component : Text, package : Text, version : VersionRange }
-         , build-tools        : List { exe : Text, version : VersionRange }
-         , buildable          : Bool
-         , compiler-options   : { GHC : { build-options : List Text } }
-         , hs-source-dirs     : List Text
-         , main-is            : Text
-         , name               : Text
-         , other-modules      : List Text
+         , build-tools          : List { exe : Text, version : VersionRange }
+         , buildable            : Bool
+         , c-sources            : List Text
+         , cc-options           : List Text
+         , compiler-options     : { GHC : { build-options : List Text } }
+         , cpp-options          : List Text
+         , default-extensions   : List <>
+         , default-language     : Optional < Haskell2010 : {} | Haskell98 : {} >
+         , extra-framework-dirs : List Text
+         , extra-ghci-libraries : List Text
+         , extra-lib-dirs       : List Text
+         , extra-libraries      : List Text
+         , frameworks           : List Text
+         , hs-source-dirs       : List Text
+         , include              : List Text
+         , include-dirs         : List Text
+         , install-includes     : List Text
+         , js-sources           : List Text
+         , ld-options           : List Text
+         , main-is              : Text
+         , name                 : Text
+         , other-extensions     : List <>
+         , other-languages      : List < Haskell2010 : {} | Haskell98 : {} >
+         , other-modules        : List Text
+         , pkgconfig-depends    : List { name : Text, version : VersionRange }
+         , profiling-options    : { GHC : { build-options : List Text } }
+         , shared-options       : { GHC : { build-options : List Text } }
          }
 , bug-reports        = ""
 , build-type         =
@@ -24,32 +45,74 @@
 , description        = ""
 , executables        =
     [] : List
-         { build-dependencies : List { bounds : VersionRange, package : Text }
-         , build-tool-depends :
+         { autogen-modules      : List Text
+         , build-dependencies   : List { bounds : VersionRange, package : Text }
+         , build-tool-depends   :
              List { component : Text, package : Text, version : VersionRange }
-         , build-tools        : List { exe : Text, version : VersionRange }
-         , buildable          : Bool
-         , compiler-options   : { GHC : { build-options : List Text } }
-         , hs-source-dirs     : List Text
-         , main-is            : Text
-         , name               : Text
-         , other-modules      : List Text
+         , build-tools          : List { exe : Text, version : VersionRange }
+         , buildable            : Bool
+         , c-sources            : List Text
+         , cc-options           : List Text
+         , compiler-options     : { GHC : { build-options : List Text } }
+         , cpp-options          : List Text
+         , default-extensions   : List <>
+         , default-language     : Optional < Haskell2010 : {} | Haskell98 : {} >
+         , extra-framework-dirs : List Text
+         , extra-ghci-libraries : List Text
+         , extra-lib-dirs       : List Text
+         , extra-libraries      : List Text
+         , frameworks           : List Text
+         , hs-source-dirs       : List Text
+         , include              : List Text
+         , include-dirs         : List Text
+         , install-includes     : List Text
+         , js-sources           : List Text
+         , ld-options           : List Text
+         , main-is              : Text
+         , name                 : Text
+         , other-extensions     : List <>
+         , other-languages      : List < Haskell2010 : {} | Haskell98 : {} >
+         , other-modules        : List Text
+         , pkgconfig-depends    : List { name : Text, version : VersionRange }
+         , profiling-options    : { GHC : { build-options : List Text } }
+         , shared-options       : { GHC : { build-options : List Text } }
          }
 , extra-doc-files    = [] : List Text
 , extra-source-files = [] : List Text
 , extra-temp-files   = [] : List Text
 , foreign-libraries  =
     [] : List
-         { build-dependencies : List { bounds : VersionRange, package : Text }
-         , build-tool-depends :
+         { autogen-modules      : List Text
+         , build-dependencies   : List { bounds : VersionRange, package : Text }
+         , build-tool-depends   :
              List { component : Text, package : Text, version : VersionRange }
-         , build-tools        : List { exe : Text, version : VersionRange }
-         , buildable          : Bool
-         , compiler-options   : { GHC : { build-options : List Text } }
-         , hs-source-dirs     : List Text
-         , name               : Text
-         , other-modules      : List Text
-         , type               : < Shared : {} >
+         , build-tools          : List { exe : Text, version : VersionRange }
+         , buildable            : Bool
+         , c-sources            : List Text
+         , cc-options           : List Text
+         , compiler-options     : { GHC : { build-options : List Text } }
+         , cpp-options          : List Text
+         , default-extensions   : List <>
+         , default-language     : Optional < Haskell2010 : {} | Haskell98 : {} >
+         , extra-framework-dirs : List Text
+         , extra-ghci-libraries : List Text
+         , extra-lib-dirs       : List Text
+         , extra-libraries      : List Text
+         , frameworks           : List Text
+         , hs-source-dirs       : List Text
+         , include              : List Text
+         , include-dirs         : List Text
+         , install-includes     : List Text
+         , js-sources           : List Text
+         , ld-options           : List Text
+         , name                 : Text
+         , other-extensions     : List <>
+         , other-languages      : List < Haskell2010 : {} | Haskell98 : {} >
+         , other-modules        : List Text
+         , pkgconfig-depends    : List { name : Text, version : VersionRange }
+         , profiling-options    : { GHC : { build-options : List Text } }
+         , shared-options       : { GHC : { build-options : List Text } }
+         , type                 : < Shared : {} >
          }
 , homepage           = ""
 , library            = [] : Optional ./types/Library 
@@ -65,32 +128,74 @@
 , stability          = ""
 , sub-libraries      =
     [] : List
-         { build-dependencies : List { bounds : VersionRange, package : Text }
-         , build-tool-depends :
+         { autogen-modules      : List Text
+         , build-dependencies   : List { bounds : VersionRange, package : Text }
+         , build-tool-depends   :
              List { component : Text, package : Text, version : VersionRange }
-         , build-tools        : List { exe : Text, version : VersionRange }
-         , buildable          : Bool
-         , compiler-options   : { GHC : { build-options : List Text } }
-         , exposed-modules    : List Text
-         , hs-source-dirs     : List Text
-         , name               : Optional Text
-         , other-modules      : List Text
+         , build-tools          : List { exe : Text, version : VersionRange }
+         , buildable            : Bool
+         , c-sources            : List Text
+         , cc-options           : List Text
+         , compiler-options     : { GHC : { build-options : List Text } }
+         , cpp-options          : List Text
+         , default-extensions   : List <>
+         , default-language     : Optional < Haskell2010 : {} | Haskell98 : {} >
+         , exposed-modules      : List Text
+         , extra-framework-dirs : List Text
+         , extra-ghci-libraries : List Text
+         , extra-lib-dirs       : List Text
+         , extra-libraries      : List Text
+         , frameworks           : List Text
+         , hs-source-dirs       : List Text
+         , include              : List Text
+         , include-dirs         : List Text
+         , install-includes     : List Text
+         , js-sources           : List Text
+         , ld-options           : List Text
+         , name                 : Optional Text
+         , other-extensions     : List <>
+         , other-languages      : List < Haskell2010 : {} | Haskell98 : {} >
+         , other-modules        : List Text
+         , pkgconfig-depends    : List { name : Text, version : VersionRange }
+         , profiling-options    : { GHC : { build-options : List Text } }
+         , shared-options       : { GHC : { build-options : List Text } }
          }
 , synopsis           = ""
 , tested-with        =
     [] : List { compiler : < GHC : {} >, version : VersionRange }
 , tests              =
     [] : List
-         { build-dependencies : List { bounds : VersionRange, package : Text }
-         , build-tool-depends :
+         { autogen-modules      : List Text
+         , build-dependencies   : List { bounds : VersionRange, package : Text }
+         , build-tool-depends   :
              List { component : Text, package : Text, version : VersionRange }
-         , build-tools        : List { exe : Text, version : VersionRange }
-         , buildable          : Bool
-         , compiler-options   : { GHC : { build-options : List Text } }
-         , hs-source-dirs     : List Text
-         , main-is            : Text
-         , name               : Text
-         , other-modules      : List Text
+         , build-tools          : List { exe : Text, version : VersionRange }
+         , buildable            : Bool
+         , c-sources            : List Text
+         , cc-options           : List Text
+         , compiler-options     : { GHC : { build-options : List Text } }
+         , cpp-options          : List Text
+         , default-extensions   : List <>
+         , default-language     : Optional < Haskell2010 : {} | Haskell98 : {} >
+         , extra-framework-dirs : List Text
+         , extra-ghci-libraries : List Text
+         , extra-lib-dirs       : List Text
+         , extra-libraries      : List Text
+         , frameworks           : List Text
+         , hs-source-dirs       : List Text
+         , include              : List Text
+         , include-dirs         : List Text
+         , install-includes     : List Text
+         , js-sources           : List Text
+         , ld-options           : List Text
+         , main-is              : Text
+         , name                 : Text
+         , other-extensions     : List <>
+         , other-languages      : List < Haskell2010 : {} | Haskell98 : {} >
+         , other-modules        : List Text
+         , pkgconfig-depends    : List { name : Text, version : VersionRange }
+         , profiling-options    : { GHC : { build-options : List Text } }
+         , shared-options       : { GHC : { build-options : List Text } }
          }
 , x-fields           = [] : List { _1 : Text, _2 : Text }
 }

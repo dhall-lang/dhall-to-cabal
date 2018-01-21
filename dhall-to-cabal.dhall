@@ -13,7 +13,8 @@ in  let gitHub-project = ./dhall/gitHubProject.dhall
 
 in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
     ⫽ { executables =
-          [ { build-dependencies =
+          [ { autogen-modules      = [] : List Text
+            , build-dependencies   =
                 [ common-deps.base
                 , { bounds = anyVersion, package = "dhall-to-cabal" }
                 , { bounds  = majorVersion [ +0, +13, +2 ]
@@ -23,24 +24,51 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                 , common-deps.dhall
                 , common-deps.Cabal
                 ]
-            , build-tool-depends =
+            , build-tool-depends   =
                 [] : List
                      { component : Text
                      , package   : Text
                      , version   : VersionRange
                      }
-            , build-tools        =
+            , build-tools          =
                 [] : List { exe : Text, version : VersionRange }
-            , buildable          = True
-            , compiler-options   = { GHC = { build-options = [] : List Text } }
-            , hs-source-dirs     = [ "exe" ]
-            , main-is            = "Main.hs"
-            , name               = "dhall-to-cabal"
-            , other-modules      = [] : List Text
+            , buildable            = True
+            , c-sources            = [] : List Text
+            , cc-options           = [] : List Text
+            , compiler-options     =
+                { GHC = { build-options = [] : List Text } }
+            , cpp-options          = [] : List Text
+            , default-extensions   = [] : List <>
+            , default-language     =
+                [] : Optional < Haskell2010 : {} | Haskell98 : {} >
+            , extra-framework-dirs = [] : List Text
+            , extra-ghci-libraries = [] : List Text
+            , extra-lib-dirs       = [] : List Text
+            , extra-libraries      = [] : List Text
+            , frameworks           = [] : List Text
+            , hs-source-dirs       = [ "exe" ]
+            , include              = [] : List Text
+            , include-dirs         = [] : List Text
+            , install-includes     = [] : List Text
+            , js-sources           = [] : List Text
+            , ld-options           = [] : List Text
+            , main-is              = "Main.hs"
+            , name                 = "dhall-to-cabal"
+            , other-extensions     = [] : List <>
+            , other-languages      =
+                [] : List < Haskell2010 : {} | Haskell98 : {} >
+            , other-modules        = [] : List Text
+            , pkgconfig-depends    =
+                [] : List { name : Text, version : VersionRange }
+            , profiling-options    =
+                { GHC = { build-options = [] : List Text } }
+            , shared-options       =
+                { GHC = { build-options = [] : List Text } }
             }
           ]
       , library     =
-          [ { build-dependencies =
+          [ { autogen-modules      = [] : List Text
+            , build-dependencies   =
                 [ common-deps.base
                 , common-deps.Cabal
                 , common-deps.dhall
@@ -54,28 +82,54 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                   , package = "transformers"
                   }
                 ]
-            , build-tool-depends =
+            , build-tool-depends   =
                 [] : List
                      { component : Text
                      , package   : Text
                      , version   : VersionRange
                      }
-            , build-tools        =
+            , build-tools          =
                 [] : List { exe : Text, version : VersionRange }
-            , buildable          = True
-            , compiler-options   =
+            , buildable            = True
+            , c-sources            = [] : List Text
+            , cc-options           = [] : List Text
+            , compiler-options     =
                 { GHC =
                     { build-options = [ "-Wall", "-fno-warn-name-shadowing" ] }
                 }
-            , exposed-modules    = [ "Distribution.Package.Dhall" ]
-            , hs-source-dirs     = [ "lib" ]
-            , name               = [] : Optional Text
-            , other-modules      = [ "Dhall.Extra" ]
+            , cpp-options          = [] : List Text
+            , default-extensions   = [] : List <>
+            , default-language     =
+                [] : Optional < Haskell2010 : {} | Haskell98 : {} >
+            , exposed-modules      = [ "Distribution.Package.Dhall" ]
+            , extra-framework-dirs = [] : List Text
+            , extra-ghci-libraries = [] : List Text
+            , extra-lib-dirs       = [] : List Text
+            , extra-libraries      = [] : List Text
+            , frameworks           = [] : List Text
+            , hs-source-dirs       = [ "lib" ]
+            , include              = [] : List Text
+            , include-dirs         = [] : List Text
+            , install-includes     = [] : List Text
+            , js-sources           = [] : List Text
+            , ld-options           = [] : List Text
+            , name                 = [] : Optional Text
+            , other-extensions     = [] : List <>
+            , other-languages      =
+                [] : List < Haskell2010 : {} | Haskell98 : {} >
+            , other-modules        = [ "Dhall.Extra" ]
+            , pkgconfig-depends    =
+                [] : List { name : Text, version : VersionRange }
+            , profiling-options    =
+                { GHC = { build-options = [] : List Text } }
+            , shared-options       =
+                { GHC = { build-options = [] : List Text } }
             }
           ] : Optional ./dhall/types/Library 
       , package     = { name = "dhall-to-cabal", version = [ +0, +1, +0 ] }
       , tests       =
-          [ { build-dependencies =
+          [ { autogen-modules      = [] : List Text
+            , build-dependencies   =
                 [ common-deps.bytestring
                 , common-deps.base
                 , common-deps.Cabal
@@ -85,20 +139,46 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                 , { bounds = anyVersion, package = "dhall-to-cabal" }
                 , { bounds = majorVersion [ +2, +3 ], package = "tasty-golden" }
                 ]
-            , build-tool-depends =
+            , build-tool-depends   =
                 [] : List
                      { component : Text
                      , package   : Text
                      , version   : VersionRange
                      }
-            , build-tools        =
+            , build-tools          =
                 [] : List { exe : Text, version : VersionRange }
-            , buildable          = True
-            , compiler-options   = { GHC = { build-options = [] : List Text } }
-            , hs-source-dirs     = [ "golden-tests" ]
-            , main-is            = "GoldenTests.hs"
-            , name               = "golden-tests"
-            , other-modules      = [] : List Text
+            , buildable            = True
+            , c-sources            = [] : List Text
+            , cc-options           = [] : List Text
+            , compiler-options     =
+                { GHC = { build-options = [] : List Text } }
+            , cpp-options          = [] : List Text
+            , default-extensions   = [] : List <>
+            , default-language     =
+                [] : Optional < Haskell2010 : {} | Haskell98 : {} >
+            , extra-framework-dirs = [] : List Text
+            , extra-ghci-libraries = [] : List Text
+            , extra-lib-dirs       = [] : List Text
+            , extra-libraries      = [] : List Text
+            , frameworks           = [] : List Text
+            , hs-source-dirs       = [ "golden-tests" ]
+            , include              = [] : List Text
+            , include-dirs         = [] : List Text
+            , install-includes     = [] : List Text
+            , js-sources           = [] : List Text
+            , ld-options           = [] : List Text
+            , main-is              = "GoldenTests.hs"
+            , name                 = "golden-tests"
+            , other-extensions     = [] : List <>
+            , other-languages      =
+                [] : List < Haskell2010 : {} | Haskell98 : {} >
+            , other-modules        = [] : List Text
+            , pkgconfig-depends    =
+                [] : List { name : Text, version : VersionRange }
+            , profiling-options    =
+                { GHC = { build-options = [] : List Text } }
+            , shared-options       =
+                { GHC = { build-options = [] : List Text } }
             }
           ]
       }

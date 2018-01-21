@@ -39,8 +39,11 @@ import qualified Distribution.Types.ForeignLibType as Cabal
 import qualified Distribution.Types.LegacyExeDependency as Cabal
 import qualified Distribution.Types.PackageId as Cabal
 import qualified Distribution.Types.PackageName as Cabal
+import qualified Distribution.Types.PkgconfigDependency as Cabal
+import qualified Distribution.Types.PkgconfigName as Cabal
 import qualified Distribution.Types.UnqualComponentName as Cabal
 import qualified Distribution.Version as Cabal
+import qualified Language.Haskell.Extension as Cabal
 
 import qualified Dhall.Core as Expr
   ( Const(..), Expr(..), Var(..) )
@@ -212,28 +215,28 @@ buildInfo = do
     keyValue "build-tool-depends" ( list exeDependency )
 
   cppOptions <-
-    pure []
+    keyValue "cpp-options" ( list string )
 
   ccOptions <-
-    pure []
+    keyValue "cc-options" ( list string )
 
   ldOptions <-
-    pure []
+    keyValue "ld-options" ( list string )
 
   pkgconfigDepends <-
-    pure []
+    keyValue "pkgconfig-depends" ( list pkgconfigDependency )
 
   frameworks <-
-    pure []
+    keyValue "frameworks" ( list string )
 
   extraFrameworkDirs <-
-    pure []
+    keyValue "extra-framework-dirs" ( list string )
 
   cSources <-
-    pure []
+    keyValue "c-sources" ( list string )
 
   jsSources <-
-    pure []
+    keyValue "js-sources" ( list string )
 
   hsSourceDirs <-
     keyValue "hs-source-dirs" ( list string )
@@ -242,49 +245,49 @@ buildInfo = do
     keyValue "other-modules" ( list moduleName )
 
   autogenModules <-
-    pure []
+    keyValue "autogen-modules" ( list moduleName )
 
   defaultLanguage <-
-    pure Nothing
+    keyValue "default-language" ( Dhall.maybe language )
 
   otherLanguages <-
-    pure []
+    keyValue "other-languages" ( list language )
 
   defaultExtensions <-
-    pure []
+    keyValue "default-extensions" ( list extension )
 
   otherExtensions <-
-    pure []
+    keyValue "other-extensions" ( list extension )
 
   oldExtensions <-
     pure []
 
   extraLibs <-
-    pure []
+    keyValue "extra-libraries" ( list string )
 
   extraGHCiLibs <-
-    pure []
+    keyValue "extra-ghci-libraries" ( list string )
 
   extraLibDirs <-
-    pure []
+    keyValue "extra-lib-dirs" ( list string )
 
   includeDirs <-
-    pure []
+    keyValue "include-dirs" ( list string )
 
   includes <-
-    pure []
+    keyValue "include" ( list string )
 
   installIncludes <-
-    pure []
+    keyValue "install-includes" ( list string )
 
   options <-
     keyValue "compiler-options" compilerOptions
 
   profOptions <-
-    pure []
+    keyValue "profiling-options" compilerOptions
 
   sharedOptions <-
-    pure []
+    keyValue "shared-options" compilerOptions
 
   customFieldsBI <-
     pure []
@@ -656,3 +659,42 @@ exeDependency =
       keyValue "version" versionRange
 
     pure ( Cabal.ExeDependency packageName component version )
+
+
+
+language :: Dhall.Type Cabal.Language
+language =
+  makeUnion
+    ( Map.fromList
+        [ ( "Haskell98", Cabal.Haskell98 <$ emptyRecord  )
+        , ( "Haskell2010", Cabal.Haskell2010 <$ emptyRecord )
+        ]
+    )
+  
+
+
+pkgconfigDependency :: Dhall.Type Cabal.PkgconfigDependency
+pkgconfigDependency =
+  makeRecord $ do
+    name <-
+      keyValue "name" pkgconfigName
+
+    version <-
+      keyValue "version" versionRange
+
+    return ( Cabal.PkgconfigDependency name version )
+
+
+
+pkgconfigName :: Dhall.Type Cabal.PkgconfigName
+pkgconfigName =
+  Cabal.mkPkgconfigName <$> string
+
+
+
+extension :: Dhall.Type Cabal.Extension
+extension =
+  makeUnion
+    ( Map.fromList
+        [ ]
+    )
