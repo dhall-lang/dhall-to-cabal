@@ -2,6 +2,8 @@
 
 in  let licenses = constructors ./dhall/types/License 
 
+in  let extensions = constructors ./dhall/types/Extension 
+
 in  let common-deps =
           { Cabal      =
               { bounds = majorBoundVersion [ +2, +0 ], package = "Cabal" }
@@ -36,6 +38,7 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
               , hs-source-dirs     = [ "exe" ]
               , main-is            = "Main.hs"
               , name               = "dhall-to-cabal"
+              , other-extensions   = [ extensions.NamedFieldPuns {=} ]
               }
           ]
       , library     =
@@ -71,6 +74,15 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                     }
               , exposed-modules    = [ "Distribution.Package.Dhall" ]
               , hs-source-dirs     = [ "lib" ]
+              , other-extensions   =
+                  [ extensions.ApplicativeDo {=}
+                  , extensions.GADTs {=}
+                  , extensions.GeneralizedNewtypeDeriving {=}
+                  , extensions.LambdaCase {=}
+                  , extensions.OverloadedStrings {=}
+                  , extensions.RecordWildCards {=}
+                  , extensions.TypeApplications {=}
+                  ]
               , other-modules      = [ "Dhall.Extra" ]
               }
           ] : Optional ./dhall/types/Library 

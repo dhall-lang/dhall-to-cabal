@@ -8,7 +8,7 @@
 , cc-options           = [] : List Text
 , compiler-options     = ./CompilerOptions 
 , cpp-options          = [] : List Text
-, default-extensions   = [] : List <>
+, default-extensions   = [] : List ../types/Extension
 , default-language     = [] : Optional < Haskell2010 : {} | Haskell98 : {} >
 , extra-framework-dirs = [] : List Text
 , extra-ghci-libraries = [] : List Text
@@ -21,7 +21,7 @@
 , install-includes     = [] : List Text
 , js-sources           = [] : List Text
 , ld-options           = [] : List Text
-, other-extensions     = [] : List <>
+, other-extensions     = [] : List ../types/Extension
 , other-languages      = [] : List < Haskell2010 : {} | Haskell98 : {} >
 , other-modules        = [] : List Text
 , pkgconfig-depends    = [] : List { name : Text, version : VersionRange }

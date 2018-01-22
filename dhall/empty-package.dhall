@@ -11,7 +11,7 @@
          , cc-options           : List Text
          , compiler-options     : ./types/CompilerOptions 
          , cpp-options          : List Text
-         , default-extensions   : List <>
+         , default-extensions   : List ./types/Extension 
          , default-language     : Optional < Haskell2010 : {} | Haskell98 : {} >
          , extra-framework-dirs : List Text
          , extra-ghci-libraries : List Text
@@ -26,7 +26,7 @@
          , ld-options           : List Text
          , main-is              : Text
          , name                 : Text
-         , other-extensions     : List <>
+         , other-extensions     : List ./types/Extension 
          , other-languages      : List < Haskell2010 : {} | Haskell98 : {} >
          , other-modules        : List Text
          , pkgconfig-depends    : List { name : Text, version : VersionRange }
@@ -55,7 +55,7 @@
          , cc-options           : List Text
          , compiler-options     : ./types/CompilerOptions 
          , cpp-options          : List Text
-         , default-extensions   : List <>
+         , default-extensions   : List ./types/Extension 
          , default-language     : Optional < Haskell2010 : {} | Haskell98 : {} >
          , extra-framework-dirs : List Text
          , extra-ghci-libraries : List Text
@@ -70,7 +70,7 @@
          , ld-options           : List Text
          , main-is              : Text
          , name                 : Text
-         , other-extensions     : List <>
+         , other-extensions     : List ./types/Extension 
          , other-languages      : List < Haskell2010 : {} | Haskell98 : {} >
          , other-modules        : List Text
          , pkgconfig-depends    : List { name : Text, version : VersionRange }
@@ -94,7 +94,7 @@
          , cc-options              : List Text
          , compiler-options        : ./types/CompilerOptions 
          , cpp-options             : List Text
-         , default-extensions      : List <>
+         , default-extensions      : List ./types/Extension 
          , default-language        :
              Optional < Haskell2010 : {} | Haskell98 : {} >
          , extra-framework-dirs    : List Text
@@ -112,7 +112,7 @@
          , module-definition-files : List Text
          , name                    : Text
          , options                 : List < Standalone : {} >
-         , other-extensions        : List <>
+         , other-extensions        : List ./types/Extension 
          , other-languages         : List < Haskell2010 : {} | Haskell98 : {} >
          , other-modules           : List Text
          , pkgconfig-depends       :
@@ -175,7 +175,7 @@
          , cc-options           : List Text
          , compiler-options     : ./types/CompilerOptions 
          , cpp-options          : List Text
-         , default-extensions   : List <>
+         , default-extensions   : List ./types/Extension 
          , default-language     : Optional < Haskell2010 : {} | Haskell98 : {} >
          , exposed-modules      : List Text
          , extra-framework-dirs : List Text
@@ -190,7 +190,7 @@
          , js-sources           : List Text
          , ld-options           : List Text
          , name                 : Optional Text
-         , other-extensions     : List <>
+         , other-extensions     : List ./types/Extension 
          , other-languages      : List < Haskell2010 : {} | Haskell98 : {} >
          , other-modules        : List Text
          , pkgconfig-depends    : List { name : Text, version : VersionRange }
@@ -231,7 +231,7 @@
          , cc-options           : List Text
          , compiler-options     : ./types/CompilerOptions 
          , cpp-options          : List Text
-         , default-extensions   : List <>
+         , default-extensions   : List ./types/Extension 
          , default-language     : Optional < Haskell2010 : {} | Haskell98 : {} >
          , extra-framework-dirs : List Text
          , extra-ghci-libraries : List Text
@@ -246,7 +246,7 @@
          , ld-options           : List Text
          , main-is              : Text
          , name                 : Text
-         , other-extensions     : List <>
+         , other-extensions     : List ./types/Extension 
          , other-languages      : List < Haskell2010 : {} | Haskell98 : {} >
          , other-modules        : List Text
          , pkgconfig-depends    : List { name : Text, version : VersionRange }
