@@ -1,6 +1,7 @@
 {-# language ApplicativeDo #-}
 {-# language GADTs #-}
 {-# language GeneralizedNewtypeDeriving #-}
+{-# language LambdaCase #-}
 {-# language OverloadedStrings #-}
 {-# language RecordWildCards #-}
 {-# language TypeApplications #-}
@@ -634,8 +635,8 @@ cabalContext =
 versionRange :: Dhall.Type Cabal.VersionRange
 versionRange =
   let
-    extract expr =
-      case expr of
+    extract =
+      \case
         Expr.Var ( Expr.V "anyVersion" 0 ) ->
           return Cabal.anyVersion
 
