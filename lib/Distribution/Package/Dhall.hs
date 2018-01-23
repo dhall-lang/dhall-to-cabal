@@ -68,7 +68,7 @@ packageIdentifier =
 
 packageName :: Dhall.Type Cabal.PackageName
 packageName =
-  Cabal.mkPackageName <$> string
+  Cabal.mkPackageName <$> Dhall.string
 
 
 
@@ -79,28 +79,30 @@ packageDescription =
       keyValue "package" packageIdentifier
 
     benchmarks <-
-      keyValue "benchmarks" ( list benchmark )
+      keyValue "benchmarks" ( Dhall.list benchmark )
 
     testSuites <-
-      keyValue "tests" ( list testSuite )
+      keyValue "tests" ( Dhall.list testSuite )
 
     executables <-
-      keyValue "executables" ( list executable )
+      keyValue "executables" ( Dhall.list executable )
 
     foreignLibs <-
-      keyValue "foreign-libraries" ( list foreignLib )
+      keyValue "foreign-libraries" ( Dhall.list foreignLib )
 
     subLibraries <-
-      keyValue "sub-libraries" ( list library )
+      keyValue "sub-libraries" ( Dhall.list library )
 
     library <-
       keyValue "library" ( Dhall.maybe library )
 
     customFieldsPD <-
-      keyValue "x-fields" ( list ( pair string string ) )
+      keyValue
+        "x-fields"
+        ( Dhall.list ( Dhall.pair Dhall.string Dhall.string ) )
 
     sourceRepos <-
-      keyValue "source-repos" ( list sourceRepo )
+      keyValue "source-repos" ( Dhall.list sourceRepo )
 
     specVersionRaw <-
       Left <$> ( keyValue "cabal-version" version )
@@ -112,40 +114,40 @@ packageDescription =
       keyValue "license" license
 
     licenseFiles <-
-      keyValue "license-files" ( list string )
+      keyValue "license-files" ( Dhall.list Dhall.string )
 
     copyright <-
-      keyValue "copyright" string
+      keyValue "copyright" Dhall.string
 
     maintainer <-
-      keyValue "maintainer" string
+      keyValue "maintainer" Dhall.string
 
     author <-
-      keyValue "author" string
+      keyValue "author" Dhall.string
 
     stability <-
-      keyValue "stability" string
+      keyValue "stability" Dhall.string
 
     testedWith <-
-      keyValue "tested-with" ( list compiler )
+      keyValue "tested-with" ( Dhall.list compiler )
 
     homepage <-
-      keyValue "homepage" string
+      keyValue "homepage" Dhall.string
 
     pkgUrl <-
-      keyValue "package-url" string
+      keyValue "package-url" Dhall.string
 
     bugReports <-
-      keyValue "bug-reports" string
+      keyValue "bug-reports" Dhall.string
 
     synopsis <-
-      keyValue "synopsis" string
+      keyValue "synopsis" Dhall.string
 
     description <-
-      keyValue "description" string
+      keyValue "description" Dhall.string
 
     category <-
-      keyValue "category" string
+      keyValue "category" Dhall.string
 
     -- Cabal documentation states
     --
@@ -159,19 +161,19 @@ packageDescription =
       pure Nothing
 
     dataFiles <-
-      keyValue "data-files" ( list string )
+      keyValue "data-files" ( Dhall.list Dhall.string )
 
     dataDir <-
-      keyValue "data-directory" string
+      keyValue "data-directory" Dhall.string
 
     extraSrcFiles <-
-      keyValue "extra-source-files" ( list string )
+      keyValue "extra-source-files" ( Dhall.list Dhall.string )
 
     extraTmpFiles <-
-      keyValue "extra-temp-files" ( list string )
+      keyValue "extra-temp-files" ( Dhall.list Dhall.string )
 
     extraDocFiles <-
-      keyValue "extra-doc-files" ( list string )
+      keyValue "extra-doc-files" ( Dhall.list Dhall.string )
 
     return Cabal.PackageDescription { .. }
 
@@ -179,7 +181,7 @@ packageDescription =
 
 version :: Dhall.Type Cabal.Version
 version =
-  Cabal.mkVersion <$> list ( fromIntegral <$> Dhall.natural )
+  Cabal.mkVersion <$> Dhall.list ( fromIntegral <$> Dhall.natural )
 
 
 
@@ -187,7 +189,7 @@ benchmark :: Dhall.Type Cabal.Benchmark
 benchmark =
   makeRecord $ do
     mainIs <-
-      keyValue "main-is" string
+      keyValue "main-is" Dhall.string
 
     benchmarkName <-
       keyValue "name" unqualComponentName
@@ -210,76 +212,76 @@ buildInfo = do
     keyValue "buildable" Dhall.bool
 
   buildTools <-
-    keyValue "build-tools" ( list legacyExeDependency )
+    keyValue "build-tools" ( Dhall.list legacyExeDependency )
 
   buildToolDepends <-
-    keyValue "build-tool-depends" ( list exeDependency )
+    keyValue "build-tool-depends" ( Dhall.list exeDependency )
 
   cppOptions <-
-    keyValue "cpp-options" ( list string )
+    keyValue "cpp-options" ( Dhall.list Dhall.string )
 
   ccOptions <-
-    keyValue "cc-options" ( list string )
+    keyValue "cc-options" ( Dhall.list Dhall.string )
 
   ldOptions <-
-    keyValue "ld-options" ( list string )
+    keyValue "ld-options" ( Dhall.list Dhall.string )
 
   pkgconfigDepends <-
-    keyValue "pkgconfig-depends" ( list pkgconfigDependency )
+    keyValue "pkgconfig-depends" ( Dhall.list pkgconfigDependency )
 
   frameworks <-
-    keyValue "frameworks" ( list string )
+    keyValue "frameworks" ( Dhall.list Dhall.string )
 
   extraFrameworkDirs <-
-    keyValue "extra-framework-dirs" ( list string )
+    keyValue "extra-framework-dirs" ( Dhall.list Dhall.string )
 
   cSources <-
-    keyValue "c-sources" ( list string )
+    keyValue "c-sources" ( Dhall.list Dhall.string )
 
   jsSources <-
-    keyValue "js-sources" ( list string )
+    keyValue "js-sources" ( Dhall.list Dhall.string )
 
   hsSourceDirs <-
-    keyValue "hs-source-dirs" ( list string )
+    keyValue "hs-source-dirs" ( Dhall.list Dhall.string )
 
   otherModules <-
-    keyValue "other-modules" ( list moduleName )
+    keyValue "other-modules" ( Dhall.list moduleName )
 
   autogenModules <-
-    keyValue "autogen-modules" ( list moduleName )
+    keyValue "autogen-modules" ( Dhall.list moduleName )
 
   defaultLanguage <-
     keyValue "default-language" ( Dhall.maybe language )
 
   otherLanguages <-
-    keyValue "other-languages" ( list language )
+    keyValue "other-languages" ( Dhall.list language )
 
   defaultExtensions <-
-    keyValue "default-extensions" ( list extension )
+    keyValue "default-extensions" ( Dhall.list extension )
 
   otherExtensions <-
-    keyValue "other-extensions" ( list extension )
+    keyValue "other-extensions" ( Dhall.list extension )
 
   oldExtensions <-
     pure []
 
   extraLibs <-
-    keyValue "extra-libraries" ( list string )
+    keyValue "extra-libraries" ( Dhall.list Dhall.string )
 
   extraGHCiLibs <-
-    keyValue "extra-ghci-libraries" ( list string )
+    keyValue "extra-ghci-libraries" ( Dhall.list Dhall.string )
 
   extraLibDirs <-
-    keyValue "extra-lib-dirs" ( list string )
+    keyValue "extra-lib-dirs" ( Dhall.list Dhall.string )
 
   includeDirs <-
-    keyValue "include-dirs" ( list string )
+    keyValue "include-dirs" ( Dhall.list Dhall.string )
 
   includes <-
-    keyValue "include" ( list string )
+    keyValue "include" ( Dhall.list Dhall.string )
 
   installIncludes <-
-    keyValue "install-includes" ( list string )
+    keyValue "install-includes" ( Dhall.list Dhall.string )
 
   options <-
     keyValue "compiler-options" compilerOptions
@@ -294,7 +296,7 @@ buildInfo = do
     pure []
 
   targetBuildDepends <-
-    keyValue "build-dependencies" ( list dependency )
+    keyValue "build-dependencies" ( Dhall.list dependency )
 
   mixins <-
     pure []
@@ -310,7 +312,7 @@ testSuite =
       keyValue "name" unqualComponentName
 
     mainIs <-
-      keyValue "main-is" string
+      keyValue "main-is" Dhall.string
 
     testBuildInfo <-
       buildInfo
@@ -326,7 +328,7 @@ testSuite =
 
 unqualComponentName :: Dhall.Type Cabal.UnqualComponentName
 unqualComponentName =
-  Cabal.mkUnqualComponentName <$> string
+  Cabal.mkUnqualComponentName <$> Dhall.string
 
 
 
@@ -337,7 +339,7 @@ executable =
       keyValue "name" unqualComponentName
 
     modulePath <-
-      keyValue "main-is" string
+      keyValue "main-is" Dhall.string
 
     exeScope <-
       keyValue "scope" executableScope
@@ -359,7 +361,7 @@ foreignLib =
       keyValue "type" foreignLibType
 
     foreignLibOptions <-
-      keyValue "options" ( list foreignLibOption )
+      keyValue "options" ( Dhall.list foreignLibOption )
 
     foreignLibBuildInfo <-
       buildInfo
@@ -371,7 +373,7 @@ foreignLib =
       keyValue "linux-version" ( Dhall.maybe version )
 
     foreignLibModDefFile <-
-      keyValue "module-definition-files" ( list string )
+      keyValue "module-definition-files" ( Dhall.list Dhall.string )
 
     pure Cabal.ForeignLib { .. }
 
@@ -381,8 +383,8 @@ foreignLibType :: Dhall.Type Cabal.ForeignLibType
 foreignLibType =
   makeUnion
     ( Map.fromList
-        [ ( "Shared", Cabal.ForeignLibNativeShared <$ emptyRecord )
-        , ( "Static", Cabal.ForeignLibNativeStatic <$ emptyRecord )
+        [ ( "Shared", Cabal.ForeignLibNativeShared <$ Dhall.unit )
+        , ( "Static", Cabal.ForeignLibNativeStatic <$ Dhall.unit )
         ]
     )
 
@@ -398,10 +400,10 @@ library =
       buildInfo
 
     exposedModules <-
-      keyValue "exposed-modules" ( list moduleName )
+      keyValue "exposed-modules" ( Dhall.list moduleName )
 
     reexportedModules <-
-      keyValue "reexported-modules" ( list moduleReexport )
+      keyValue "reexported-modules" ( Dhall.list moduleReexport )
 
     signatures <-
       pure []
@@ -423,7 +425,7 @@ sourceRepo =
       keyValue "type" ( Dhall.maybe repoType )
 
     repoLocation <-
-      keyValue "location" ( Dhall.maybe string )
+      keyValue "location" ( Dhall.maybe Dhall.string )
 
     repoModule <-
       pure Nothing
@@ -457,7 +459,7 @@ dependency =
 moduleName :: Dhall.Type Cabal.ModuleName
 moduleName =
   validateType $
-    Cabal.simpleParse <$> string
+    Cabal.simpleParse <$> Dhall.string
 
 
 
@@ -699,10 +701,10 @@ buildType :: Dhall.Type Cabal.BuildType
 buildType =
   makeUnion
     ( Map.fromList
-        [ ( "Simple", Cabal.Simple <$ emptyRecord )
-        , ( "Configure", Cabal.Configure <$ emptyRecord )
-        , ( "Make", Cabal.Make <$ emptyRecord )
-        , ( "Custom", Cabal.Custom <$ emptyRecord )
+        [ ( "Simple", Cabal.Simple <$ Dhall.unit )
+        , ( "Configure", Cabal.Configure <$ Dhall.unit )
+        , ( "Make", Cabal.Make <$ Dhall.unit )
+        , ( "Custom", Cabal.Custom <$ Dhall.unit )
         ]
     )
 
@@ -715,17 +717,17 @@ license =
         [ ( "GPL", Cabal.GPL <$> Dhall.maybe version )
         , ( "AGPL", Cabal.AGPL <$> Dhall.maybe version )
         , ( "LGPL", Cabal.LGPL <$> Dhall.maybe version )
-        , ( "BSD2", Cabal.BSD2 <$ emptyRecord )
-        , ( "BSD3", Cabal.BSD3 <$ emptyRecord )
-        , ( "BSD4", Cabal.BSD4 <$ emptyRecord )
-        , ( "MIT", Cabal.MIT <$ emptyRecord )
-        , ( "ISC", Cabal.ISC <$ emptyRecord )
+        , ( "BSD2", Cabal.BSD2 <$ Dhall.unit )
+        , ( "BSD3", Cabal.BSD3 <$ Dhall.unit )
+        , ( "BSD4", Cabal.BSD4 <$ Dhall.unit )
+        , ( "MIT", Cabal.MIT <$ Dhall.unit )
+        , ( "ISC", Cabal.ISC <$ Dhall.unit )
         , ( "MPL", Cabal.MPL <$> version )
         , ( "Apache", Cabal.Apache <$> Dhall.maybe version )
-        , ( "PublicDomain", Cabal.PublicDomain <$ emptyRecord )
-        , ( "AllRightsReserved", Cabal.AllRightsReserved<$ emptyRecord )
-        , ( "Unspecified", Cabal.UnspecifiedLicense <$ emptyRecord )
-        , ( "Other", Cabal.OtherLicense <$ emptyRecord )
+        , ( "PublicDomain", Cabal.PublicDomain <$ Dhall.unit )
+        , ( "AllRightsReserved", Cabal.AllRightsReserved<$ Dhall.unit )
+        , ( "Unspecified", Cabal.UnspecifiedLicense <$ Dhall.unit )
+        , ( "Other", Cabal.OtherLicense <$ Dhall.unit )
         ]
     )
 
@@ -744,16 +746,16 @@ compilerFlavor :: Dhall.Type Cabal.CompilerFlavor
 compilerFlavor =
   makeUnion
     ( Map.fromList
-        [ ( "GHC", Cabal.GHC <$ emptyRecord )
-        , ( "GHCJS", Cabal.GHCJS <$ emptyRecord )
-        , ( "NHC", Cabal.NHC <$ emptyRecord )
-        , ( "YHC", Cabal.YHC <$ emptyRecord )
-        , ( "Hugs", Cabal.Hugs <$ emptyRecord )
-        , ( "HBC", Cabal.HBC <$ emptyRecord )
-        , ( "Helium", Cabal.Helium <$ emptyRecord )
-        , ( "JHC", Cabal.JHC <$ emptyRecord )
-        , ( "LHC", Cabal.LHC <$ emptyRecord )
-        , ( "UHC", Cabal.UHC <$ emptyRecord )
+        [ ( "GHC", Cabal.GHC <$ Dhall.unit )
+        , ( "GHCJS", Cabal.GHCJS <$ Dhall.unit )
+        , ( "NHC", Cabal.NHC <$ Dhall.unit )
+        , ( "YHC", Cabal.YHC <$ Dhall.unit )
+        , ( "Hugs", Cabal.Hugs <$ Dhall.unit )
+        , ( "HBC", Cabal.HBC <$ Dhall.unit )
+        , ( "Helium", Cabal.Helium <$ Dhall.unit )
+        , ( "JHC", Cabal.JHC <$ Dhall.unit )
+        , ( "LHC", Cabal.LHC <$ Dhall.unit )
+        , ( "UHC", Cabal.UHC <$ Dhall.unit )
         ]
     )
 
@@ -763,7 +765,7 @@ repoType :: Dhall.Type Cabal.RepoType
 repoType =
   makeUnion
     ( Map.fromList
-        [ ( "Git", Cabal.Git <$ emptyRecord ) ]
+        [ ( "Git", Cabal.Git <$ Dhall.unit ) ]
     )
 
 
@@ -772,7 +774,7 @@ legacyExeDependency :: Dhall.Type Cabal.LegacyExeDependency
 legacyExeDependency =
   makeRecord $ do
     exe <-
-      keyValue "exe" string
+      keyValue "exe" Dhall.string
 
     version <-
       keyValue "version" versionRange
@@ -801,7 +803,7 @@ compilerOptions =
 
     optionsRecord =
       makeRecord $
-        keyValue "build-options" ( list string )
+        keyValue "build-options" ( Dhall.list Dhall.string )
 
 
 
@@ -825,8 +827,8 @@ language :: Dhall.Type Cabal.Language
 language =
   makeUnion
     ( Map.fromList
-        [ ( "Haskell98", Cabal.Haskell98 <$ emptyRecord  )
-        , ( "Haskell2010", Cabal.Haskell2010 <$ emptyRecord )
+        [ ( "Haskell98", Cabal.Haskell98 <$ Dhall.unit  )
+        , ( "Haskell2010", Cabal.Haskell2010 <$ Dhall.unit )
         ]
     )
 
@@ -847,7 +849,7 @@ pkgconfigDependency =
 
 pkgconfigName :: Dhall.Type Cabal.PkgconfigName
 pkgconfigName =
-  Cabal.mkPkgconfigName <$> string
+  Cabal.mkPkgconfigName <$> Dhall.string
 
 
 
@@ -855,8 +857,8 @@ executableScope :: Dhall.Type Cabal.ExecutableScope
 executableScope =
   makeUnion
     ( Map.fromList
-        [ ( "Public", Cabal.ExecutablePublic <$ emptyRecord )
-        , ( "Private", Cabal.ExecutablePrivate <$ emptyRecord )
+        [ ( "Public", Cabal.ExecutablePublic <$ Dhall.unit )
+        , ( "Private", Cabal.ExecutablePrivate <$ Dhall.unit )
         ]
     )
 
@@ -891,7 +893,7 @@ foreignLibOption :: Dhall.Type Cabal.ForeignLibOption
 foreignLibOption =
   makeUnion
     ( Map.fromList
-        [ ( "Standalone", Cabal.ForeignLibStandalone <$ emptyRecord ) ]
+        [ ( "Standalone", Cabal.ForeignLibStandalone <$ Dhall.unit ) ]
     )
 
 
@@ -911,124 +913,124 @@ extension =
   Cabal.EnableExtension <$>
   makeUnion
     ( Map.fromList
-        [ ( "AllowAmbiguousTypes", Cabal.AllowAmbiguousTypes <$ emptyRecord )
-        , ( "ApplicativeDo", Cabal.ApplicativeDo <$ emptyRecord )
-        , ( "Arrows", Cabal.Arrows <$ emptyRecord )
-        , ( "AutoDeriveTypeable", Cabal.AutoDeriveTypeable <$ emptyRecord )
-        , ( "BangPatterns", Cabal.BangPatterns <$ emptyRecord )
-        , ( "BinaryLiterals", Cabal.BinaryLiterals <$ emptyRecord )
-        , ( "CApiFFI", Cabal.CApiFFI <$ emptyRecord )
-        , ( "CPP", Cabal.CPP <$ emptyRecord )
-        , ( "ConstrainedClassMethods", Cabal.ConstrainedClassMethods <$ emptyRecord )
-        , ( "ConstraintKinds", Cabal.ConstraintKinds <$ emptyRecord )
-        , ( "DataKinds", Cabal.DataKinds <$ emptyRecord )
-        , ( "DatatypeContexts", Cabal.DatatypeContexts <$ emptyRecord )
-        , ( "DefaultSignatures", Cabal.DefaultSignatures <$ emptyRecord )
-        , ( "DeriveAnyClass", Cabal.DeriveAnyClass <$ emptyRecord )
-        , ( "DeriveDataTypeable", Cabal.DeriveDataTypeable <$ emptyRecord )
-        , ( "DeriveFoldable", Cabal.DeriveFoldable <$ emptyRecord )
-        , ( "DeriveFunctor", Cabal.DeriveFunctor <$ emptyRecord )
-        , ( "DeriveGeneric", Cabal.DeriveGeneric <$ emptyRecord )
-        , ( "DeriveLift", Cabal.DeriveLift <$ emptyRecord )
-        , ( "DeriveTraversable", Cabal.DeriveTraversable <$ emptyRecord )
-        , ( "DisambiguateRecordFields", Cabal.DisambiguateRecordFields <$ emptyRecord )
-        , ( "DoAndIfThenElse", Cabal.DoAndIfThenElse <$ emptyRecord )
-        , ( "DoRec", Cabal.DoRec <$ emptyRecord )
-        , ( "DuplicateRecordFields", Cabal.DuplicateRecordFields <$ emptyRecord )
-        , ( "EmptyCase", Cabal.EmptyCase <$ emptyRecord )
-        , ( "EmptyDataDecls", Cabal.EmptyDataDecls <$ emptyRecord )
-        , ( "ExistentialQuantification", Cabal.ExistentialQuantification <$ emptyRecord )
-        , ( "ExplicitForAll", Cabal.ExplicitForAll <$ emptyRecord )
-        , ( "ExplicitNamespaces", Cabal.ExplicitNamespaces <$ emptyRecord )
-        , ( "ExtendedDefaultRules", Cabal.ExtendedDefaultRules <$ emptyRecord )
-        , ( "ExtensibleRecords", Cabal.ExtensibleRecords <$ emptyRecord )
-        , ( "FlexibleContexts", Cabal.FlexibleContexts <$ emptyRecord )
-        , ( "FlexibleInstances", Cabal.FlexibleInstances <$ emptyRecord )
-        , ( "ForeignFunctionInterface", Cabal.ForeignFunctionInterface <$ emptyRecord )
-        , ( "FunctionalDependencies", Cabal.FunctionalDependencies <$ emptyRecord )
-        , ( "GADTSyntax", Cabal.GADTSyntax <$ emptyRecord )
-        , ( "GADTs", Cabal.GADTs <$ emptyRecord )
-        , ( "GHCForeignImportPrim", Cabal.GHCForeignImportPrim <$ emptyRecord )
-        , ( "GeneralizedNewtypeDeriving", Cabal.GeneralizedNewtypeDeriving <$ emptyRecord )
-        , ( "Generics", Cabal.Generics <$ emptyRecord )
-        , ( "HereDocuments", Cabal.HereDocuments <$ emptyRecord )
-        , ( "ImplicitParams", Cabal.ImplicitParams <$ emptyRecord )
-        , ( "ImplicitPrelude", Cabal.ImplicitPrelude <$ emptyRecord )
-        , ( "ImpredicativeTypes", Cabal.ImpredicativeTypes <$ emptyRecord )
-        , ( "IncoherentInstances", Cabal.IncoherentInstances <$ emptyRecord )
-        , ( "InstanceSigs", Cabal.InstanceSigs <$ emptyRecord )
-        , ( "InterruptibleFFI", Cabal.InterruptibleFFI <$ emptyRecord )
-        , ( "JavaScriptFFI", Cabal.JavaScriptFFI <$ emptyRecord )
-        , ( "KindSignatures", Cabal.KindSignatures <$ emptyRecord )
-        , ( "LambdaCase", Cabal.LambdaCase <$ emptyRecord )
-        , ( "LiberalTypeSynonyms", Cabal.LiberalTypeSynonyms <$ emptyRecord )
-        , ( "MagicHash", Cabal.MagicHash <$ emptyRecord )
-        , ( "MonadComprehensions", Cabal.MonadComprehensions <$ emptyRecord )
-        , ( "MonadFailDesugaring", Cabal.MonadFailDesugaring <$ emptyRecord )
-        , ( "MonoLocalBinds", Cabal.MonoLocalBinds <$ emptyRecord )
-        , ( "MonoPatBinds", Cabal.MonoPatBinds <$ emptyRecord )
-        , ( "MonomorphismRestriction", Cabal.MonomorphismRestriction <$ emptyRecord )
-        , ( "MultiParamTypeClasses", Cabal.MultiParamTypeClasses <$ emptyRecord )
-        , ( "MultiWayIf", Cabal.MultiWayIf <$ emptyRecord )
-        , ( "NPlusKPatterns", Cabal.NPlusKPatterns <$ emptyRecord )
-        , ( "NamedFieldPuns", Cabal.NamedFieldPuns <$ emptyRecord )
-        , ( "NamedWildCards", Cabal.NamedWildCards <$ emptyRecord )
-        , ( "NegativeLiterals", Cabal.NegativeLiterals <$ emptyRecord )
-        , ( "NewQualifiedOperators", Cabal.NewQualifiedOperators <$ emptyRecord )
-        , ( "NondecreasingIndentation", Cabal.NondecreasingIndentation <$ emptyRecord )
-        , ( "NullaryTypeClasses", Cabal.NullaryTypeClasses <$ emptyRecord )
-        , ( "NumDecimals", Cabal.NumDecimals <$ emptyRecord )
-        , ( "OverlappingInstances", Cabal.OverlappingInstances <$ emptyRecord )
-        , ( "OverloadedLabels", Cabal.OverloadedLabels <$ emptyRecord )
-        , ( "OverloadedLists", Cabal.OverloadedLists <$ emptyRecord )
-        , ( "OverloadedStrings", Cabal.OverloadedStrings <$ emptyRecord )
-        , ( "PackageImports", Cabal.PackageImports <$ emptyRecord )
-        , ( "ParallelArrays", Cabal.ParallelArrays <$ emptyRecord )
-        , ( "ParallelListComp", Cabal.ParallelListComp <$ emptyRecord )
-        , ( "PartialTypeSignatures", Cabal.PartialTypeSignatures <$ emptyRecord )
-        , ( "PatternGuards", Cabal.PatternGuards <$ emptyRecord )
-        , ( "PatternSignatures", Cabal.PatternSignatures <$ emptyRecord )
-        , ( "PatternSynonyms", Cabal.PatternSynonyms <$ emptyRecord )
-        , ( "PolyKinds", Cabal.PolyKinds <$ emptyRecord )
-        , ( "PolymorphicComponents", Cabal.PolymorphicComponents <$ emptyRecord )
-        , ( "PostfixOperators", Cabal.PostfixOperators <$ emptyRecord )
-        , ( "QuasiQuotes", Cabal.QuasiQuotes <$ emptyRecord )
-        , ( "Rank2Types", Cabal.Rank2Types <$ emptyRecord )
-        , ( "RankNTypes", Cabal.RankNTypes <$ emptyRecord )
-        , ( "RebindableSyntax", Cabal.RebindableSyntax <$ emptyRecord )
-        , ( "RecordPuns", Cabal.RecordPuns <$ emptyRecord )
-        , ( "RecordWildCards", Cabal.RecordWildCards <$ emptyRecord )
-        , ( "RecursiveDo", Cabal.RecursiveDo <$ emptyRecord )
-        , ( "RegularPatterns", Cabal.RegularPatterns <$ emptyRecord )
-        , ( "RelaxedPolyRec", Cabal.RelaxedPolyRec <$ emptyRecord )
-        , ( "RestrictedTypeSynonyms", Cabal.RestrictedTypeSynonyms <$ emptyRecord )
-        , ( "RoleAnnotations", Cabal.RoleAnnotations <$ emptyRecord )
-        , ( "Safe", Cabal.Safe <$ emptyRecord )
-        , ( "SafeImports", Cabal.SafeImports <$ emptyRecord )
-        , ( "ScopedTypeVariables", Cabal.ScopedTypeVariables <$ emptyRecord )
-        , ( "StandaloneDeriving", Cabal.StandaloneDeriving <$ emptyRecord )
-        , ( "StaticPointers", Cabal.StaticPointers <$ emptyRecord )
-        , ( "Strict", Cabal.Strict <$ emptyRecord )
-        , ( "StrictData", Cabal.StrictData <$ emptyRecord )
-        , ( "TemplateHaskell", Cabal.TemplateHaskell <$ emptyRecord )
-        , ( "TemplateHaskellQuotes", Cabal.TemplateHaskellQuotes <$ emptyRecord )
-        , ( "TraditionalRecordSyntax", Cabal.TraditionalRecordSyntax <$ emptyRecord )
-        , ( "TransformListComp", Cabal.TransformListComp <$ emptyRecord )
-        , ( "Trustworthy", Cabal.Trustworthy <$ emptyRecord )
-        , ( "TupleSections", Cabal.TupleSections <$ emptyRecord )
-        , ( "TypeApplications", Cabal.TypeApplications <$ emptyRecord )
-        , ( "TypeFamilies", Cabal.TypeFamilies <$ emptyRecord )
-        , ( "TypeFamilyDependencies", Cabal.TypeFamilyDependencies <$ emptyRecord )
-        , ( "TypeInType", Cabal.TypeInType <$ emptyRecord )
-        , ( "TypeOperators", Cabal.TypeOperators <$ emptyRecord )
-        , ( "TypeSynonymInstances", Cabal.TypeSynonymInstances <$ emptyRecord )
-        , ( "UnboxedTuples", Cabal.UnboxedTuples <$ emptyRecord )
-        , ( "UndecidableInstances", Cabal.UndecidableInstances <$ emptyRecord )
-        , ( "UndecidableSuperClasses", Cabal.UndecidableSuperClasses <$ emptyRecord )
-        , ( "UnicodeSyntax", Cabal.UnicodeSyntax <$ emptyRecord )
-        , ( "UnliftedFFITypes", Cabal.UnliftedFFITypes <$ emptyRecord )
-        , ( "Unsafe", Cabal.Unsafe <$ emptyRecord )
-        , ( "ViewPatterns", Cabal.ViewPatterns <$ emptyRecord )
-        , ( "XmlSyntax", Cabal.XmlSyntax <$ emptyRecord )
+        [ ( "AllowAmbiguousTypes", Cabal.AllowAmbiguousTypes <$ Dhall.unit )
+        , ( "ApplicativeDo", Cabal.ApplicativeDo <$ Dhall.unit )
+        , ( "Arrows", Cabal.Arrows <$ Dhall.unit )
+        , ( "AutoDeriveTypeable", Cabal.AutoDeriveTypeable <$ Dhall.unit )
+        , ( "BangPatterns", Cabal.BangPatterns <$ Dhall.unit )
+        , ( "BinaryLiterals", Cabal.BinaryLiterals <$ Dhall.unit )
+        , ( "CApiFFI", Cabal.CApiFFI <$ Dhall.unit )
+        , ( "CPP", Cabal.CPP <$ Dhall.unit )
+        , ( "ConstrainedClassMethods", Cabal.ConstrainedClassMethods <$ Dhall.unit )
+        , ( "ConstraintKinds", Cabal.ConstraintKinds <$ Dhall.unit )
+        , ( "DataKinds", Cabal.DataKinds <$ Dhall.unit )
+        , ( "DatatypeContexts", Cabal.DatatypeContexts <$ Dhall.unit )
+        , ( "DefaultSignatures", Cabal.DefaultSignatures <$ Dhall.unit )
+        , ( "DeriveAnyClass", Cabal.DeriveAnyClass <$ Dhall.unit )
+        , ( "DeriveDataTypeable", Cabal.DeriveDataTypeable <$ Dhall.unit )
+        , ( "DeriveFoldable", Cabal.DeriveFoldable <$ Dhall.unit )
+        , ( "DeriveFunctor", Cabal.DeriveFunctor <$ Dhall.unit )
+        , ( "DeriveGeneric", Cabal.DeriveGeneric <$ Dhall.unit )
+        , ( "DeriveLift", Cabal.DeriveLift <$ Dhall.unit )
+        , ( "DeriveTraversable", Cabal.DeriveTraversable <$ Dhall.unit )
+        , ( "DisambiguateRecordFields", Cabal.DisambiguateRecordFields <$ Dhall.unit )
+        , ( "DoAndIfThenElse", Cabal.DoAndIfThenElse <$ Dhall.unit )
+        , ( "DoRec", Cabal.DoRec <$ Dhall.unit )
+        , ( "DuplicateRecordFields", Cabal.DuplicateRecordFields <$ Dhall.unit )
+        , ( "EmptyCase", Cabal.EmptyCase <$ Dhall.unit )
+        , ( "EmptyDataDecls", Cabal.EmptyDataDecls <$ Dhall.unit )
+        , ( "ExistentialQuantification", Cabal.ExistentialQuantification <$ Dhall.unit )
+        , ( "ExplicitForAll", Cabal.ExplicitForAll <$ Dhall.unit )
+        , ( "ExplicitNamespaces", Cabal.ExplicitNamespaces <$ Dhall.unit )
+        , ( "ExtendedDefaultRules", Cabal.ExtendedDefaultRules <$ Dhall.unit )
+        , ( "ExtensibleRecords", Cabal.ExtensibleRecords <$ Dhall.unit )
+        , ( "FlexibleContexts", Cabal.FlexibleContexts <$ Dhall.unit )
+        , ( "FlexibleInstances", Cabal.FlexibleInstances <$ Dhall.unit )
+        , ( "ForeignFunctionInterface", Cabal.ForeignFunctionInterface <$ Dhall.unit )
+        , ( "FunctionalDependencies", Cabal.FunctionalDependencies <$ Dhall.unit )
+        , ( "GADTSyntax", Cabal.GADTSyntax <$ Dhall.unit )
+        , ( "GADTs", Cabal.GADTs <$ Dhall.unit )
+        , ( "GHCForeignImportPrim", Cabal.GHCForeignImportPrim <$ Dhall.unit )
+        , ( "GeneralizedNewtypeDeriving", Cabal.GeneralizedNewtypeDeriving <$ Dhall.unit )
+        , ( "Generics", Cabal.Generics <$ Dhall.unit )
+        , ( "HereDocuments", Cabal.HereDocuments <$ Dhall.unit )
+        , ( "ImplicitParams", Cabal.ImplicitParams <$ Dhall.unit )
+        , ( "ImplicitPrelude", Cabal.ImplicitPrelude <$ Dhall.unit )
+        , ( "ImpredicativeTypes", Cabal.ImpredicativeTypes <$ Dhall.unit )
+        , ( "IncoherentInstances", Cabal.IncoherentInstances <$ Dhall.unit )
+        , ( "InstanceSigs", Cabal.InstanceSigs <$ Dhall.unit )
+        , ( "InterruptibleFFI", Cabal.InterruptibleFFI <$ Dhall.unit )
+        , ( "JavaScriptFFI", Cabal.JavaScriptFFI <$ Dhall.unit )
+        , ( "KindSignatures", Cabal.KindSignatures <$ Dhall.unit )
+        , ( "LambdaCase", Cabal.LambdaCase <$ Dhall.unit )
+        , ( "LiberalTypeSynonyms", Cabal.LiberalTypeSynonyms <$ Dhall.unit )
+        , ( "MagicHash", Cabal.MagicHash <$ Dhall.unit )
+        , ( "MonadComprehensions", Cabal.MonadComprehensions <$ Dhall.unit )
+        , ( "MonadFailDesugaring", Cabal.MonadFailDesugaring <$ Dhall.unit )
+        , ( "MonoLocalBinds", Cabal.MonoLocalBinds <$ Dhall.unit )
+        , ( "MonoPatBinds", Cabal.MonoPatBinds <$ Dhall.unit )
+        , ( "MonomorphismRestriction", Cabal.MonomorphismRestriction <$ Dhall.unit )
+        , ( "MultiParamTypeClasses", Cabal.MultiParamTypeClasses <$ Dhall.unit )
+        , ( "MultiWayIf", Cabal.MultiWayIf <$ Dhall.unit )
+        , ( "NPlusKPatterns", Cabal.NPlusKPatterns <$ Dhall.unit )
+        , ( "NamedFieldPuns", Cabal.NamedFieldPuns <$ Dhall.unit )
+        , ( "NamedWildCards", Cabal.NamedWildCards <$ Dhall.unit )
+        , ( "NegativeLiterals", Cabal.NegativeLiterals <$ Dhall.unit )
+        , ( "NewQualifiedOperators", Cabal.NewQualifiedOperators <$ Dhall.unit )
+        , ( "NondecreasingIndentation", Cabal.NondecreasingIndentation <$ Dhall.unit )
+        , ( "NullaryTypeClasses", Cabal.NullaryTypeClasses <$ Dhall.unit )
+        , ( "NumDecimals", Cabal.NumDecimals <$ Dhall.unit )
+        , ( "OverlappingInstances", Cabal.OverlappingInstances <$ Dhall.unit )
+        , ( "OverloadedLabels", Cabal.OverloadedLabels <$ Dhall.unit )
+        , ( "OverloadedLists", Cabal.OverloadedLists <$ Dhall.unit )
+        , ( "OverloadedStrings", Cabal.OverloadedStrings <$ Dhall.unit )
+        , ( "PackageImports", Cabal.PackageImports <$ Dhall.unit )
+        , ( "ParallelArrays", Cabal.ParallelArrays <$ Dhall.unit )
+        , ( "ParallelListComp", Cabal.ParallelListComp <$ Dhall.unit )
+        , ( "PartialTypeSignatures", Cabal.PartialTypeSignatures <$ Dhall.unit )
+        , ( "PatternGuards", Cabal.PatternGuards <$ Dhall.unit )
+        , ( "PatternSignatures", Cabal.PatternSignatures <$ Dhall.unit )
+        , ( "PatternSynonyms", Cabal.PatternSynonyms <$ Dhall.unit )
+        , ( "PolyKinds", Cabal.PolyKinds <$ Dhall.unit )
+        , ( "PolymorphicComponents", Cabal.PolymorphicComponents <$ Dhall.unit )
+        , ( "PostfixOperators", Cabal.PostfixOperators <$ Dhall.unit )
+        , ( "QuasiQuotes", Cabal.QuasiQuotes <$ Dhall.unit )
+        , ( "Rank2Types", Cabal.Rank2Types <$ Dhall.unit )
+        , ( "RankNTypes", Cabal.RankNTypes <$ Dhall.unit )
+        , ( "RebindableSyntax", Cabal.RebindableSyntax <$ Dhall.unit )
+        , ( "RecordPuns", Cabal.RecordPuns <$ Dhall.unit )
+        , ( "RecordWildCards", Cabal.RecordWildCards <$ Dhall.unit )
+        , ( "RecursiveDo", Cabal.RecursiveDo <$ Dhall.unit )
+        , ( "RegularPatterns", Cabal.RegularPatterns <$ Dhall.unit )
+        , ( "RelaxedPolyRec", Cabal.RelaxedPolyRec <$ Dhall.unit )
+        , ( "RestrictedTypeSynonyms", Cabal.RestrictedTypeSynonyms <$ Dhall.unit )
+        , ( "RoleAnnotations", Cabal.RoleAnnotations <$ Dhall.unit )
+        , ( "Safe", Cabal.Safe <$ Dhall.unit )
+        , ( "SafeImports", Cabal.SafeImports <$ Dhall.unit )
+        , ( "ScopedTypeVariables", Cabal.ScopedTypeVariables <$ Dhall.unit )
+        , ( "StandaloneDeriving", Cabal.StandaloneDeriving <$ Dhall.unit )
+        , ( "StaticPointers", Cabal.StaticPointers <$ Dhall.unit )
+        , ( "Strict", Cabal.Strict <$ Dhall.unit )
+        , ( "StrictData", Cabal.StrictData <$ Dhall.unit )
+        , ( "TemplateHaskell", Cabal.TemplateHaskell <$ Dhall.unit )
+        , ( "TemplateHaskellQuotes", Cabal.TemplateHaskellQuotes <$ Dhall.unit )
+        , ( "TraditionalRecordSyntax", Cabal.TraditionalRecordSyntax <$ Dhall.unit )
+        , ( "TransformListComp", Cabal.TransformListComp <$ Dhall.unit )
+        , ( "Trustworthy", Cabal.Trustworthy <$ Dhall.unit )
+        , ( "TupleSections", Cabal.TupleSections <$ Dhall.unit )
+        , ( "TypeApplications", Cabal.TypeApplications <$ Dhall.unit )
+        , ( "TypeFamilies", Cabal.TypeFamilies <$ Dhall.unit )
+        , ( "TypeFamilyDependencies", Cabal.TypeFamilyDependencies <$ Dhall.unit )
+        , ( "TypeInType", Cabal.TypeInType <$ Dhall.unit )
+        , ( "TypeOperators", Cabal.TypeOperators <$ Dhall.unit )
+        , ( "TypeSynonymInstances", Cabal.TypeSynonymInstances <$ Dhall.unit )
+        , ( "UnboxedTuples", Cabal.UnboxedTuples <$ Dhall.unit )
+        , ( "UndecidableInstances", Cabal.UndecidableInstances <$ Dhall.unit )
+        , ( "UndecidableSuperClasses", Cabal.UndecidableSuperClasses <$ Dhall.unit )
+        , ( "UnicodeSyntax", Cabal.UnicodeSyntax <$ Dhall.unit )
+        , ( "UnliftedFFITypes", Cabal.UnliftedFFITypes <$ Dhall.unit )
+        , ( "Unsafe", Cabal.Unsafe <$ Dhall.unit )
+        , ( "ViewPatterns", Cabal.ViewPatterns <$ Dhall.unit )
+        , ( "XmlSyntax", Cabal.XmlSyntax <$ Dhall.unit )
         ]
     )
