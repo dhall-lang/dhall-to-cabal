@@ -6,8 +6,8 @@ in  let extensions = constructors ./dhall/types/Extension
 
 in  let package =
             λ(package : Text)
-          →   (version-range : VersionRange)
-            → { bounds = version-range, package = package }
+          → λ(version-range : VersionRange)
+          → { bounds = version-range, package = package }
 
 in  let common-deps =
           { Cabal          = package "Cabal" (majorBoundVersion [ +2, +0 ])
@@ -91,6 +91,7 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                   , package "filepath" (majorBoundVersion [ +1, +4 ])
                   , common-deps.dhall-to-cabal
                   , package "tasty-golden" (majorBoundVersion [ +2, +3 ])
+                  , package "Diff" (majorBoundVersion [ +0, +3, +4 ])
                   ]
               , hs-source-dirs     = [ "golden-tests" ]
               , main-is            = "GoldenTests.hs"

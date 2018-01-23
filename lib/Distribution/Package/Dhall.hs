@@ -859,6 +859,7 @@ executableScope =
     ( Map.fromList
         [ ( "Public", Cabal.ExecutablePublic <$ Dhall.unit )
         , ( "Private", Cabal.ExecutablePrivate <$ Dhall.unit )
+        , ( "Unknown", Cabal.ExecutableScopeUnknown <$ Dhall.unit )
         ]
     )
 
