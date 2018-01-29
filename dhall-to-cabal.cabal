@@ -18,7 +18,7 @@ library
     build-depends:
         base ^>=4.10,
         Cabal ^>=2.0,
-        dhall ^>=1.8,
+        dhall ^>=1.9,
         text ^>=1.2,
         bytestring ^>=0.10,
         containers ^>=0.5,
@@ -42,7 +42,7 @@ executable dhall-to-cabal
         dhall-to-cabal -any,
         optparse-applicative ^>=0.13.2 || ^>=0.14,
         text ^>=1.2,
-        dhall ^>=1.8,
+        dhall ^>=1.9,
         Cabal ^>=2.0
     other-extensions: NamedFieldPuns
     hs-source-dirs: exe

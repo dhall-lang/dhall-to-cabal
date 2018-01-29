@@ -14,7 +14,7 @@ in  let common-deps =
           , base           = package "base" (majorBoundVersion [ +4, +10 ])
           , bytestring     =
               package "bytestring" (majorBoundVersion [ +0, +10 ])
-          , dhall          = package "dhall" (majorBoundVersion [ +1, +8 ])
+          , dhall          = package "dhall" (majorBoundVersion [ +1, +9 ])
           , dhall-to-cabal = package "dhall-to-cabal" anyVersion
           , text           = package "text" (majorBoundVersion [ +1, +2 ])
           }
