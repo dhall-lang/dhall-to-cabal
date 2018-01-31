@@ -1,5 +1,2 @@
   ./BuildInfo 
-⫽ { main-is = ""
-  , name    = ""
-  , scope   = < Unknown = {=} | Private : {} | Public : {} >
-  }
+⫽ { main-is = "", name = "", scope = < Public = {=} | Private : {} > }
