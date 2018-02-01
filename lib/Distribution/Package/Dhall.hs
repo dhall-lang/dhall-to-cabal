@@ -1221,8 +1221,3 @@ operatingSystem =
 arch :: Dhall.Type Cabal.Arch
 arch =
   Dhall.genericAuto
-
-
-
-instance {-# OVERLAPS #-} Dhall.Interpret [Char] where
-  autoWith _ = Dhall.string
