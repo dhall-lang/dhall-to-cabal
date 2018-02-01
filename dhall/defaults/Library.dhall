@@ -1,6 +1,5 @@
   ./BuildInfo 
 ⫽ { exposed-modules    = [] : List Text
-  , name               = [] : Optional Text
   , other-modules      = [] : List Text
   , reexported-modules =
       [] : List

@@ -31,6 +31,7 @@ import qualified Distribution.License as Cabal
 import qualified Distribution.ModuleName as Cabal
 import qualified Distribution.PackageDescription as Cabal
 import qualified Distribution.Text as Cabal ( simpleParse )
+import qualified Distribution.Types.CondTree as Cabal
 import qualified Distribution.Types.Dependency as Cabal
 import qualified Distribution.Types.ExeDependency as Cabal
 import qualified Distribution.Types.ExecutableScope as Cabal
@@ -72,110 +73,109 @@ packageName =
 
 
 
-packageDescription :: Dhall.Type Cabal.PackageDescription
-packageDescription =
-  makeRecord $ do
-    package <-
-      keyValue "package" packageIdentifier
+packageDescription :: RecordBuilder Cabal.PackageDescription
+packageDescription = do
+  package <-
+    keyValue "package" packageIdentifier
 
-    benchmarks <-
-      keyValue "benchmarks" ( Dhall.list benchmark )
+  benchmarks <-
+    pure []
 
-    testSuites <-
-      keyValue "tests" ( Dhall.list testSuite )
+  testSuites <-
+    pure []
 
-    executables <-
-      keyValue "executables" ( Dhall.list executable )
+  executables <-
+    pure []
 
-    foreignLibs <-
-      keyValue "foreign-libraries" ( Dhall.list foreignLib )
+  foreignLibs <-
+    pure []
 
-    subLibraries <-
-      keyValue "sub-libraries" ( Dhall.list library )
+  subLibraries <-
+    pure []
 
-    library <-
-      keyValue "library" ( Dhall.maybe library )
+  library <-
+    pure Nothing
 
-    customFieldsPD <-
-      keyValue
-        "x-fields"
-        ( Dhall.list ( Dhall.pair Dhall.string Dhall.string ) )
+  customFieldsPD <-
+    keyValue
+      "x-fields"
+      ( Dhall.list ( Dhall.pair Dhall.string Dhall.string ) )
 
-    sourceRepos <-
-      keyValue "source-repos" ( Dhall.list sourceRepo )
+  sourceRepos <-
+    keyValue "source-repos" ( Dhall.list sourceRepo )
 
-    specVersionRaw <-
-      Left <$> ( keyValue "cabal-version" version )
+  specVersionRaw <-
+    Left <$> ( keyValue "cabal-version" version )
 
-    buildType <-
-      keyValue "build-type" ( Dhall.maybe buildType )
+  buildType <-
+    keyValue "build-type" ( Dhall.maybe buildType )
 
-    license <-
-      keyValue "license" license
+  license <-
+    keyValue "license" license
 
-    licenseFiles <-
-      keyValue "license-files" ( Dhall.list Dhall.string )
+  licenseFiles <-
+    keyValue "license-files" ( Dhall.list Dhall.string )
 
-    copyright <-
-      keyValue "copyright" Dhall.string
+  copyright <-
+    keyValue "copyright" Dhall.string
 
-    maintainer <-
-      keyValue "maintainer" Dhall.string
+  maintainer <-
+    keyValue "maintainer" Dhall.string
 
-    author <-
-      keyValue "author" Dhall.string
+  author <-
+    keyValue "author" Dhall.string
 
-    stability <-
-      keyValue "stability" Dhall.string
+  stability <-
+    keyValue "stability" Dhall.string
 
-    testedWith <-
-      keyValue "tested-with" ( Dhall.list compiler )
+  testedWith <-
+    keyValue "tested-with" ( Dhall.list compiler )
 
-    homepage <-
-      keyValue "homepage" Dhall.string
+  homepage <-
+    keyValue "homepage" Dhall.string
 
-    pkgUrl <-
-      keyValue "package-url" Dhall.string
+  pkgUrl <-
+    keyValue "package-url" Dhall.string
 
-    bugReports <-
-      keyValue "bug-reports" Dhall.string
+  bugReports <-
+    keyValue "bug-reports" Dhall.string
 
-    synopsis <-
-      keyValue "synopsis" Dhall.string
+  synopsis <-
+    keyValue "synopsis" Dhall.string
 
-    description <-
-      keyValue "description" Dhall.string
+  description <-
+    keyValue "description" Dhall.string
 
-    category <-
-      keyValue "category" Dhall.string
+  category <-
+    keyValue "category" Dhall.string
 
-    -- Cabal documentation states
-    --
-    --   > YOU PROBABLY DON'T WANT TO USE THIS FIELD.
-    --
-    -- So I guess we won't use this field.
-    buildDepends <-
-      pure []
+  -- Cabal documentation states
+  --
+  --   > YOU PROBABLY DON'T WANT TO USE THIS FIELD.
+  --
+  -- So I guess we won't use this field.
+  buildDepends <-
+    pure []
 
-    setupBuildInfo <-
-      pure Nothing
+  setupBuildInfo <-
+    pure Nothing
 
-    dataFiles <-
-      keyValue "data-files" ( Dhall.list Dhall.string )
+  dataFiles <-
+    keyValue "data-files" ( Dhall.list Dhall.string )
 
-    dataDir <-
-      keyValue "data-directory" Dhall.string
+  dataDir <-
+    keyValue "data-directory" Dhall.string
 
-    extraSrcFiles <-
-      keyValue "extra-source-files" ( Dhall.list Dhall.string )
+  extraSrcFiles <-
+    keyValue "extra-source-files" ( Dhall.list Dhall.string )
 
-    extraTmpFiles <-
-      keyValue "extra-temp-files" ( Dhall.list Dhall.string )
+  extraTmpFiles <-
+    keyValue "extra-temp-files" ( Dhall.list Dhall.string )
 
-    extraDocFiles <-
-      keyValue "extra-doc-files" ( Dhall.list Dhall.string )
+  extraDocFiles <-
+    keyValue "extra-doc-files" ( Dhall.list Dhall.string )
 
-    return Cabal.PackageDescription { .. }
+  return Cabal.PackageDescription { .. }
 
 
 
@@ -192,7 +192,7 @@ benchmark =
       keyValue "main-is" Dhall.string
 
     benchmarkName <-
-      keyValue "name" unqualComponentName
+      pure ""
 
     benchmarkBuildInfo <-
       buildInfo
@@ -309,7 +309,7 @@ testSuite :: Dhall.Type Cabal.TestSuite
 testSuite =
   makeRecord $ do
     testName <-
-      keyValue "name" unqualComponentName
+      pure ""
 
     mainIs <-
       keyValue "main-is" Dhall.string
@@ -336,7 +336,7 @@ executable :: Dhall.Type Cabal.Executable
 executable =
   makeRecord $ do
     exeName <-
-      keyValue "name" unqualComponentName
+      pure ""
 
     modulePath <-
       keyValue "main-is" Dhall.string
@@ -355,7 +355,7 @@ foreignLib :: Dhall.Type Cabal.ForeignLib
 foreignLib =
   makeRecord $ do
     foreignLibName <-
-      keyValue "name" unqualComponentName
+      pure ""
 
     foreignLibType <-
       keyValue "type" foreignLibType
@@ -394,7 +394,7 @@ library :: Dhall.Type Cabal.Library
 library =
   makeRecord $ do
     libName <-
-      keyValue "name" ( Dhall.maybe unqualComponentName )
+      pure Nothing
 
     libBuildInfo <-
       buildInfo
@@ -463,12 +463,12 @@ moduleName =
 
 
 
-dhallFileToCabal :: FilePath -> IO Cabal.PackageDescription
+dhallFileToCabal :: FilePath -> IO Cabal.GenericPackageDescription
 dhallFileToCabal file = do
   source <-
     LazyText.readFile file
 
-  Dhall.detailed ( input source packageDescription )
+  Dhall.detailed ( input source genericPackageDescription )
 
 
 
@@ -1034,3 +1034,113 @@ extension =
         , ( "XmlSyntax", Cabal.XmlSyntax <$ Dhall.unit )
         ]
     )
+
+
+
+guarded
+  :: Monoid a
+  => Dhall.Type a
+  -> Dhall.Type ( Cabal.CondTree Cabal.ConfVar [Cabal.Dependency] a )
+guarded t =
+  fmap compileGuards
+    $ Dhall.list
+    $ makeRecord
+    $ (,) <$> keyValue "guard" guard <*> keyValue "body" t
+
+  where
+
+    compileGuards =
+      foldl combineCondTree emptyCondTree . map toCondNode
+
+    emptyCondTree =
+      Cabal.CondNode mempty [] []
+
+    combineCondTree ( Cabal.CondNode a c1 xs ) ( Cabal.CondNode b c2 ys ) =
+      Cabal.CondNode ( a <> b ) ( c1 <> c2 ) ( xs <> ys )
+
+    toCondNode ( guard, a ) =
+      let
+        trueBranch = 
+          Cabal.CondNode a mempty mempty
+
+      in
+        if guard == Cabal.Lit True then
+          trueBranch
+        else
+          Cabal.CondNode
+            { condTreeData = mempty
+            , condTreeConstraints = mempty
+            , condTreeComponents =
+                [ Cabal.CondBranch
+                    { condBranchCondition = guard
+                    , condBranchIfTrue = trueBranch
+                    , condBranchIfFalse = Nothing
+                    }
+                ]
+            }
+
+
+
+guard :: Dhall.Type ( Cabal.Condition Cabal.ConfVar )
+guard =
+  let
+    extract expr = do
+      Expr.Lam _ _ body <-
+        return expr
+
+      case body of
+        Expr.BoolLit b ->
+          return ( Cabal.Lit b )
+
+        _ ->
+          error ( "Unexpected guard expression. This is a bug, please report this! I'm stuck on: " ++ show body )
+
+    expected =
+      Expr.Pi
+        "_"
+        ( Expr.Union ( Map.fromList [ ( "Linux", Expr.Record Map.empty ) ] ) )
+        Expr.Bool
+
+  in Dhall.Type { .. }
+
+
+
+genericPackageDescription :: Dhall.Type Cabal.GenericPackageDescription
+genericPackageDescription =
+  let
+    namedList k t =
+      Dhall.list
+        ( makeRecord
+            ( (,)
+                <$> keyValue "name" unqualComponentName
+                <*> keyValue k ( guarded t )
+            )
+        )
+      
+  in    
+    makeRecord $ do
+      packageDescription <-
+        packageDescription
+
+      genPackageFlags <-
+        pure []
+
+      condLibrary <-
+        keyValue "library" ( Dhall.maybe ( guarded library ) )
+
+      condSubLibraries <-
+        keyValue "sub-libraries" ( namedList "library" library )
+
+      condForeignLibs <- 
+        keyValue "foreign-libraries" ( namedList "foreign-lib" foreignLib )
+
+      condExecutables <- 
+        keyValue "executables" ( namedList "executable" executable )
+
+      condTestSuites <- 
+        keyValue "test-suites" ( namedList "test-suite" testSuite )
+
+      condBenchmarks <- 
+        keyValue "benchmarks" ( namedList "benchmark" benchmark )
+
+      return Cabal.GenericPackageDescription { .. }

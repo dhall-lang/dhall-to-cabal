@@ -1,1 +1,1 @@
-./BuildInfo  ⫽ { main-is = "", name = "" }
+./BuildInfo  ⫽ { main-is = "" }

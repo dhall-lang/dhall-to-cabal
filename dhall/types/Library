@@ -22,7 +22,6 @@
 , install-includes     : List Text
 , js-sources           : List Text
 , ld-options           : List Text
-, name                 : Optional Text
 , other-extensions     : List ./Extension
 , other-languages      : List < Haskell2010 : {} | Haskell98 : {} >
 , other-modules        : List Text
