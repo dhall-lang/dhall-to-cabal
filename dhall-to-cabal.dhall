@@ -10,13 +10,18 @@ in  let package =
           → { bounds = version-range, package = package }
 
 in  let common-deps =
-          { Cabal          = package "Cabal" (majorBoundVersion [ +2, +0 ])
-          , base           = package "base" (majorBoundVersion [ +4, +10 ])
-          , bytestring     =
+          { Cabal =
+              package "Cabal" (majorBoundVersion [ +2, +0 ])
+          , base =
+              package "base" (majorBoundVersion [ +4, +10 ])
+          , bytestring =
               package "bytestring" (majorBoundVersion [ +0, +10 ])
-          , dhall          = package "dhall" (majorBoundVersion [ +1, +9 ])
-          , dhall-to-cabal = package "dhall-to-cabal" anyVersion
-          , text           = package "text" (majorBoundVersion [ +1, +2 ])
+          , dhall =
+              package "dhall" (majorBoundVersion [ +1, +9 ])
+          , dhall-to-cabal =
+              package "dhall-to-cabal" anyVersion
+          , text =
+              package "text" (majorBoundVersion [ +1, +2 ])
           }
 
 in  let gitHub-project = ./dhall/gitHubProject.dhall 
@@ -26,7 +31,7 @@ in  let always = λ(os : < Linux : {} >) → True
 in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
     ⫽ { executables =
           [ { executable =
-                [ { body  =
+                [ { body =
                         ./dhall/defaults/Executable.dhall 
                       ⫽ { build-dependencies =
                             [ common-deps.base
@@ -41,18 +46,23 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                             , common-deps.dhall
                             , common-deps.Cabal
                             ]
-                        , hs-source-dirs     = [ "exe" ]
-                        , main-is            = "Main.hs"
-                        , other-extensions   = [ extensions.NamedFieldPuns {=} ]
+                        , hs-source-dirs =
+                            [ "exe" ]
+                        , main-is =
+                            "Main.hs"
+                        , other-extensions =
+                            [ extensions.NamedFieldPuns {=} ]
                         }
-                  , guard = always
+                  , guard =
+                      always
                   }
                 ]
-            , name       = "dhall-to-cabal"
+            , name =
+                "dhall-to-cabal"
             }
           ]
-      , library     =
-          [ [ { body  =
+      , library =
+          [ [ { body =
                     ./dhall/defaults/Library.dhall 
                   ⫽ { build-dependencies =
                         [ common-deps.base
@@ -68,16 +78,18 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                           "transformers"
                           (majorBoundVersion [ +0, +5, +2 ])
                         ]
-                    , compiler-options   =
+                    , compiler-options =
                           ./dhall/defaults/CompilerOptions 
                         ⫽ { GHC =
                               { build-options =
                                   [ "-Wall", "-fno-warn-name-shadowing" ]
                               }
                           }
-                    , exposed-modules    = [ "Distribution.Package.Dhall" ]
-                    , hs-source-dirs     = [ "lib" ]
-                    , other-extensions   =
+                    , exposed-modules =
+                        [ "Distribution.Package.Dhall" ]
+                    , hs-source-dirs =
+                        [ "lib" ]
+                    , other-extensions =
                         [ extensions.ApplicativeDo {=}
                         , extensions.GADTs {=}
                         , extensions.GeneralizedNewtypeDeriving {=}
@@ -86,18 +98,23 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                         , extensions.RecordWildCards {=}
                         , extensions.TypeApplications {=}
                         ]
-                    , other-modules      = [ "Dhall.Extra" ]
+                    , other-modules =
+                        [ "Dhall.Extra" ]
                     }
-              , guard = always
+              , guard =
+                  always
               }
             ]
           ] : Optional (./dhall/types/Guarded  ./dhall/types/Library )
-      , license     = licenses.MIT {=}
-      , package     = { name = "dhall-to-cabal", version = [ +0, +1, +0 ] }
+      , license =
+          licenses.MIT {=}
+      , package =
+          { name = "dhall-to-cabal", version = [ +0, +1, +0 ] }
       , test-suites =
-          [ { name       = "golden-tests"
+          [ { name =
+                "golden-tests"
             , test-suite =
-                [ { body  =
+                [ { body =
                         ./dhall/defaults/TestSuite.dhall 
                       ⫽ { build-dependencies =
                             [ common-deps.bytestring
@@ -112,10 +129,13 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                               (majorBoundVersion [ +2, +3 ])
                             , package "Diff" (majorBoundVersion [ +0, +3, +4 ])
                             ]
-                        , hs-source-dirs     = [ "golden-tests" ]
-                        , main-is            = "GoldenTests.hs"
+                        , hs-source-dirs =
+                            [ "golden-tests" ]
+                        , main-is =
+                            "GoldenTests.hs"
                         }
-                  , guard = always
+                  , guard =
+                      always
                   }
                 ]
             }

@@ -3,18 +3,18 @@
 in  let gitHubProject =
             λ(github : GitHubProject)
           →     let gitHubRoot =
-                          "https://github.com/"
-                      ++  github.owner
-                      ++  "/"
-                      ++  github.repo
-                      ++  ""
+                      "https://github.com/${github.owner}/${github.repo}"
             
             in    ./empty-package.dhall 
-                ⫽ { bug-reports  = gitHubRoot ++ "/issues"
-                  , homepage     = gitHubRoot
+                ⫽ { bug-reports =
+                      "${gitHubRoot}/issues"
+                  , homepage =
+                      gitHubRoot
                   , source-repos =
-                      [ { location = [ gitHubRoot ] : Optional Text
-                        , type     = [ < Git = {=} > ] : Optional < Git : {} >
+                      [ { location =
+                            [ gitHubRoot ] : Optional Text
+                        , type =
+                            [ < Git = {=} > ] : Optional < Git : {} >
                         }
                       ]
                   }

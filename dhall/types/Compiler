@@ -1,11 +1,21 @@
-< GHC    : {}
-| GHCJS  : {}
-| HBC    : {}
-| Helium : {}
-| Hugs   : {}
-| JHC    : {}
-| LHC    : {}
-| NHC    : {}
-| UHC    : {}
-| YHC    : {}
+< GHC :
+    {}
+| GHCJS :
+    {}
+| HBC :
+    {}
+| Helium :
+    {}
+| Hugs :
+    {}
+| JHC :
+    {}
+| LHC :
+    {}
+| NHC :
+    {}
+| UHC :
+    {}
+| YHC :
+    {}
 >
