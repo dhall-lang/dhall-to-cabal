@@ -21,7 +21,7 @@ data Options = Options { dhallFilePath :: String }
 run :: Options -> IO ()
 run Options { dhallFilePath } =
   dhallFileToCabal dhallFilePath
-    & fmap Cabal.showPackageDescription
+    & fmap Cabal.showGenericPackageDescription
     >>= putStrLn
 
 

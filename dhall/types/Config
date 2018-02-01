@@ -1,0 +1,7 @@
+{ os :
+    ./OS  → Bool
+, arch :
+    ./Arch  → Bool
+, impl :
+    ./Compiler  → VersionRange → Bool
+}

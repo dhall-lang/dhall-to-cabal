@@ -1,0 +1,1 @@
+λ(A : Type) → List { body : A, guard : ./Config  → Bool }

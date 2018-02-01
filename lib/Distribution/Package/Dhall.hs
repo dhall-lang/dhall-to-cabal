@@ -1,4 +1,5 @@
 {-# language ApplicativeDo #-}
+{-# language FlexibleInstances #-}
 {-# language GADTs #-}
 {-# language GeneralizedNewtypeDeriving #-}
 {-# language LambdaCase #-}
@@ -30,6 +31,7 @@ import qualified Distribution.Compiler as Cabal
 import qualified Distribution.License as Cabal
 import qualified Distribution.ModuleName as Cabal
 import qualified Distribution.PackageDescription as Cabal
+import qualified Distribution.System as Cabal ( Arch(..), OS(..) )
 import qualified Distribution.Text as Cabal ( simpleParse )
 import qualified Distribution.Types.CondTree as Cabal
 import qualified Distribution.Types.Dependency as Cabal
@@ -1060,7 +1062,7 @@ guarded t =
 
     toCondNode ( guard, a ) =
       let
-        trueBranch = 
+        trueBranch =
           Cabal.CondNode a mempty mempty
 
       in
@@ -1084,22 +1086,85 @@ guarded t =
 guard :: Dhall.Type ( Cabal.Condition Cabal.ConfVar )
 guard =
   let
-    extract expr = do
-      Expr.Lam _ _ body <-
-        return expr
-
+    extractBody body =
       case body of
         Expr.BoolLit b ->
           return ( Cabal.Lit b )
 
+        Expr.BoolAnd a b ->
+          Cabal.CAnd <$> extractBody a <*> extractBody b
+
+        Expr.BoolOr a b ->
+          Cabal.COr <$> extractBody a <*> extractBody b
+
+        Expr.BoolEQ a b ->
+          Cabal.COr
+            <$> ( Cabal.CAnd <$> extractBody a <*> extractBody b )
+            <*> ( Cabal.CAnd
+                    <$> ( Cabal.CNot <$> extractBody a )
+                    <*> ( Cabal.CNot <$> extractBody b )
+                )
+
+        -- a != b ==> (a && !y) || (!a && y), but I think the following is
+        -- cleaner.
+        Expr.BoolNE a b ->
+          Cabal.CNot <$> extractBody ( Expr.BoolEQ a b )
+
+        Expr.BoolIf p a b ->
+          Cabal.COr
+            <$> ( Cabal.CAnd <$> extractBody p <*> extractBody a )
+            <*> ( Cabal.CAnd
+                    <$> ( Cabal.CNot <$> extractBody p )
+                    <*> extractBody b
+                )
+
+        Expr.App ( Expr.App ( Expr.Field ( Expr.Var ( Expr.V "config" 0 ) ) "impl" ) compiler ) version ->
+          Cabal.Var
+            <$> ( Cabal.Impl
+                    <$> Dhall.extract compilerFlavor compiler
+                    <*> Dhall.extract versionRange version
+                )
+
+        Expr.App ( Expr.Field ( Expr.Var ( Expr.V "config" 0 ) ) field ) os ->
+          case field of
+            "os" ->
+              Cabal.Var . Cabal.OS <$> Dhall.extract operatingSystem os
+
+            "arch" ->
+              Cabal.Var . Cabal.Arch <$> Dhall.extract arch os
+
+            _ ->
+              error "Unknown field"
+
         _ ->
           error ( "Unexpected guard expression. This is a bug, please report this! I'm stuck on: " ++ show body )
+    
+    extract expr = do
+      Expr.Lam _ _ body <-
+        return expr
+
+      extractBody body
 
     expected =
-      Expr.Pi
-        "_"
-        ( Expr.Union ( Map.fromList [ ( "Linux", Expr.Record Map.empty ) ] ) )
-        Expr.Bool
+      let
+        predicate on =
+          Expr.Pi "_" on Expr.Bool
+
+      in
+        predicate
+          ( Expr.Record
+              ( Map.fromList
+                  [ ( "os", predicate ( Dhall.expected operatingSystem ) )
+                  , ( "arch", predicate ( Dhall.expected arch ) )
+                  , ( "impl"
+                    , Expr.Pi
+                        "_"
+                        ( Dhall.expected compilerFlavor )
+                        ( Expr.Pi "_" ( Dhall.expected versionRange ) Expr.Bool )
+                    )
+                  ]
+              )
+          )
 
   in Dhall.Type { .. }
 
@@ -1116,8 +1181,8 @@ genericPackageDescription =
                 <*> keyValue k ( guarded t )
             )
         )
-      
-  in    
+
+  in
     makeRecord $ do
       packageDescription <-
         packageDescription
@@ -1131,16 +1196,33 @@ genericPackageDescription =
       condSubLibraries <-
         keyValue "sub-libraries" ( namedList "library" library )
 
-      condForeignLibs <- 
+      condForeignLibs <-
         keyValue "foreign-libraries" ( namedList "foreign-lib" foreignLib )
 
-      condExecutables <- 
+      condExecutables <-
         keyValue "executables" ( namedList "executable" executable )
 
-      condTestSuites <- 
+      condTestSuites <-
         keyValue "test-suites" ( namedList "test-suite" testSuite )
 
-      condBenchmarks <- 
+      condBenchmarks <-
         keyValue "benchmarks" ( namedList "benchmark" benchmark )
 
       return Cabal.GenericPackageDescription { .. }
+
+
+
+operatingSystem :: Dhall.Type Cabal.OS
+operatingSystem =
+  Dhall.genericAuto
+
+
+
+arch :: Dhall.Type Cabal.Arch
+arch =
+  Dhall.genericAuto
+
+
+
+instance {-# OVERLAPS #-} Dhall.Interpret [Char] where
+  autoWith _ = Dhall.string

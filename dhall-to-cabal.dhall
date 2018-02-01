@@ -26,7 +26,9 @@ in  let common-deps =
 
 in  let gitHub-project = ./dhall/gitHubProject.dhall 
 
-in  let always = λ(os : < Linux : {} >) → True
+in  let OS = ./dhall/types/OS 
+
+in  let always = λ(config : ./dhall/types/Config ) → True
 
 in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
     ⫽ { executables =
