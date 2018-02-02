@@ -14,7 +14,8 @@ in  let gitHubProject =
                       [ { location =
                             [ gitHubRoot ] : Optional Text
                         , type =
-                            [ < Git = {=} > ] : Optional < Git : {} >
+                            [ (constructors ./types/RepoType ).Git {=}
+                            ] : Optional ./types/RepoType 
                         }
                       ]
                   }
