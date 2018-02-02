@@ -789,23 +789,22 @@ compilerOptions :: Dhall.Type [ ( Cabal.CompilerFlavor, [ String ] ) ]
 compilerOptions =
   makeRecord $
     sequenceA
-      [ (,) <$> pure Cabal.GHC <*> keyValue "GHC" optionsRecord
-      , (,) <$> pure Cabal.GHCJS <*> keyValue "GHCJS" optionsRecord
-      , (,) <$> pure Cabal.NHC <*> keyValue "NHC" optionsRecord
-      , (,) <$> pure Cabal.YHC <*> keyValue "YHC" optionsRecord
-      , (,) <$> pure Cabal.Hugs <*> keyValue "Hugs" optionsRecord
-      , (,) <$> pure Cabal.HBC <*> keyValue "HBC" optionsRecord
-      , (,) <$> pure Cabal.Helium <*> keyValue "Helium" optionsRecord
-      , (,) <$> pure Cabal.JHC <*> keyValue "JHC" optionsRecord
-      , (,) <$> pure Cabal.LHC <*> keyValue "LHC" optionsRecord
-      , (,) <$> pure Cabal.UHC <*> keyValue "UHC" optionsRecord
+      [ (,) <$> pure Cabal.GHC <*> keyValue "GHC" options
+      , (,) <$> pure Cabal.GHCJS <*> keyValue "GHCJS" options
+      , (,) <$> pure Cabal.NHC <*> keyValue "NHC" options
+      , (,) <$> pure Cabal.YHC <*> keyValue "YHC" options
+      , (,) <$> pure Cabal.Hugs <*> keyValue "Hugs" options
+      , (,) <$> pure Cabal.HBC <*> keyValue "HBC" options
+      , (,) <$> pure Cabal.Helium <*> keyValue "Helium" options
+      , (,) <$> pure Cabal.JHC <*> keyValue "JHC" options
+      , (,) <$> pure Cabal.LHC <*> keyValue "LHC" options
+      , (,) <$> pure Cabal.UHC <*> keyValue "UHC" options
       ]
 
   where
 
-    optionsRecord =
-      makeRecord $
-        keyValue "build-options" ( Dhall.list Dhall.string )
+    options =
+      Dhall.list Dhall.string
 
 
 

@@ -1,21 +1,21 @@
 { GHC =
-    { build-options = [] : List Text }
+    [] : List Text
 , GHCJS =
-    { build-options = [] : List Text }
+    [] : List Text
 , HBC =
-    { build-options = [] : List Text }
+    [] : List Text
 , Helium =
-    { build-options = [] : List Text }
+    [] : List Text
 , Hugs =
-    { build-options = [] : List Text }
+    [] : List Text
 , JHC =
-    { build-options = [] : List Text }
+    [] : List Text
 , LHC =
-    { build-options = [] : List Text }
+    [] : List Text
 , NHC =
-    { build-options = [] : List Text }
+    [] : List Text
 , UHC =
-    { build-options = [] : List Text }
+    [] : List Text
 , YHC =
-    { build-options = [] : List Text }
+    [] : List Text
 }
