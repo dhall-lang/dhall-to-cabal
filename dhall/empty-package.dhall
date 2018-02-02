@@ -309,7 +309,7 @@
 , package-url =
     ""
 , source-repos =
-    [] : List { location : Optional Text, type : Optional < Git : {} > }
+    [] : List { location : Optional Text, type : Optional ./types/RepoType  }
 , stability =
     ""
 , sub-libraries =

@@ -765,10 +765,7 @@ compilerFlavor =
 
 repoType :: Dhall.Type Cabal.RepoType
 repoType =
-  makeUnion
-    ( Map.fromList
-        [ ( "Git", Cabal.Git <$ Dhall.unit ) ]
-    )
+  Dhall.genericAuto
 
 
 
