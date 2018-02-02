@@ -1,7 +1,7 @@
 { autogen-modules :
     List Text
 , build-dependencies :
-    List { bounds : VersionRange, package : Text }
+    List ./Dependency
 , build-tool-depends :
     List { component : Text, package : Text, version : VersionRange }
 , build-tools :

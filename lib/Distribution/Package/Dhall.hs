@@ -160,7 +160,7 @@ packageDescription = do
     pure []
 
   setupBuildInfo <-
-    pure Nothing
+    keyValue "custom-setup" ( Dhall.maybe setupBuildInfo )
 
   dataFiles <-
     keyValue "data-files" ( Dhall.list Dhall.string )
@@ -1239,3 +1239,16 @@ flag =
 flagName :: Dhall.Type Cabal.FlagName
 flagName =
   Cabal.mkFlagName <$> Dhall.string
+
+
+
+setupBuildInfo :: Dhall.Type Cabal.SetupBuildInfo
+setupBuildInfo =
+  makeRecord $ do
+    setupDepends <-
+      keyValue "setup-depends" ( Dhall.list dependency )
+
+    defaultSetupDepends <-
+      pure False
+
+    return Cabal.SetupBuildInfo { .. }

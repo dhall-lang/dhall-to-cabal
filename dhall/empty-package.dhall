@@ -484,4 +484,6 @@
          }
 , x-fields =
     [] : List { _1 : Text, _2 : Text }
+, custom-setup =
+    [] : Optional ./types/SetupBuildInfo 
 }

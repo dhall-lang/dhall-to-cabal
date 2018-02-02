@@ -177,6 +177,9 @@ in    empty-package
                 [ "https://github.com/ekmett/lens.git" ] : Optional Text
             }
           ]
+      , custom-setup =
+          [ { setup-depends = [ { package = "Cabal", bounds = anyVersion } ] }
+          ] : Optional ./dhall/types/SetupBuildInfo 
       , flags =
           [ { name =
                 "benchmark-uniplate"
