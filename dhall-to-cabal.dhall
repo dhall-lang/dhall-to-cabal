@@ -82,11 +82,7 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                         ]
                     , compiler-options =
                           ./dhall/defaults/CompilerOptions 
-                        ⫽ { GHC =
-                              { build-options =
-                                  [ "-Wall", "-fno-warn-name-shadowing" ]
-                              }
-                          }
+                        ⫽ { GHC = [ "-Wall", "-fno-warn-name-shadowing" ] }
                     , exposed-modules =
                         [ "Distribution.Package.Dhall" ]
                     , hs-source-dirs =
