@@ -36,6 +36,8 @@ in    ./dhall/empty-package.dhall
               }
             ]
           ] : Optional (./dhall/types/Guarded  ./dhall/types/Library )
-      , package =
-          { name = "test", version = [ +1 ] }
+      , name =
+          "test"
+      , version =
+          [ +1 ]
       }

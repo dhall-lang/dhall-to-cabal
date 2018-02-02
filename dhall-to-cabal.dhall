@@ -31,7 +31,17 @@ in  let OS = ./dhall/types/OS
 in  let always = λ(config : ./dhall/types/Config ) → True
 
 in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
-    ⫽ { executables =
+    ⫽ { tested-with =
+              let GHC =
+                      λ(version : List Natural)
+                    → { compiler =
+                          (constructors ./dhall/types/Compiler ).GHC {=}
+                      , version =
+                          thisVersion version
+                      }
+          
+          in  [ GHC [ +8, +2, +2 ], GHC [ +8, +4, +1 ] ]
+      , executables =
           [ { executable =
                 [ { body =
                         ./dhall/defaults/Executable.dhall 
@@ -106,8 +116,10 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
           ] : Optional (./dhall/types/Guarded  ./dhall/types/Library )
       , license =
           licenses.MIT {=}
-      , package =
-          { name = "dhall-to-cabal", version = [ +0, +1, +0 ] }
+      , name =
+          "dhall-to-cabal"
+      , version =
+          [ +0, +1, +0 ]
       , test-suites =
           [ { name =
                 "golden-tests"

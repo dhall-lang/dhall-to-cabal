@@ -106,8 +106,10 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
           ] : Optional (./dhall/types/Guarded  ./dhall/types/Library )
       , license =
           licenses.MIT {=}
-      , package =
-          { name = "dhall-to-cabal", version = [ +0, +1, +0 ] }
+      , name =
+          "dhall-to-cabal"
+      , version =
+          [ +0, +1, +0 ]
       , test-suites =
           [ { name =
                 "golden-tests"

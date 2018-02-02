@@ -56,16 +56,15 @@ import Dhall.Extra
 
 
 
-packageIdentifier :: Dhall.Type Cabal.PackageIdentifier
-packageIdentifier =
-  makeRecord $ do
-    pkgName <-
-      keyValue "name" packageName
+packageIdentifier :: RecordBuilder Cabal.PackageIdentifier
+packageIdentifier = do
+  pkgName <-
+    keyValue "name" packageName
 
-    pkgVersion <-
-      keyValue "version" version
+  pkgVersion <-
+    keyValue "version" version
 
-    pure Cabal.PackageIdentifier { .. }
+  pure Cabal.PackageIdentifier { .. }
 
 
 
@@ -78,7 +77,7 @@ packageName =
 packageDescription :: RecordBuilder Cabal.PackageDescription
 packageDescription = do
   package <-
-    keyValue "package" packageIdentifier
+    packageIdentifier
 
   benchmarks <-
     pure []

@@ -29,8 +29,10 @@ in  let restrict-by-flag =
             }
 
 in    empty-package
-    ⫽ { package =
-          { name = "lens", version = [ +4, +16 ] }
+    ⫽ { name =
+          "lens"
+      , version =
+          [ +4, +16 ]
       , category =
           "Data, Lenses, Generics"
       , license =

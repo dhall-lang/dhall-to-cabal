@@ -246,8 +246,10 @@ in    ./dhall/empty-package.dhall
           [ "LICENSE" ]
       , maintainer =
           "Gabriel439@gmail.com"
-      , package =
-          { name = "dhall", version = [ +1, +8, +2 ] }
+      , name =
+          "dhall"
+      , version =
+          [ +1, +8, +2 ]
       , source-repos =
           [ { location =
                 [ "https://github.com/dhall-lang/dhall-haskell" ] : Optional

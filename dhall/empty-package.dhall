@@ -304,8 +304,10 @@
     [] : List Text
 , maintainer =
     ""
-, package =
-    { name = "", version = [] : List Natural }
+, name =
+    ""
+, version =
+    [] : List Natural
 , package-url =
     ""
 , source-repos =
