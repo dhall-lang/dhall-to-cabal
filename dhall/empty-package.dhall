@@ -72,8 +72,8 @@
 , bug-reports =
     ""
 , build-type =
-    [ < Simple = {=} | Configure : {} | Custom : {} | Make : {} >
-    ] : Optional < Configure : {} | Custom : {} | Make : {} | Simple : {} >
+    [ let BuildTypes = constructors ./types/BuildType  in BuildTypes.Simple {=}
+    ] : Optional ./types/BuildType 
 , cabal-version =
     [ +2, +0 ]
 , category =

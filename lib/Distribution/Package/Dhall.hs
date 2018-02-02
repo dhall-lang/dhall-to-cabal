@@ -701,14 +701,7 @@ versionRange =
 
 buildType :: Dhall.Type Cabal.BuildType
 buildType =
-  makeUnion
-    ( Map.fromList
-        [ ( "Simple", Cabal.Simple <$ Dhall.unit )
-        , ( "Configure", Cabal.Configure <$ Dhall.unit )
-        , ( "Make", Cabal.Make <$ Dhall.unit )
-        , ( "Custom", Cabal.Custom <$ Dhall.unit )
-        ]
-    )
+  Dhall.genericAuto
 
 
 
