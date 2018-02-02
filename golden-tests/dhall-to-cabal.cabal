@@ -2,7 +2,7 @@ name: dhall-to-cabal
 version: 0.1.0
 cabal-version: 2.0
 build-type: Simple
-license: GPL-3.0
+license: MIT
 homepage: https://github.com/ocharles/dhall-to-cabal
 bug-reports: https://github.com/ocharles/dhall-to-cabal/issues
 
@@ -13,37 +13,40 @@ source-repository head
 library
     exposed-modules:
         Distribution.Package.Dhall
-    exposed: True
-    buildable: True
     build-depends:
         base ^>=4.10,
         Cabal ^>=2.0,
-        dhall ^>=1.8,
+        dhall ^>=1.9,
         text ^>=1.2,
         bytestring ^>=0.10,
         containers ^>=0.5,
         vector ^>=0.12,
         trifecta ^>=1.7,
-        text-format ^>=0.3
+        text-format ^>=0.3,
+        transformers ^>=0.5.2
+    other-extensions: ApplicativeDo GADTs GeneralizedNewtypeDeriving
+                      LambdaCase OverloadedStrings RecordWildCards TypeApplications
     hs-source-dirs: lib
+    other-modules:
+        Dhall.Extra
+    ghc-options: -Wall -fno-warn-name-shadowing
 
-executable dhall-to-cabal
+executable  dhall-to-cabal
     main-is: Main.hs
     scope: public
-    buildable: True
     build-depends:
         base ^>=4.10,
         dhall-to-cabal -any,
-        optparse-applicative ^>=0.13.2,
+        optparse-applicative ^>=0.13.2 || ^>=0.14,
         text ^>=1.2,
-        dhall ^>=1.8,
+        dhall ^>=1.9,
         Cabal ^>=2.0
+    other-extensions: NamedFieldPuns
     hs-source-dirs: exe
 
-test-suite golden-tests
+test-suite  golden-tests
     type: exitcode-stdio-1.0
     main-is: GoldenTests.hs
-    buildable: True
     build-depends:
         bytestring ^>=0.10,
         base ^>=4.10,
@@ -52,5 +55,7 @@ test-suite golden-tests
         tasty ^>=0.11,
         filepath ^>=1.4,
         dhall-to-cabal -any,
-        tasty-golden ^>=2.3
+        tasty-golden ^>=2.3,
+        Diff ^>=0.3.4
     hs-source-dirs: golden-tests
+
