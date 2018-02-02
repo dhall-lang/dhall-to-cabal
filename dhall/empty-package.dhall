@@ -1,5 +1,7 @@
 { author =
     ""
+, flags =
+    [] : List ./types/Flag 
 , benchmarks =
     [] : List
          { benchmark :

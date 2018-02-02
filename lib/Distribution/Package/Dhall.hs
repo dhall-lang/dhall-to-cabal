@@ -1124,20 +1124,23 @@ guard =
                     <*> Dhall.extract versionRange version
                 )
 
-        Expr.App ( Expr.Field ( Expr.Var ( Expr.V "config" 0 ) ) field ) os ->
+        Expr.App ( Expr.Field ( Expr.Var ( Expr.V "config" 0 ) ) field ) x ->
           case field of
             "os" ->
-              Cabal.Var . Cabal.OS <$> Dhall.extract operatingSystem os
+              Cabal.Var . Cabal.OS <$> Dhall.extract operatingSystem x
 
             "arch" ->
-              Cabal.Var . Cabal.Arch <$> Dhall.extract arch os
+              Cabal.Var . Cabal.Arch <$> Dhall.extract arch x
+
+            "flag" ->
+              Cabal.Var . Cabal.Flag <$> Dhall.extract flagName x
 
             _ ->
               error "Unknown field"
 
         _ ->
           error ( "Unexpected guard expression. This is a bug, please report this! I'm stuck on: " ++ show body )
-    
+
     extract expr = do
       Expr.Lam _ _ body <-
         return expr
@@ -1155,6 +1158,7 @@ guard =
               ( Map.fromList
                   [ ( "os", predicate ( Dhall.expected operatingSystem ) )
                   , ( "arch", predicate ( Dhall.expected arch ) )
+                  , ( "flag", predicate ( Dhall.expected flagName ) )
                   , ( "impl"
                     , Expr.Pi
                         "_"
@@ -1187,7 +1191,7 @@ genericPackageDescription =
         packageDescription
 
       genPackageFlags <-
-        pure []
+        keyValue "flags" ( Dhall.list flag )
 
       condLibrary <-
         keyValue "library" ( Dhall.maybe ( guarded library ) )
@@ -1220,3 +1224,28 @@ operatingSystem =
 arch :: Dhall.Type Cabal.Arch
 arch =
   Dhall.genericAuto
+
+
+
+flag :: Dhall.Type Cabal.Flag
+flag =
+  makeRecord $ do
+    flagName <-
+      keyValue "name" flagName
+
+    flagDefault <-
+      keyValue "default" Dhall.bool
+
+    flagDescription <-
+      keyValue "description" Dhall.string
+
+    flagManual <-
+      keyValue "manual" Dhall.bool
+
+    return Cabal.MkFlag { .. }
+
+
+
+flagName :: Dhall.Type Cabal.FlagName
+flagName =
+  Cabal.mkFlagName <$> Dhall.string
