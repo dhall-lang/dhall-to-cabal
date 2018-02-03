@@ -20,6 +20,8 @@
     List ./Extension.dhall 
 , default-language :
     Optional ./Language.dhall 
+, exposed-modules :
+    List Text
 , extra-framework-dirs :
     List Text
 , extra-ghci-libraries :
@@ -52,10 +54,8 @@
     List { name : Text, version : VersionRange }
 , profiling-options :
     ./CompilerOptions.dhall 
+, reexported-modules :
+    List { name : Text, original : { name : Text, package : Optional Text } }
 , shared-options :
     ./CompilerOptions.dhall 
-, main-is :
-    Text
-, scope :
-    ./Scope.dhall 
 }

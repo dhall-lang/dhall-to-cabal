@@ -1,1 +1,1 @@
-./BuildInfo  ⫽ { main-is = "" }
+./BuildInfo.dhall  ⫽ { main-is = "" }

@@ -1,3 +1,0 @@
-{
-  setup-depends : List ./Dependency
-}

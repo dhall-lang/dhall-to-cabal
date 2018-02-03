@@ -1,6 +1,6 @@
-    let licenses = constructors ./dhall/types/License 
+    let licenses = constructors ./dhall/types/License.dhall 
 
-in  let compilers = constructors ./dhall/types/Compiler 
+in  let compilers = constructors ./dhall/types/Compiler.dhall 
 
 in  let within =
             λ(min : List Natural)
@@ -30,7 +30,12 @@ in  let bounded
 in  let unguarded =
             λ(A : Type)
           → λ(a : A)
-          → [ { guard = λ(config : ./dhall/types/Config ) → True, body = a } ]
+          → [ { guard =
+                  λ(config : ./dhall/types/Config.dhall ) → True
+              , body =
+                  a
+              }
+            ]
 
 in    ./dhall/empty-package.dhall 
     ⫽ { author =
@@ -71,7 +76,7 @@ in    ./dhall/empty-package.dhall
                         , bounded "trifecta" [ +1, +6 ] [ +1, +8 ]
                         ]
                     , compiler-options =
-                          ./dhall/defaults/CompilerOptions 
+                          ./dhall/defaults/CompilerOptions.dhall 
                         ⫽ { GHC = [ "-Wall" ] }
                     , hs-source-dirs =
                         [ "dhall" ]
@@ -98,7 +103,7 @@ in    ./dhall/empty-package.dhall
                         , bounded "trifecta" [ +1, +6 ] [ +1, +8 ]
                         ]
                     , compiler-options =
-                          ./dhall/defaults/CompilerOptions 
+                          ./dhall/defaults/CompilerOptions.dhall 
                         ⫽ { GHC = [ "-Wall" ] }
                     , hs-source-dirs =
                         [ "dhall-format" ]
@@ -194,7 +199,7 @@ in    ./dhall/empty-package.dhall
           ]
       , library =
           [ unguarded
-            ./dhall/types/Library 
+            ./dhall/types/Library.dhall 
             (   ./dhall/defaults/Library.dhall 
               ⫽ { build-depends =
                     [ bounded "base" [ +4, +9, +0, +0 ] [ +5 ]
@@ -225,7 +230,8 @@ in    ./dhall/empty-package.dhall
                     , bounded "vector" [ +0, +11, +0, +0 ] [ +0, +13 ]
                     ]
                 , compiler-options =
-                    ./dhall/defaults/CompilerOptions  ⫽ { GHC = [ "-Wall" ] }
+                      ./dhall/defaults/CompilerOptions.dhall 
+                    ⫽ { GHC = [ "-Wall" ] }
                 , exposed-modules =
                     [ "Dhall"
                     , "Dhall.Context"
@@ -239,7 +245,8 @@ in    ./dhall/empty-package.dhall
                     [ "src" ]
                 }
             )
-          ] : Optional (./dhall/types/Guarded  ./dhall/types/Library )
+          ] : Optional
+              (./dhall/types/Guarded.dhall  ./dhall/types/Library.dhall )
       , license =
           licenses.BSD3 {=}
       , license-files =
@@ -256,8 +263,8 @@ in    ./dhall/empty-package.dhall
                   [ "https://github.com/dhall-lang/dhall-haskell" ] : Optional
                                                                       Text
               , type =
-                  [ (constructors ./dhall/types/RepoType ).Git {=}
-                  ] : Optional ./dhall/types/RepoType 
+                  [ (constructors ./dhall/types/RepoType.dhall ).Git {=}
+                  ] : Optional ./dhall/types/RepoType.dhall 
               }
           ]
       , synopsis =
@@ -304,7 +311,7 @@ in    ./dhall/empty-package.dhall
                           }
                         ]
                     , compiler-options =
-                          ./dhall/defaults/CompilerOptions 
+                          ./dhall/defaults/CompilerOptions.dhall 
                         ⫽ { GHC = [ "-Wall" ] }
                     , hs-source-dirs =
                         [ "tests" ]

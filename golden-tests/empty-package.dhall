@@ -8,7 +8,7 @@
             "foo"
         , executable =
             [ { guard =
-                  λ(config : ./dhall/types/Config ) → True
+                  λ(config : ./dhall/types/Config.dhall ) → True
               , body =
                   ./dhall/defaults/Executable.dhall 
               }

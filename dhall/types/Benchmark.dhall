@@ -42,6 +42,8 @@
     List Text
 , ld-options :
     List Text
+, main-is :
+    Text
 , other-extensions :
     List ./Extension.dhall 
 , other-languages :
@@ -54,8 +56,4 @@
     ./CompilerOptions.dhall 
 , shared-options :
     ./CompilerOptions.dhall 
-, main-is :
-    Text
-, scope :
-    ./Scope.dhall 
 }

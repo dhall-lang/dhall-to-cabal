@@ -1,4 +1,4 @@
-  ./BuildInfo 
+  ./BuildInfo.dhall 
 ⫽ { exposed-modules =
       [] : List Text
   , other-modules =

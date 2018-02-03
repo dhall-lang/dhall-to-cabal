@@ -1,8 +1,8 @@
     let empty-package = ./dhall/empty-package.dhall 
 
-in  let licenses = constructors ./dhall/types/License 
+in  let licenses = constructors ./dhall/types/License.dhall 
 
-in  let extensions = constructors ./dhall/types/Extension 
+in  let extensions = constructors ./dhall/types/Extension.dhall 
 
 in  let package =
             λ(package : Text)
@@ -24,11 +24,11 @@ in  let common-deps =
               package "text" (majorBoundVersion [ +1, +2 ])
           }
 
-in  let gitHub-project = ./dhall/gitHubProject.dhall 
+in  let gitHub-project = ./dhall/GitHub-project.dhall 
 
-in  let OS = ./dhall/types/OS 
+in  let OS = ./dhall/types/OS.dhall 
 
-in  let always = λ(config : ./dhall/types/Config ) → True
+in  let always = λ(config : ./dhall/types/Config.dhall ) → True
 
 in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
     ⫽ { executables =
@@ -81,7 +81,7 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                           (majorBoundVersion [ +0, +5, +2 ])
                         ]
                     , compiler-options =
-                          ./dhall/defaults/CompilerOptions 
+                          ./dhall/defaults/CompilerOptions.dhall 
                         ⫽ { GHC = [ "-Wall", "-fno-warn-name-shadowing" ] }
                     , exposed-modules =
                         [ "Distribution.Package.Dhall" ]
@@ -103,7 +103,8 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                   always
               }
             ]
-          ] : Optional (./dhall/types/Guarded  ./dhall/types/Library )
+          ] : Optional
+              (./dhall/types/Guarded.dhall  ./dhall/types/Library.dhall )
       , license =
           licenses.MIT {=}
       , name =

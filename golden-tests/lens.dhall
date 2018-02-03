@@ -1,19 +1,20 @@
     let empty-package = ./dhall/empty-package.dhall 
 
-in  let licenses = constructors ./dhall/types/License 
+in  let licenses = constructors ./dhall/types/License.dhall 
 
 in  let unguarded =
             λ(A : Type)
           → λ(a : A)
-          → { guard = λ(config : ./dhall/types/Config ) → True, body = a }
+          → { guard = λ(config : ./dhall/types/Config.dhall ) → True, body = a }
 
 in  let restrict-by-compiler =
             λ(A : Type)
-          → λ(compiler : ./dhall/types/Compiler )
+          → λ(compiler : ./dhall/types/Compiler.dhall )
           → λ(bounds : VersionRange)
           → λ(a : A)
           → { guard =
-                λ(config : ./dhall/types/Config ) → config.impl compiler bounds
+                  λ(config : ./dhall/types/Config.dhall )
+                → config.impl compiler bounds
             , body =
                 a
             }
@@ -23,7 +24,7 @@ in  let restrict-by-flag =
           → λ(flag : Text)
           → λ(a : A)
           → { guard =
-                λ(config : ./dhall/types/Config ) → config.flag flag
+                λ(config : ./dhall/types/Config.dhall ) → config.flag flag
             , body =
                 a
             }
@@ -52,15 +53,15 @@ in    empty-package
       , copyright =
           "Copyright C 2012 -2016 Edward A.Kmett"
       , build-type =
-          [     let BuildTypes = constructors ./dhall/types/BuildType 
+          [     let BuildTypes = constructors ./dhall/types/BuildType.dhall 
             
             in  BuildTypes.Custom {=}
-          ] : Optional ./dhall/types/BuildType 
+          ] : Optional ./dhall/types/BuildType.dhall 
       , tested-with =
               let GHC =
                       λ(version : List Natural)
                     → { compiler =
-                          (constructors ./dhall/types/Compiler ).GHC {=}
+                          (constructors ./dhall/types/Compiler.dhall ).GHC {=}
                       , version =
                           thisVersion version
                       }
@@ -174,15 +175,15 @@ in    empty-package
       , source-repos =
           [   ./dhall/defaults/SourceRepo.dhall 
             ⫽ { type =
-                  [ (constructors ./dhall/types/RepoType ).Git {=}
-                  ] : Optional ./dhall/types/RepoType 
+                  [ (constructors ./dhall/types/RepoType.dhall ).Git {=}
+                  ] : Optional ./dhall/types/RepoType.dhall 
               , location =
                   [ "https://github.com/ekmett/lens.git" ] : Optional Text
               }
           ]
       , custom-setup =
           [ { setup-depends = [ { package = "Cabal", bounds = anyVersion } ] }
-          ] : Optional ./dhall/types/SetupBuildInfo 
+          ] : Optional ./dhall/types/SetupBuildInfo.dhall 
       , flags =
           [ { name =
                 "benchmark-uniplate"
@@ -209,7 +210,7 @@ in    empty-package
           ]
       , library =
           [ [ unguarded
-              ./dhall/types/Library 
+              ./dhall/types/Library.dhall 
               (   ./dhall/defaults/Library.dhall 
                 ⫽ { build-depends =
                       [ { package = "ghc-prim", bounds = anyVersion } ]
@@ -302,14 +303,15 @@ in    empty-package
                   , cpp-options =
                       [ "-traditional" ]
                   , compiler-options =
-                      ./dhall/defaults/CompilerOptions  ⫽ { GHC = [ "-Wall" ] }
+                        ./dhall/defaults/CompilerOptions.dhall 
+                      ⫽ { GHC = [ "-Wall" ] }
                   , hs-source-dirs =
                       [ "src" ]
                   }
               )
             , restrict-by-compiler
-              ./dhall/types/Library 
-              ((constructors ./dhall/types/Compiler ).GHC {=})
+              ./dhall/types/Library.dhall 
+              ((constructors ./dhall/types/Compiler.dhall ).GHC {=})
               (earlierVersion [ +8 ])
               (   ./dhall/defaults/Library.dhall 
                 ⫽ { build-depends =
@@ -322,8 +324,8 @@ in    empty-package
                   }
               )
             , restrict-by-compiler
-              ./dhall/types/Library 
-              ((constructors ./dhall/types/Compiler ).GHC {=})
+              ./dhall/types/Library.dhall 
+              ((constructors ./dhall/types/Compiler.dhall ).GHC {=})
               (earlierVersion [ +7, +9 ])
               (   ./dhall/defaults/Library.dhall 
                 ⫽ { build-depends =
@@ -332,11 +334,12 @@ in    empty-package
                   }
               )
             , restrict-by-flag
-              ./dhall/types/Library 
+              ./dhall/types/Library.dhall 
               "safe"
               (   ./dhall/defaults/Library.dhall 
                 ⫽ { cpp-options = [ "-DSAFE=1" ] }
               )
             ]
-          ] : Optional (./dhall/types/Guarded  ./dhall/types/Library )
+          ] : Optional
+              (./dhall/types/Guarded.dhall  ./dhall/types/Library.dhall )
       }

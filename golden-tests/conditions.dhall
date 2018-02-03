@@ -1,8 +1,8 @@
-    let OS = constructors ./dhall/types/OS 
+    let OS = constructors ./dhall/types/OS.dhall 
 
-in  let Arch = constructors ./dhall/types/Arch 
+in  let Arch = constructors ./dhall/types/Arch.dhall 
 
-in  let Compiler = constructors ./dhall/types/Compiler 
+in  let Compiler = constructors ./dhall/types/Compiler.dhall 
 
 in    ./dhall/empty-package.dhall 
     ⫽ { library =
@@ -10,7 +10,7 @@ in    ./dhall/empty-package.dhall
                     ./dhall/defaults/Library.dhall 
                   ⫽ { buildable = False, exposed-modules = [ "Bar" ] }
               , guard =
-                    λ(config : ./dhall/types/Config )
+                    λ(config : ./dhall/types/Config.dhall )
                   →     config.os (OS.Linux {=}) == config.arch (Arch.Mips {=})
                     &&  (       if    config.os (OS.Linux {=})
                                 then  config.arch (Arch.X86_64 {=})
@@ -22,7 +22,7 @@ in    ./dhall/empty-package.dhall
                     ./dhall/defaults/Library.dhall 
                   ⫽ { exposed-modules = [ "Foo" ] }
               , guard =
-                    λ(config : ./dhall/types/Config )
+                    λ(config : ./dhall/types/Config.dhall )
                   →     config.arch (Arch.Mips {=})
                     &&  config.impl
                         (Compiler.GHC {=})
@@ -32,10 +32,12 @@ in    ./dhall/empty-package.dhall
                     ./dhall/defaults/Library.dhall 
                   ⫽ { exposed-modules = [ "Hello" ] }
               , guard =
-                  λ(config : ./dhall/types/Config ) → config.os (OS.Linux {=})
+                    λ(config : ./dhall/types/Config.dhall )
+                  → config.os (OS.Linux {=})
               }
             ]
-          ] : Optional (./dhall/types/Guarded  ./dhall/types/Library )
+          ] : Optional
+              (./dhall/types/Guarded.dhall  ./dhall/types/Library.dhall )
       , name =
           "test"
       , version =

@@ -1,7 +1,7 @@
 { autogen-modules =
     [] : List Text
 , build-depends =
-    [] : List { bounds : VersionRange, package : Text }
+    [] : List ../types/Dependency.dhall 
 , build-tool-depends =
     [] : List { component : Text, package : Text, version : VersionRange }
 , build-tools =
@@ -13,13 +13,13 @@
 , cc-options =
     [] : List Text
 , compiler-options =
-    ./CompilerOptions 
+    ./CompilerOptions.dhall 
 , cpp-options =
     [] : List Text
 , default-extensions =
-    [] : List ../types/Extension 
+    [] : List ../types/Extension.dhall 
 , default-language =
-    [] : Optional < Haskell2010 : {} | Haskell98 : {} >
+    [] : Optional ../types/Language.dhall 
 , extra-framework-dirs =
     [] : List Text
 , extra-ghci-libraries =
@@ -43,15 +43,15 @@
 , ld-options =
     [] : List Text
 , other-extensions =
-    [] : List ../types/Extension 
+    [] : List ../types/Extension.dhall 
 , other-languages =
-    [] : List < Haskell2010 : {} | Haskell98 : {} >
+    [] : List ../types/Language.dhall 
 , other-modules =
     [] : List Text
 , pkgconfig-depends =
     [] : List { name : Text, version : VersionRange }
 , profiling-options =
-    ./CompilerOptions 
+    ./CompilerOptions.dhall 
 , shared-options =
-    ./CompilerOptions 
+    ./CompilerOptions.dhall 
 }
