@@ -11,12 +11,13 @@ in  let gitHubProject =
                   , homepage =
                       gitHubRoot
                   , source-repos =
-                      [ { location =
-                            [ gitHubRoot ] : Optional Text
-                        , type =
-                            [ (constructors ./types/RepoType ).Git {=}
-                            ] : Optional ./types/RepoType 
-                        }
+                      [   ./defaults/SourceRepo.dhall 
+                        ⫽ { location =
+                              [ gitHubRoot ] : Optional Text
+                          , type =
+                              [ (constructors ./types/RepoType ).Git {=}
+                              ] : Optional ./types/RepoType 
+                          }
                       ]
                   }
 

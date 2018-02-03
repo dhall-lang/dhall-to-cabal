@@ -172,12 +172,13 @@ in    empty-package
           , "SUPPORT.markdown"
           ]
       , source-repos =
-          [ { type =
-                [ (constructors ./dhall/types/RepoType ).Git {=}
-                ] : Optional ./dhall/types/RepoType 
-            , location =
-                [ "https://github.com/ekmett/lens.git" ] : Optional Text
-            }
+          [   ./dhall/defaults/SourceRepo.dhall 
+            ⫽ { type =
+                  [ (constructors ./dhall/types/RepoType ).Git {=}
+                  ] : Optional ./dhall/types/RepoType 
+              , location =
+                  [ "https://github.com/ekmett/lens.git" ] : Optional Text
+              }
           ]
       , custom-setup =
           [ { setup-depends = [ { package = "Cabal", bounds = anyVersion } ] }
@@ -210,7 +211,7 @@ in    empty-package
           [ [ unguarded
               ./dhall/types/Library 
               (   ./dhall/defaults/Library.dhall 
-                ⫽ { build-dependencies =
+                ⫽ { build-depends =
                       [ { package = "ghc-prim", bounds = anyVersion } ]
                   , exposed-modules =
                       [ "Control.Exception.Lens"
@@ -311,7 +312,7 @@ in    empty-package
               ((constructors ./dhall/types/Compiler ).GHC {=})
               (earlierVersion [ +8 ])
               (   ./dhall/defaults/Library.dhall 
-                ⫽ { build-dependencies =
+                ⫽ { build-depends =
                       [ { package =
                             "generic-deriving"
                         , bounds =
@@ -325,7 +326,7 @@ in    empty-package
               ((constructors ./dhall/types/Compiler ).GHC {=})
               (earlierVersion [ +7, +9 ])
               (   ./dhall/defaults/Library.dhall 
-                ⫽ { build-dependencies =
+                ⫽ { build-depends =
                       [ { package = "nats", bounds = orLaterVersion [ +0, +1 ] }
                       ]
                   }

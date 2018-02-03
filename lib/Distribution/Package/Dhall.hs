@@ -165,13 +165,13 @@ packageDescription = do
     keyValue "data-files" ( Dhall.list Dhall.string )
 
   dataDir <-
-    keyValue "data-directory" Dhall.string
+    keyValue "data-dir" Dhall.string
 
   extraSrcFiles <-
     keyValue "extra-source-files" ( Dhall.list Dhall.string )
 
   extraTmpFiles <-
-    keyValue "extra-temp-files" ( Dhall.list Dhall.string )
+    keyValue "extra-tmp-files" ( Dhall.list Dhall.string )
 
   extraDocFiles <-
     keyValue "extra-doc-files" ( Dhall.list Dhall.string )
@@ -279,7 +279,7 @@ buildInfo = do
     keyValue "include-dirs" ( Dhall.list Dhall.string )
 
   includes <-
-    keyValue "include" ( Dhall.list Dhall.string )
+    keyValue "includes" ( Dhall.list Dhall.string )
 
   installIncludes <-
     keyValue "install-includes" ( Dhall.list Dhall.string )
@@ -297,7 +297,7 @@ buildInfo = do
     pure []
 
   targetBuildDepends <-
-    keyValue "build-dependencies" ( Dhall.list dependency )
+    keyValue "build-depends" ( Dhall.list dependency )
 
   mixins <-
     pure []
@@ -368,13 +368,13 @@ foreignLib =
       buildInfo
 
     foreignLibVersionInfo <-
-      keyValue "version-info" ( Dhall.maybe versionInfo )
+      keyValue "lib-version-info" ( Dhall.maybe versionInfo )
 
     foreignLibVersionLinux <-
-      keyValue "linux-version" ( Dhall.maybe version )
+      keyValue "lib-version-linux" ( Dhall.maybe version )
 
     foreignLibModDefFile <-
-      keyValue "module-definition-files" ( Dhall.list Dhall.string )
+      keyValue "mod-def-files" ( Dhall.list Dhall.string )
 
     pure Cabal.ForeignLib { .. }
 
@@ -429,16 +429,16 @@ sourceRepo =
       keyValue "location" ( Dhall.maybe Dhall.string )
 
     repoModule <-
-      pure Nothing
+      keyValue "module" ( Dhall.maybe Dhall.string )
 
     repoBranch <-
-      pure Nothing
+      keyValue "branch" ( Dhall.maybe Dhall.string )
 
     repoTag <-
-      pure Nothing
+      keyValue "tag" ( Dhall.maybe Dhall.string )
 
     repoSubdir <-
-      pure Nothing
+      keyValue "subdir" ( Dhall.maybe filePath )
 
     pure Cabal.SourceRepo { .. }
 
@@ -1251,3 +1251,9 @@ setupBuildInfo =
       pure False
 
     return Cabal.SetupBuildInfo { .. }
+
+
+
+filePath :: Dhall.Type FilePath
+filePath =
+  Dhall.string

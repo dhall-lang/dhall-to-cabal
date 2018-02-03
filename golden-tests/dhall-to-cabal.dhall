@@ -35,7 +35,7 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
           [ { executable =
                 [ { body =
                         ./dhall/defaults/Executable.dhall 
-                      ⫽ { build-dependencies =
+                      ⫽ { build-depends =
                             [ common-deps.base
                             , common-deps.dhall-to-cabal
                             , package
@@ -66,7 +66,7 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
       , library =
           [ [ { body =
                     ./dhall/defaults/Library.dhall 
-                  ⫽ { build-dependencies =
+                  ⫽ { build-depends =
                         [ common-deps.base
                         , common-deps.Cabal
                         , common-deps.dhall
@@ -116,7 +116,7 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
             , test-suite =
                 [ { body =
                         ./dhall/defaults/TestSuite.dhall 
-                      ⫽ { build-dependencies =
+                      ⫽ { build-depends =
                             [ common-deps.bytestring
                             , common-deps.base
                             , common-deps.Cabal

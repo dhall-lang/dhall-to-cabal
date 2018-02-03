@@ -1,6 +1,6 @@
 { autogen-modules =
     [] : List Text
-, build-dependencies =
+, build-depends =
     [] : List { bounds : VersionRange, package : Text }
 , build-tool-depends =
     [] : List { component : Text, package : Text, version : VersionRange }
@@ -32,7 +32,7 @@
     [] : List Text
 , hs-source-dirs =
     [] : List Text
-, include =
+, includes =
     [] : List Text
 , include-dirs =
     [] : List Text

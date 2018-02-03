@@ -5,6 +5,7 @@ build-type: Simple
 license: MIT
 homepage: https://github.com/ocharles/dhall-to-cabal
 bug-reports: https://github.com/ocharles/dhall-to-cabal/issues
+tested-with: GHC ==8.2.2 GHC ==8.4.1
 
 source-repository head
     type: git
@@ -13,8 +14,6 @@ source-repository head
 library
     exposed-modules:
         Distribution.Package.Dhall
-    exposed: True
-    buildable: True
     build-depends:
         base ^>=4.10,
         Cabal ^>=2.0,
@@ -33,10 +32,9 @@ library
         Dhall.Extra
     ghc-options: -Wall -fno-warn-name-shadowing
 
-executable dhall-to-cabal
+executable  dhall-to-cabal
     main-is: Main.hs
     scope: public
-    buildable: True
     build-depends:
         base ^>=4.10,
         dhall-to-cabal -any,
@@ -47,10 +45,9 @@ executable dhall-to-cabal
     other-extensions: NamedFieldPuns
     hs-source-dirs: exe
 
-test-suite golden-tests
+test-suite  golden-tests
     type: exitcode-stdio-1.0
     main-is: GoldenTests.hs
-    buildable: True
     build-depends:
         bytestring ^>=0.10,
         base ^>=4.10,
@@ -62,3 +59,4 @@ test-suite golden-tests
         tasty-golden ^>=2.3,
         Diff ^>=0.3.4
     hs-source-dirs: golden-tests
+

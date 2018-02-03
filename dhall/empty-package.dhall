@@ -8,7 +8,7 @@
              ./types/Guarded 
              { autogen-modules :
                  List Text
-             , build-dependencies :
+             , build-depends :
                  List { bounds : VersionRange, package : Text }
              , build-tool-depends :
                  List
@@ -41,7 +41,7 @@
                  List Text
              , hs-source-dirs :
                  List Text
-             , include :
+             , includes :
                  List Text
              , include-dirs :
                  List Text
@@ -80,7 +80,7 @@
     ""
 , copyright =
     ""
-, data-directory =
+, data-dir =
     ""
 , data-files =
     [] : List Text
@@ -92,7 +92,7 @@
              ./types/Guarded 
              { autogen-modules :
                  List Text
-             , build-dependencies :
+             , build-depends :
                  List { bounds : VersionRange, package : Text }
              , build-tool-depends :
                  List
@@ -125,7 +125,7 @@
                  List Text
              , hs-source-dirs :
                  List Text
-             , include :
+             , includes :
                  List Text
              , include-dirs :
                  List Text
@@ -159,7 +159,7 @@
     [] : List Text
 , extra-source-files =
     [] : List Text
-, extra-temp-files =
+, extra-tmp-files =
     [] : List Text
 , foreign-libraries =
     [] : List
@@ -167,7 +167,7 @@
              ./types/Guarded 
              { autogen-modules :
                  List Text
-             , build-dependencies :
+             , build-depends :
                  List { bounds : VersionRange, package : Text }
              , build-tool-depends :
                  List
@@ -200,7 +200,7 @@
                  List Text
              , hs-source-dirs :
                  List Text
-             , include :
+             , includes :
                  List Text
              , include-dirs :
                  List Text
@@ -210,9 +210,9 @@
                  List Text
              , ld-options :
                  List Text
-             , linux-version :
+             , lib-version-linux :
                  Optional (List Natural)
-             , module-definition-files :
+             , mod-def-files :
                  List Text
              , options :
                  List < Standalone : {} >
@@ -230,7 +230,7 @@
                  ./types/CompilerOptions 
              , type :
                  < Shared : {} | Static : {} >
-             , version-info :
+             , lib-version-info :
                  Optional
                  { age : Natural, current : Natural, revision : Natural }
              }
@@ -311,7 +311,7 @@
 , package-url =
     ""
 , source-repos =
-    [] : List { location : Optional Text, type : Optional ./types/RepoType  }
+    [] : List ./types/SourceRepo.dhall 
 , stability =
     ""
 , sub-libraries =
@@ -320,7 +320,7 @@
              ./types/Guarded 
              { autogen-modules :
                  List Text
-             , build-dependencies :
+             , build-depends :
                  List { bounds : VersionRange, package : Text }
              , build-tool-depends :
                  List
@@ -355,7 +355,7 @@
                  List Text
              , hs-source-dirs :
                  List Text
-             , include :
+             , includes :
                  List Text
              , include-dirs :
                  List Text
@@ -398,7 +398,7 @@
              ./types/Guarded 
              { autogen-modules :
                  List Text
-             , build-dependencies :
+             , build-depends :
                  List { bounds : VersionRange, package : Text }
              , build-tool-depends :
                  List
@@ -431,7 +431,7 @@
                  List Text
              , hs-source-dirs :
                  List Text
-             , include :
+             , includes :
                  List Text
              , include-dirs :
                  List Text

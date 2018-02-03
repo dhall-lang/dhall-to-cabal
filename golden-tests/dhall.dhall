@@ -62,7 +62,7 @@ in    ./dhall/empty-package.dhall
                 unguarded
                 ./dhall/types/Executable.dhall 
                 (   ./dhall/defaults/Executable.dhall 
-                  ⫽ { build-dependencies =
+                  ⫽ { build-depends =
                         [ bounded "base" [ +4 ] [ +5 ]
                         , { bounds = anyVersion, package = "dhall" }
                         , bounded "optparse-generic" [ +1, +1, +1 ] [ +1, +3 ]
@@ -88,7 +88,7 @@ in    ./dhall/empty-package.dhall
                 unguarded
                 ./dhall/types/Executable.dhall 
                 (   ./dhall/defaults/Executable.dhall 
-                  ⫽ { build-dependencies =
+                  ⫽ { build-depends =
                         [ bounded "base" [ +4 ] [ +5 ]
                         , { bounds = anyVersion, package = "dhall" }
                         , bounded "optparse-generic" [ +1, +1, +1 ] [ +1, +3 ]
@@ -115,7 +115,7 @@ in    ./dhall/empty-package.dhall
                 unguarded
                 ./dhall/types/Executable.dhall 
                 (   ./dhall/defaults/Executable.dhall 
-                  ⫽ { build-dependencies =
+                  ⫽ { build-depends =
                         [ bounded "base" [ +4 ] [ +5 ]
                         , { bounds = anyVersion, package = "dhall" }
                         , bounded "optparse-generic" [ +1, +1, +1 ] [ +1, +3 ]
@@ -196,7 +196,7 @@ in    ./dhall/empty-package.dhall
           [ unguarded
             ./dhall/types/Library 
             (   ./dhall/defaults/Library.dhall 
-              ⫽ { build-dependencies =
+              ⫽ { build-depends =
                     [ bounded "base" [ +4, +9, +0, +0 ] [ +5 ]
                     , before "ansi-wl-pprint" [ +0, +7 ]
                     , before "base16-bytestring" [ +0, +2 ]
@@ -251,13 +251,14 @@ in    ./dhall/empty-package.dhall
       , version =
           [ +1, +8, +2 ]
       , source-repos =
-          [ { location =
-                [ "https://github.com/dhall-lang/dhall-haskell" ] : Optional
-                                                                    Text
-            , type =
-                [ (constructors ./dhall/types/RepoType ).Git {=}
-                ] : Optional ./dhall/types/RepoType 
-            }
+          [   ./dhall/defaults/SourceRepo.dhall 
+            ⫽ { location =
+                  [ "https://github.com/dhall-lang/dhall-haskell" ] : Optional
+                                                                      Text
+              , type =
+                  [ (constructors ./dhall/types/RepoType ).Git {=}
+                  ] : Optional ./dhall/types/RepoType 
+              }
           ]
       , synopsis =
           "A configuration language guaranteed to terminate"
@@ -273,7 +274,7 @@ in    ./dhall/empty-package.dhall
                 unguarded
                 ./dhall/types/TestSuite.dhall 
                 (   ./dhall/defaults/TestSuite.dhall 
-                  ⫽ { build-dependencies =
+                  ⫽ { build-depends =
                         [ { bounds = within [ +4 ] [ +5 ], package = "base" }
                         , { bounds =
                               within [ +0, +5, +0, +0 ] [ +0, +6 ]
