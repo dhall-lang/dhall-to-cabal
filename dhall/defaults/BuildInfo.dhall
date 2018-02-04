@@ -54,4 +54,6 @@
     ./CompilerOptions.dhall 
 , shared-options =
     ./CompilerOptions.dhall 
+, mixins =
+    [] : List ../types/Mixin.dhall 
 }

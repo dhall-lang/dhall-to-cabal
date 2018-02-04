@@ -58,4 +58,6 @@
     Text
 , scope :
     ./Scope.dhall 
+, mixins :
+    List ./Mixin.dhall 
 }

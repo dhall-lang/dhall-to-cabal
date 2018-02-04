@@ -56,4 +56,6 @@
     ./CompilerOptions.dhall 
 , main-is :
     Text
+, mixins :
+    List ./Mixin.dhall 
 }

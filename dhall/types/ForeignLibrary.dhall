@@ -64,4 +64,6 @@
     < Shared : {} | Static : {} >
 , lib-version-info :
     Optional { age : Natural, current : Natural, revision : Natural }
+, mixins :
+    List ./Mixin.dhall 
 }

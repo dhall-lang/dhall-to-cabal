@@ -58,4 +58,6 @@
     List { name : Text, original : { name : Text, package : Optional Text } }
 , shared-options :
     ./CompilerOptions.dhall 
+, mixins :
+    List ./Mixin.dhall 
 }

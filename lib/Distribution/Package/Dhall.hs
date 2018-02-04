@@ -40,7 +40,9 @@ import qualified Distribution.Types.ExecutableScope as Cabal
 import qualified Distribution.Types.ForeignLib as Cabal
 import qualified Distribution.Types.ForeignLibOption as Cabal
 import qualified Distribution.Types.ForeignLibType as Cabal
+import qualified Distribution.Types.IncludeRenaming as Cabal
 import qualified Distribution.Types.LegacyExeDependency as Cabal
+import qualified Distribution.Types.Mixin as Cabal
 import qualified Distribution.Types.PackageId as Cabal
 import qualified Distribution.Types.PackageName as Cabal
 import qualified Distribution.Types.PkgconfigDependency as Cabal
@@ -300,7 +302,7 @@ buildInfo = do
     keyValue "build-depends" ( Dhall.list dependency )
 
   mixins <-
-    pure []
+    keyValue "mixins" ( Dhall.list mixin )
 
   return Cabal.BuildInfo { ..  }
 
@@ -1257,3 +1259,38 @@ setupBuildInfo =
 filePath :: Dhall.Type FilePath
 filePath =
   Dhall.string
+
+
+
+mixin :: Dhall.Type Cabal.Mixin
+mixin =
+  makeRecord $ do
+    mixinPackageName <-
+      keyValue "package" packageName
+
+    mixinIncludeRenaming <-
+      keyValue "renaming" includeRenaming
+  
+    pure Cabal.Mixin { .. }
+
+
+
+includeRenaming :: Dhall.Type Cabal.IncludeRenaming
+includeRenaming =
+  makeRecord $ do
+    includeProvidesRn <-
+      keyValue "provides" moduleRenaming
+
+    includeRequiresRn <-
+      keyValue "requires" moduleRenaming
+
+    pure Cabal.IncludeRenaming { .. }
+
+
+
+moduleRenaming :: Dhall.Type Cabal.ModuleRenaming
+moduleRenaming =
+  fmap Cabal.ModuleRenaming $
+  Dhall.list $
+  makeRecord $
+    (,) <$> keyValue "rename" moduleName <*> keyValue "to" moduleName
