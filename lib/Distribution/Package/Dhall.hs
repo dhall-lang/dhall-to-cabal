@@ -746,20 +746,7 @@ compiler =
 
 compilerFlavor :: Dhall.Type Cabal.CompilerFlavor
 compilerFlavor =
-  makeUnion
-    ( Map.fromList
-        [ ( "GHC", Cabal.GHC <$ Dhall.unit )
-        , ( "GHCJS", Cabal.GHCJS <$ Dhall.unit )
-        , ( "NHC", Cabal.NHC <$ Dhall.unit )
-        , ( "YHC", Cabal.YHC <$ Dhall.unit )
-        , ( "Hugs", Cabal.Hugs <$ Dhall.unit )
-        , ( "HBC", Cabal.HBC <$ Dhall.unit )
-        , ( "Helium", Cabal.Helium <$ Dhall.unit )
-        , ( "JHC", Cabal.JHC <$ Dhall.unit )
-        , ( "LHC", Cabal.LHC <$ Dhall.unit )
-        , ( "UHC", Cabal.UHC <$ Dhall.unit )
-        ]
-    )
+  Dhall.genericAuto
 
 
 

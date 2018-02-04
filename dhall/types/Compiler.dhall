@@ -4,6 +4,8 @@
     {}
 | HBC :
     {}
+| HaskellSuite :
+    { _1 : Text }
 | Helium :
     {}
 | Hugs :
@@ -14,6 +16,8 @@
     {}
 | NHC :
     {}
+| OtherCompiler :
+    { _1 : Text }
 | UHC :
     {}
 | YHC :
