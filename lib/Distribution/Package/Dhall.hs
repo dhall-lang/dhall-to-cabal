@@ -810,12 +810,7 @@ exeDependency =
 
 language :: Dhall.Type Cabal.Language
 language =
-  makeUnion
-    ( Map.fromList
-        [ ( "Haskell98", Cabal.Haskell98 <$ Dhall.unit  )
-        , ( "Haskell2010", Cabal.Haskell2010 <$ Dhall.unit )
-        ]
-    )
+  Dhall.genericAuto
 
 
 
