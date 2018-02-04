@@ -53,7 +53,7 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                         , main-is =
                             "Main.hs"
                         , other-extensions =
-                            [ extensions.NamedFieldPuns {=} ]
+                            [ extensions.NamedFieldPuns True ]
                         }
                   , guard =
                       always

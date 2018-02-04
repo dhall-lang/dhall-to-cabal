@@ -53,7 +53,7 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                         , main-is =
                             "Main.hs"
                         , other-extensions =
-                            [ extensions.NamedFieldPuns {=} ]
+                            [ extensions.NamedFieldPuns True ]
                         }
                   , guard =
                       always
@@ -88,13 +88,13 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                     , hs-source-dirs =
                         [ "lib" ]
                     , other-extensions =
-                        [ extensions.ApplicativeDo {=}
-                        , extensions.GADTs {=}
-                        , extensions.GeneralizedNewtypeDeriving {=}
-                        , extensions.LambdaCase {=}
-                        , extensions.OverloadedStrings {=}
-                        , extensions.RecordWildCards {=}
-                        , extensions.TypeApplications {=}
+                        [ extensions.ApplicativeDo True
+                        , extensions.GADTs True
+                        , extensions.GeneralizedNewtypeDeriving True
+                        , extensions.LambdaCase True
+                        , extensions.OverloadedStrings True
+                        , extensions.RecordWildCards True
+                        , extensions.TypeApplications True
                         ]
                     , other-modules =
                         [ "Dhall.Extra" ]

@@ -890,130 +890,41 @@ versionInfo =
 
 extension :: Dhall.Type Cabal.Extension
 extension =
-  Cabal.EnableExtension <$>
-  makeUnion
-    ( Map.fromList
-        [ ( "AllowAmbiguousTypes", Cabal.AllowAmbiguousTypes <$ Dhall.unit )
-        , ( "ApplicativeDo", Cabal.ApplicativeDo <$ Dhall.unit )
-        , ( "Arrows", Cabal.Arrows <$ Dhall.unit )
-        , ( "AutoDeriveTypeable", Cabal.AutoDeriveTypeable <$ Dhall.unit )
-        , ( "BangPatterns", Cabal.BangPatterns <$ Dhall.unit )
-        , ( "BinaryLiterals", Cabal.BinaryLiterals <$ Dhall.unit )
-        , ( "CApiFFI", Cabal.CApiFFI <$ Dhall.unit )
-        , ( "CPP", Cabal.CPP <$ Dhall.unit )
-        , ( "ConstrainedClassMethods", Cabal.ConstrainedClassMethods <$ Dhall.unit )
-        , ( "ConstraintKinds", Cabal.ConstraintKinds <$ Dhall.unit )
-        , ( "DataKinds", Cabal.DataKinds <$ Dhall.unit )
-        , ( "DatatypeContexts", Cabal.DatatypeContexts <$ Dhall.unit )
-        , ( "DefaultSignatures", Cabal.DefaultSignatures <$ Dhall.unit )
-        , ( "DeriveAnyClass", Cabal.DeriveAnyClass <$ Dhall.unit )
-        , ( "DeriveDataTypeable", Cabal.DeriveDataTypeable <$ Dhall.unit )
-        , ( "DeriveFoldable", Cabal.DeriveFoldable <$ Dhall.unit )
-        , ( "DeriveFunctor", Cabal.DeriveFunctor <$ Dhall.unit )
-        , ( "DeriveGeneric", Cabal.DeriveGeneric <$ Dhall.unit )
-        , ( "DeriveLift", Cabal.DeriveLift <$ Dhall.unit )
-        , ( "DeriveTraversable", Cabal.DeriveTraversable <$ Dhall.unit )
-        , ( "DisambiguateRecordFields", Cabal.DisambiguateRecordFields <$ Dhall.unit )
-        , ( "DoAndIfThenElse", Cabal.DoAndIfThenElse <$ Dhall.unit )
-        , ( "DoRec", Cabal.DoRec <$ Dhall.unit )
-        , ( "DuplicateRecordFields", Cabal.DuplicateRecordFields <$ Dhall.unit )
-        , ( "EmptyCase", Cabal.EmptyCase <$ Dhall.unit )
-        , ( "EmptyDataDecls", Cabal.EmptyDataDecls <$ Dhall.unit )
-        , ( "ExistentialQuantification", Cabal.ExistentialQuantification <$ Dhall.unit )
-        , ( "ExplicitForAll", Cabal.ExplicitForAll <$ Dhall.unit )
-        , ( "ExplicitNamespaces", Cabal.ExplicitNamespaces <$ Dhall.unit )
-        , ( "ExtendedDefaultRules", Cabal.ExtendedDefaultRules <$ Dhall.unit )
-        , ( "ExtensibleRecords", Cabal.ExtensibleRecords <$ Dhall.unit )
-        , ( "FlexibleContexts", Cabal.FlexibleContexts <$ Dhall.unit )
-        , ( "FlexibleInstances", Cabal.FlexibleInstances <$ Dhall.unit )
-        , ( "ForeignFunctionInterface", Cabal.ForeignFunctionInterface <$ Dhall.unit )
-        , ( "FunctionalDependencies", Cabal.FunctionalDependencies <$ Dhall.unit )
-        , ( "GADTSyntax", Cabal.GADTSyntax <$ Dhall.unit )
-        , ( "GADTs", Cabal.GADTs <$ Dhall.unit )
-        , ( "GHCForeignImportPrim", Cabal.GHCForeignImportPrim <$ Dhall.unit )
-        , ( "GeneralizedNewtypeDeriving", Cabal.GeneralizedNewtypeDeriving <$ Dhall.unit )
-        , ( "Generics", Cabal.Generics <$ Dhall.unit )
-        , ( "HereDocuments", Cabal.HereDocuments <$ Dhall.unit )
-        , ( "ImplicitParams", Cabal.ImplicitParams <$ Dhall.unit )
-        , ( "ImplicitPrelude", Cabal.ImplicitPrelude <$ Dhall.unit )
-        , ( "ImpredicativeTypes", Cabal.ImpredicativeTypes <$ Dhall.unit )
-        , ( "IncoherentInstances", Cabal.IncoherentInstances <$ Dhall.unit )
-        , ( "InstanceSigs", Cabal.InstanceSigs <$ Dhall.unit )
-        , ( "InterruptibleFFI", Cabal.InterruptibleFFI <$ Dhall.unit )
-        , ( "JavaScriptFFI", Cabal.JavaScriptFFI <$ Dhall.unit )
-        , ( "KindSignatures", Cabal.KindSignatures <$ Dhall.unit )
-        , ( "LambdaCase", Cabal.LambdaCase <$ Dhall.unit )
-        , ( "LiberalTypeSynonyms", Cabal.LiberalTypeSynonyms <$ Dhall.unit )
-        , ( "MagicHash", Cabal.MagicHash <$ Dhall.unit )
-        , ( "MonadComprehensions", Cabal.MonadComprehensions <$ Dhall.unit )
-        , ( "MonadFailDesugaring", Cabal.MonadFailDesugaring <$ Dhall.unit )
-        , ( "MonoLocalBinds", Cabal.MonoLocalBinds <$ Dhall.unit )
-        , ( "MonoPatBinds", Cabal.MonoPatBinds <$ Dhall.unit )
-        , ( "MonomorphismRestriction", Cabal.MonomorphismRestriction <$ Dhall.unit )
-        , ( "MultiParamTypeClasses", Cabal.MultiParamTypeClasses <$ Dhall.unit )
-        , ( "MultiWayIf", Cabal.MultiWayIf <$ Dhall.unit )
-        , ( "NPlusKPatterns", Cabal.NPlusKPatterns <$ Dhall.unit )
-        , ( "NamedFieldPuns", Cabal.NamedFieldPuns <$ Dhall.unit )
-        , ( "NamedWildCards", Cabal.NamedWildCards <$ Dhall.unit )
-        , ( "NegativeLiterals", Cabal.NegativeLiterals <$ Dhall.unit )
-        , ( "NewQualifiedOperators", Cabal.NewQualifiedOperators <$ Dhall.unit )
-        , ( "NondecreasingIndentation", Cabal.NondecreasingIndentation <$ Dhall.unit )
-        , ( "NullaryTypeClasses", Cabal.NullaryTypeClasses <$ Dhall.unit )
-        , ( "NumDecimals", Cabal.NumDecimals <$ Dhall.unit )
-        , ( "OverlappingInstances", Cabal.OverlappingInstances <$ Dhall.unit )
-        , ( "OverloadedLabels", Cabal.OverloadedLabels <$ Dhall.unit )
-        , ( "OverloadedLists", Cabal.OverloadedLists <$ Dhall.unit )
-        , ( "OverloadedStrings", Cabal.OverloadedStrings <$ Dhall.unit )
-        , ( "PackageImports", Cabal.PackageImports <$ Dhall.unit )
-        , ( "ParallelArrays", Cabal.ParallelArrays <$ Dhall.unit )
-        , ( "ParallelListComp", Cabal.ParallelListComp <$ Dhall.unit )
-        , ( "PartialTypeSignatures", Cabal.PartialTypeSignatures <$ Dhall.unit )
-        , ( "PatternGuards", Cabal.PatternGuards <$ Dhall.unit )
-        , ( "PatternSignatures", Cabal.PatternSignatures <$ Dhall.unit )
-        , ( "PatternSynonyms", Cabal.PatternSynonyms <$ Dhall.unit )
-        , ( "PolyKinds", Cabal.PolyKinds <$ Dhall.unit )
-        , ( "PolymorphicComponents", Cabal.PolymorphicComponents <$ Dhall.unit )
-        , ( "PostfixOperators", Cabal.PostfixOperators <$ Dhall.unit )
-        , ( "QuasiQuotes", Cabal.QuasiQuotes <$ Dhall.unit )
-        , ( "Rank2Types", Cabal.Rank2Types <$ Dhall.unit )
-        , ( "RankNTypes", Cabal.RankNTypes <$ Dhall.unit )
-        , ( "RebindableSyntax", Cabal.RebindableSyntax <$ Dhall.unit )
-        , ( "RecordPuns", Cabal.RecordPuns <$ Dhall.unit )
-        , ( "RecordWildCards", Cabal.RecordWildCards <$ Dhall.unit )
-        , ( "RecursiveDo", Cabal.RecursiveDo <$ Dhall.unit )
-        , ( "RegularPatterns", Cabal.RegularPatterns <$ Dhall.unit )
-        , ( "RelaxedPolyRec", Cabal.RelaxedPolyRec <$ Dhall.unit )
-        , ( "RestrictedTypeSynonyms", Cabal.RestrictedTypeSynonyms <$ Dhall.unit )
-        , ( "RoleAnnotations", Cabal.RoleAnnotations <$ Dhall.unit )
-        , ( "Safe", Cabal.Safe <$ Dhall.unit )
-        , ( "SafeImports", Cabal.SafeImports <$ Dhall.unit )
-        , ( "ScopedTypeVariables", Cabal.ScopedTypeVariables <$ Dhall.unit )
-        , ( "StandaloneDeriving", Cabal.StandaloneDeriving <$ Dhall.unit )
-        , ( "StaticPointers", Cabal.StaticPointers <$ Dhall.unit )
-        , ( "Strict", Cabal.Strict <$ Dhall.unit )
-        , ( "StrictData", Cabal.StrictData <$ Dhall.unit )
-        , ( "TemplateHaskell", Cabal.TemplateHaskell <$ Dhall.unit )
-        , ( "TemplateHaskellQuotes", Cabal.TemplateHaskellQuotes <$ Dhall.unit )
-        , ( "TraditionalRecordSyntax", Cabal.TraditionalRecordSyntax <$ Dhall.unit )
-        , ( "TransformListComp", Cabal.TransformListComp <$ Dhall.unit )
-        , ( "Trustworthy", Cabal.Trustworthy <$ Dhall.unit )
-        , ( "TupleSections", Cabal.TupleSections <$ Dhall.unit )
-        , ( "TypeApplications", Cabal.TypeApplications <$ Dhall.unit )
-        , ( "TypeFamilies", Cabal.TypeFamilies <$ Dhall.unit )
-        , ( "TypeFamilyDependencies", Cabal.TypeFamilyDependencies <$ Dhall.unit )
-        , ( "TypeInType", Cabal.TypeInType <$ Dhall.unit )
-        , ( "TypeOperators", Cabal.TypeOperators <$ Dhall.unit )
-        , ( "TypeSynonymInstances", Cabal.TypeSynonymInstances <$ Dhall.unit )
-        , ( "UnboxedTuples", Cabal.UnboxedTuples <$ Dhall.unit )
-        , ( "UndecidableInstances", Cabal.UndecidableInstances <$ Dhall.unit )
-        , ( "UndecidableSuperClasses", Cabal.UndecidableSuperClasses <$ Dhall.unit )
-        , ( "UnicodeSyntax", Cabal.UnicodeSyntax <$ Dhall.unit )
-        , ( "UnliftedFFITypes", Cabal.UnliftedFFITypes <$ Dhall.unit )
-        , ( "Unsafe", Cabal.Unsafe <$ Dhall.unit )
-        , ( "ViewPatterns", Cabal.ViewPatterns <$ Dhall.unit )
-        , ( "XmlSyntax", Cabal.XmlSyntax <$ Dhall.unit )
-        ]
-    )
+  let
+    knownExtension =
+      Dhall.genericAuto
+
+    unitType =
+      Expr.Record Map.empty
+
+    extract expr = do
+      Expr.UnionLit k v alts <-
+        return expr
+
+      ext <-
+        Dhall.extract
+          knownExtension
+          ( Expr.UnionLit k ( Expr.RecordLit mempty ) ( unitType <$ alts ) )
+
+      case v of
+        Expr.BoolLit True ->
+          return ( Cabal.EnableExtension ext )
+
+        Expr.BoolLit False ->
+          return ( Cabal.DisableExtension ext )
+
+        _ ->
+          Nothing
+
+    expected =
+      case Dhall.expected knownExtension of
+        Expr.Union alts ->
+          Expr.Union ( Expr.Bool <$ alts )
+
+        _ ->
+          error "Could not derive extension type"
+
+  in Dhall.Type { .. }
 
 
 
