@@ -409,7 +409,7 @@ library =
       keyValue "reexported-modules" ( Dhall.list moduleReexport )
 
     signatures <-
-      pure []
+      keyValue "signatures" ( Dhall.list moduleName )
 
     libExposed <-
       pure True

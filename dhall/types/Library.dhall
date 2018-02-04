@@ -60,4 +60,6 @@
     ./CompilerOptions.dhall 
 , mixins :
     List ./Mixin.dhall 
+, signatures :
+    List Text
 }
