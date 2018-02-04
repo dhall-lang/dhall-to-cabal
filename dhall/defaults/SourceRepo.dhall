@@ -10,4 +10,6 @@
     [] : Optional Text
 , subdir =
     [] : Optional Text
+, kind =
+    (constructors ../types/RepoKind.dhall ).RepoHead {=}
 }

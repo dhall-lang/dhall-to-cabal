@@ -422,7 +422,7 @@ sourceRepo :: Dhall.Type Cabal.SourceRepo
 sourceRepo =
   makeRecord $ do
     repoKind <-
-      pure Cabal.RepoHead
+      keyValue "kind" repoKind
 
     repoType <-
       keyValue "type" ( Dhall.maybe repoType )
@@ -443,6 +443,12 @@ sourceRepo =
       keyValue "subdir" ( Dhall.maybe filePath )
 
     pure Cabal.SourceRepo { .. }
+
+
+
+repoKind :: Dhall.Type Cabal.RepoKind
+repoKind =
+  Dhall.genericAuto
 
 
 

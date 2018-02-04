@@ -10,4 +10,6 @@
     Optional Text
 , subdir :
     Optional Text
+, kind :
+    ./RepoKind.dhall 
 }
