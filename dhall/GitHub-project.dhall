@@ -6,7 +6,9 @@ in  let gitHubProject =
                       "https://github.com/${github.owner}/${github.repo}"
             
             in    ./empty-package.dhall 
-                ⫽ { bug-reports =
+                ⫽ { name =
+                      github.repo
+                  , bug-reports =
                       "${gitHubRoot}/issues"
                   , homepage =
                       gitHubRoot

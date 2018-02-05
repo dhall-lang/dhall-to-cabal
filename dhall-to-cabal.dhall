@@ -94,8 +94,6 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
           )
       , license =
           licenses.MIT {=}
-      , name =
-          "dhall-to-cabal"
       , version =
           [ +0, +1, +0 ]
       , test-suites =
