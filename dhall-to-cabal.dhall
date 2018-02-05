@@ -11,17 +11,17 @@ in  let package =
 
 in  let common-deps =
           { Cabal =
-              package "Cabal" (majorBoundVersion [ +2, +0 ])
+              package "Cabal" (majorBoundVersion (v "2.0"))
           , base =
-              package "base" (majorBoundVersion [ +4, +10 ])
+              package "base" (majorBoundVersion (v "4.10"))
           , bytestring =
-              package "bytestring" (majorBoundVersion [ +0, +10 ])
+              package "bytestring" (majorBoundVersion (v "0.10"))
           , dhall =
-              package "dhall" (majorBoundVersion [ +1, +9 ])
+              package "dhall" (majorBoundVersion (v "1.9"))
           , dhall-to-cabal =
               package "dhall-to-cabal" anyVersion
           , text =
-              package "text" (majorBoundVersion [ +1, +2 ])
+              package "text" (majorBoundVersion (v "1.2"))
           }
 
 in  let gitHub-project = ./dhall/GitHub-project.dhall 
@@ -80,13 +80,13 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
               , hs-source-dirs =
                   [ "lib" ]
               , other-extensions =
-                  [ extensions.ApplicativeDo {=}
-                  , extensions.GADTs {=}
-                  , extensions.GeneralizedNewtypeDeriving {=}
-                  , extensions.LambdaCase {=}
-                  , extensions.OverloadedStrings {=}
-                  , extensions.RecordWildCards {=}
-                  , extensions.TypeApplications {=}
+                  [ extensions.ApplicativeDo True
+                  , extensions.GADTs True
+                  , extensions.GeneralizedNewtypeDeriving True
+                  , extensions.LambdaCase True
+                  , extensions.OverloadedStrings True
+                  , extensions.RecordWildCards True
+                  , extensions.TypeApplications True
                   ]
               , other-modules =
                   [ "Dhall.Extra" ]

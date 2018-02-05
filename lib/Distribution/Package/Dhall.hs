@@ -11,6 +11,7 @@ module Distribution.Package.Dhall ( dhallFileToCabal ) where
 
 import Control.Exception ( Exception, throwIO )
 import Data.Function ( (&) )
+import Data.Maybe ( fromMaybe )
 import Data.Monoid ( (<>) )
 import Data.Text.Buildable ( Buildable(..) )
 import Text.Trifecta.Delta ( Delta(..) )
@@ -21,6 +22,7 @@ import qualified Data.Text.Lazy as LazyText
 import qualified Data.Text.Lazy.Builder as Builder
 import qualified Data.Text.Lazy.Encoding as LazyText
 import qualified Data.Text.Lazy.IO as LazyText
+import qualified Data.Vector as Vector
 import qualified Dhall
 import qualified Dhall.Context as Ctx
 import qualified Dhall.Core
@@ -52,7 +54,7 @@ import qualified Distribution.Version as Cabal
 import qualified Language.Haskell.Extension as Cabal
 
 import qualified Dhall.Core as Expr
-  ( Const(..), Expr(..), Var(..) )
+  ( Chunks(..), Const(..), Expr(..), Var(..) )
 
 import Dhall.Extra
 
@@ -519,7 +521,7 @@ input source t = do
   _ <-
     throws (Dhall.TypeCheck.typeWith cabalContext annot)
 
-  case Dhall.extract t ( Dhall.Core.normalize expr' ) of
+  case Dhall.extract t ( Dhall.Core.normalizeWith normalizer expr' ) of
     Just x  ->
       return x
 
@@ -537,109 +539,66 @@ input source t = do
 cabalContext
   :: Ctx.Context ( Expr.Expr Dhall.Parser.Src Dhall.TypeCheck.X )
 cabalContext =
+  let
+    versionRangeType =
+      Dhall.expected versionRange
+
+    versionType =
+      Dhall.expected version
+
+    fun a b =
+      Expr.Pi "_" a b
+
+  in
   Ctx.empty
-    & Ctx.insert "anyVersion" ( Dhall.expected versionRange )
-    & Ctx.insert "noVersion" ( Dhall.expected versionRange )
-    & Ctx.insert
-        "thisVersion"
-        ( Expr.Pi "_"
-            ( Dhall.expected version )
-            ( Dhall.expected versionRange )
-        )
-    & Ctx.insert
-        "notThisVersion"
-        ( Expr.Pi
-            "_"
-            ( Dhall.expected version )
-            ( Dhall.expected versionRange )
-        )
-    & Ctx.insert
-        "laterVersion"
-        ( Expr.Pi
-            "_"
-            ( Dhall.expected version )
-            ( Dhall.expected versionRange )
-        )
-    & Ctx.insert
-        "earlierVersion"
-        ( Expr.Pi
-            "_"
-            ( Dhall.expected version )
-            ( Dhall.expected versionRange )
-        )
-    & Ctx.insert
-        "orLaterVersion"
-        ( Expr.Pi
-            "_"
-            ( Dhall.expected version )
-            ( Dhall.expected versionRange )
-        )
-    & Ctx.insert
-        "orEarlierVersion"
-        ( Expr.Pi
-            "_"
-            ( Dhall.expected version )
-            ( Dhall.expected versionRange )
-        )
+    & Ctx.insert "VersionRange" ( Expr.Const Expr.Type )
+    & Ctx.insert "anyVersion" versionRangeType
+    & Ctx.insert "noVersion" versionRangeType
+    & Ctx.insert "thisVersion" ( fun versionType versionRangeType )
+    & Ctx.insert "notThisVersion" ( fun versionType versionRangeType )
+    & Ctx.insert "laterVersion" ( fun versionType versionRangeType )
+    & Ctx.insert "earlierVersion" ( fun versionType versionRangeType )
+    & Ctx.insert "orLaterVersion" ( fun versionType versionRangeType ) 
+    & Ctx.insert "orEarlierVersion" ( fun versionType versionRangeType )
+    & Ctx.insert "withinVersion" ( fun versionType versionRangeType)
+    & Ctx.insert "majorBoundVersion" ( fun versionType versionRangeType)
     & Ctx.insert
         "unionVersionRanges"
-        ( Expr.Pi
-            "_"
-            ( Dhall.expected versionRange )
-            ( Expr.Pi
-                "_"
-                ( Dhall.expected versionRange )
-                ( Dhall.expected versionRange  )
-            )
-        )
+        ( fun versionRangeType ( fun versionRangeType versionRangeType ) )
     & Ctx.insert
         "intersectVersionRanges"
-        ( Expr.Pi
-            "_"
-            ( Dhall.expected versionRange )
-            ( Expr.Pi
-                "_"
-                ( Dhall.expected versionRange )
-                ( Dhall.expected versionRange  )
-            )
-        )
+        ( fun versionRangeType ( fun versionRangeType versionRangeType ) )
     & Ctx.insert
         "differenceVersionRanges"
-        ( Expr.Pi
-            "_"
-            ( Dhall.expected versionRange )
-            ( Expr.Pi
-                "_"
-                ( Dhall.expected versionRange )
-                ( Dhall.expected versionRange  )
-            )
-        )
+        ( fun versionRangeType ( fun versionRangeType versionRangeType ) )
     & Ctx.insert
         "invertVersionRange"
-        ( Expr.Pi
-            "_"
-            ( Dhall.expected versionRange )
-            ( Expr.Pi
-                "_"
-                ( Dhall.expected versionRange )
-                ( Dhall.expected versionRange  )
-            )
-        )
-    & Ctx.insert
-        "withinVersion"
-        ( Expr.Pi
-            "_"
-            ( Dhall.expected version )
-            ( Dhall.expected versionRange )
-        )
-    & Ctx.insert
-        "majorBoundVersion"
-        ( Expr.Pi
-            "_"
-            ( Dhall.expected version )
-            ( Dhall.expected versionRange )
-        )
-    & Ctx.insert "VersionRange" ( Expr.Const Expr.Type )
+        ( fun versionRangeType ( fun versionRangeType versionRangeType ) )
+    & Ctx.insert "v" ( fun Expr.Text versionType )
+
+
+
+normalizer :: Dhall.Core.Normalizer a
+normalizer = \case
+  Expr.App ( Expr.Var ( Expr.V "v" 0 ) ) ( Expr.TextLit ( Expr.Chunks [] builder ) ) ->
+    Just ( toDhall parse )
+
+    where
+
+      parse =
+        fromMaybe
+          ( error "Could not parse version" )
+          ( Cabal.simpleParse ( LazyText.unpack ( Builder.toLazyText builder ) ) )
+
+      toDhall v =
+        Expr.ListLit
+          ( Just ( Expr.App Expr.List Expr.Natural ) ) -- Dhall.expected version
+          ( Vector.fromList
+              ( Expr.NaturalLit . fromIntegral <$> Cabal.versionNumbers v )
+          )
+
+  _ ->
+    Nothing
 
 
 
