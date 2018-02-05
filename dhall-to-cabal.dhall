@@ -9,19 +9,44 @@ in  let package =
           → λ(version-range : VersionRange)
           → { bounds = version-range, package = package }
 
-in  let common-deps =
+in  let deps =
           { Cabal =
               package "Cabal" (majorBoundVersion (v "2.0"))
+          , Diff =
+              package "Diff" (majorBoundVersion (v "0.3.4"))
           , base =
               package "base" (majorBoundVersion (v "4.10"))
           , bytestring =
               package "bytestring" (majorBoundVersion (v "0.10"))
+          , containers =
+              package "containers" (majorBoundVersion (v "0.5"))
           , dhall =
               package "dhall" (majorBoundVersion (v "1.9"))
           , dhall-to-cabal =
               package "dhall-to-cabal" anyVersion
+          , filepath =
+              package "filepath" (majorBoundVersion (v "1.4"))
+          , optparse-applicative =
+              package
+              "optparse-applicative"
+              ( unionVersionRanges
+                (majorBoundVersion (v "0.13.2"))
+                (majorBoundVersion (v "0.14"))
+              )
+          , tasty =
+              package "tasty" (majorBoundVersion (v "0.11"))
+          , tasty-golden =
+              package "tasty-golden" (majorBoundVersion (v "2.3"))
           , text =
               package "text" (majorBoundVersion (v "1.2"))
+          , text-format =
+              package "text-format" (majorBoundVersion (v "0.3"))
+          , transformers =
+              package "transformers" (majorBoundVersion (v "0.5.2"))
+          , trifecta =
+              package "trifecta" (majorBoundVersion (v "1.7"))
+          , vector =
+              package "vector" (majorBoundVersion (v "0.12"))
           }
 
 in  let gitHub-project = ./dhall/GitHub-project.dhall 
@@ -36,17 +61,12 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
             "dhall-to-cabal"
             (   ./dhall/defaults/Executable.dhall 
               ⫽ { build-depends =
-                    [ common-deps.base
-                    , common-deps.dhall-to-cabal
-                    , package
-                      "optparse-applicative"
-                      ( unionVersionRanges
-                        (majorBoundVersion (v "0.13.2"))
-                        (majorBoundVersion (v "0.14"))
-                      )
-                    , common-deps.text
-                    , common-deps.dhall
-                    , common-deps.Cabal
+                    [ deps.Cabal
+                    , deps.base
+                    , deps.dhall
+                    , deps.dhall-to-cabal
+                    , deps.optparse-applicative
+                    , deps.text
                     ]
                 , hs-source-dirs =
                     [ "exe" ]
@@ -61,16 +81,16 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
           unconditional.library
           (   ./dhall/defaults/Library.dhall 
             ⫽ { build-depends =
-                  [ common-deps.base
-                  , common-deps.Cabal
-                  , common-deps.dhall
-                  , common-deps.text
-                  , common-deps.bytestring
-                  , package "containers" (majorBoundVersion (v "0.5"))
-                  , package "vector" (majorBoundVersion (v "0.12"))
-                  , package "trifecta" (majorBoundVersion (v "1.7"))
-                  , package "text-format" (majorBoundVersion (v "0.3"))
-                  , package "transformers" (majorBoundVersion (v "0.5.2"))
+                  [ deps.Cabal
+                  , deps.base
+                  , deps.bytestring
+                  , deps.containers
+                  , deps.dhall
+                  , deps.text
+                  , deps.text-format
+                  , deps.transformers
+                  , deps.trifecta
+                  , deps.vector
                   ]
               , compiler-options =
                     ./dhall/defaults/CompilerOptions.dhall 
@@ -101,15 +121,15 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
             "golden-tests"
             (   ./dhall/defaults/TestSuite.dhall 
               ⫽ { build-depends =
-                    [ common-deps.bytestring
-                    , common-deps.base
-                    , common-deps.Cabal
-                    , common-deps.text
-                    , package "tasty" (majorBoundVersion (v "0.11"))
-                    , package "filepath" (majorBoundVersion (v "1.4"))
-                    , common-deps.dhall-to-cabal
-                    , package "tasty-golden" (majorBoundVersion (v "2.3"))
-                    , package "Diff" (majorBoundVersion (v "0.3.4"))
+                    [ deps.base
+                    , deps.Cabal
+                    , deps.Diff
+                    , deps.bytestring
+                    , deps.dhall-to-cabal
+                    , deps.filepath
+                    , deps.tasty
+                    , deps.tasty-golden
+                    , deps.text
                     ]
                 , hs-source-dirs =
                     [ "golden-tests" ]
