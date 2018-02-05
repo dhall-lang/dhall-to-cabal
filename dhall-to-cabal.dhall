@@ -41,8 +41,8 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                     , package
                       "optparse-applicative"
                       ( unionVersionRanges
-                        (majorBoundVersion [ +0, +13, +2 ])
-                        (majorBoundVersion [ +0, +14 ])
+                        (majorBoundVersion (v "0.13.2"))
+                        (majorBoundVersion (v "0.14"))
                       )
                     , common-deps.text
                     , common-deps.dhall
@@ -66,11 +66,11 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                   , common-deps.dhall
                   , common-deps.text
                   , common-deps.bytestring
-                  , package "containers" (majorBoundVersion [ +0, +5 ])
-                  , package "vector" (majorBoundVersion [ +0, +12 ])
-                  , package "trifecta" (majorBoundVersion [ +1, +7 ])
-                  , package "text-format" (majorBoundVersion [ +0, +3 ])
-                  , package "transformers" (majorBoundVersion [ +0, +5, +2 ])
+                  , package "containers" (majorBoundVersion (v "0.5"))
+                  , package "vector" (majorBoundVersion (v "0.12"))
+                  , package "trifecta" (majorBoundVersion (v "1.7"))
+                  , package "text-format" (majorBoundVersion (v "0.3"))
+                  , package "transformers" (majorBoundVersion (v "0.5.2"))
                   ]
               , compiler-options =
                     ./dhall/defaults/CompilerOptions.dhall 
@@ -105,11 +105,11 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                     , common-deps.base
                     , common-deps.Cabal
                     , common-deps.text
-                    , package "tasty" (majorBoundVersion [ +0, +11 ])
-                    , package "filepath" (majorBoundVersion [ +1, +4 ])
+                    , package "tasty" (majorBoundVersion (v "0.11"))
+                    , package "filepath" (majorBoundVersion (v "1.4"))
                     , common-deps.dhall-to-cabal
-                    , package "tasty-golden" (majorBoundVersion [ +2, +3 ])
-                    , package "Diff" (majorBoundVersion [ +0, +3, +4 ])
+                    , package "tasty-golden" (majorBoundVersion (v "2.3"))
+                    , package "Diff" (majorBoundVersion (v "0.3.4"))
                     ]
                 , hs-source-dirs =
                     [ "golden-tests" ]
