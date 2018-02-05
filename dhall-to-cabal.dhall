@@ -1,5 +1,19 @@
     let empty-package = ./dhall/empty-package.dhall 
 
+in  let gitHub-project = ./dhall/GitHub-project.dhall 
+
+in  let OS = ./dhall/types/OS.dhall 
+
+in  let unconditional = ./dhall/unconditional.dhall 
+
+in  let empty-Executable = ./dhall/defaults/Executable.dhall 
+
+in  let empty-Library = ./dhall/defaults/Library.dhall 
+
+in  let default-CompilerOptions = ./dhall/defaults/CompilerOptions.dhall 
+
+in  let empty-TestSuite = ./dhall/defaults/TestSuite.dhall 
+
 in  let licenses = constructors ./dhall/types/License.dhall 
 
 in  let extensions = constructors ./dhall/types/Extension.dhall 
@@ -49,37 +63,14 @@ in  let deps =
               package "vector" (majorBoundVersion (v "0.12"))
           }
 
-in  let gitHub-project = ./dhall/GitHub-project.dhall 
-
-in  let OS = ./dhall/types/OS.dhall 
-
-in  let unconditional = ./dhall/unconditional.dhall 
-
 in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
-    ⫽ { executables =
-          [ unconditional.executable
-            "dhall-to-cabal"
-            (   ./dhall/defaults/Executable.dhall 
-              ⫽ { build-depends =
-                    [ deps.Cabal
-                    , deps.base
-                    , deps.dhall
-                    , deps.dhall-to-cabal
-                    , deps.optparse-applicative
-                    , deps.text
-                    ]
-                , hs-source-dirs =
-                    [ "exe" ]
-                , main-is =
-                    "Main.hs"
-                , other-extensions =
-                    [ extensions.NamedFieldPuns True ]
-                }
-            )
-          ]
+    ⫽ { license =
+          licenses.MIT {=}
+      , version =
+          v "0.1.0"
       , library =
           unconditional.library
-          (   ./dhall/defaults/Library.dhall 
+          (   empty-Library
             ⫽ { build-depends =
                   [ deps.Cabal
                   , deps.base
@@ -93,7 +84,7 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                   , deps.vector
                   ]
               , compiler-options =
-                    ./dhall/defaults/CompilerOptions.dhall 
+                    default-CompilerOptions
                   ⫽ { GHC = [ "-Wall", "-fno-warn-name-shadowing" ] }
               , exposed-modules =
                   [ "Distribution.Package.Dhall" ]
@@ -112,14 +103,31 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                   [ "Dhall.Extra" ]
               }
           )
-      , license =
-          licenses.MIT {=}
-      , version =
-          [ +0, +1, +0 ]
+      , executables =
+          [ unconditional.executable
+            "dhall-to-cabal"
+            (   empty-Executable
+              ⫽ { build-depends =
+                    [ deps.Cabal
+                    , deps.base
+                    , deps.dhall
+                    , deps.dhall-to-cabal
+                    , deps.optparse-applicative
+                    , deps.text
+                    ]
+                , hs-source-dirs =
+                    [ "exe" ]
+                , main-is =
+                    "Main.hs"
+                , other-extensions =
+                    [ extensions.NamedFieldPuns True ]
+                }
+            )
+          ]
       , test-suites =
           [ unconditional.test-suite
             "golden-tests"
-            (   ./dhall/defaults/TestSuite.dhall 
+            (   empty-TestSuite
               ⫽ { build-depends =
                     [ deps.base
                     , deps.Cabal
