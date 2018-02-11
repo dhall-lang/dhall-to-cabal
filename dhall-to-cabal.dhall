@@ -47,6 +47,8 @@ in  let deps =
                 (majorBoundVersion (v "0.13.2"))
                 (majorBoundVersion (v "0.14"))
               )
+          , prettyprinter =
+              package "prettyprinter" (majorBoundVersion (v "1.1.1"))
           , tasty =
               package "tasty" (majorBoundVersion (v "0.11"))
           , tasty-golden =
@@ -113,6 +115,7 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                     , deps.dhall
                     , deps.dhall-to-cabal
                     , deps.optparse-applicative
+                    , deps.prettyprinter
                     , deps.text
                     ]
                 , hs-source-dirs =
