@@ -7,7 +7,11 @@
 {-# language RecordWildCards #-}
 {-# language TypeApplications #-}
 
-module Distribution.Package.Dhall ( dhallFileToCabal ) where
+module Distribution.Package.Dhall
+  ( dhallFileToCabal
+  , dhallToCabalContext
+  , genericPackageDescription
+  ) where
 
 import Control.Exception ( Exception, throwIO )
 import Data.Function ( (&) )
@@ -492,7 +496,7 @@ input source t = do
     throws ( Dhall.Parser.exprFromText delta source )
 
   expr' <-
-    Dhall.Import.loadWithContext cabalContext expr
+    Dhall.Import.loadWithContext dhallToCabalContext expr
 
   let
     suffix =
@@ -519,7 +523,7 @@ input source t = do
           Expr.Annot expr' ( Dhall.expected t )
 
   _ <-
-    throws (Dhall.TypeCheck.typeWith cabalContext annot)
+    throws (Dhall.TypeCheck.typeWith dhallToCabalContext annot)
 
   case Dhall.extract t ( Dhall.Core.normalizeWith normalizer expr' ) of
     Just x  ->
@@ -536,9 +540,31 @@ input source t = do
 
 
 
-cabalContext
+-- | The custom context used for type-checking @dhall-to-cabal@ Dhall
+-- expressions.
+--
+-- This context provides the following:
+--
+-- * @VersionRange : Type@
+-- * @anyVersion : VersionRange@
+-- * @noVersion : VersionRange@
+-- * @thisVersion : List Natural -> VersionRange@
+-- * @notThisVersion : List Natural -> VersionRange@
+-- * @laterVersion : List Natural -> VersionRange@
+-- * @earlierVersion : List Natural -> VersionRange@
+-- * @orLaterVersion : List Natural -> VersionRange@
+-- * @orEarlierVersion : List Natural -> VersionRange@
+-- * @withinVersion : List Natural -> VersionRange@
+-- * @majorBoundVersion : List Natural -> VersionRange@
+-- * @unionVersionRanges : VersionRange -> VersionRange -> VersionRange@
+-- * @intersectVersionRanges : VersionRange -> VersionRange -> VersionRange@
+-- * @differenceVersionRanges : VersionRange -> VersionRange -> VersionRange@
+-- * @invertVersionRange : VersionRange -> VersionRange@
+-- * @v : Text -> List Natural@
+
+dhallToCabalContext
   :: Ctx.Context ( Expr.Expr Dhall.Parser.Src Dhall.TypeCheck.X )
-cabalContext =
+dhallToCabalContext =
   let
     versionRangeType =
       Dhall.expected versionRange
@@ -558,7 +584,7 @@ cabalContext =
     & Ctx.insert "notThisVersion" ( fun versionType versionRangeType )
     & Ctx.insert "laterVersion" ( fun versionType versionRangeType )
     & Ctx.insert "earlierVersion" ( fun versionType versionRangeType )
-    & Ctx.insert "orLaterVersion" ( fun versionType versionRangeType ) 
+    & Ctx.insert "orLaterVersion" ( fun versionType versionRangeType )
     & Ctx.insert "orEarlierVersion" ( fun versionType versionRangeType )
     & Ctx.insert "withinVersion" ( fun versionType versionRangeType)
     & Ctx.insert "majorBoundVersion" ( fun versionType versionRangeType)
@@ -1128,7 +1154,7 @@ mixin =
 
     mixinIncludeRenaming <-
       keyValue "renaming" includeRenaming
-  
+
     pure Cabal.Mixin { .. }
 
 
