@@ -10,50 +10,45 @@ in  let package =
           → { bounds = version-range, package = package }
 
 in  let deps =
-          { Cabal =
-              package "Cabal" (majorBoundVersion (v "2.0"))
-          , Diff =
-              package "Diff" (majorBoundVersion (v "0.3.4"))
-          , base =
-              package "base" (majorBoundVersion (v "4.10"))
-          , bytestring =
-              package "bytestring" (majorBoundVersion (v "0.10"))
-          , containers =
-              package "containers" (majorBoundVersion (v "0.5"))
-          , dhall =
-              package "dhall" (majorBoundVersion (v "1.9"))
-          , dhall-to-cabal =
-              package "dhall-to-cabal" anyVersion
-          , filepath =
-              package "filepath" (majorBoundVersion (v "1.4"))
-          , insert-ordered-containers =
-              package
-              "insert-ordered-containers"
-              (majorBoundVersion (v "0.2.1.0"))
-          , optparse-applicative =
-              package
-              "optparse-applicative"
-              ( unionVersionRanges
-                (majorBoundVersion (v "0.13.2"))
-                (majorBoundVersion (v "0.14"))
-              )
-          , prettyprinter =
-              package "prettyprinter" (majorBoundVersion (v "1.1.1"))
-          , tasty =
-              package "tasty" (majorBoundVersion (v "0.11"))
-          , tasty-golden =
-              package "tasty-golden" (majorBoundVersion (v "2.3"))
-          , text =
-              package "text" (majorBoundVersion (v "1.2"))
-          , text-format =
-              package "text-format" (majorBoundVersion (v "0.3"))
-          , transformers =
-              package "transformers" (majorBoundVersion (v "0.5.2"))
-          , trifecta =
-              package "trifecta" (majorBoundVersion (v "1.7"))
-          , vector =
-              package "vector" (majorBoundVersion (v "0.12"))
-          }
+              let majorVersions = stdlib.dependency.majorVersions
+          
+          in  { Cabal =
+                  majorVersions "Cabal" [ v "2.0" ]
+              , Diff =
+                  majorVersions "Diff" [ v "0.3.4" ]
+              , base =
+                  majorVersions "base" [ v "4.10" ]
+              , bytestring =
+                  majorVersions "bytestring" [ v "0.10" ]
+              , containers =
+                  majorVersions "containers" [ v "0.5" ]
+              , dhall =
+                  majorVersions "dhall" [ v "1.9" ]
+              , dhall-to-cabal =
+                  package "dhall-to-cabal" anyVersion
+              , filepath =
+                  majorVersions "filepath" [ v "1.4" ]
+              , insert-ordered-containers =
+                  majorVersions "insert-ordered-containers" [ v "0.2.1.0" ]
+              , optparse-applicative =
+                  majorVersions "optparse-applicative" [ v "0.13.2", v "0.14" ]
+              , prettyprinter =
+                  majorVersions "prettyprinter" [ v "1.1.1" ]
+              , tasty =
+                  majorVersions "tasty" [ v "0.11" ]
+              , tasty-golden =
+                  majorVersions "tasty-golden" [ v "2.3" ]
+              , text =
+                  majorVersions "text" [ v "1.2" ]
+              , text-format =
+                  majorVersions "text-format" [ v "0.3" ]
+              , transformers =
+                  majorVersions "transformers" [ v "0.5.2" ]
+              , trifecta =
+                  majorVersions "trifecta" [ v "1.7" ]
+              , vector =
+                  majorVersions "vector" [ v "0.12" ]
+              }
 
 in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
     ⫽ { license =

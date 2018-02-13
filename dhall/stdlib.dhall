@@ -38,4 +38,36 @@
     ./GitHub-project.dhall 
 , unconditional =
     ./unconditional.dhall 
+, dependency =
+    { majorVersions =
+          λ(package : Text)
+        → λ(versions : List (List Natural))
+        → { package =
+              package
+          , bounds =
+              Optional/fold
+              VersionRange
+              ( List/fold
+                (List Natural)
+                versions
+                (Optional VersionRange)
+                (   λ(v : List Natural)
+                  → λ(r : Optional VersionRange)
+                  → Optional/fold
+                    VersionRange
+                    r
+                    (Optional VersionRange)
+                    (   λ(r : VersionRange)
+                      → [ unionVersionRanges (majorBoundVersion v) r
+                        ] : Optional VersionRange
+                    )
+                    ([ majorBoundVersion v ] : Optional VersionRange)
+                )
+                ([] : Optional VersionRange)
+              )
+              VersionRange
+              (λ(a : VersionRange) → a)
+              noVersion
+          }
+    }
 }
