@@ -42,6 +42,7 @@ data KnownType
   | Executable
   | Benchmark
   | TestSuite
+  | Guard
   | SourceRepo
   | RepoType
   | RepoKind
@@ -150,6 +151,7 @@ printType t = do
         License -> Dhall.expected license
         BuildType -> Dhall.expected buildType
         Package -> Dhall.expected genericPackageDescription
+        Guard -> Dhall.expected guard
 
     letDhallType t =
       liftCSE ( fromString ( show t ) ) ( dhallType t )

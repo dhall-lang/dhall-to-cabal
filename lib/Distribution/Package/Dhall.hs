@@ -29,6 +29,7 @@ module Distribution.Package.Dhall
   , benchmark
   , foreignLib
   , buildType
+  , guard
   ) where
 
 import Control.Exception ( Exception, throwIO )
