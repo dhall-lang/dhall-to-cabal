@@ -32,7 +32,7 @@ import qualified System.IO
 
 data Command
   = RunDhallToCabal DhallToCabalOptions
-  | PrintType ( Maybe KnownType )
+  | PrintType KnownType
 
 
 
@@ -53,6 +53,7 @@ data KnownType
   | Language
   | License
   | BuildType
+  | Package
   deriving (Bounded, Enum, Eq, Ord, Read, Show)
 
 
@@ -70,10 +71,9 @@ dhallToCabalOptionsParser =
 
 
 
-printTypeParser :: OptParse.Parser ( Maybe KnownType )
+printTypeParser :: OptParse.Parser KnownType
 printTypeParser =
-      Just <$> OptParse.option OptParse.auto ( OptParse.long "print-type" )
-  <|> OptParse.flag' Nothing ( OptParse.long "print-package-type" )
+  OptParse.option OptParse.auto ( OptParse.long "print-type" )
 
 
 
@@ -119,7 +119,7 @@ opts =
 
 
 
-printType :: Maybe KnownType -> IO ()
+printType :: KnownType -> IO ()
 printType t = do
   Pretty.renderIO
     System.IO.stdout
@@ -149,6 +149,7 @@ printType t = do
         Language -> Dhall.expected language
         License -> Dhall.expected license
         BuildType -> Dhall.expected buildType
+        Package -> Dhall.expected genericPackageDescription
 
     letDhallType t =
       liftCSE ( fromString ( show t ) ) ( dhallType t )
@@ -156,7 +157,7 @@ printType t = do
     factoredType =
       foldl'
         ( flip letDhallType )
-        ( maybe ( Dhall.expected genericPackageDescription ) dhallType t )
+        ( dhallType t )
         [ minBound .. maxBound ]
 
 
