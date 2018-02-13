@@ -92,6 +92,7 @@ printTypeParser =
       mconcat
         [ OptParse.long "print-type"
         , OptParse.help "Print out the description of a type. For a full description, try --print-type Package"
+        , OptParse.metavar "TYPE"
         ]
 
 
@@ -143,7 +144,12 @@ main = do
       ]
 
   opts =
-    OptParse.info ( parser <**> OptParse.helper ) mempty
+    OptParse.info ( parser <**> OptParse.helper ) modifiers
+
+  modifiers =
+    mconcat
+      [ OptParse.progDesc "Generate Cabal files from Dhall expressions"
+      ]
 
 
 
