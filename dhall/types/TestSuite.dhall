@@ -54,8 +54,8 @@
     ./CompilerOptions.dhall 
 , shared-options :
     ./CompilerOptions.dhall 
-, main-is :
-    Text
 , mixins :
     List ./Mixin.dhall 
+, type :
+    ./TestType.dhall 
 }

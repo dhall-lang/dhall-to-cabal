@@ -1,5 +1,7 @@
     let licenses = constructors ./dhall/types/License.dhall 
 
+in  let TestTypes = constructors ./dhall/types/TestType.dhall 
+
 in  let compilers = constructors ./dhall/types/Compiler.dhall 
 
 in  let within =
@@ -315,8 +317,8 @@ in    ./dhall/empty-package.dhall
                         ⫽ { GHC = [ "-Wall" ] }
                     , hs-source-dirs =
                         [ "tests" ]
-                    , main-is =
-                        "Tests.hs"
+                    , type =
+                        TestTypes.exitcode-stdio { main-is = "Tests.hs" }
                     , other-modules =
                         [ "Examples"
                         , "Normalization"

@@ -18,6 +18,8 @@ in  let licenses = constructors ./dhall/types/License.dhall
 
 in  let extensions = constructors ./dhall/types/Extension.dhall 
 
+in  let TestTypes = constructors ./dhall/types/TestType.dhall 
+
 in  let package =
             λ(package : Text)
           → λ(version-range : VersionRange)
@@ -149,8 +151,8 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                     ]
                 , hs-source-dirs =
                     [ "golden-tests" ]
-                , main-is =
-                    "GoldenTests.hs"
+                , type =
+                    TestTypes.exitcode-stdio { main-is = "GoldenTests.hs" }
                 }
             )
           ]

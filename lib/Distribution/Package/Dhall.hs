@@ -338,19 +338,35 @@ testSuite =
     testName <-
       pure ""
 
-    mainIs <-
-      keyValue "main-is" Dhall.string
-
     testBuildInfo <-
       buildInfo
 
+    testInterface <-
+      keyValue "type" testSuiteInterface
+
     pure
       Cabal.TestSuite
-        { testInterface =
-            Cabal.TestSuiteExeV10 ( Cabal.mkVersion [ 1, 0 ] ) mainIs
-        , ..
+        { ..
         }
 
+
+
+testSuiteInterface :: Dhall.Type Cabal.TestSuiteInterface
+testSuiteInterface = 
+  makeUnion
+    ( Map.fromList
+        [ ( "exitcode-stdio"
+          , Cabal.TestSuiteExeV10 ( Cabal.mkVersion [ 1, 0 ] )
+              <$> makeRecord ( keyValue "main-is" Dhall.string )
+          )
+        , ( "detailed"
+          , Cabal.TestSuiteLibV09 ( Cabal.mkVersion [ 0, 9 ] )
+              <$> makeRecord ( keyValue "module" moduleName )
+          )
+        ]
+    )
+
+  
 
 
 unqualComponentName :: Dhall.Type Cabal.UnqualComponentName
