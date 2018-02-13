@@ -5,7 +5,7 @@
 
 module Main ( main ) where
 
-import Control.Applicative ( (<|>), Const(..) )
+import Control.Applicative ( (<**>), (<|>), Const(..) )
 import Data.Foldable ( asum, foldl' )
 import Data.Functor.Product ( Product(..) )
 import Data.Functor.Identity ( Identity(..) )
@@ -70,21 +70,43 @@ data DhallToCabalOptions = DhallToCabalOptions
 
 dhallToCabalOptionsParser :: OptParse.Parser DhallToCabalOptions
 dhallToCabalOptionsParser =
-  DhallToCabalOptions
-    <$> OptParse.argument
-          OptParse.str ( OptParse.metavar "<dhall input file>" )
+  DhallToCabalOptions <$> OptParse.argument OptParse.str modifiers
+
+  where
+
+    modifiers =
+      mconcat
+        [ OptParse.metavar "<dhall input file>"
+        , OptParse.help "The Dhall expression to convert to a Cabal file"
+        ]
 
 
 
 printTypeParser :: OptParse.Parser KnownType
 printTypeParser =
-  OptParse.option OptParse.auto ( OptParse.long "print-type" )
+  OptParse.option OptParse.auto modifiers
+
+  where
+
+    modifiers =
+      mconcat
+        [ OptParse.long "print-type"
+        , OptParse.help "Print out the description of a type. For a full description, try --print-type Package"
+        ]
 
 
 
 builtinsParser :: OptParse.Parser ()
 builtinsParser =
-  OptParse.flag' () ( OptParse.long "builtins" )
+  OptParse.flag' () modifiers
+
+  where
+
+    modifiers =
+      mconcat
+        [ OptParse.long "builtins"
+        , OptParse.help "Print a description of all available builtins provided by dhall-to-cabal"
+        ]
 
 
 
@@ -121,7 +143,7 @@ main = do
       ]
 
   opts =
-    OptParse.info parser mempty
+    OptParse.info ( parser <**> OptParse.helper ) mempty
 
 
 
