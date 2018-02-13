@@ -11,6 +11,24 @@ module Distribution.Package.Dhall
   ( dhallFileToCabal
   , dhallToCabalContext
   , genericPackageDescription
+  , sourceRepo
+  , repoKind
+  , repoType
+  , compiler
+  , operatingSystem
+  , library
+  , extension
+  , compilerOptions
+  , guarded
+  , arch
+  , compilerFlavor
+  , language
+  , license
+  , executable
+  , testSuite
+  , benchmark
+  , foreignLib
+  , buildType
   ) where
 
 import Control.Exception ( Exception, throwIO )

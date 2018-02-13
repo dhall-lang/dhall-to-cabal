@@ -1,10 +1,20 @@
+{-# language GeneralizedNewtypeDeriving #-}
+{-# language NoMonomorphismRestriction #-}
 {-# language NamedFieldPuns #-}
+{-# language OverloadedStrings #-}
 
-module Main (main) where
+module Main ( main ) where
 
-import Data.Foldable ( asum )
+import Control.Applicative ( (<|>), Const(..) )
+import Data.Foldable ( asum, foldl' )
+import Data.Functor.Product ( Product(..) )
+import Data.Functor.Identity ( Identity(..) )
+import Data.Monoid ( Any(..) )
 import Data.Function ( (&) )
+import Data.Maybe ( fromMaybe )
+import Data.Text.Lazy (Text)
 import System.Environment ( getArgs )
+import Data.String ( fromString )
 
 import Distribution.Package.Dhall
 
@@ -12,6 +22,8 @@ import qualified Data.Text.Lazy.IO as LazyText
 import qualified Data.Text.Prettyprint.Doc as Pretty
 import qualified Data.Text.Prettyprint.Doc.Render.Text as Pretty
 import qualified Dhall
+import qualified Dhall.Core as Dhall
+import qualified Dhall.Core as Expr ( Expr(..), Var(..), shift )
 import qualified Distribution.PackageDescription.PrettyPrint as Cabal
 import qualified Options.Applicative as OptParse
 import qualified System.IO
@@ -20,7 +32,29 @@ import qualified System.IO
 
 data Command
   = RunDhallToCabal DhallToCabalOptions
-  | PrintType
+  | PrintType ( Maybe KnownType )
+
+
+
+data KnownType
+  = Library
+  | ForeignLibrary
+  | Executable
+  | Benchmark
+  | TestSuite
+  | SourceRepo
+  | RepoType
+  | RepoKind
+  | Compiler
+  | OS
+  | Extension
+  | CompilerOptions
+  | CompilerFlavor
+  | Arch
+  | Language
+  | License
+  | BuildType
+  deriving (Bounded, Enum, Eq, Ord, Read, Show)
 
 
 
@@ -37,9 +71,14 @@ dhallToCabalOptionsParser =
 
 
 
-printTypeParser :: OptParse.Parser ()
+printTypeParser :: OptParse.Parser ( Maybe KnownType )
 printTypeParser =
-  OptParse.flag' () ( OptParse.long "print-type" )
+  let
+    mod =
+      OptParse.long "print-type"
+
+  in
+  Just <$> OptParse.option OptParse.auto mod <|> OptParse.flag' Nothing mod
 
 
 
@@ -60,15 +99,15 @@ main = do
     RunDhallToCabal options ->
       runDhallToCabal options
 
-    PrintType ->
-      printType
+    PrintType t ->
+      printType t
 
   where
 
   parser =
     asum
       [ RunDhallToCabal <$> dhallToCabalOptionsParser
-      , PrintType <$ printTypeParser
+      , PrintType <$> printTypeParser
       ]
 
   opts =
@@ -85,12 +124,263 @@ opts =
 
 
 
-printType :: IO ()
-printType = do
+printType :: Maybe KnownType -> IO ()
+printType t = do
   Pretty.renderIO
     System.IO.stdout
     ( Pretty.layoutSmart opts
-        ( Pretty.pretty ( Dhall.expected genericPackageDescription ) )
+        ( Pretty.pretty factoredType )
     )
 
   putStrLn ""
+
+  where
+
+    dhallType t =
+      case t of
+        Library -> Dhall.expected library
+        ForeignLibrary -> Dhall.expected foreignLib
+        Executable -> Dhall.expected executable
+        Benchmark -> Dhall.expected benchmark
+        TestSuite -> Dhall.expected testSuite
+        SourceRepo -> Dhall.expected sourceRepo
+        RepoType -> Dhall.expected repoType
+        RepoKind -> Dhall.expected repoKind
+        Compiler -> Dhall.expected compiler
+        OS -> Dhall.expected operatingSystem
+        Extension -> Dhall.expected extension
+        CompilerOptions -> Dhall.expected compilerOptions
+        CompilerFlavor -> Dhall.expected compilerFlavor
+        Arch -> Dhall.expected arch
+        Language -> Dhall.expected language
+        License -> Dhall.expected license
+        BuildType -> Dhall.expected buildType
+
+    letDhallType t =
+      liftCSE ( fromString ( show t ) ) ( dhallType t )
+
+    factoredType =
+      foldl'
+        ( flip letDhallType )
+        ( maybe ( Dhall.expected genericPackageDescription ) dhallType t )
+        [ minBound .. maxBound ]
+
+
+
+liftCSE
+  :: (Eq s, Eq a)
+  => Text          -- ^ The name of the binding
+  -> Expr.Expr s a -- ^ The common subexpression to lift
+  -> Expr.Expr s a -- ^ The expression to remove a common subexpression from
+  -> Expr.Expr s a
+liftCSE name body expr =
+  let
+    v0 =
+      Expr.V name 0
+
+  in
+    case go ( Expr.shift 1 v0 expr ) v0 of
+      Pair ( Const ( Any False ) ) _ ->
+        -- There was nothing to lift
+        expr
+
+      Pair _ ( Identity reduced ) ->
+        -- We did manage to lift a CSE, so let bind it
+        Expr.Let name Nothing body reduced
+
+  where
+
+    shiftName n v | n == name =
+      shiftVar 1 v
+
+    shiftName _ v =
+        v
+
+    shiftVar delta ( Expr.V name' n ) =
+      Expr.V name' ( n + delta )
+
+    go e v | e == body =
+      Pair ( Const ( Any True ) ) ( Identity ( Expr.Var v ) )
+
+    go e v =
+      case e of
+        Expr.Lam n t b ->
+          Expr.Lam n t <$> go b ( shiftName n v )
+
+        Expr.Pi n t b ->
+          Expr.Pi n <$> go t v <*> go b ( shiftName n v )
+
+        Expr.App f a ->
+          Expr.App <$> go f v <*> go a v
+
+        Expr.Let n t b e ->
+          Expr.Let n t <$> go b v <*> go e ( shiftName n v )
+
+        Expr.Annot a b ->
+          Expr.Annot <$> go a v <*> go b v
+
+        Expr.BoolAnd a b ->
+          Expr.BoolAnd <$> go a v <*> go b v
+
+        Expr.BoolOr a b ->
+          Expr.BoolOr <$> go a v <*> go b v
+
+        Expr.BoolEQ a b ->
+          Expr.BoolEQ <$> go a v <*> go b v
+
+        Expr.BoolNE a b ->
+          Expr.BoolNE <$> go a v <*> go b v
+
+        Expr.BoolIf a b c ->
+          Expr.BoolIf <$> go a v <*> go b v <*> go c v
+
+        Expr.NaturalPlus a b ->
+          Expr.NaturalPlus <$> go a v <*> go b v
+
+        Expr.NaturalTimes a b ->
+          Expr.NaturalTimes <$> go a v <*> go b v
+
+        Expr.ListAppend a b ->
+          Expr.ListAppend <$> go a v <*> go b v
+
+        Expr.Combine a b ->
+          Expr.Combine <$> go a v <*> go b v
+
+        Expr.Prefer a b ->
+          Expr.Prefer <$> go a v <*> go b v
+
+        Expr.TextAppend a b ->
+          Expr.TextAppend <$> go a v <*> go b v
+
+        Expr.ListLit t elems ->
+          Expr.ListLit
+            <$> ( traverse ( `go` v ) t )
+            <*> ( traverse ( `go` v ) elems )
+
+        Expr.OptionalLit t elems ->
+          Expr.OptionalLit
+            <$> go t v
+            <*> ( traverse ( `go` v ) elems )
+
+        Expr.Record fields ->
+          Expr.Record <$> traverse ( `go` v ) fields
+
+        Expr.RecordLit fields ->
+          Expr.RecordLit <$> traverse ( `go` v ) fields
+
+        Expr.Union fields ->
+          Expr.Union <$> traverse ( `go` v ) fields
+
+        Expr.UnionLit n a fields ->
+          Expr.UnionLit n <$> go a v <*> traverse ( `go` v ) fields
+
+        Expr.Merge a b t ->
+          Expr.Merge <$> go a v <*> go b v <*> traverse ( `go` v ) t
+
+        Expr.Constructors e ->
+          Expr.Constructors <$> go e v
+
+        Expr.Field e f ->
+          Expr.Field <$> go e v <*> pure f
+
+        Expr.Note s e ->
+          Expr.Note s <$> go e v
+
+        Expr.Embed{} ->
+          pure e
+
+        Expr.Const{} ->
+          pure e
+
+        Expr.Var{} ->
+          pure e
+
+        Expr.Bool{} ->
+          pure e
+
+        Expr.BoolLit{} ->
+          pure e
+
+        Expr.Natural{} ->
+          pure e
+
+        Expr.NaturalLit{} ->
+          pure e
+
+        Expr.NaturalFold{} ->
+          pure e
+
+        Expr.NaturalBuild{} ->
+          pure e
+
+        Expr.NaturalIsZero{} ->
+          pure e
+
+        Expr.NaturalEven{} ->
+          pure e
+
+        Expr.NaturalOdd{} ->
+          pure e
+
+        Expr.NaturalToInteger{} ->
+          pure e
+
+        Expr.NaturalShow{} ->
+          pure e
+
+        Expr.Integer{} ->
+          pure e
+
+        Expr.IntegerShow{} ->
+          pure e
+
+        Expr.IntegerLit{} ->
+          pure e
+
+        Expr.Double{} ->
+          pure e
+
+        Expr.DoubleShow{} ->
+          pure e
+
+        Expr.DoubleLit{} ->
+          pure e
+
+        Expr.Text{} ->
+          pure e
+
+        Expr.TextLit{} ->
+          pure e
+
+        Expr.List ->
+          pure e
+
+        Expr.ListBuild ->
+          pure e
+
+        Expr.ListFold ->
+          pure e
+
+        Expr.ListLength ->
+          pure e
+
+        Expr.ListHead ->
+          pure e
+
+        Expr.ListLast ->
+          pure e
+
+        Expr.ListIndexed ->
+          pure e
+
+        Expr.ListReverse ->
+          pure e
+
+        Expr.Optional ->
+          pure e
+
+        Expr.OptionalFold ->
+          pure e
+
+        Expr.OptionalBuild ->
+          pure e
