@@ -73,12 +73,8 @@ dhallToCabalOptionsParser =
 
 printTypeParser :: OptParse.Parser ( Maybe KnownType )
 printTypeParser =
-  let
-    mod =
-      OptParse.long "print-type"
-
-  in
-  Just <$> OptParse.option OptParse.auto mod <|> OptParse.flag' Nothing mod
+      Just <$> OptParse.option OptParse.auto ( OptParse.long "print-type" )
+  <|> OptParse.flag' Nothing ( OptParse.long "print-package-type" )
 
 
 
