@@ -20,7 +20,7 @@ import Control.Monad.Trans.Reader ( Reader, reader, runReader )
 import Data.Functor.Compose ( Compose(..) )
 import Data.Functor.Product ( Product(..) )
 
-import qualified Data.Map as Map
+import qualified Data.HashMap.Strict.InsOrd as Map
 import qualified Data.Text.Lazy as LazyText
 import qualified Dhall
 import qualified Dhall.Core as Dhall ( Expr )
@@ -34,7 +34,7 @@ newtype RecordBuilder a =
   RecordBuilder
     ( Product
         ( Const
-            ( Map.Map
+            ( Map.InsOrdHashMap
                 LazyText.Text
                 ( Dhall.Expr Dhall.Parser.Src Dhall.TypeCheck.X )
             )
@@ -82,7 +82,7 @@ keyValue key valueType =
 
 
 
-makeUnion :: Map.Map LazyText.Text ( Dhall.Type a ) -> Dhall.Type a
+makeUnion :: Map.InsOrdHashMap LazyText.Text ( Dhall.Type a ) -> Dhall.Type a
 makeUnion alts =
   let
     extract expr = do

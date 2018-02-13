@@ -39,7 +39,7 @@ import Data.Text.Buildable ( Buildable(..) )
 import Text.Trifecta.Delta ( Delta(..) )
 
 import qualified Data.ByteString.Lazy as LazyByteString
-import qualified Data.Map as Map
+import qualified Data.HashMap.Strict.InsOrd as Map
 import qualified Data.Text.Lazy as LazyText
 import qualified Data.Text.Lazy.Builder as Builder
 import qualified Data.Text.Lazy.Encoding as LazyText

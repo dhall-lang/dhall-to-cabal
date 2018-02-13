@@ -40,6 +40,10 @@ in  let deps =
               package "dhall-to-cabal" anyVersion
           , filepath =
               package "filepath" (majorBoundVersion (v "1.4"))
+          , insert-ordered-containers =
+              package
+              "insert-ordered-containers"
+              (majorBoundVersion (v "0.2.1.0"))
           , optparse-applicative =
               package
               "optparse-applicative"
@@ -78,6 +82,7 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                   , deps.base
                   , deps.bytestring
                   , deps.containers
+                  , deps.insert-ordered-containers
                   , deps.dhall
                   , deps.text
                   , deps.text-format

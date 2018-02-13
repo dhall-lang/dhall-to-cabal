@@ -18,6 +18,7 @@ library
         base ^>=4.10,
         bytestring ^>=0.10,
         containers ^>=0.5,
+        insert-ordered-containers ^>=0.2.1.0,
         dhall ^>=1.9,
         text ^>=1.2,
         text-format ^>=0.3,
