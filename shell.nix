@@ -3,16 +3,14 @@
 ((nixpkgs.haskell.packages.${compiler}.override {
   overrides = self: super: {
     dhall =
-      let src = nixpkgs.fetchurl {
-                  url = https://hackage.haskell.org/package/dhall-1.9.0/dhall-1.9.0.tar.gz;
-                  sha256 = "1i59rvjjkqikz964kzrnbxfwjhwvnwqwvaw9m03yq540qi4kmiaz";
-                };
-           extracted = nixpkgs.runCommand "unpack-src" { buildInputs = [ nixpkgs.gnutar ]; }
-             ''
-               mkdir $out
-               cd $out
-               tar xzf ${src}
-             '';
-      in super.callCabal2nix "dhall" "${extracted}/dhall-1.9.0" {};
+      super.callPackage
+        ( nixpkgs.fetchFromGitHub {
+            repo = "dhall-haskell";
+            owner = "dhall-lang";
+            rev = "0091b09183599198d8e77c056fb3887354b243d1";
+            sha256 = "0wp0fh60awmfs1cby2s8r6x7i1y3mzyxasfra12m2cn6fdzw5kqr";
+          }
+        )
+        {};
   };
 }).callCabal2nix "dhall-to-cabal" ./. {}).env
