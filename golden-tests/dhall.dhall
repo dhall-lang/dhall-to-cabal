@@ -39,7 +39,7 @@ in  let unguarded =
               }
             ]
 
-in    ./dhall/empty-package.dhall 
+in    ./dhall/defaults/Package.dhall 
     ⫽ { author =
           "Gabriel Gonzalez"
       , bug-reports =

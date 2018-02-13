@@ -1,19 +1,19 @@
   { author =
       ""
   , flags =
-      [] : List ./types/Flag.dhall 
+      [] : List ../types/Flag.dhall 
   , benchmarks =
       [] : List
            { benchmark :
-               ./types/Guarded.dhall  ./types/Benchmark.dhall 
+               ../types/Guarded.dhall  ../types/Benchmark.dhall 
            , name :
                Text
            }
   , bug-reports =
       ""
   , build-type =
-      [ (constructors ./types/BuildType.dhall ).Simple {=}
-      ] : Optional ./types/BuildType.dhall 
+      [ (constructors ../types/BuildType.dhall ).Simple {=}
+      ] : Optional ../types/BuildType.dhall 
   , cabal-version =
       [ +2, +0 ]
   , category =
@@ -29,7 +29,7 @@
   , executables =
       [] : List
            { executable :
-               ./types/Guarded.dhall  ./types/Executable.dhall 
+               ../types/Guarded.dhall  ../types/Executable.dhall 
            , name :
                Text
            }
@@ -42,16 +42,16 @@
   , foreign-libraries =
       [] : List
            { foreign-lib :
-               ./types/Guarded.dhall  ./types/ForeignLibrary.dhall 
+               ../types/Guarded.dhall  ../types/ForeignLibrary.dhall 
            , name :
                Text
            }
   , homepage =
       ""
   , library =
-      [] : Optional (./types/Guarded.dhall  ./types/Library.dhall )
+      [] : Optional (../types/Guarded.dhall  ../types/Library.dhall )
   , license =
-      (constructors ./types/License.dhall ).Unspecified {=}
+      (constructors ../types/License.dhall ).Unspecified {=}
   , license-files =
       [] : List Text
   , maintainer =
@@ -63,13 +63,13 @@
   , package-url =
       ""
   , source-repos =
-      [] : List ./types/SourceRepo.dhall 
+      [] : List ../types/SourceRepo.dhall 
   , stability =
       ""
   , sub-libraries =
       [] : List
            { library :
-               ./types/Guarded.dhall  ./types/Library.dhall 
+               ../types/Guarded.dhall  ../types/Library.dhall 
            , name :
                Text
            }
@@ -80,13 +80,13 @@
            { name :
                Text
            , test-suite :
-               ./types/Guarded.dhall  ./types/TestSuite.dhall 
+               ../types/Guarded.dhall  ../types/TestSuite.dhall 
            }
   , tested-with =
-      [] : List { compiler : ./types/Compiler.dhall , version : VersionRange }
+      [] : List { compiler : ../types/Compiler.dhall , version : VersionRange }
   , x-fields =
       [] : List { _1 : Text, _2 : Text }
   , custom-setup =
-      [] : Optional ./types/SetupBuildInfo.dhall 
+      [] : Optional ../types/SetupBuildInfo.dhall 
   }
-: ./types/Package.dhall 
+: ../types/Package.dhall 

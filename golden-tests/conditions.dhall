@@ -4,7 +4,7 @@ in  let Arch = constructors ./dhall/types/Arch.dhall
 
 in  let Compiler = constructors ./dhall/types/Compiler.dhall 
 
-in    ./dhall/empty-package.dhall 
+in    ./dhall/defaults/Package.dhall 
     ⫽ { library =
           [ [ { body =
                     ./dhall/defaults/Library.dhall 

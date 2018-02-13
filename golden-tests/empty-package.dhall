@@ -1,4 +1,4 @@
-  ./dhall/empty-package.dhall 
+  ./dhall/defaults/Package.dhall 
 ⫽ { name =
       "Name"
   , version =

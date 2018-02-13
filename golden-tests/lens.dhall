@@ -1,4 +1,4 @@
-    let empty-package = ./dhall/empty-package.dhall 
+    let empty-package = ./dhall/defaults/Package.dhall 
 
 in  let licenses = constructors ./dhall/types/License.dhall 
 

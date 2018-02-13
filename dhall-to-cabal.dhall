@@ -1,24 +1,8 @@
-    let empty-package = ./dhall/empty-package.dhall 
+    let stdlib = ./dhall/stdlib.dhall 
 
 in  let gitHub-project = ./dhall/GitHub-project.dhall 
 
 in  let OS = ./dhall/types/OS.dhall 
-
-in  let unconditional = ./dhall/unconditional.dhall 
-
-in  let empty-Executable = ./dhall/defaults/Executable.dhall 
-
-in  let empty-Library = ./dhall/defaults/Library.dhall 
-
-in  let default-CompilerOptions = ./dhall/defaults/CompilerOptions.dhall 
-
-in  let empty-TestSuite = ./dhall/defaults/TestSuite.dhall 
-
-in  let licenses = constructors ./dhall/types/License.dhall 
-
-in  let extensions = constructors ./dhall/types/Extension.dhall 
-
-in  let TestTypes = constructors ./dhall/types/TestType.dhall 
 
 in  let package =
             λ(package : Text)
@@ -73,14 +57,14 @@ in  let deps =
 
 in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
     ⫽ { license =
-          licenses.MIT {=}
+          stdlib.`constructors`.Licenses.MIT {=}
       , license-files =
           [ "LICENSE" ]
       , version =
           v "0.1.0"
       , library =
-          unconditional.library
-          (   empty-Library
+          stdlib.unconditional.library
+          (   stdlib.default.Library
             ⫽ { build-depends =
                   [ deps.Cabal
                   , deps.base
@@ -95,29 +79,30 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                   , deps.vector
                   ]
               , compiler-options =
-                    default-CompilerOptions
+                    stdlib.default.CompilerOptions
                   ⫽ { GHC = [ "-Wall", "-fno-warn-name-shadowing" ] }
               , exposed-modules =
                   [ "Distribution.Package.Dhall" ]
               , hs-source-dirs =
                   [ "lib" ]
               , other-extensions =
-                  [ extensions.ApplicativeDo True
-                  , extensions.GADTs True
-                  , extensions.GeneralizedNewtypeDeriving True
-                  , extensions.LambdaCase True
-                  , extensions.OverloadedStrings True
-                  , extensions.RecordWildCards True
-                  , extensions.TypeApplications True
+                  [ stdlib.`constructors`.Extensions.ApplicativeDo True
+                  , stdlib.`constructors`.Extensions.GADTs True
+                  , stdlib.`constructors`.Extensions.GeneralizedNewtypeDeriving
+                    True
+                  , stdlib.`constructors`.Extensions.LambdaCase True
+                  , stdlib.`constructors`.Extensions.OverloadedStrings True
+                  , stdlib.`constructors`.Extensions.RecordWildCards True
+                  , stdlib.`constructors`.Extensions.TypeApplications True
                   ]
               , other-modules =
                   [ "Dhall.Extra" ]
               }
           )
       , executables =
-          [ unconditional.executable
+          [ stdlib.unconditional.executable
             "dhall-to-cabal"
-            (   empty-Executable
+            (   stdlib.default.Executable
               ⫽ { build-depends =
                     [ deps.Cabal
                     , deps.base
@@ -132,14 +117,14 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                 , main-is =
                     "Main.hs"
                 , other-extensions =
-                    [ extensions.NamedFieldPuns True ]
+                    [ stdlib.`constructors`.Extensions.NamedFieldPuns True ]
                 }
             )
           ]
       , test-suites =
-          [ unconditional.test-suite
+          [ stdlib.unconditional.test-suite
             "golden-tests"
-            (   empty-TestSuite
+            (   stdlib.default.TestSuite
               ⫽ { build-depends =
                     [ deps.base
                     , deps.Cabal
@@ -154,7 +139,8 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                 , hs-source-dirs =
                     [ "golden-tests" ]
                 , type =
-                    TestTypes.exitcode-stdio { main-is = "GoldenTests.hs" }
+                    stdlib.`constructors`.TestTypes.exitcode-stdio
+                    { main-is = "GoldenTests.hs" }
                 }
             )
           ]
