@@ -74,6 +74,8 @@ in  let deps =
 in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
     ⫽ { license =
           licenses.MIT {=}
+      , license-files =
+          [ "LICENSE" ]
       , version =
           v "0.1.0"
       , library =
