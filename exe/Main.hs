@@ -9,7 +9,7 @@ import Control.Applicative ( (<|>), Const(..) )
 import Data.Foldable ( asum, foldl' )
 import Data.Functor.Product ( Product(..) )
 import Data.Functor.Identity ( Identity(..) )
-import Data.Monoid ( Any(..) )
+import Data.Monoid ( Any(..), (<>) )
 import Data.Function ( (&) )
 import Data.Maybe ( fromMaybe )
 import Data.Text.Lazy (Text)
@@ -21,7 +21,9 @@ import Distribution.Package.Dhall
 import qualified Data.Text.Lazy.IO as LazyText
 import qualified Data.Text.Prettyprint.Doc as Pretty
 import qualified Data.Text.Prettyprint.Doc.Render.Text as Pretty
+import qualified Data.Text.Prettyprint.Doc.Symbols.Unicode as Pretty
 import qualified Dhall
+import qualified Dhall.Context
 import qualified Dhall.Core as Dhall
 import qualified Dhall.Core as Expr ( Expr(..), Var(..), shift )
 import qualified Distribution.PackageDescription.PrettyPrint as Cabal
@@ -33,6 +35,7 @@ import qualified System.IO
 data Command
   = RunDhallToCabal DhallToCabalOptions
   | PrintType KnownType
+  | Builtins
 
 
 
@@ -60,7 +63,8 @@ data KnownType
 
 
 data DhallToCabalOptions = DhallToCabalOptions
-  { dhallFilePath :: String }
+  { dhallFilePath :: String
+  }
 
 
 
@@ -75,6 +79,12 @@ dhallToCabalOptionsParser =
 printTypeParser :: OptParse.Parser KnownType
 printTypeParser =
   OptParse.option OptParse.auto ( OptParse.long "print-type" )
+
+
+
+builtinsParser :: OptParse.Parser ()
+builtinsParser =
+  OptParse.flag' () ( OptParse.long "builtins" )
 
 
 
@@ -98,12 +108,16 @@ main = do
     PrintType t ->
       printType t
 
+    Builtins ->
+      printBuiltins
+
   where
 
   parser =
     asum
       [ RunDhallToCabal <$> dhallToCabalOptionsParser
       , PrintType <$> printTypeParser
+      , Builtins <$ builtinsParser
       ]
 
   opts =
@@ -161,6 +175,43 @@ printType t = do
         ( flip letDhallType )
         ( dhallType t )
         [ minBound .. maxBound ]
+
+
+printBuiltins :: IO ()
+printBuiltins = do
+  Pretty.renderIO
+    System.IO.stdout
+    ( Pretty.layoutPretty layoutOptions doc )
+
+  putStrLn ""
+
+  where
+
+    layoutOptions =
+      Pretty.LayoutOptions ( Pretty.AvailablePerLine 80 1 )
+
+    prettyContextEntry ( k, a ) =
+      Pretty.bullet
+        <> " "
+        <>
+          Pretty.align
+            ( Pretty.group
+                ( Pretty.pretty ( Expr.Annot ( Expr.Var ( Expr.V k 0 ) ) a ) )
+            )
+
+    doc =
+      "The following builtins are provided by dhall-to-cabal:"
+        <> Pretty.hardline
+        <> Pretty.hardline
+        <>
+          Pretty.indent
+            4
+            ( Pretty.vsep
+                ( map
+                    prettyContextEntry
+                    ( Dhall.Context.toList dhallToCabalContext )
+                )
+            )
 
 
 
