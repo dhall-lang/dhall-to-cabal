@@ -49,7 +49,6 @@ data KnownType
   | OS
   | Extension
   | CompilerOptions
-  | CompilerFlavor
   | Arch
   | Language
   | License
@@ -142,11 +141,10 @@ printType t = do
         SourceRepo -> Dhall.expected sourceRepo
         RepoType -> Dhall.expected repoType
         RepoKind -> Dhall.expected repoKind
-        Compiler -> Dhall.expected compiler
+        Compiler -> Dhall.expected compilerFlavor
         OS -> Dhall.expected operatingSystem
         Extension -> Dhall.expected extension
         CompilerOptions -> Dhall.expected compilerOptions
-        CompilerFlavor -> Dhall.expected compilerFlavor
         Arch -> Dhall.expected arch
         Language -> Dhall.expected language
         License -> Dhall.expected license
