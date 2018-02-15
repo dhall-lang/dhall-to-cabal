@@ -1,17 +1,16 @@
-  λ(VersionRange : Type)
-→ λ(builtin : ./dhall/types/builtin.dhall  VersionRange)
+  λ(builtin : ./dhall/types/builtin.dhall )
 →     let stdlib =
-            ./dhall/stdlib.dhall  VersionRange builtin
+            ./dhall/stdlib.dhall  builtin
   
   in  let v = builtin.v
   
-  in  let anyVersion = builtin.anyVersion
+  in  let anyVersion = ./dhall/types/VersionRange/AnyVersion.dhall 
   
   in  let OS = ./dhall/types/OS.dhall 
   
   in  let package =
               λ(package : Text)
-            → λ(version-range : VersionRange)
+            → λ(version-range : ./dhall/types/VersionRange.dhall )
             → { bounds = version-range, package = package }
   
   in  let majorVersions = stdlib.dependency.majorVersions

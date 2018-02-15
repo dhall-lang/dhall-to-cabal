@@ -1,18 +1,17 @@
-  λ(VersionRange : Type)
-→ λ(builtin : ./types/builtin.dhall  VersionRange)
+  λ(builtin : ./types/builtin.dhall )
 → { default =
       { Executable =
-          ./defaults/Executable.dhall  VersionRange
+          ./defaults/Executable.dhall 
       , Library =
-          ./defaults/Library.dhall  VersionRange
+          ./defaults/Library.dhall 
       , TestSuite =
-          ./defaults/TestSuite.dhall  VersionRange
+          ./defaults/TestSuite.dhall 
       , SourceRepo =
           ./defaults/SourceRepo.dhall 
       , CompilerOptions =
           ./defaults/CompilerOptions.dhall 
       , Package =
-          ./defaults/Package.dhall  VersionRange
+          ./defaults/Package.dhall 
       }
   , `constructors` =
       { Archs =
@@ -37,9 +36,9 @@
           constructors ./types/TestType.dhall 
       }
   , GitHub-project =
-      ./GitHub-project.dhall  VersionRange
+      ./GitHub-project.dhall 
   , unconditional =
-      ./unconditional.dhall  VersionRange
+      ./unconditional.dhall 
   , dependency =
       { majorVersions =
             λ(package : Text)
@@ -48,30 +47,32 @@
                 package
             , bounds =
                 Optional/fold
-                VersionRange
+                ./types/VersionRange.dhall 
                 ( List/fold
                   (List Natural)
                   versions
-                  (Optional VersionRange)
+                  (Optional ./types/VersionRange.dhall )
                   (   λ(v : List Natural)
-                    → λ(r : Optional VersionRange)
+                    → λ(r : Optional ./types/VersionRange.dhall )
                     → Optional/fold
-                      VersionRange
+                      ./types/VersionRange.dhall 
                       r
-                      (Optional VersionRange)
-                      (   λ(r : VersionRange)
-                        → [ builtin.unionVersionRanges
-                            (builtin.majorBoundVersion v)
+                      (Optional ./types/VersionRange.dhall )
+                      (   λ(r : ./types/VersionRange.dhall )
+                        → [ ./types/VersionRange/UnionVersionRanges.dhall 
+                            (./types/VersionRange/MajorBoundVersion.dhall  v)
                             r
-                          ] : Optional VersionRange
+                          ] : Optional ./types/VersionRange.dhall 
                       )
-                      ([ builtin.majorBoundVersion v ] : Optional VersionRange)
+                      ( [ ./types/VersionRange/MajorBoundVersion.dhall  v
+                        ] : Optional ./types/VersionRange.dhall 
+                      )
                   )
-                  ([] : Optional VersionRange)
+                  ([] : Optional ./types/VersionRange.dhall )
                 )
-                VersionRange
-                (λ(a : VersionRange) → a)
-                builtin.noVersion
+                ./types/VersionRange.dhall 
+                (λ(a : ./types/VersionRange.dhall ) → a)
+                ./types/VersionRange/NoVersion.dhall 
             }
       }
   }

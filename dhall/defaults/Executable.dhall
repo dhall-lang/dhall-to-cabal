@@ -1,3 +1,2 @@
-  λ(VersionRange : Type)
-→   ./BuildInfo.dhall  VersionRange
-  ⫽ { main-is = "", scope = (constructors ../types/Scope.dhall ).Public {=} }
+  ./BuildInfo.dhall 
+⫽ { main-is = "", scope = (constructors ../types/Scope.dhall ).Public {=} }

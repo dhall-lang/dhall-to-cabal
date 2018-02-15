@@ -1,10 +1,9 @@
-  λ(VersionRange : Type)
-→ { os :
-      ./OS.dhall  → Bool
-  , arch :
-      ./Arch.dhall  → Bool
-  , impl :
-      ./Compiler.dhall  → VersionRange → Bool
-  , flag :
-      Text → Bool
-  }
+{ os :
+    ./OS.dhall  → Bool
+, arch :
+    ./Arch.dhall  → Bool
+, impl :
+    ./Compiler.dhall  → ./VersionRange.dhall  → Bool
+, flag :
+    Text → Bool
+}
