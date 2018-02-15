@@ -7,7 +7,7 @@
 , build-type :
     Optional ./BuildType.dhall 
 , cabal-version :
-    List Natural
+    Text
 , category :
     Text
 , copyright :
@@ -57,9 +57,9 @@
 , test-suites :
     List { name : Text, test-suite : ./Guarded.dhall  ./TestSuite.dhall  }
 , tested-with :
-    List { compiler : ./Compiler.dhall , version : VersionRange }
+    List { compiler : ./Compiler.dhall , version : ./VersionRange.dhall  }
 , version :
-    List Natural
+    Text
 , x-fields :
     List { _1 : Text, _2 : Text }
 }

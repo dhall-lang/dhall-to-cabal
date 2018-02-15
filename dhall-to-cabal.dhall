@@ -6,48 +6,50 @@ in  let OS = ./dhall/types/OS.dhall
 
 in  let package =
             λ(package : Text)
-          → λ(version-range : VersionRange)
+          → λ(version-range : ./dhall/types/VersionRange.dhall )
           → { bounds = version-range, package = package }
 
 in  let majorVersions = stdlib.dependency.majorVersions
 
+in  let anyVersion = stdlib.dependency.anyVersion
+
 in  let deps =
           { Cabal =
-              majorVersions "Cabal" [ v "2.0" ]
+              majorVersions "Cabal" [ "2.0" ]
           , Diff =
-              majorVersions "Diff" [ v "0.3.4" ]
+              majorVersions "Diff" [ "0.3.4" ]
           , base =
-              majorVersions "base" [ v "4.10" ]
+              majorVersions "base" [ "4.10" ]
           , bytestring =
-              majorVersions "bytestring" [ v "0.10" ]
+              majorVersions "bytestring" [ "0.10" ]
           , containers =
-              majorVersions "containers" [ v "0.5" ]
+              majorVersions "containers" [ "0.5" ]
           , dhall =
-              majorVersions "dhall" [ v "1.9" ]
+              majorVersions "dhall" [ "1.9" ]
           , dhall-to-cabal =
               package "dhall-to-cabal" anyVersion
           , filepath =
-              majorVersions "filepath" [ v "1.4" ]
+              majorVersions "filepath" [ "1.4" ]
           , insert-ordered-containers =
-              majorVersions "insert-ordered-containers" [ v "0.2.1.0" ]
+              majorVersions "insert-ordered-containers" [ "0.2.1.0" ]
           , optparse-applicative =
-              majorVersions "optparse-applicative" [ v "0.13.2", v "0.14" ]
+              majorVersions "optparse-applicative" [ "0.13.2", "0.14" ]
           , prettyprinter =
-              majorVersions "prettyprinter" [ v "1.1.1" ]
+              majorVersions "prettyprinter" [ "1.1.1" ]
           , tasty =
-              majorVersions "tasty" [ v "0.11" ]
+              majorVersions "tasty" [ "0.11" ]
           , tasty-golden =
-              majorVersions "tasty-golden" [ v "2.3" ]
+              majorVersions "tasty-golden" [ "2.3" ]
           , text =
-              majorVersions "text" [ v "1.2" ]
+              majorVersions "text" [ "1.2" ]
           , text-format =
-              majorVersions "text-format" [ v "0.3" ]
+              majorVersions "text-format" [ "0.3" ]
           , transformers =
-              majorVersions "transformers" [ v "0.5.2" ]
+              majorVersions "transformers" [ "0.5.2" ]
           , trifecta =
-              majorVersions "trifecta" [ v "1.7" ]
+              majorVersions "trifecta" [ "1.7" ]
           , vector =
-              majorVersions "vector" [ v "0.12" ]
+              majorVersions "vector" [ "0.12" ]
           }
 
 in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
@@ -56,7 +58,7 @@ in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
       , license-files =
           [ "LICENSE" ]
       , version =
-          v "0.1.0"
+          "0.1.0"
       , library =
           stdlib.unconditional.library
           (   stdlib.default.Library

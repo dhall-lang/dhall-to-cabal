@@ -39,35 +39,49 @@
 , unconditional =
     ./unconditional.dhall 
 , dependency =
-    { majorVersions =
-          λ(package : Text)
-        → λ(versions : List (List Natural))
-        → { package =
-              package
-          , bounds =
-              Optional/fold
-              VersionRange
-              ( List/fold
-                (List Natural)
-                versions
-                (Optional VersionRange)
-                (   λ(v : List Natural)
-                  → λ(r : Optional VersionRange)
-                  → Optional/fold
-                    VersionRange
-                    r
-                    (Optional VersionRange)
-                    (   λ(r : VersionRange)
-                      → [ unionVersionRanges (majorBoundVersion v) r
-                        ] : Optional VersionRange
+        let majorBoundVersion = λ(v : Text) → "^>= ${v}"
+    
+    in  let noVersion = "> 1 && < 1"
+    
+    in  let anyVersion = "-any"
+    
+    in  { majorBoundVersion =
+            majorBoundVersion
+        , noVersion =
+            noVersion
+        , anyVersion =
+            anyVersion
+        , majorVersions =
+              λ(package : Text)
+            → λ(versions : List Text)
+            → { package =
+                  package
+              , bounds =
+                  Optional/fold
+                  ./types/VersionRange.dhall 
+                  ( List/fold
+                    Text
+                    versions
+                    (Optional ./types/VersionRange.dhall )
+                    (   λ(v : Text)
+                      → λ(r : Optional ./types/VersionRange.dhall )
+                      → Optional/fold
+                        ./types/VersionRange.dhall 
+                        r
+                        (Optional ./types/VersionRange.dhall )
+                        (   λ(r : ./types/VersionRange.dhall )
+                          → [ "${majorBoundVersion v} || ${r}"
+                            ] : Optional ./types/VersionRange.dhall 
+                        )
+                        ( [ majorBoundVersion v ] : Optional
+                                                    ./types/VersionRange.dhall 
+                        )
                     )
-                    ([ majorBoundVersion v ] : Optional VersionRange)
-                )
-                ([] : Optional VersionRange)
-              )
-              VersionRange
-              (λ(a : VersionRange) → a)
-              noVersion
-          }
-    }
+                    ([] : Optional ./types/VersionRange.dhall )
+                  )
+                  ./types/VersionRange.dhall 
+                  (λ(a : ./types/VersionRange.dhall ) → a)
+                  noVersion
+              }
+        }
 }
