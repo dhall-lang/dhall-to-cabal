@@ -1,1 +1,1 @@
-{ bounds : VersionRange, package : Text }
+λ(VersionRange : Type) → { bounds : VersionRange, package : Text }

@@ -1,1 +1,2 @@
-{ setup-depends : List ./Dependency.dhall  }
+  λ(VersionRange : Type)
+→ { setup-depends : List (./Dependency.dhall  VersionRange) }
