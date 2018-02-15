@@ -8,7 +8,7 @@
 {-# language TypeApplications #-}
 
 module Distribution.Package.Dhall
-  ( dhallFileToCabal
+  ( dhallToCabal
   , dhallToCabalContext
   , genericPackageDescription
   , sourceRepo
@@ -44,7 +44,8 @@ import qualified Data.HashMap.Strict.InsOrd as Map
 import qualified Data.Text.Lazy as LazyText
 import qualified Data.Text.Lazy.Builder as Builder
 import qualified Data.Text.Lazy.Encoding as LazyText
-import qualified Data.Text.Lazy.IO as LazyText
+import qualified Data.Text as StrictText
+import qualified Data.Text.Encoding as StrictText
 import qualified Data.Vector as Vector
 import qualified Dhall
 import qualified Dhall.Context as Ctx
@@ -353,7 +354,7 @@ testSuite =
 
 
 testSuiteInterface :: Dhall.Type Cabal.TestSuiteInterface
-testSuiteInterface = 
+testSuiteInterface =
   makeUnion
     ( Map.fromList
         [ ( "exitcode-stdio"
@@ -367,7 +368,7 @@ testSuiteInterface =
         ]
     )
 
-  
+
 
 
 unqualComponentName :: Dhall.Type Cabal.UnqualComponentName
@@ -513,19 +514,17 @@ moduleName =
 
 
 
-dhallFileToCabal :: FilePath -> IO Cabal.GenericPackageDescription
-dhallFileToCabal file = do
-  source <-
-    LazyText.readFile file
-
-  input source genericPackageDescription
+dhallToCabal :: FilePath -> LazyText.Text -> IO Cabal.GenericPackageDescription
+dhallToCabal fileName source =
+  input fileName source genericPackageDescription
 
 
 
-input :: LazyText.Text -> Dhall.Type a -> IO a
-input source t = do
-  delta <-
-    return ( Directed "(input)" 0 0 0 0 )
+input :: FilePath -> LazyText.Text -> Dhall.Type a -> IO a
+input fileName source t = do
+  let
+    delta =
+      Directed ( StrictText.encodeUtf8 ( StrictText.pack fileName ) ) 0 0 0 0
 
   expr  <-
     throws ( Dhall.Parser.exprFromText delta source )

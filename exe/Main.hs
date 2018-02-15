@@ -5,7 +5,7 @@
 
 module Main ( main ) where
 
-import Control.Applicative ( (<**>), (<|>), Const(..) )
+import Control.Applicative ( (<**>), (<|>), Const(..), optional )
 import Data.Foldable ( asum, foldl' )
 import Data.Functor.Product ( Product(..) )
 import Data.Functor.Identity ( Identity(..) )
@@ -63,7 +63,7 @@ data KnownType
 
 
 data DhallToCabalOptions = DhallToCabalOptions
-  { dhallFilePath :: String
+  { dhallFilePath :: Maybe String
   , explain :: Bool
   }
 
@@ -73,12 +73,14 @@ dhallToCabalOptionsParser :: OptParse.Parser DhallToCabalOptions
 dhallToCabalOptionsParser =
   DhallToCabalOptions
     <$>
-      OptParse.argument
-        OptParse.str
-        ( mconcat
-            [ OptParse.metavar "<dhall input file>"
-            , OptParse.help "The Dhall expression to convert to a Cabal file"
-            ]
+      optional
+        ( OptParse.argument
+            OptParse.str
+            ( mconcat
+                [ OptParse.metavar "<dhall input file>"
+                , OptParse.help "The Dhall expression to convert to a Cabal file"
+                ]
+            )
         )
     <*>
       OptParse.flag
@@ -122,9 +124,20 @@ builtinsParser =
 
 
 runDhallToCabal :: DhallToCabalOptions -> IO ()
-runDhallToCabal DhallToCabalOptions { dhallFilePath, explain } =
+runDhallToCabal DhallToCabalOptions { dhallFilePath, explain } = do
+  source <-
+    case dhallFilePath of
+      Nothing ->
+        LazyText.getContents
+
+      Just filePath ->
+        LazyText.readFile filePath
+
+  let
+    fileName = fromMaybe "(STDIN)" dhallFilePath
+
   explaining
-    ( dhallFileToCabal dhallFilePath
+    ( dhallToCabal fileName source
         & fmap Cabal.showGenericPackageDescription
         >>= putStrLn
     )
