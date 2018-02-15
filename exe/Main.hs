@@ -64,21 +64,31 @@ data KnownType
 
 data DhallToCabalOptions = DhallToCabalOptions
   { dhallFilePath :: String
+  , explain :: Bool
   }
 
 
 
 dhallToCabalOptionsParser :: OptParse.Parser DhallToCabalOptions
 dhallToCabalOptionsParser =
-  DhallToCabalOptions <$> OptParse.argument OptParse.str modifiers
-
-  where
-
-    modifiers =
-      mconcat
-        [ OptParse.metavar "<dhall input file>"
-        , OptParse.help "The Dhall expression to convert to a Cabal file"
-        ]
+  DhallToCabalOptions
+    <$>
+      OptParse.argument
+        OptParse.str
+        ( mconcat
+            [ OptParse.metavar "<dhall input file>"
+            , OptParse.help "The Dhall expression to convert to a Cabal file"
+            ]
+        )
+    <*>
+      OptParse.flag
+        False
+        True
+        ( mconcat
+            [ OptParse.long "explain"
+            , OptParse.help "Provide explanations to type Dhall syntax and type errors."
+            ]
+        )
 
 
 
@@ -112,10 +122,17 @@ builtinsParser =
 
 
 runDhallToCabal :: DhallToCabalOptions -> IO ()
-runDhallToCabal DhallToCabalOptions { dhallFilePath } =
-  dhallFileToCabal dhallFilePath
-    & fmap Cabal.showGenericPackageDescription
-    >>= putStrLn
+runDhallToCabal DhallToCabalOptions { dhallFilePath, explain } =
+  explaining
+    ( dhallFileToCabal dhallFilePath
+        & fmap Cabal.showGenericPackageDescription
+        >>= putStrLn
+    )
+
+  where
+
+    explaining =
+      if explain then Dhall.detailed else id
 
 
 

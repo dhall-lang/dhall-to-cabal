@@ -518,7 +518,7 @@ dhallFileToCabal file = do
   source <-
     LazyText.readFile file
 
-  Dhall.detailed ( input source genericPackageDescription )
+  input source genericPackageDescription
 
 
 
