@@ -1,6 +1,6 @@
   λ(builtin : ./dhall/types/builtin.dhall )
 →     let stdlib =
-            ./dhall/stdlib.dhall  builtin
+            ./dhall/stdlib.dhall 
   
   in  let v = builtin.v
   
