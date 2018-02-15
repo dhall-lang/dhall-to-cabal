@@ -3,9 +3,16 @@
 , build-depends =
     [] : List ../types/Dependency.dhall 
 , build-tool-depends =
-    [] : List { component : Text, package : Text, version : VersionRange }
+    [] : List
+         { component :
+             Text
+         , package :
+             Text
+         , version :
+             ../types/VersionRange.dhall 
+         }
 , build-tools =
-    [] : List { exe : Text, version : VersionRange }
+    [] : List { exe : Text, version : ../types/VersionRange.dhall  }
 , buildable =
     True
 , c-sources =
@@ -49,7 +56,7 @@
 , other-modules =
     [] : List Text
 , pkgconfig-depends =
-    [] : List { name : Text, version : VersionRange }
+    [] : List { name : Text, version : ../types/VersionRange.dhall  }
 , profiling-options =
     ./CompilerOptions.dhall 
 , shared-options =

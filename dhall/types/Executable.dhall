@@ -3,9 +3,9 @@
 , build-depends :
     List ./Dependency.dhall 
 , build-tool-depends :
-    List { component : Text, package : Text, version : VersionRange }
+    List { component : Text, package : Text, version : ./VersionRange.dhall  }
 , build-tools :
-    List { exe : Text, version : VersionRange }
+    List { exe : Text, version : ./VersionRange.dhall  }
 , buildable :
     Bool
 , c-sources :
@@ -49,7 +49,7 @@
 , other-modules :
     List Text
 , pkgconfig-depends :
-    List { name : Text, version : VersionRange }
+    List { name : Text, version : ./VersionRange.dhall  }
 , profiling-options :
     ./CompilerOptions.dhall 
 , shared-options :
