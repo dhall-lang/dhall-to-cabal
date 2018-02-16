@@ -3,6 +3,7 @@ version: 0.1.0
 cabal-version: 2.0
 build-type: Simple
 license: MIT
+license-file: LICENSE
 homepage: https://github.com/ocharles/dhall-to-cabal
 bug-reports: https://github.com/ocharles/dhall-to-cabal/issues
 
@@ -13,8 +14,6 @@ source-repository head
 library
     exposed-modules:
         Distribution.Package.Dhall
-    other-modules: Version
-     VersionRange
     build-depends:
         Cabal ^>=2.0,
         base ^>=4.10,
@@ -32,6 +31,8 @@ library
     hs-source-dirs: lib
     other-modules:
         Dhall.Extra
+        Version
+        VersionRange
     ghc-options: -Wall -fno-warn-name-shadowing
 
 executable  dhall-to-cabal
@@ -62,4 +63,3 @@ test-suite  golden-tests
         tasty-golden ^>=2.3,
         text ^>=1.2
     hs-source-dirs: golden-tests
-
