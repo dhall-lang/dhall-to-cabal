@@ -43,7 +43,7 @@
 , ld-options :
     List Text
 , lib-version-linux :
-    Optional (List Natural)
+    Optional ./Version.dhall 
 , mod-def-files :
     List Text
 , options :

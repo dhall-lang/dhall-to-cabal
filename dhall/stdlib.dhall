@@ -41,17 +41,17 @@
 , dependency =
     { majorVersions =
           λ(package : Text)
-        → λ(versions : List (List Natural))
+        → λ(versions : List ./types/Version.dhall )
         → { package =
               package
           , bounds =
               Optional/fold
               ./types/VersionRange.dhall 
               ( List/fold
-                (List Natural)
+                ./types/Version.dhall 
                 versions
                 (Optional ./types/VersionRange.dhall )
-                (   λ(v : List Natural)
+                (   λ(v : ./types/Version.dhall )
                   → λ(r : Optional ./types/VersionRange.dhall )
                   → Optional/fold
                     ./types/VersionRange.dhall 

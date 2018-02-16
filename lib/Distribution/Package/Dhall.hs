@@ -209,7 +209,36 @@ packageDescription = do
 
 version :: Dhall.Type Cabal.Version
 version =
-  Cabal.mkVersion <$> Dhall.list ( fromIntegral <$> Dhall.natural )
+  let
+    parse builder =
+      fromMaybe
+        ( error "Could not parse version" )
+        ( Cabal.simpleParse ( LazyText.unpack ( Builder.toLazyText builder ) ) )
+
+    extract =
+      \case
+        LamArr _Version (LamArr _v v) ->
+          go v
+
+        e ->
+          error ( show e )
+
+    go =
+      \case
+        Expr.App ( V0 "v" ) ( Expr.TextLit ( Expr.Chunks [] builder ) ) ->
+          return ( parse builder )
+
+        e ->
+          error ( show e )
+
+    expected =
+      Expr.Pi "Version" ( Expr.Const Expr.Type )
+        $ Expr.Pi
+            "v"
+            ( Expr.Pi "_" ( Dhall.expected Dhall.string ) ( V0 "Version" ) )
+            ( V0 "Version" )
+
+  in Dhall.Type { .. }
 
 
 
@@ -514,23 +543,8 @@ moduleName =
 
 
 dhallToCabal :: FilePath -> LazyText.Text -> IO Cabal.GenericPackageDescription
-dhallToCabal fileName source = do
-  let
-    withBuiltins =
-      let
-        extract expr = do
-          Expr.Lam _ _ e <-
-            return expr
-
-          Dhall.extract genericPackageDescription e
-
-        expected =
-          Expr.Pi "builtin" builtins ( Dhall.expected genericPackageDescription )
-
-      in
-      Dhall.Type { .. }
-
-  input fileName source withBuiltins
+dhallToCabal fileName source =
+  input fileName source genericPackageDescription
 
 
 builtins :: Expr.Expr Dhall.Parser.Src Dhall.TypeCheck.X
@@ -585,7 +599,7 @@ input fileName source t = do
   _ <-
     throws (Dhall.TypeCheck.typeOf annot)
 
-  case Dhall.extract t ( Dhall.Core.normalizeWith normalizer expr' ) of
+  case Dhall.extract t ( Dhall.Core.normalize expr' ) of
     Just x  ->
       return x
 
@@ -597,35 +611,6 @@ input fileName source t = do
     throws :: Exception e => Either e a -> IO a
     throws =
       either throwIO return
-
-
-
-normalizer :: Dhall.Core.Normalizer a
-normalizer = \case
-  Expr.App ( Builtin "v" ) ( Expr.TextLit ( Expr.Chunks [] builder ) ) ->
-    Just ( toDhall parse )
-
-    where
-
-      parse =
-        fromMaybe
-          ( error "Could not parse version" )
-          ( Cabal.simpleParse ( LazyText.unpack ( Builder.toLazyText builder ) ) )
-
-      toDhall v =
-        Expr.ListLit
-          ( Just ( Expr.App Expr.List Expr.Natural ) ) -- Dhall.expected version
-          ( Vector.fromList
-              ( Expr.NaturalLit . fromIntegral <$> Cabal.versionNumbers v )
-          )
-
-  _ ->
-    Nothing
-
-
-pattern Builtin :: Dhall.Text -> Expr.Expr s a
-pattern Builtin f =
-  Expr.Field ( V0 "builtin" ) f
 
 
 
@@ -704,7 +689,7 @@ versionRange =
         versionToVersionRange =
           Expr.Pi
             "_"
-            ( Dhall.expected ( Dhall.list Dhall.natural ) )
+            ( Dhall.expected version )
             versionRange
 
         combine =
