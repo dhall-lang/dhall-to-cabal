@@ -1,9 +1,9 @@
 < AGPL :
-    Optional (List Natural)
+    Optional ./Version.dhall 
 | AllRightsReserved :
     {}
 | Apache :
-    Optional (List Natural)
+    Optional ./Version.dhall 
 | BSD2 :
     {}
 | BSD3 :
@@ -11,15 +11,15 @@
 | BSD4 :
     {}
 | GPL :
-    Optional (List Natural)
+    Optional ./Version.dhall 
 | ISC :
     {}
 | LGPL :
-    Optional (List Natural)
+    Optional ./Version.dhall 
 | MIT :
     {}
 | MPL :
-    List Natural
+    ./Version.dhall 
 | Other :
     {}
 | PublicDomain :

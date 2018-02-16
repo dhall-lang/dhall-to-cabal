@@ -35,7 +35,6 @@ import qualified System.IO
 data Command
   = RunDhallToCabal DhallToCabalOptions
   | PrintType KnownType
-  | Builtins
 
 
 
@@ -109,20 +108,6 @@ printTypeParser =
 
 
 
-builtinsParser :: OptParse.Parser ()
-builtinsParser =
-  OptParse.flag' () modifiers
-
-  where
-
-    modifiers =
-      mconcat
-        [ OptParse.long "builtins"
-        , OptParse.help "Print a description of all available builtins provided by dhall-to-cabal"
-        ]
-
-
-
 runDhallToCabal :: DhallToCabalOptions -> IO ()
 runDhallToCabal DhallToCabalOptions { dhallFilePath, explain } = do
   source <-
@@ -161,16 +146,12 @@ main = do
     PrintType t ->
       printType t
 
-    Builtins ->
-      printBuiltins
-
   where
 
   parser =
     asum
       [ RunDhallToCabal <$> dhallToCabalOptionsParser
       , PrintType <$> printTypeParser
-      , Builtins <$ builtinsParser
       ]
 
   opts =
@@ -233,44 +214,6 @@ printType t = do
         ( flip letDhallType )
         ( dhallType t )
         [ minBound .. maxBound ]
-
-
-printBuiltins :: IO ()
-printBuiltins = do
-  Pretty.renderIO
-    System.IO.stdout
-    ( Pretty.layoutPretty layoutOptions doc )
-
-  putStrLn ""
-
-  where
-
-    layoutOptions =
-      Pretty.LayoutOptions ( Pretty.AvailablePerLine 80 1 )
-
-    prettyContextEntry ( k, a ) =
-      Pretty.bullet
-        <> " "
-        <>
-          Pretty.align
-            ( Pretty.group
-                ( Pretty.pretty ( Expr.Annot ( Expr.Var ( Expr.V k 0 ) ) a ) )
-            )
-
-    doc =
-      "The following builtins are provided by dhall-to-cabal:"
-        <> Pretty.hardline
-        <> Pretty.hardline
-        <>
-          Pretty.indent
-            4
-            ( Pretty.vsep
-                ( map
-                    prettyContextEntry
-                    ( Dhall.Context.toList dhallToCabalContext )
-                )
-            )
-
 
 
 liftCSE

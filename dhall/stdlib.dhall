@@ -41,33 +41,37 @@
 , dependency =
     { majorVersions =
           λ(package : Text)
-        → λ(versions : List (List Natural))
+        → λ(versions : List ./types/Version.dhall )
         → { package =
               package
           , bounds =
               Optional/fold
-              VersionRange
+              ./types/VersionRange.dhall 
               ( List/fold
-                (List Natural)
+                ./types/Version.dhall 
                 versions
-                (Optional VersionRange)
-                (   λ(v : List Natural)
-                  → λ(r : Optional VersionRange)
+                (Optional ./types/VersionRange.dhall )
+                (   λ(v : ./types/Version.dhall )
+                  → λ(r : Optional ./types/VersionRange.dhall )
                   → Optional/fold
-                    VersionRange
+                    ./types/VersionRange.dhall 
                     r
-                    (Optional VersionRange)
-                    (   λ(r : VersionRange)
-                      → [ unionVersionRanges (majorBoundVersion v) r
-                        ] : Optional VersionRange
+                    (Optional ./types/VersionRange.dhall )
+                    (   λ(r : ./types/VersionRange.dhall )
+                      → [ ./types/VersionRange/UnionVersionRanges.dhall 
+                          (./types/VersionRange/MajorBoundVersion.dhall  v)
+                          r
+                        ] : Optional ./types/VersionRange.dhall 
                     )
-                    ([ majorBoundVersion v ] : Optional VersionRange)
+                    ( [ ./types/VersionRange/MajorBoundVersion.dhall  v
+                      ] : Optional ./types/VersionRange.dhall 
+                    )
                 )
-                ([] : Optional VersionRange)
+                ([] : Optional ./types/VersionRange.dhall )
               )
-              VersionRange
-              (λ(a : VersionRange) → a)
-              noVersion
+              ./types/VersionRange.dhall 
+              (λ(a : ./types/VersionRange.dhall ) → a)
+              ./types/VersionRange/NoVersion.dhall 
           }
     }
 }

@@ -3,7 +3,7 @@
 , arch :
     ./Arch.dhall  → Bool
 , impl :
-    ./Compiler.dhall  → VersionRange → Bool
+    ./Compiler.dhall  → ./VersionRange.dhall  → Bool
 , flag :
     Text → Bool
 }

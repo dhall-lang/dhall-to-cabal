@@ -4,12 +4,12 @@
 {-# language GeneralizedNewtypeDeriving #-}
 {-# language LambdaCase #-}
 {-# language OverloadedStrings #-}
+{-# language PatternSynonyms #-}
 {-# language RecordWildCards #-}
 {-# language TypeApplications #-}
 
 module Distribution.Package.Dhall
   ( dhallToCabal
-  , dhallToCabalContext
   , genericPackageDescription
   , sourceRepo
   , repoKind
@@ -48,7 +48,6 @@ import qualified Data.Text as StrictText
 import qualified Data.Text.Encoding as StrictText
 import qualified Data.Vector as Vector
 import qualified Dhall
-import qualified Dhall.Context as Ctx
 import qualified Dhall.Core
 import qualified Dhall.Import
 import qualified Dhall.Parser
@@ -210,7 +209,36 @@ packageDescription = do
 
 version :: Dhall.Type Cabal.Version
 version =
-  Cabal.mkVersion <$> Dhall.list ( fromIntegral <$> Dhall.natural )
+  let
+    parse builder =
+      fromMaybe
+        ( error "Could not parse version" )
+        ( Cabal.simpleParse ( LazyText.unpack ( Builder.toLazyText builder ) ) )
+
+    extract =
+      \case
+        LamArr _Version (LamArr _v v) ->
+          go v
+
+        e ->
+          error ( show e )
+
+    go =
+      \case
+        Expr.App ( V0 "v" ) ( Expr.TextLit ( Expr.Chunks [] builder ) ) ->
+          return ( parse builder )
+
+        e ->
+          error ( show e )
+
+    expected =
+      Expr.Pi "Version" ( Expr.Const Expr.Type )
+        $ Expr.Pi
+            "v"
+            ( Expr.Pi "_" ( Dhall.expected Dhall.string ) ( V0 "Version" ) )
+            ( V0 "Version" )
+
+  in Dhall.Type { .. }
 
 
 
@@ -519,6 +547,18 @@ dhallToCabal fileName source =
   input fileName source genericPackageDescription
 
 
+builtins :: Expr.Expr Dhall.Parser.Src Dhall.TypeCheck.X
+builtins =
+  let
+    builtinTypes =
+      [ ( "v"
+        , Expr.Pi "_" ( Dhall.expected Dhall.string ) ( Dhall.expected version )
+        )
+      ]
+
+  in
+  Expr.Record ( Map.fromList builtinTypes )
+
 
 input :: FilePath -> LazyText.Text -> Dhall.Type a -> IO a
 input fileName source t = do
@@ -530,7 +570,7 @@ input fileName source t = do
     throws ( Dhall.Parser.exprFromText delta source )
 
   expr' <-
-    Dhall.Import.loadWithContext dhallToCabalContext expr
+    Dhall.Import.load expr
 
   let
     suffix =
@@ -557,9 +597,9 @@ input fileName source t = do
           Expr.Annot expr' ( Dhall.expected t )
 
   _ <-
-    throws (Dhall.TypeCheck.typeWith dhallToCabalContext annot)
+    throws (Dhall.TypeCheck.typeOf annot)
 
-  case Dhall.extract t ( Dhall.Core.normalizeWith normalizer expr' ) of
+  case Dhall.extract t ( Dhall.Core.normalize expr' ) of
     Just x  ->
       return x
 
@@ -574,91 +614,12 @@ input fileName source t = do
 
 
 
--- | The custom context used for type-checking @dhall-to-cabal@ Dhall
--- expressions.
---
--- This context provides the following:
---
--- * @VersionRange : Type@
--- * @anyVersion : VersionRange@
--- * @noVersion : VersionRange@
--- * @thisVersion : List Natural -> VersionRange@
--- * @notThisVersion : List Natural -> VersionRange@
--- * @laterVersion : List Natural -> VersionRange@
--- * @earlierVersion : List Natural -> VersionRange@
--- * @orLaterVersion : List Natural -> VersionRange@
--- * @orEarlierVersion : List Natural -> VersionRange@
--- * @withinVersion : List Natural -> VersionRange@
--- * @majorBoundVersion : List Natural -> VersionRange@
--- * @unionVersionRanges : VersionRange -> VersionRange -> VersionRange@
--- * @intersectVersionRanges : VersionRange -> VersionRange -> VersionRange@
--- * @differenceVersionRanges : VersionRange -> VersionRange -> VersionRange@
--- * @invertVersionRange : VersionRange -> VersionRange@
--- * @v : Text -> List Natural@
-
-dhallToCabalContext
-  :: Ctx.Context ( Expr.Expr Dhall.Parser.Src Dhall.TypeCheck.X )
-dhallToCabalContext =
-  let
-    versionRangeType =
-      Dhall.expected versionRange
-
-    versionType =
-      Dhall.expected version
-
-    fun a b =
-      Expr.Pi "_" a b
-
-  in
-  Ctx.empty
-    & Ctx.insert "VersionRange" ( Expr.Const Expr.Type )
-    & Ctx.insert "anyVersion" versionRangeType
-    & Ctx.insert "noVersion" versionRangeType
-    & Ctx.insert "thisVersion" ( fun versionType versionRangeType )
-    & Ctx.insert "notThisVersion" ( fun versionType versionRangeType )
-    & Ctx.insert "laterVersion" ( fun versionType versionRangeType )
-    & Ctx.insert "earlierVersion" ( fun versionType versionRangeType )
-    & Ctx.insert "orLaterVersion" ( fun versionType versionRangeType )
-    & Ctx.insert "orEarlierVersion" ( fun versionType versionRangeType )
-    & Ctx.insert "withinVersion" ( fun versionType versionRangeType)
-    & Ctx.insert "majorBoundVersion" ( fun versionType versionRangeType)
-    & Ctx.insert
-        "unionVersionRanges"
-        ( fun versionRangeType ( fun versionRangeType versionRangeType ) )
-    & Ctx.insert
-        "intersectVersionRanges"
-        ( fun versionRangeType ( fun versionRangeType versionRangeType ) )
-    & Ctx.insert
-        "differenceVersionRanges"
-        ( fun versionRangeType ( fun versionRangeType versionRangeType ) )
-    & Ctx.insert
-        "invertVersionRange"
-        ( fun versionRangeType ( fun versionRangeType versionRangeType ) )
-    & Ctx.insert "v" ( fun Expr.Text versionType )
+pattern LamArr :: Expr.Expr s a -> Expr.Expr s a -> Expr.Expr s a
+pattern LamArr a b <- Expr.Lam _ a b
 
 
 
-normalizer :: Dhall.Core.Normalizer a
-normalizer = \case
-  Expr.App ( Expr.Var ( Expr.V "v" 0 ) ) ( Expr.TextLit ( Expr.Chunks [] builder ) ) ->
-    Just ( toDhall parse )
-
-    where
-
-      parse =
-        fromMaybe
-          ( error "Could not parse version" )
-          ( Cabal.simpleParse ( LazyText.unpack ( Builder.toLazyText builder ) ) )
-
-      toDhall v =
-        Expr.ListLit
-          ( Just ( Expr.App Expr.List Expr.Natural ) ) -- Dhall.expected version
-          ( Vector.fromList
-              ( Expr.NaturalLit . fromIntegral <$> Cabal.versionNumbers v )
-          )
-
-  _ ->
-    Nothing
+pattern V0 v = Expr.Var ( Expr.V v 0 )
 
 
 
@@ -667,59 +628,92 @@ versionRange =
   let
     extract =
       \case
-        Expr.Var ( Expr.V "anyVersion" 0 ) ->
+        LamArr _VersionRange (LamArr _anyVersion (LamArr _noVersion (LamArr _thisVersion (LamArr _notThisVersion (LamArr _laterVersion (LamArr _earlierVersion (LamArr _orLaterVersion (LamArr _orEarlierVersion (LamArr _withinVersion (LamArr _majorBoundVersion (LamArr _unionVersionRanges (LamArr _intersectVersionRanges (LamArr _differenceVersionRanges (LamArr _invertVersionRange versionRange)))))))))))))) ->
+          go versionRange
+
+        _ ->
+          Nothing
+
+    go =
+      \case
+        V0 "anyVersion" ->
           return Cabal.anyVersion
 
-        Expr.Var ( Expr.V "noVersion" 0 ) ->
+        V0 "noVersion" ->
           return Cabal.noVersion
 
-        Expr.App ( Expr.Var ( Expr.V "thisVersion" 0 ) ) components ->
+        Expr.App ( V0 "thisVersion" ) components ->
           Cabal.thisVersion <$> Dhall.extract version components
 
-        Expr.App ( Expr.Var ( Expr.V "notThisVersion" 0 ) ) components ->
+        Expr.App ( V0 "notThisVersion" ) components ->
           Cabal.notThisVersion <$> Dhall.extract version components
 
-        Expr.App ( Expr.Var ( Expr.V "laterVersion" 0 ) ) components ->
+        Expr.App ( V0 "laterVersion" ) components ->
           Cabal.laterVersion <$> Dhall.extract version components
 
-        Expr.App ( Expr.Var ( Expr.V "earlierVersion" 0 ) ) components ->
+        Expr.App ( V0 "earlierVersion" ) components ->
           Cabal.earlierVersion <$> Dhall.extract version components
 
-        Expr.App ( Expr.Var ( Expr.V "orLaterVersion" 0 ) ) components ->
+        Expr.App ( V0 "orLaterVersion" ) components ->
           Cabal.orLaterVersion <$> Dhall.extract version components
 
-        Expr.App ( Expr.Var ( Expr.V "orEarlierVersion" 0 ) ) components ->
+        Expr.App ( V0 "orEarlierVersion" ) components ->
           Cabal.orEarlierVersion <$> Dhall.extract version components
 
-        Expr.App ( Expr.App ( Expr.Var ( Expr.V "unionVersionRanges" 0 ) ) a ) b ->
-          Cabal.unionVersionRanges
-            <$> Dhall.extract versionRange a
-            <*> Dhall.extract versionRange b
+        Expr.App ( Expr.App ( V0 "unionVersionRanges" ) a ) b ->
+          Cabal.unionVersionRanges <$> go a <*> go b
 
-        Expr.App ( Expr.App ( Expr.Var ( Expr.V "intersectVersionRanges" 0 ) ) a ) b ->
-          Cabal.intersectVersionRanges
-            <$> Dhall.extract versionRange a
-            <*> Dhall.extract versionRange b
+        Expr.App ( Expr.App ( V0 "intersectVersionRanges" ) a ) b ->
+          Cabal.intersectVersionRanges <$> go a <*> go b
 
-        Expr.App ( Expr.App ( Expr.Var ( Expr.V "differenceVersionRanges" 0 ) ) a ) b ->
-          Cabal.differenceVersionRanges
-            <$> Dhall.extract versionRange a
-            <*> Dhall.extract versionRange b
+        Expr.App ( Expr.App ( V0 "differenceVersionRanges" ) a ) b ->
+          Cabal.differenceVersionRanges <$> go a <*> go b
 
-        Expr.App ( Expr.Var ( Expr.V "invertVersionRange" 0 ) ) components ->
-          Cabal.invertVersionRange <$> Dhall.extract versionRange components
+        Expr.App ( V0 "invertVersionRange" ) components ->
+          Cabal.invertVersionRange <$> go components
 
-        Expr.App ( Expr.Var ( Expr.V "withinVersion" 0 ) ) components ->
+        Expr.App ( V0 "withinVersion" ) components ->
           Cabal.withinVersion <$> Dhall.extract version components
 
-        Expr.App ( Expr.Var ( Expr.V "majorBoundVersion" 0 ) ) components ->
+        Expr.App ( V0 "majorBoundVersion" ) components ->
           Cabal.majorBoundVersion <$> Dhall.extract version components
 
         _ ->
           Nothing
 
     expected =
-      Expr.Var ( Expr.V "VersionRange" 0 )
+      let
+        versionRange =
+          V0 "VersionRange"
+
+        versionToVersionRange =
+          Expr.Pi
+            "_"
+            ( Dhall.expected version )
+            versionRange
+
+        combine =
+          Expr.Pi "_" versionRange ( Expr.Pi "_" versionRange versionRange )
+
+      in
+      Expr.Pi "VersionRange" ( Expr.Const Expr.Type )
+        $ Expr.Pi "anyVersion" versionRange
+        $ Expr.Pi "noVersion" versionRange
+        $ Expr.Pi "thisVersion" versionToVersionRange
+        $ Expr.Pi "notThisVersion" versionToVersionRange
+        $ Expr.Pi "laterVersion" versionToVersionRange
+        $ Expr.Pi "earlierVersion" versionToVersionRange
+        $ Expr.Pi "orLaterVersion" versionToVersionRange
+        $ Expr.Pi "orEarlierVersion" versionToVersionRange
+        $ Expr.Pi "withinVersion" versionToVersionRange
+        $ Expr.Pi "majorBoundVersion" versionToVersionRange
+        $ Expr.Pi "unionVersionRanges" combine
+        $ Expr.Pi "intersectVersionRanges" combine
+        $ Expr.Pi "differenceVersionRanges" combine
+        $ Expr.Pi
+            "invertVersionRange"
+            ( Expr.Pi "_" versionRange versionRange )
+            versionRange
 
   in Dhall.Type { .. }
 
@@ -1026,14 +1020,14 @@ guard =
                     <*> extractBody b
                 )
 
-        Expr.App ( Expr.App ( Expr.Field ( Expr.Var ( Expr.V "config" 0 ) ) "impl" ) compiler ) version ->
+        Expr.App ( Expr.App ( Expr.Field ( V0 "config" ) "impl" ) compiler ) version ->
           Cabal.Var
             <$> ( Cabal.Impl
                     <$> Dhall.extract compilerFlavor compiler
                     <*> Dhall.extract versionRange version
                 )
 
-        Expr.App ( Expr.Field ( Expr.Var ( Expr.V "config" 0 ) ) field ) x ->
+        Expr.App ( Expr.Field ( V0 "config" ) field ) x ->
           case field of
             "os" ->
               Cabal.Var . Cabal.OS <$> Dhall.extract operatingSystem x

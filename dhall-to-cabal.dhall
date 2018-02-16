@@ -1,12 +1,14 @@
     let stdlib = ./dhall/stdlib.dhall 
 
-in  let gitHub-project = ./dhall/GitHub-project.dhall 
+in  let v = ./dhall/types/Version/v.dhall 
+
+in  let anyVersion = ./dhall/types/VersionRange/AnyVersion.dhall 
 
 in  let OS = ./dhall/types/OS.dhall 
 
 in  let package =
             λ(package : Text)
-          → λ(version-range : VersionRange)
+          → λ(version-range : ./dhall/types/VersionRange.dhall )
           → { bounds = version-range, package = package }
 
 in  let majorVersions = stdlib.dependency.majorVersions
@@ -50,7 +52,7 @@ in  let deps =
               majorVersions "vector" [ v "0.12" ]
           }
 
-in    gitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
+in    stdlib.GitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
     ⫽ { license =
           stdlib.`constructors`.Licenses.MIT {=}
       , license-files =

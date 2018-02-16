@@ -1,1 +1,1 @@
-{ bounds : VersionRange, package : Text }
+{ bounds : ./VersionRange.dhall , package : Text }
