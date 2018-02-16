@@ -13,6 +13,8 @@ source-repository head
 library
     exposed-modules:
         Distribution.Package.Dhall
+    other-modules: Version
+     VersionRange
     build-depends:
         Cabal ^>=2.0,
         base ^>=4.10,
