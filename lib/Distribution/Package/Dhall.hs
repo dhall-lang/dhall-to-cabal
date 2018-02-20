@@ -1,12 +1,10 @@
 {-# language ApplicativeDo #-}
 {-# language FlexibleInstances #-}
 {-# language GADTs #-}
-{-# language GeneralizedNewtypeDeriving #-}
 {-# language LambdaCase #-}
 {-# language OverloadedStrings #-}
 {-# language PatternSynonyms #-}
 {-# language RecordWildCards #-}
-{-# language TypeApplications #-}
 
 module Distribution.Package.Dhall
   ( dhallToCabal
@@ -133,7 +131,7 @@ packageDescription = do
     keyValue "source-repos" ( Dhall.list sourceRepo )
 
   specVersionRaw <-
-    Left <$> ( keyValue "cabal-version" version )
+    Left <$> keyValue "cabal-version" version
 
   buildType <-
     keyValue "build-type" ( Dhall.maybe buildType )

@@ -1,9 +1,7 @@
 {-# language ApplicativeDo #-}
 {-# language GADTs #-}
 {-# language GeneralizedNewtypeDeriving #-}
-{-# language OverloadedStrings #-}
 {-# language RecordWildCards #-}
-{-# language TypeApplications #-}
 
 module Dhall.Extra
   ( RecordBuilder
