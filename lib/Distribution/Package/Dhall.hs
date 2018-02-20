@@ -1008,7 +1008,7 @@ guarded t =
 
     configTreeToCondTree = \case
       Leaf a -> do
-        Cabal.CondNode <$> maybe ( error ( LazyText.unpack ( Dhall.Core.pretty a ) ) ) Just ( Dhall.extract t a ) <*> pure mempty <*> pure mempty
+        Cabal.CondNode <$> Dhall.extract t a <*> pure mempty <*> pure mempty
 
       Branch cond a b ->
         Cabal.CondNode
