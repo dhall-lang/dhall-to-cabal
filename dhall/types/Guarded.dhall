@@ -1,1 +1,1 @@
-λ(A : Type) → List { body : A, guard : ./Config.dhall  → Bool }
+λ(A : Type) → ./Config.dhall  → A

@@ -13,9 +13,13 @@ source-repository head
 library
     exposed-modules:
         Distribution.Package.Dhall
+    other-modules: Version
+     VersionRange
+     DhallToCabal.ConfigTree
     build-depends:
         Cabal ^>=2.0,
         base ^>=4.10,
+        lens,
         bytestring ^>=0.10,
         containers ^>=0.5,
         insert-ordered-containers ^>=0.2.1.0,
