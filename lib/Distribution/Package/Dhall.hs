@@ -1045,7 +1045,7 @@ guarded t =
       in
         Expr.Pi "_" configRecord ( Dhall.expected t )
 
-  in Dhall.Type {..}
+  in Dhall.Type { .. }
 
 
 
