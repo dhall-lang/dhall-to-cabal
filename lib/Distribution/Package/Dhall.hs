@@ -29,6 +29,9 @@ module Distribution.Package.Dhall
   , benchmark
   , foreignLib
   , buildType
+  , versionRange
+  , version
+  , configRecordType
   ) where
 
 import Control.Exception ( Exception, throwIO )
@@ -1024,28 +1027,32 @@ guarded t =
                 )
 
     expected =
-      let
-        predicate on =
-          Expr.Pi "_" on Expr.Bool
-
-        configRecord =
-          Expr.Record
-            ( Map.fromList
-                [ ( "os", predicate ( Dhall.expected operatingSystem ) )
-                , ( "arch", predicate ( Dhall.expected arch ) )
-                , ( "flag", predicate ( Dhall.expected flagName ) )
-                , ( "impl"
-                  , Expr.Pi
-                      "_"
-                      ( Dhall.expected compilerFlavor )
-                      ( Expr.Pi "_" ( Dhall.expected versionRange ) Expr.Bool )
-                  )
-                ]
-            )
-      in
-        Expr.Pi "_" configRecord ( Dhall.expected t )
+        Expr.Pi "_" configRecordType ( Dhall.expected t )
 
   in Dhall.Type { .. }
+
+
+
+configRecordType :: Expr.Expr Dhall.Parser.Src Dhall.TypeCheck.X
+configRecordType =
+  let
+    predicate on =
+      Expr.Pi "_" on Expr.Bool
+
+  in
+    Expr.Record
+      ( Map.fromList
+          [ ( "os", predicate ( Dhall.expected operatingSystem ) )
+          , ( "arch", predicate ( Dhall.expected arch ) )
+          , ( "flag", predicate ( Dhall.expected flagName ) )
+          , ( "impl"
+            , Expr.Pi
+                "_"
+                ( Dhall.expected compilerFlavor )
+                ( Expr.Pi "_" ( Dhall.expected versionRange ) Expr.Bool )
+            )
+          ]
+      )
 
 
 
