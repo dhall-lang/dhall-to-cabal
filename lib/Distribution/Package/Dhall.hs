@@ -52,7 +52,6 @@ import qualified Data.Text.Encoding as StrictText
 import qualified Data.Text.Lazy as LazyText
 import qualified Data.Text.Lazy.Builder as Builder
 import qualified Data.Text.Lazy.Encoding as LazyText
-import qualified Data.Vector as Vector
 import qualified Dhall
 import qualified Dhall.Core
 import qualified Dhall.Import
@@ -555,19 +554,6 @@ dhallToCabal fileName source =
   input fileName source genericPackageDescription
 
 
-builtins :: Expr.Expr Dhall.Parser.Src Dhall.TypeCheck.X
-builtins =
-  let
-    builtinTypes =
-      [ ( "v"
-        , Expr.Pi "_" ( Dhall.expected Dhall.string ) ( Dhall.expected version )
-        )
-      ]
-
-  in
-  Expr.Record ( Map.fromList builtinTypes )
-
-
 input :: FilePath -> LazyText.Text -> Dhall.Type a -> IO a
 input fileName source t = do
   let
@@ -960,17 +946,83 @@ class Factorable a where
     in
       ( Generic.to common, Generic.to left, Generic.to right )
 
-instance Factorable Cabal.BuildInfo
 
-instance Factorable Cabal.Library
+factorEqVia :: ( Monoid a, Eq b ) => ( a -> b ) -> a -> a -> ( b, b, b )
+factorEqVia f left right =
+  if f left == f right then
+    ( f left, f mempty, f mempty )
+  else
+    ( f mempty, f left, f right )
+
+
+
+instance Factorable Cabal.BuildInfo where
+  factor a b =
+    let
+      ( commonBuildable, leftBuildable, rightBuildable ) =
+        factorEqVia Cabal.buildable a b
+
+      ( common, left, right ) =
+        case gfactor ( Generic.from a ) ( Generic.from b ) of
+          ( common, left, right ) ->
+            ( Generic.to common, Generic.to left, Generic.to right )
+
+    in
+      ( common { Cabal.buildable = commonBuildable }
+      , left { Cabal.buildable = leftBuildable }
+      , right { Cabal.buildable = rightBuildable }
+      )
+
+
+
+instance Factorable Cabal.Library where
+  factor a b =
+    let
+      ( commonLibExposed, leftLibExposed, rightLibExposed ) =
+        factorEqVia Cabal.libExposed a b
+
+      ( common, left, right ) =
+        case gfactor ( Generic.from a ) ( Generic.from b ) of
+          ( common, left, right ) ->
+            ( Generic.to common, Generic.to left, Generic.to right )
+
+    in
+      ( common { Cabal.libExposed = commonLibExposed }
+      , left { Cabal.libExposed = leftLibExposed }
+      , right { Cabal.libExposed = rightLibExposed }
+      )
+
 
 instance Factorable Cabal.Benchmark
 
+
+
 instance Factorable Cabal.TestSuite
 
-instance Factorable Cabal.Executable
+
+
+instance Factorable Cabal.Executable where
+  factor a b =
+    let
+      ( commonModulePath, leftModulePath, rightModulePath ) =
+        factorEqVia Cabal.modulePath a b
+
+      ( common, left, right ) =
+        case gfactor ( Generic.from a ) ( Generic.from b ) of
+          ( common, left, right ) ->
+            ( Generic.to common, Generic.to left, Generic.to right )
+
+    in
+      ( common { Cabal.modulePath = commonModulePath }
+      , left { Cabal.modulePath = leftModulePath }
+      , right { Cabal.modulePath = rightModulePath }
+      )
+
+
 
 instance Factorable Cabal.ForeignLib
+
+
 
 instance Eq a => Factorable ( Maybe a ) where
   factor left right =
@@ -979,12 +1031,16 @@ instance Eq a => Factorable ( Maybe a ) where
     else
       ( Nothing, left, right )
 
+
+
 instance Factorable Cabal.UnqualComponentName where
   factor left right =
     if left == right then
       ( left, mempty, mempty )
     else
       ( mempty, left, right )
+
+
 
 instance Factorable Cabal.BenchmarkInterface where
   factor left right =
@@ -993,12 +1049,16 @@ instance Factorable Cabal.BenchmarkInterface where
     else
       ( mempty, left, right )
 
+
+
 instance Factorable Cabal.ForeignLibType where
   factor left right =
     if left == right then
       ( left, mempty, mempty )
     else
       ( mempty, left, right )
+
+
 
 instance Factorable Cabal.TestSuiteInterface where
   factor left right =
@@ -1007,6 +1067,8 @@ instance Factorable Cabal.TestSuiteInterface where
     else
       ( mempty, left, right )
 
+
+
 instance Factorable Cabal.ExecutableScope where
   factor left right =
     if left == right then
@@ -1014,12 +1076,16 @@ instance Factorable Cabal.ExecutableScope where
     else
       ( mempty, left, right )
 
+
+
 instance Eq a => Factorable [a] where
   factor a b =
     ( intersect a b
     , a \\ b
     , b \\ a
     )
+
+
 
 instance Factorable Bool where
   factor left right =
@@ -1033,6 +1099,8 @@ instance Factorable Bool where
 class GFactorable f where
   gfactor :: f a -> f a -> ( f a, f a, f a )
 
+
+
 instance GFactorable f => GFactorable ( Generic.M1 i c f ) where
   gfactor ( Generic.M1 a ) ( Generic.M1 b ) =
     let
@@ -1041,6 +1109,8 @@ instance GFactorable f => GFactorable ( Generic.M1 i c f ) where
 
     in
       ( Generic.M1 common, Generic.M1 left, Generic.M1 right )
+
+
 
 instance ( GFactorable f, GFactorable g ) => GFactorable ( f Generic.:*: g ) where
   gfactor ( a Generic.:*: x ) ( b Generic.:*: y ) =
@@ -1053,6 +1123,7 @@ instance ( GFactorable f, GFactorable g ) => GFactorable ( f Generic.:*: g ) whe
 
     in
       ( common0 Generic.:*: common1, left0 Generic.:*: left1, right0 Generic.:*: right1 )
+
 
 
 instance Factorable a => GFactorable ( Generic.K1 i a ) where
