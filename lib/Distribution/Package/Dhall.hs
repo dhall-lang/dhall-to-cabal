@@ -36,6 +36,7 @@ module Distribution.Package.Dhall
 
 import Control.Exception ( Exception, throwIO )
 import Data.Function ( (&) )
+import Data.List ( (\\), intersect )
 import Data.Maybe ( fromMaybe )
 import Data.Monoid ( (<>) )
 import Data.Text.Buildable ( Buildable(..) )
@@ -944,11 +945,142 @@ extension =
 
 
 
+factorBuildInfo
+  :: Cabal.BuildInfo
+  -> Cabal.BuildInfo
+  -> ( Cabal.BuildInfo, Cabal.BuildInfo, Cabal.BuildInfo )
+factorBuildInfo left right =
+  let
+    left' =
+      left
+        { Cabal.otherExtensions =
+            Cabal.otherExtensions left \\ Cabal.otherExtensions right
+        , Cabal.hsSourceDirs =
+            Cabal.hsSourceDirs left \\ Cabal.hsSourceDirs right
+        , Cabal.otherModules =
+            Cabal.otherModules left \\ Cabal.otherModules right
+        , Cabal.options =
+            Cabal.options left \\ Cabal.options right
+        }
+
+    right' =
+      right
+        { Cabal.otherExtensions =
+            Cabal.otherExtensions right \\ Cabal.otherExtensions left
+        , Cabal.hsSourceDirs =
+            Cabal.hsSourceDirs right \\ Cabal.hsSourceDirs left
+        , Cabal.otherModules =
+            Cabal.otherModules right \\ Cabal.otherModules left
+        , Cabal.options =
+            Cabal.options right \\ Cabal.options left
+        }
+
+    common' =
+      mempty
+        { Cabal.otherExtensions =
+            intersect
+              ( Cabal.otherExtensions right )
+              ( Cabal.otherExtensions left )
+        , Cabal.hsSourceDirs =
+            intersect
+              ( Cabal.hsSourceDirs right )
+              ( Cabal.hsSourceDirs left )
+        , Cabal.otherModules =
+            intersect
+              ( Cabal.otherModules right )
+              ( Cabal.otherModules left )
+        , Cabal.options =
+            intersect
+              ( Cabal.options right )
+              ( Cabal.options left )
+        }
+
+  in
+    ( common', left', right' )
+
+
+
+factorLibrary
+  :: Cabal.Library
+  -> Cabal.Library
+  -> ( Cabal.Library, Cabal.Library, Cabal.Library )
+factorLibrary left right =
+  let
+    ( commonBuildInfo, leftBuildInfo, rightBuildInfo ) =
+      factorBuildInfo  ( Cabal.libBuildInfo left ) ( Cabal.libBuildInfo right )
+
+    left' =
+      left
+        { Cabal.exposedModules =
+            Cabal.exposedModules left \\ Cabal.exposedModules right
+        , Cabal.reexportedModules =
+            Cabal.reexportedModules left \\ Cabal.reexportedModules right
+        , Cabal.signatures =
+            Cabal.signatures left \\ Cabal.signatures right
+        , Cabal.libExposed =
+            if Cabal.libExposed right /= Cabal.libExposed left then
+              Cabal.libExposed left
+            else
+              Cabal.libExposed mempty
+        , Cabal.libBuildInfo =
+            leftBuildInfo
+        }
+
+    right' =
+      right
+        { Cabal.exposedModules =
+            Cabal.exposedModules right \\ Cabal.exposedModules left
+        , Cabal.reexportedModules =
+            Cabal.reexportedModules right \\ Cabal.reexportedModules left
+        , Cabal.signatures =
+            Cabal.signatures right \\ Cabal.signatures left
+        , Cabal.libExposed =
+            if Cabal.libExposed right /= Cabal.libExposed left then
+              Cabal.libExposed right
+            else
+              Cabal.libExposed mempty
+        , Cabal.libBuildInfo =
+            rightBuildInfo
+        }
+
+    common =
+      mempty
+        { Cabal.exposedModules =
+            intersect
+              ( Cabal.exposedModules left )
+              ( Cabal.exposedModules right )
+        , Cabal.reexportedModules =
+            intersect
+              ( Cabal.reexportedModules left )
+              ( Cabal.reexportedModules right )
+        , Cabal.signatures =
+            intersect
+              ( Cabal.signatures left )
+              ( Cabal.signatures right )
+        , Cabal.libExposed =
+            if Cabal.libExposed right == Cabal.libExposed left then
+              Cabal.libExposed left
+            else
+              Cabal.libExposed mempty
+        , Cabal.libBuildInfo =
+            commonBuildInfo
+        }
+
+  in ( common, left', right' )
+
+
+
+noFactoring l r =
+  ( mempty, l, r )
+
+
+
 guarded
   :: ( Monoid a, Show a )
-  => Dhall.Type a
+  => ( a -> a -> ( a, a, a ) )
+  -> Dhall.Type a
   -> Dhall.Type ( Cabal.CondTree Cabal.ConfVar [Cabal.Dependency] a )
-guarded t =
+guarded factor t =
   let
     extractGuard body =
       case body of
@@ -1007,24 +1139,39 @@ guarded t =
           error ( "Unexpected guard expression. This is a bug, please report this! I'm stuck on: " ++ show body )
 
     extract expr =
-      configTreeToCondTree (toConfigTree expr)
+      configTreeToCondTree <$> extractConfigTree ( toConfigTree expr )
+
+    extractConfigTree ( Leaf a ) =
+      Leaf <$> Dhall.extract t a
+
+    extractConfigTree ( Branch cond a b ) =
+      Branch <$> extractGuard cond <*> extractConfigTree a <*> extractConfigTree b
 
     configTreeToCondTree = \case
       Leaf a -> do
-        Cabal.CondNode <$> Dhall.extract t a <*> pure mempty <*> pure mempty
+        Cabal.CondNode a mempty mempty
 
-      Branch cond a b ->
-        Cabal.CondNode
-          <$> pure mempty
-          <*> pure mempty
-          <*>
-            pure
-              <$>
-                ( Cabal.CondBranch
-                    <$> extractGuard cond
-                    <*> ( configTreeToCondTree a )
-                    <*> ( Just <$> configTreeToCondTree b )
-                )
+      Branch guard a b ->
+        let
+          true =
+            configTreeToCondTree a
+
+          false =
+            configTreeToCondTree b
+
+          ( common, true', false' ) =
+            factor ( Cabal.condTreeData true ) ( Cabal.condTreeData false )
+
+        in
+          Cabal.CondNode
+            common
+            mempty
+            [ Cabal.CondBranch
+                guard
+                true { Cabal.condTreeData = true' }
+                ( Just false { Cabal.condTreeData = false' } )
+            ]
+
 
     expected =
         Expr.Pi "_" configRecordType ( Dhall.expected t )
@@ -1059,12 +1206,12 @@ configRecordType =
 genericPackageDescription :: Dhall.Type Cabal.GenericPackageDescription
 genericPackageDescription =
   let
-    namedList k t =
+    namedList k factor t =
       Dhall.list
         ( makeRecord
             ( (,)
                 <$> keyValue "name" unqualComponentName
-                <*> keyValue k ( guarded t )
+                <*> keyValue k ( guarded factor t )
             )
         )
 
@@ -1077,22 +1224,22 @@ genericPackageDescription =
         keyValue "flags" ( Dhall.list flag )
 
       condLibrary <-
-        keyValue "library" ( Dhall.maybe ( guarded library ) )
+        keyValue "library" ( Dhall.maybe ( guarded factorLibrary library ) )
 
       condSubLibraries <-
-        keyValue "sub-libraries" ( namedList "library" library )
+        keyValue "sub-libraries" ( namedList "library" noFactoring library )
 
       condForeignLibs <-
-        keyValue "foreign-libraries" ( namedList "foreign-lib" foreignLib )
+        keyValue "foreign-libraries" ( namedList "foreign-lib" noFactoring foreignLib )
 
       condExecutables <-
-        keyValue "executables" ( namedList "executable" executable )
+        keyValue "executables" ( namedList "executable" noFactoring executable )
 
       condTestSuites <-
-        keyValue "test-suites" ( namedList "test-suite" testSuite )
+        keyValue "test-suites" ( namedList "test-suite" noFactoring testSuite )
 
       condBenchmarks <-
-        keyValue "benchmarks" ( namedList "benchmark" benchmark )
+        keyValue "benchmarks" ( namedList "benchmark" noFactoring benchmark )
 
       return Cabal.GenericPackageDescription { .. }
 
