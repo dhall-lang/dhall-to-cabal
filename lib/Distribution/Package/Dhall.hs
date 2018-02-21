@@ -1,4 +1,7 @@
+{-# language TypeOperators #-}
 {-# language ApplicativeDo #-}
+{-# language FlexibleContexts #-}
+{-# language DefaultSignatures #-}
 {-# language FlexibleInstances #-}
 {-# language GADTs #-}
 {-# language GeneralizedNewtypeDeriving #-}
@@ -44,11 +47,11 @@ import Text.Trifecta.Delta ( Delta(..) )
 
 import qualified Data.ByteString.Lazy as LazyByteString
 import qualified Data.HashMap.Strict.InsOrd as Map
+import qualified Data.Text as StrictText
+import qualified Data.Text.Encoding as StrictText
 import qualified Data.Text.Lazy as LazyText
 import qualified Data.Text.Lazy.Builder as Builder
 import qualified Data.Text.Lazy.Encoding as LazyText
-import qualified Data.Text as StrictText
-import qualified Data.Text.Encoding as StrictText
 import qualified Data.Vector as Vector
 import qualified Dhall
 import qualified Dhall.Core
@@ -77,6 +80,7 @@ import qualified Distribution.Types.PkgconfigDependency as Cabal
 import qualified Distribution.Types.PkgconfigName as Cabal
 import qualified Distribution.Types.UnqualComponentName as Cabal
 import qualified Distribution.Version as Cabal
+import qualified GHC.Generics as Generic
 import qualified Language.Haskell.Extension as Cabal
 
 import qualified Dhall.Core as Expr
@@ -945,142 +949,128 @@ extension =
 
 
 
-factorBuildInfo
-  :: Cabal.BuildInfo
-  -> Cabal.BuildInfo
-  -> ( Cabal.BuildInfo, Cabal.BuildInfo, Cabal.BuildInfo )
-factorBuildInfo left right =
-  let
-    left' =
-      left
-        { Cabal.otherExtensions =
-            Cabal.otherExtensions left \\ Cabal.otherExtensions right
-        , Cabal.hsSourceDirs =
-            Cabal.hsSourceDirs left \\ Cabal.hsSourceDirs right
-        , Cabal.otherModules =
-            Cabal.otherModules left \\ Cabal.otherModules right
-        , Cabal.options =
-            Cabal.options left \\ Cabal.options right
-        }
+class Factorable a where
+  factor :: a -> a -> ( a, a, a )
+  default factor :: ( Generic.Generic a, GFactorable ( Generic.Rep a ) ) => a -> a -> ( a, a, a )
+  factor a b =
+    let
+      ( common, left, right ) =
+        gfactor ( Generic.from a ) ( Generic.from b )
 
-    right' =
-      right
-        { Cabal.otherExtensions =
-            Cabal.otherExtensions right \\ Cabal.otherExtensions left
-        , Cabal.hsSourceDirs =
-            Cabal.hsSourceDirs right \\ Cabal.hsSourceDirs left
-        , Cabal.otherModules =
-            Cabal.otherModules right \\ Cabal.otherModules left
-        , Cabal.options =
-            Cabal.options right \\ Cabal.options left
-        }
+    in
+      ( Generic.to common, Generic.to left, Generic.to right )
 
-    common' =
-      mempty
-        { Cabal.otherExtensions =
-            intersect
-              ( Cabal.otherExtensions right )
-              ( Cabal.otherExtensions left )
-        , Cabal.hsSourceDirs =
-            intersect
-              ( Cabal.hsSourceDirs right )
-              ( Cabal.hsSourceDirs left )
-        , Cabal.otherModules =
-            intersect
-              ( Cabal.otherModules right )
-              ( Cabal.otherModules left )
-        , Cabal.options =
-            intersect
-              ( Cabal.options right )
-              ( Cabal.options left )
-        }
+instance Factorable Cabal.BuildInfo
 
-  in
-    ( common', left', right' )
+instance Factorable Cabal.Library
 
+instance Factorable Cabal.Benchmark
 
+instance Factorable Cabal.TestSuite
 
-factorLibrary
-  :: Cabal.Library
-  -> Cabal.Library
-  -> ( Cabal.Library, Cabal.Library, Cabal.Library )
-factorLibrary left right =
-  let
-    ( commonBuildInfo, leftBuildInfo, rightBuildInfo ) =
-      factorBuildInfo  ( Cabal.libBuildInfo left ) ( Cabal.libBuildInfo right )
+instance Factorable Cabal.Executable
 
-    left' =
-      left
-        { Cabal.exposedModules =
-            Cabal.exposedModules left \\ Cabal.exposedModules right
-        , Cabal.reexportedModules =
-            Cabal.reexportedModules left \\ Cabal.reexportedModules right
-        , Cabal.signatures =
-            Cabal.signatures left \\ Cabal.signatures right
-        , Cabal.libExposed =
-            if Cabal.libExposed right /= Cabal.libExposed left then
-              Cabal.libExposed left
-            else
-              Cabal.libExposed mempty
-        , Cabal.libBuildInfo =
-            leftBuildInfo
-        }
+instance Factorable Cabal.ForeignLib
 
-    right' =
-      right
-        { Cabal.exposedModules =
-            Cabal.exposedModules right \\ Cabal.exposedModules left
-        , Cabal.reexportedModules =
-            Cabal.reexportedModules right \\ Cabal.reexportedModules left
-        , Cabal.signatures =
-            Cabal.signatures right \\ Cabal.signatures left
-        , Cabal.libExposed =
-            if Cabal.libExposed right /= Cabal.libExposed left then
-              Cabal.libExposed right
-            else
-              Cabal.libExposed mempty
-        , Cabal.libBuildInfo =
-            rightBuildInfo
-        }
+instance Eq a => Factorable ( Maybe a ) where
+  factor left right =
+    if left == right then
+      ( left, Nothing, Nothing )
+    else
+      ( Nothing, left, right )
 
-    common =
-      mempty
-        { Cabal.exposedModules =
-            intersect
-              ( Cabal.exposedModules left )
-              ( Cabal.exposedModules right )
-        , Cabal.reexportedModules =
-            intersect
-              ( Cabal.reexportedModules left )
-              ( Cabal.reexportedModules right )
-        , Cabal.signatures =
-            intersect
-              ( Cabal.signatures left )
-              ( Cabal.signatures right )
-        , Cabal.libExposed =
-            if Cabal.libExposed right == Cabal.libExposed left then
-              Cabal.libExposed left
-            else
-              Cabal.libExposed mempty
-        , Cabal.libBuildInfo =
-            commonBuildInfo
-        }
+instance Factorable Cabal.UnqualComponentName where
+  factor left right =
+    if left == right then
+      ( left, mempty, mempty )
+    else
+      ( mempty, left, right )
 
-  in ( common, left', right' )
+instance Factorable Cabal.BenchmarkInterface where
+  factor left right =
+    if left == right then
+      ( left, mempty, mempty )
+    else
+      ( mempty, left, right )
+
+instance Factorable Cabal.ForeignLibType where
+  factor left right =
+    if left == right then
+      ( left, mempty, mempty )
+    else
+      ( mempty, left, right )
+
+instance Factorable Cabal.TestSuiteInterface where
+  factor left right =
+    if left == right then
+      ( left, mempty, mempty )
+    else
+      ( mempty, left, right )
+
+instance Factorable Cabal.ExecutableScope where
+  factor left right =
+    if left == right then
+      ( left, mempty, mempty )
+    else
+      ( mempty, left, right )
+
+instance Eq a => Factorable [a] where
+  factor a b =
+    ( intersect a b
+    , a \\ b
+    , b \\ a
+    )
+
+instance Factorable Bool where
+  factor left right =
+    if left == right then
+      ( left, True, True )
+    else
+      ( True, left, right )
 
 
 
-noFactoring l r =
-  ( mempty, l, r )
+class GFactorable f where
+  gfactor :: f a -> f a -> ( f a, f a, f a )
+
+instance GFactorable f => GFactorable ( Generic.M1 i c f ) where
+  gfactor ( Generic.M1 a ) ( Generic.M1 b ) =
+    let
+      ( common, left, right ) =
+        gfactor a b
+
+    in
+      ( Generic.M1 common, Generic.M1 left, Generic.M1 right )
+
+instance ( GFactorable f, GFactorable g ) => GFactorable ( f Generic.:*: g ) where
+  gfactor ( a Generic.:*: x ) ( b Generic.:*: y ) =
+    let
+      ( common0, left0, right0 ) =
+        gfactor a b
+
+      ( common1, left1, right1 ) =
+        gfactor x y
+
+    in
+      ( common0 Generic.:*: common1, left0 Generic.:*: left1, right0 Generic.:*: right1 )
+
+
+instance Factorable a => GFactorable ( Generic.K1 i a ) where
+  gfactor ( Generic.K1 a ) ( Generic.K1 b ) =
+    let
+      ( common, left, right ) =
+        factor a b
+
+    in
+      ( Generic.K1 common, Generic.K1 left, Generic.K1 right )
 
 
 
 guarded
-  :: ( Monoid a, Show a )
-  => ( a -> a -> ( a, a, a ) )
-  -> Dhall.Type a
+  :: ( Monoid a, Show a, Factorable a )
+  => Dhall.Type a
   -> Dhall.Type ( Cabal.CondTree Cabal.ConfVar [Cabal.Dependency] a )
-guarded factor t =
+guarded t =
   let
     extractGuard body =
       case body of
@@ -1206,12 +1196,12 @@ configRecordType =
 genericPackageDescription :: Dhall.Type Cabal.GenericPackageDescription
 genericPackageDescription =
   let
-    namedList k factor t =
+    namedList k t =
       Dhall.list
         ( makeRecord
             ( (,)
                 <$> keyValue "name" unqualComponentName
-                <*> keyValue k ( guarded factor t )
+                <*> keyValue k ( guarded t )
             )
         )
 
@@ -1224,22 +1214,22 @@ genericPackageDescription =
         keyValue "flags" ( Dhall.list flag )
 
       condLibrary <-
-        keyValue "library" ( Dhall.maybe ( guarded factorLibrary library ) )
+        keyValue "library" ( Dhall.maybe ( guarded library ) )
 
       condSubLibraries <-
-        keyValue "sub-libraries" ( namedList "library" noFactoring library )
+        keyValue "sub-libraries" ( namedList "library" library )
 
       condForeignLibs <-
-        keyValue "foreign-libraries" ( namedList "foreign-lib" noFactoring foreignLib )
+        keyValue "foreign-libraries" ( namedList "foreign-lib" foreignLib )
 
       condExecutables <-
-        keyValue "executables" ( namedList "executable" noFactoring executable )
+        keyValue "executables" ( namedList "executable" executable )
 
       condTestSuites <-
-        keyValue "test-suites" ( namedList "test-suite" noFactoring testSuite )
+        keyValue "test-suites" ( namedList "test-suite" testSuite )
 
       condBenchmarks <-
-        keyValue "benchmarks" ( namedList "benchmark" noFactoring benchmark )
+        keyValue "benchmarks" ( namedList "benchmark" benchmark )
 
       return Cabal.GenericPackageDescription { .. }
 
