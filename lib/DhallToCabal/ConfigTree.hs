@@ -6,8 +6,12 @@ module DhallToCabal.ConfigTree ( ConfigTree(..), toConfigTree ) where
 
 import Control.Applicative
 import Control.Lens (deepOf)
+import Data.Maybe ( isNothing )
+import Control.Monad ( when )
+import Control.Monad.Trans.Class ( lift )
+import Control.Monad.Trans.State.Strict
 import Data.Functor.Identity
-import Data.Monoid
+import Data.Functor.Product ( Product(Pair) )
 import Dhall.Core hiding (Const)
 
 
@@ -19,47 +23,60 @@ data ConfigTree cond a
 
 
 
-toConfigTree :: ( Eq a, Eq s ) => Expr s a -> ConfigTree ( Expr s a ) ( Expr s a )
+-- | Given a Dhall expression that is of the form @λ( config : Config ) -> a@,
+-- find all saturated uses of @config@, and substitute in either @True@ or
+-- @False@.
+
+toConfigTree
+  :: ( Eq a, Eq s )
+  => Expr s a
+  -> ConfigTree ( Expr s a ) ( Expr s a )
 toConfigTree e =
   let
     v =
       "config"
 
     saturated =
-      normalize (App e (Var v))
+      normalize ( App e ( Var v ) )
 
     loop e =
       let
-        Const condition =
-          deepOf
-            subExpr
-            ( findConfigUse v )
-            ( Const . First . Just ) e
+        Pair ( Identity ( a, useA ) ) ( Identity ( b, useB ) ) =
+          runStateT ( rewriteConfigUse e v ) Nothing
 
       in
-        case condition of
-          First Nothing ->
+        case useA <|> useB of
+          Nothing ->
             Leaf e
 
-          First (Just cond) ->
-            let
-              replaceWith x =
-                loop
-                  . normalize
-                  . runIdentity
-                  . deepOf
-                      subExpr
-                      ( exactly cond )
-                      ( const ( pure x ) )
-
-            in
-              Branch
-                cond
-                ( replaceWith ( BoolLit True ) e )
-                ( replaceWith ( BoolLit False ) e )
+          Just cond ->
+            Branch cond ( loop ( normalize a ) ) ( loop ( normalize b ) )
 
   in loop saturated
 
+
+rewriteConfigUse e v =
+  deepOf
+   subExpr
+   ( findConfigUse v )
+   ( \configUse -> do
+       lastSeen <-
+         get
+
+       when ( isNothing lastSeen ) ( put ( Just configUse ) )
+
+       case lastSeen of
+         Just last | configUse /= last ->
+           pure configUse
+
+         _ ->
+           lift
+             ( Pair
+                 ( pure ( BoolLit True ) )
+                 ( pure ( BoolLit False ) )
+             )
+   )
+   e
 
 
 findConfigUse
@@ -70,12 +87,6 @@ findConfigUse x f e@(App (Field (Var x') "arch") _) | x == x' = f e
 findConfigUse x f e@(App (App (Field (Var x') "impl") _) _) | x == x' = f e
 findConfigUse x f e@(App (Field (Var x') "flag") _) | x == x' = f e
 findConfigUse _ _ e = pure e
-
-
-
-exactly :: ( Applicative f, Eq a ) => a -> ( a -> f a ) -> a -> f a
-exactly x f e | x == e = f e
-exactly _ _ e = pure e
 
 
 
