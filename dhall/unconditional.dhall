@@ -1,8 +1,6 @@
     let unconditional
         : ∀(A : Type) → A → ./types/Guarded.dhall  A
-        =   λ(A : Type)
-          → λ(a : A)
-          → [ { guard = λ(_ : ./types/Config.dhall ) → True, body = a } ]
+        = λ(A : Type) → λ(a : A) → λ(_ : ./types/Config.dhall ) → a
 
 in  let executable
         :   ∀(name : Text)

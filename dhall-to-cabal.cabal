@@ -3,6 +3,7 @@ version: 0.1.0
 cabal-version: 2.0
 build-type: Simple
 license: MIT
+license-file: LICENSE
 homepage: https://github.com/ocharles/dhall-to-cabal
 bug-reports: https://github.com/ocharles/dhall-to-cabal/issues
 
@@ -29,6 +30,8 @@ library
                       LambdaCase OverloadedStrings RecordWildCards TypeApplications
     hs-source-dirs: lib
     other-modules:
+        DhallToCabal.ConfigTree
+        DhallToCabal.Diff
         Dhall.Extra
     ghc-options: -Wall -fno-warn-name-shadowing
 
