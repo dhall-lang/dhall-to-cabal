@@ -999,7 +999,7 @@ guarded t =
       configTreeToCondTree <$> extractConfigTree ( toConfigTree expr )
 
     extractConfigTree ( Leaf a ) =
-      Leaf <$> Dhall.extract t a
+      Leaf <$> ( maybe ( error ( show a )) Just $ Dhall.extract t a)
 
     extractConfigTree ( Branch cond a b ) =
       Branch <$> extractGuard cond <*> extractConfigTree a <*> extractConfigTree b

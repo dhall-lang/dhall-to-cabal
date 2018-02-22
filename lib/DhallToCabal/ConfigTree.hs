@@ -4,7 +4,6 @@
 
 module DhallToCabal.ConfigTree ( ConfigTree(..), toConfigTree ) where
 
-import Control.Lens ( deepOf )
 import Control.Monad
 import Dhall.Core hiding ( Const )
 
@@ -46,7 +45,7 @@ toConfigTree e =
       normalize ( App e ( Var v ) )
 
     loop e =
-      case normalize <$> rewriteConfigUse e v of
+      case normalize <$> rewriteConfigUse v e of
         Leaf a ->
           Leaf a
 
@@ -60,31 +59,37 @@ toConfigTree e =
 -- | Find all config-like uses of a given variable, and expand them into all
 -- possible results of evaluation.
 
-rewriteConfigUse :: Expr s a -> Var -> ConfigTree (Expr s a) (Expr s a)
-rewriteConfigUse e v =
-  deepOf
+rewriteConfigUse :: Var -> Expr s a -> ConfigTree (Expr s a) (Expr s a)
+rewriteConfigUse v =
+ transformMOf
    subExpr
-   ( findConfigUse v )
-   ( \configUse ->
-       Branch
-         configUse
-         ( pure ( BoolLit True ) )
-         ( pure ( BoolLit False ) )
+   ( \expr ->
+       if isConfigUse expr then
+         Branch
+           expr
+             ( pure ( BoolLit True ) )
+             ( pure ( BoolLit False ) )
+       else
+         pure expr
    )
-   e
+
+  where
+    
+    isConfigUse (App (Field (Var x') "os") _)           | v == x' = True
+    isConfigUse (App (Field (Var x') "arch") _)         | v == x' = True
+    isConfigUse (App (App (Field (Var x') "impl") _) _) | v == x' = True
+    isConfigUse (App (Field (Var x') "flag") _)         | v == x' = True
+    isConfigUse _ = False
 
 
-
--- | Traverse all config-like uses of a given variable.
-
-findConfigUse
-  :: Applicative f
-  => Var -> ( Expr s a -> f ( Expr s a ) ) -> Expr s a -> f ( Expr s a )
-findConfigUse x f e@(App (Field (Var x') "os") _) | x == x' = f e
-findConfigUse x f e@(App (Field (Var x') "arch") _) | x == x' = f e
-findConfigUse x f e@(App (App (Field (Var x') "impl") _) _) | x == x' = f e
-findConfigUse x f e@(App (Field (Var x') "flag") _) | x == x' = f e
-findConfigUse _ _ e = pure e
+-- | Transform every element in a tree using a user supplied 'Traversal' in a
+-- bottom-up manner with a monadic effect.
+transformMOf
+  :: Monad m =>
+  ( ( t -> m b ) -> t -> m a ) -> ( a -> m b ) -> t -> m b
+transformMOf l f = go where
+  go t = l go t >>= f
+{-# INLINE transformMOf #-}
 
 
 
