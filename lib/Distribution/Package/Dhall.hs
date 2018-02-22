@@ -939,55 +939,23 @@ guarded
   -> Dhall.Type ( Cabal.CondTree Cabal.ConfVar [Cabal.Dependency] a )
 guarded t =
   let
-    extractGuard body =
+    extractConfVar body =
       case body of
-        Expr.BoolLit b ->
-          return ( Cabal.Lit b )
-
-        Expr.BoolAnd a b ->
-          Cabal.CAnd <$> extractGuard a <*> extractGuard b
-
-        Expr.BoolOr a b ->
-          Cabal.COr <$> extractGuard a <*> extractGuard b
-
-        Expr.BoolEQ a b ->
-          Cabal.COr
-            <$> ( Cabal.CAnd <$> extractGuard a <*> extractGuard b )
-            <*> ( Cabal.CAnd
-                    <$> ( Cabal.CNot <$> extractGuard a )
-                    <*> ( Cabal.CNot <$> extractGuard b )
-                )
-
-        -- a != b ==> (a && !y) || (!a && y), but I think the following is
-        -- cleaner.
-        Expr.BoolNE a b ->
-          Cabal.CNot <$> extractGuard ( Expr.BoolEQ a b )
-
-        Expr.BoolIf p a b ->
-          Cabal.COr
-            <$> ( Cabal.CAnd <$> extractGuard p <*> extractGuard a )
-            <*> ( Cabal.CAnd
-                    <$> ( Cabal.CNot <$> extractGuard p )
-                    <*> extractGuard b
-                )
-
         Expr.App ( Expr.App ( Expr.Field ( V0 "config" ) "impl" ) compiler ) version ->
-          Cabal.Var
-            <$> ( Cabal.Impl
-                    <$> Dhall.extract compilerFlavor compiler
-                    <*> Dhall.extract versionRange version
-                )
+          Cabal.Impl
+            <$> Dhall.extract compilerFlavor compiler
+            <*> Dhall.extract versionRange version
 
         Expr.App ( Expr.Field ( V0 "config" ) field ) x ->
           case field of
             "os" ->
-              Cabal.Var . Cabal.OS <$> Dhall.extract operatingSystem x
+              Cabal.OS <$> Dhall.extract operatingSystem x
 
             "arch" ->
-              Cabal.Var . Cabal.Arch <$> Dhall.extract arch x
+              Cabal.Arch <$> Dhall.extract arch x
 
             "flag" ->
-              Cabal.Var . Cabal.Flag <$> Dhall.extract flagName x
+              Cabal.Flag <$> Dhall.extract flagName x
 
             _ ->
               error "Unknown field"
@@ -996,25 +964,33 @@ guarded t =
           error ( "Unexpected guard expression. This is a bug, please report this! I'm stuck on: " ++ show body )
 
     extract expr =
-      configTreeToCondTree <$> extractConfigTree ( toConfigTree expr )
+      configTreeToCondTree [] <$> extractConfigTree ( toConfigTree expr )
 
     extractConfigTree ( Leaf a ) =
       Leaf <$> Dhall.extract t a
 
     extractConfigTree ( Branch cond a b ) =
-      Branch <$> extractGuard cond <*> extractConfigTree a <*> extractConfigTree b
+      Branch <$> extractConfVar cond <*> extractConfigTree a <*> extractConfigTree b
 
-    configTreeToCondTree = \case
-      Leaf a -> do
+    configTreeToCondTree confVars = \case
+      Leaf a ->
         Cabal.CondNode a mempty mempty
 
-      Branch guard a b ->
+      -- The condition has already been shown to hold. Consider only the true
+      -- branch and discard the false branch.
+      Branch confVar a _impossible | confVar `elem` confVars ->
+        configTreeToCondTree confVars a
+
+      Branch confVar a b ->
         let
+          confVars' =
+            pure confVar <> confVars
+
           true =
-            configTreeToCondTree a
+            configTreeToCondTree confVars' a
 
           false =
-            configTreeToCondTree b
+            configTreeToCondTree confVars' b
 
           ( common, true', false' ) =
             diff ( Cabal.condTreeData true ) ( Cabal.condTreeData false )
@@ -1030,7 +1006,7 @@ guarded t =
             mempty
             ( mergeCommonGuards
                 ( Cabal.CondBranch
-                    guard
+                    ( Cabal.Var confVar )
                     true
                       { Cabal.condTreeData = true'
                       , Cabal.condTreeComponents = true''
