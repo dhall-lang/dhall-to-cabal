@@ -15,6 +15,7 @@ library
         Distribution.Package.Dhall
     other-modules:
         DhallToCabal.ConfigTree
+        DhallToCabal.Diff
     build-depends:
         Cabal ^>=2.0,
         base ^>=4.10,

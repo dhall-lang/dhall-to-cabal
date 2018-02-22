@@ -1,7 +1,4 @@
-{-# language TypeOperators #-}
 {-# language ApplicativeDo #-}
-{-# language FlexibleContexts #-}
-{-# language DefaultSignatures #-}
 {-# language FlexibleInstances #-}
 {-# language GADTs #-}
 {-# language GeneralizedNewtypeDeriving #-}
@@ -39,7 +36,6 @@ module Distribution.Package.Dhall
 
 import Control.Exception ( Exception, throwIO )
 import Data.Function ( (&) )
-import Data.List ( (\\), intersect )
 import Data.Maybe ( fromMaybe )
 import Data.Monoid ( (<>) )
 import Data.Text.Buildable ( Buildable(..) )
@@ -79,7 +75,6 @@ import qualified Distribution.Types.PkgconfigDependency as Cabal
 import qualified Distribution.Types.PkgconfigName as Cabal
 import qualified Distribution.Types.UnqualComponentName as Cabal
 import qualified Distribution.Version as Cabal
-import qualified GHC.Generics as Generic
 import qualified Language.Haskell.Extension as Cabal
 
 import qualified Dhall.Core as Expr
@@ -87,6 +82,7 @@ import qualified Dhall.Core as Expr
 
 import Dhall.Extra
 import DhallToCabal.ConfigTree ( ConfigTree(..), toConfigTree )
+import DhallToCabal.Diff ( Diffable(..)  )
 
 
 
@@ -935,210 +931,8 @@ extension =
 
 
 
-class Factorable a where
-  factor :: a -> a -> ( a, a, a )
-  default factor :: ( Generic.Generic a, GFactorable ( Generic.Rep a ) ) => a -> a -> ( a, a, a )
-  factor a b =
-    let
-      ( common, left, right ) =
-        gfactor ( Generic.from a ) ( Generic.from b )
-
-    in
-      ( Generic.to common, Generic.to left, Generic.to right )
-
-
-factorEqVia :: ( Monoid a, Eq b ) => ( a -> b ) -> a -> a -> ( b, b, b )
-factorEqVia f left right =
-  if f left == f right then
-    ( f left, f mempty, f mempty )
-  else
-    ( f mempty, f left, f right )
-
-
-
-instance Factorable Cabal.BuildInfo where
-  factor a b =
-    let
-      ( commonBuildable, leftBuildable, rightBuildable ) =
-        factorEqVia Cabal.buildable a b
-
-      ( common, left, right ) =
-        case gfactor ( Generic.from a ) ( Generic.from b ) of
-          ( common, left, right ) ->
-            ( Generic.to common, Generic.to left, Generic.to right )
-
-    in
-      ( common { Cabal.buildable = commonBuildable }
-      , left { Cabal.buildable = leftBuildable }
-      , right { Cabal.buildable = rightBuildable }
-      )
-
-
-
-instance Factorable Cabal.Library where
-  factor a b =
-    let
-      ( commonLibExposed, leftLibExposed, rightLibExposed ) =
-        factorEqVia Cabal.libExposed a b
-
-      ( common, left, right ) =
-        case gfactor ( Generic.from a ) ( Generic.from b ) of
-          ( common, left, right ) ->
-            ( Generic.to common, Generic.to left, Generic.to right )
-
-    in
-      ( common { Cabal.libExposed = commonLibExposed }
-      , left { Cabal.libExposed = leftLibExposed }
-      , right { Cabal.libExposed = rightLibExposed }
-      )
-
-
-instance Factorable Cabal.Benchmark
-
-
-
-instance Factorable Cabal.TestSuite
-
-
-
-instance Factorable Cabal.Executable where
-  factor a b =
-    let
-      ( commonModulePath, leftModulePath, rightModulePath ) =
-        factorEqVia Cabal.modulePath a b
-
-      ( common, left, right ) =
-        case gfactor ( Generic.from a ) ( Generic.from b ) of
-          ( common, left, right ) ->
-            ( Generic.to common, Generic.to left, Generic.to right )
-
-    in
-      ( common { Cabal.modulePath = commonModulePath }
-      , left { Cabal.modulePath = leftModulePath }
-      , right { Cabal.modulePath = rightModulePath }
-      )
-
-
-
-instance Factorable Cabal.ForeignLib
-
-
-
-instance Eq a => Factorable ( Maybe a ) where
-  factor left right =
-    if left == right then
-      ( left, Nothing, Nothing )
-    else
-      ( Nothing, left, right )
-
-
-
-instance Factorable Cabal.UnqualComponentName where
-  factor left right =
-    if left == right then
-      ( left, mempty, mempty )
-    else
-      ( mempty, left, right )
-
-
-
-instance Factorable Cabal.BenchmarkInterface where
-  factor left right =
-    if left == right then
-      ( left, mempty, mempty )
-    else
-      ( mempty, left, right )
-
-
-
-instance Factorable Cabal.ForeignLibType where
-  factor left right =
-    if left == right then
-      ( left, mempty, mempty )
-    else
-      ( mempty, left, right )
-
-
-
-instance Factorable Cabal.TestSuiteInterface where
-  factor left right =
-    if left == right then
-      ( left, mempty, mempty )
-    else
-      ( mempty, left, right )
-
-
-
-instance Factorable Cabal.ExecutableScope where
-  factor left right =
-    if left == right then
-      ( left, mempty, mempty )
-    else
-      ( mempty, left, right )
-
-
-
-instance Eq a => Factorable [a] where
-  factor a b =
-    ( intersect a b
-    , a \\ b
-    , b \\ a
-    )
-
-
-
-instance Factorable Bool where
-  factor left right =
-    if left == right then
-      ( left, True, True )
-    else
-      ( True, left, right )
-
-
-
-class GFactorable f where
-  gfactor :: f a -> f a -> ( f a, f a, f a )
-
-
-
-instance GFactorable f => GFactorable ( Generic.M1 i c f ) where
-  gfactor ( Generic.M1 a ) ( Generic.M1 b ) =
-    let
-      ( common, left, right ) =
-        gfactor a b
-
-    in
-      ( Generic.M1 common, Generic.M1 left, Generic.M1 right )
-
-
-
-instance ( GFactorable f, GFactorable g ) => GFactorable ( f Generic.:*: g ) where
-  gfactor ( a Generic.:*: x ) ( b Generic.:*: y ) =
-    let
-      ( common0, left0, right0 ) =
-        gfactor a b
-
-      ( common1, left1, right1 ) =
-        gfactor x y
-
-    in
-      ( common0 Generic.:*: common1, left0 Generic.:*: left1, right0 Generic.:*: right1 )
-
-
-
-instance Factorable a => GFactorable ( Generic.K1 i a ) where
-  gfactor ( Generic.K1 a ) ( Generic.K1 b ) =
-    let
-      ( common, left, right ) =
-        factor a b
-
-    in
-      ( Generic.K1 common, Generic.K1 left, Generic.K1 right )
-
-
-
 guarded
-  :: ( Monoid a, Eq a, Show a, Factorable a )
+  :: ( Monoid a, Eq a, Show a, Diffable a )
   => Dhall.Type a
   -> Dhall.Type ( Cabal.CondTree Cabal.ConfVar [Cabal.Dependency] a )
 guarded t =
@@ -1221,10 +1015,10 @@ guarded t =
             configTreeToCondTree b
 
           ( common, true', false' ) =
-            factor ( Cabal.condTreeData true ) ( Cabal.condTreeData false )
+            diff ( Cabal.condTreeData true ) ( Cabal.condTreeData false )
 
           ( duplicates, true'', false'' ) =
-            factor ( Cabal.condTreeComponents false ) ( Cabal.condTreeComponents true )
+            diff ( Cabal.condTreeComponents false ) ( Cabal.condTreeComponents true )
 
         in
           Cabal.CondNode
