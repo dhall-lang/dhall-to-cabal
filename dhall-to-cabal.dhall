@@ -93,7 +93,10 @@ in    stdlib.GitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                   , stdlib.`constructors`.Extensions.TypeApplications True
                   ]
               , other-modules =
-                  [ "Dhall.Extra" ]
+                  [ "DhallToCabal.ConfigTree"
+                  , "DhallToCabal.Diff"
+                  , "Dhall.Extra"
+                  ]
               }
           )
       , executables =
