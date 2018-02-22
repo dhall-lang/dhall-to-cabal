@@ -934,7 +934,7 @@ extension =
 
 
 guarded
-  :: ( Monoid a, Eq a, Show a, Diffable a )
+  :: ( Monoid a, Eq a, Diffable a )
   => Dhall.Type a
   -> Dhall.Type ( Cabal.CondTree Cabal.ConfVar [Cabal.Dependency] a )
 guarded t =
