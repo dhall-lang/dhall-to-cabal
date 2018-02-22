@@ -1,4 +1,5 @@
 {-# language ApplicativeDo #-}
+{-# language FlexibleContexts #-}
 {-# language FlexibleInstances #-}
 {-# language GADTs #-}
 {-# language GeneralizedNewtypeDeriving #-}
@@ -36,6 +37,7 @@ module Distribution.Package.Dhall
 
 import Control.Exception ( Exception, throwIO )
 import Data.Function ( (&) )
+import Data.List ( partition )
 import Data.Maybe ( fromMaybe )
 import Data.Monoid ( (<>) )
 import Data.Text.Buildable ( Buildable(..) )
@@ -1018,31 +1020,98 @@ guarded t =
             diff ( Cabal.condTreeData true ) ( Cabal.condTreeData false )
 
           ( duplicates, true'', false'' ) =
-            diff ( Cabal.condTreeComponents false ) ( Cabal.condTreeComponents true )
+            diff
+              ( Cabal.condTreeComponents false )
+              ( Cabal.condTreeComponents true )
 
         in
           Cabal.CondNode
             common
             mempty
-            ( Cabal.CondBranch
-                guard
-                true
-                  { Cabal.condTreeData = true'
-                  , Cabal.condTreeComponents = true''
-                  }
-                ( Just
-                    false
-                      { Cabal.condTreeData = false'
-                      , Cabal.condTreeComponents = false''
+            ( mergeCommonGuards
+                ( Cabal.CondBranch
+                    guard
+                    true
+                      { Cabal.condTreeData = true'
+                      , Cabal.condTreeComponents = true''
                       }
+                    ( Just
+                        false
+                          { Cabal.condTreeData = false'
+                          , Cabal.condTreeComponents = false''
+                          }
+                    )
+                : duplicates
                 )
-            : duplicates
             )
 
     expected =
         Expr.Pi "_" configRecordType ( Dhall.expected t )
 
   in Dhall.Type { .. }
+
+
+
+catCondTree
+  :: ( Monoid c, Monoid a )
+  => Cabal.CondTree v c a -> Cabal.CondTree v c a -> Cabal.CondTree v c a
+catCondTree a b =
+  Cabal.CondNode
+    { Cabal.condTreeData =
+        Cabal.condTreeData a <> Cabal.condTreeData b
+    , Cabal.condTreeConstraints =
+        Cabal.condTreeConstraints a <> Cabal.condTreeConstraints b
+    , Cabal.condTreeComponents =
+        Cabal.condTreeComponents a <> Cabal.condTreeComponents b
+    }
+
+
+
+emptyCondTree :: ( Monoid b, Monoid c ) => Cabal.CondTree a b c
+emptyCondTree =
+  Cabal.CondNode mempty mempty mempty
+
+
+
+mergeCommonGuards
+  :: ( Monoid a, Monoid c, Eq v )
+  => [Cabal.CondBranch v c a]
+  -> [Cabal.CondBranch v c a]
+mergeCommonGuards [] =
+  []
+
+mergeCommonGuards ( a : as ) =
+  let
+    ( sameGuard, differentGuard ) =
+      partition
+        ( ( Cabal.condBranchCondition a == ) . Cabal.condBranchCondition )
+        as
+
+  in
+    a
+      { Cabal.condBranchIfTrue =
+          catCondTree
+            ( Cabal.condBranchIfTrue a )
+            ( foldl
+                catCondTree
+                emptyCondTree
+                ( Cabal.condBranchIfTrue <$> sameGuard )
+            )
+      , Cabal.condBranchIfFalse =
+          Just
+            ( catCondTree
+              ( fromMaybe emptyCondTree ( Cabal.condBranchIfFalse a ) )
+              ( foldl
+                  catCondTree
+                  emptyCondTree
+                  ( fromMaybe emptyCondTree
+                      . Cabal.condBranchIfFalse
+                      <$> sameGuard
+                  )
+              )
+            )
+      }
+      : mergeCommonGuards differentGuard
 
 
 

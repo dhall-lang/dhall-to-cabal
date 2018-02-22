@@ -4,28 +4,34 @@
 
 module DhallToCabal.ConfigTree ( ConfigTree(..), toConfigTree ) where
 
-import Control.Applicative
-import Control.Lens (deepOf)
-import Data.Maybe ( isNothing )
-import Control.Monad ( when )
-import Control.Monad.Trans.Class ( lift )
-import Control.Monad.Trans.State.Strict
-import Data.Functor.Identity
-import Data.Functor.Product ( Product(Pair) )
-import Dhall.Core hiding (Const)
+import Control.Lens ( deepOf )
+import Control.Monad
+import Dhall.Core hiding ( Const )
 
 
+-- | 'ConfigTree' captures a logic-monad like expansion of the result of
+-- Bool-valued expressions.
 
 data ConfigTree cond a
   = Leaf a
   | Branch cond ( ConfigTree cond a ) ( ConfigTree cond a )
   deriving (Functor, Show)
 
+instance Applicative ( ConfigTree cond ) where
+  pure = return
+  (<*>) = ap
+
+instance Monad ( ConfigTree cond ) where
+  return = Leaf
+
+  Leaf a >>= f = f a
+  Branch cond l r >>= f = Branch cond ( l >>= f ) ( r >>= f )
+
 
 
 -- | Given a Dhall expression that is of the form @λ( config : Config ) -> a@,
 -- find all saturated uses of @config@, and substitute in either @True@ or
--- @False@.
+-- @False@. The two substitutions are captured in a 'Branch'.
 
 toConfigTree
   :: ( Eq a, Eq s )
@@ -40,44 +46,36 @@ toConfigTree e =
       normalize ( App e ( Var v ) )
 
     loop e =
-      let
-        Pair ( Identity ( a, useA ) ) ( Identity ( b, useB ) ) =
-          runStateT ( rewriteConfigUse e v ) Nothing
+      case normalize <$> rewriteConfigUse e v of
+        Leaf a ->
+          Leaf a
 
-      in
-        case useA <|> useB of
-          Nothing ->
-            Leaf e
-
-          Just cond ->
-            Branch cond ( loop ( normalize a ) ) ( loop ( normalize b ) )
+        Branch cond l r ->
+          Branch cond ( loop =<< l ) ( loop =<< r )
 
   in loop saturated
 
 
+
+-- | Find all config-like uses of a given variable, and expand them into all
+-- possible results of evaluation.
+
+rewriteConfigUse :: Expr s a -> Var -> ConfigTree (Expr s a) (Expr s a)
 rewriteConfigUse e v =
   deepOf
    subExpr
    ( findConfigUse v )
-   ( \configUse -> do
-       lastSeen <-
-         get
-
-       when ( isNothing lastSeen ) ( put ( Just configUse ) )
-
-       case lastSeen of
-         Just last | configUse /= last ->
-           pure configUse
-
-         _ ->
-           lift
-             ( Pair
-                 ( pure ( BoolLit True ) )
-                 ( pure ( BoolLit False ) )
-             )
+   ( \configUse ->
+       Branch
+         configUse
+         ( pure ( BoolLit True ) )
+         ( pure ( BoolLit False ) )
    )
    e
 
+
+
+-- | Traverse all config-like uses of a given variable.
 
 findConfigUse
   :: Applicative f
