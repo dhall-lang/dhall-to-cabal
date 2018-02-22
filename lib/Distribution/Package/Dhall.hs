@@ -1138,7 +1138,7 @@ instance Factorable a => GFactorable ( Generic.K1 i a ) where
 
 
 guarded
-  :: ( Monoid a, Show a, Factorable a )
+  :: ( Monoid a, Eq a, Show a, Factorable a )
   => Dhall.Type a
   -> Dhall.Type ( Cabal.CondTree Cabal.ConfVar [Cabal.Dependency] a )
 guarded t =
@@ -1223,16 +1223,27 @@ guarded t =
           ( common, true', false' ) =
             factor ( Cabal.condTreeData true ) ( Cabal.condTreeData false )
 
+          ( duplicates, true'', false'' ) =
+            factor ( Cabal.condTreeComponents false ) ( Cabal.condTreeComponents true )
+
         in
           Cabal.CondNode
             common
             mempty
-            [ Cabal.CondBranch
+            ( Cabal.CondBranch
                 guard
-                true { Cabal.condTreeData = true' }
-                ( Just false { Cabal.condTreeData = false' } )
-            ]
-
+                true
+                  { Cabal.condTreeData = true'
+                  , Cabal.condTreeComponents = true''
+                  }
+                ( Just
+                    false
+                      { Cabal.condTreeData = false'
+                      , Cabal.condTreeComponents = false''
+                      }
+                )
+            : duplicates
+            )
 
     expected =
         Expr.Pi "_" configRecordType ( Dhall.expected t )
