@@ -28,6 +28,8 @@ module Distribution.Package.Dhall
   , foreignLib
   , buildType
   , guard
+  , versionRange
+  , version
   ) where
 
 import Control.Exception ( Exception, throwIO )

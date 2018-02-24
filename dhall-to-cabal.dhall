@@ -117,6 +117,26 @@ in    stdlib.GitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                     [ stdlib.`constructors`.Extensions.NamedFieldPuns True ]
                 }
             )
+          , stdlib.unconditional.executable
+            "cabal-to-dhall"
+            (   stdlib.default.Executable
+              ⫽ { build-depends =
+                    [ deps.Cabal
+                    , deps.base
+                    , deps.dhall
+                    , deps.insert-ordered-containers
+                    , deps.optparse-applicative
+                    , deps.prettyprinter
+                    , deps.text
+                    ]
+                , hs-source-dirs =
+                    [ "cabal-to-dhall" ]
+                , main-is =
+                    "Main.hs"
+                , other-extensions =
+                    [ stdlib.`constructors`.Extensions.NamedFieldPuns True ]
+                }
+            )
           ]
       , test-suites =
           [ stdlib.unconditional.test-suite

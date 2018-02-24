@@ -46,6 +46,22 @@ executable  dhall-to-cabal
     other-extensions: NamedFieldPuns
     hs-source-dirs: exe
 
+executable  cabal-to-dhall
+    main-is: Main.hs
+    scope: public
+    build-depends:
+        Cabal ^>=2.0,
+        base ^>=4.10,
+        contravariant,
+        dhall ^>=1.9,
+        dhall-to-cabal -any,
+        insert-ordered-containers ^>=0.2.1.0,
+        optparse-applicative ^>=0.13.2 || ^>=0.14,
+        prettyprinter ^>=1.1.1,
+        text ^>=1.2
+    other-extensions: NamedFieldPuns
+    hs-source-dirs: cabal-to-dhall
+
 test-suite  golden-tests
     type: exitcode-stdio-1.0
     main-is: GoldenTests.hs
