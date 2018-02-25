@@ -9,7 +9,7 @@ module Main ( main ) where
 
 import Control.Applicative ( (<**>), optional )
 import Data.Foldable ( foldMap )
-import Data.Functor.Contravariant ( Contravariant( contramap ) )
+import Data.Functor.Contravariant ( (>$<), Contravariant( contramap ) )
 import Data.Maybe ( listToMaybe )
 import Data.Monoid ( First(..), (<>) )
 import GHC.Stack
@@ -28,17 +28,24 @@ import qualified Distribution.ModuleName as Cabal
 import qualified Distribution.PackageDescription.Parse as Cabal
 import qualified Distribution.System as Cabal
 import qualified Distribution.Text as Cabal
+import qualified Distribution.Types.BuildInfo as Cabal
 import qualified Distribution.Types.BuildType as Cabal
 import qualified Distribution.Types.CondTree as Cabal
 import qualified Distribution.Types.Condition as Cabal
 import qualified Distribution.Types.Dependency as Cabal
+import qualified Distribution.Types.ExeDependency as Cabal
 import qualified Distribution.Types.GenericPackageDescription as Cabal
+import qualified Distribution.Types.LegacyExeDependency as Cabal
 import qualified Distribution.Types.Library as Cabal
+import qualified Distribution.Types.ModuleReexport as Cabal
 import qualified Distribution.Types.PackageDescription as Cabal
 import qualified Distribution.Types.PackageId as Cabal
 import qualified Distribution.Types.PackageName as Cabal
+import qualified Distribution.Types.PkgconfigDependency as Cabal
+import qualified Distribution.Types.PkgconfigName as Cabal
 import qualified Distribution.Types.SetupBuildInfo as Cabal
 import qualified Distribution.Types.SourceRepo as Cabal
+import qualified Distribution.Types.UnqualComponentName as Cabal
 import qualified Distribution.Version as Cabal
 import qualified Options.Applicative as OptParse
 
@@ -144,9 +151,9 @@ genericPackageDescriptionToDhall
 genericPackageDescriptionToDhall =
   runRecordInputType
     ( mconcat
-        [ contramap Cabal.packageDescription packageDescriptionToRecord
-        , recordField "flags" ( contramap Cabal.genPackageFlags ( listOf flag ) )
-        , recordField "library" ( contramap Cabal.condLibrary ( maybeToDhall ( condTree library ) ) )
+        [ Cabal.packageDescription >$< packageDescriptionToRecord
+        , recordField "flags" ( Cabal.genPackageFlags >$< ( listOf flag ) )
+        , recordField "library" ( Cabal.condLibrary >$< maybeToDhall ( condTree library ) )
         ]
     )
 
@@ -386,10 +393,10 @@ versionRange =
             $ Expr.Lam "orEarlierVersion" ( Expr.Pi "_" ( Dhall.expected DhallToCabal.version ) ( Expr.Var "VersionRange" ) )
             $ Expr.Lam "withinVersion" ( Expr.Pi "_" ( Dhall.expected DhallToCabal.version ) ( Expr.Var "VersionRange" ) )
             $ Expr.Lam "majorBoundVersion" ( Expr.Pi "_" ( Dhall.expected DhallToCabal.version ) ( Expr.Var "VersionRange" ) )
-            $ Expr.Lam "unionVersionRanges" ( Expr.Pi "_" ( Dhall.expected DhallToCabal.versionRange ) ( Expr.Pi "_" ( Dhall.expected DhallToCabal.versionRange ) ( Dhall.expected DhallToCabal.versionRange ) ) )
-            $ Expr.Lam "intersectVersionRanges" ( Expr.Pi "_" ( Dhall.expected DhallToCabal.versionRange ) ( Expr.Pi "_" ( Dhall.expected DhallToCabal.versionRange ) ( Dhall.expected DhallToCabal.versionRange ) ) )
-            $ Expr.Lam "differenceVersionRanges" ( Expr.Pi "_" ( Dhall.expected DhallToCabal.versionRange ) ( Expr.Pi "_" ( Dhall.expected DhallToCabal.versionRange ) ( Dhall.expected DhallToCabal.versionRange ) ) )
-            $ Expr.Lam "invertVersionRange" ( Expr.Pi "_" ( Dhall.expected DhallToCabal.versionRange ) ( Dhall.expected DhallToCabal.versionRange ) )
+            $ Expr.Lam "unionVersionRanges" ( Expr.Pi "_" ( Expr.Var "VersionRange" ) ( Expr.Pi "_" ( Expr.Var "VersionRange" ) ( Expr.Var "VersionRange" ) ) )
+            $ Expr.Lam "intersectVersionRanges" ( Expr.Pi "_" ( Expr.Var "VersionRange" ) ( Expr.Pi "_" ( Expr.Var "VersionRange" ) ( Expr.Var "VersionRange" ) ) )
+            $ Expr.Lam "differenceVersionRanges" ( Expr.Pi "_" ( Expr.Var "VersionRange" ) ( Expr.Pi "_" ( Expr.Var "VersionRange" ) ( Expr.Var "VersionRange" ) ) )
+            $ Expr.Lam "invertVersionRange" ( Expr.Pi "_" ( Expr.Var "VersionRange" ) ( Expr.Var "VersionRange" ) )
             $ let
                 go versionRange =
                   case versionRange of
@@ -545,13 +552,22 @@ library =
         [ recordField
             "exposed-modules"
             ( contramap Cabal.exposedModules ( listOf moduleName ) )
+        , recordField
+            "reexported-modules"
+            ( contramap Cabal.reexportedModules ( listOf moduleReexport ) )
+        , recordField
+            "signatures"
+            ( contramap Cabal.signatures ( listOf moduleName ) )
+        , contramap Cabal.libBuildInfo buildInfoRecord
         ]
     )
+
 
 data CondIfTree v a
   = Val a
   | If v ( CondIfTree v a ) ( CondIfTree v a )
   deriving (Eq, Show)
+
 
 unifyCondTree
   :: ( Monoid a, Monoid x )
@@ -623,8 +639,8 @@ condTree t =
 
   in
   Dhall.InputType
-    { Dhall.embed = Expr.Lam "config" ( Expr.Record mempty ) . go . unifyCondTree
-    , Dhall.declared = Dhall.declared t
+    { Dhall.embed = Expr.Lam "config" DhallToCabal.configRecordType . go . unifyCondTree
+    , Dhall.declared = Expr.Pi "_" DhallToCabal.configRecordType ( Dhall.declared t )
     }
 
 
@@ -686,7 +702,7 @@ os =
         , unionAlt "IOS" ( \x -> case x of Cabal.IOS -> Just () ; _ -> Nothing ) Dhall.inject
         , unionAlt "Android" ( \x -> case x of Cabal.Android -> Just () ; _ -> Nothing ) Dhall.inject
         , unionAlt "Ghcjs" ( \x -> case x of Cabal.Ghcjs -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "OtherOS" ( \x -> case x of Cabal.OtherOS s -> Just s ; _ -> Nothing ) stringToDhall
+        , unionAlt "OtherOS" ( \x -> case x of Cabal.OtherOS s -> Just s ; _ -> Nothing ) ( runRecordInputType ( recordField "_1" stringToDhall ) )
         ]
     )
 
@@ -711,6 +727,87 @@ arch =
         , unionAlt "M68k" ( \x -> case x of Cabal.M68k -> Just () ; _ -> Nothing ) Dhall.inject
         , unionAlt "Vax" ( \x -> case x of Cabal.Vax -> Just () ; _ -> Nothing ) Dhall.inject
         , unionAlt "JavaScript" ( \x -> case x of Cabal.JavaScript -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "OtherArch" ( \x -> case x of Cabal.OtherArch s -> Just s ; _ -> Nothing ) stringToDhall
+        , unionAlt "OtherArch" ( \x -> case x of Cabal.OtherArch s -> Just s ; _ -> Nothing ) ( runRecordInputType ( recordField "_1" stringToDhall ) )
         ]
     )
+
+
+buildInfoRecord :: RecordInputType Cabal.BuildInfo
+buildInfoRecord =
+  mconcat
+    [ recordField "buildable" ( contramap Cabal.buildable Dhall.inject )
+    , recordField "build-tools" ( contramap Cabal.buildTools ( listOf legacyExeDependency ) )
+    , recordField "build-tool-depends" ( contramap Cabal.buildToolDepends ( listOf exeDependency ) )
+    , recordField "cpp-options" ( contramap Cabal.cppOptions ( listOf stringToDhall ) )
+    , recordField "cc-options" ( contramap Cabal.ccOptions ( listOf stringToDhall ) )
+    , recordField "ld-options" ( contramap Cabal.ldOptions ( listOf stringToDhall ) )
+    , recordField "pkgconfig-depends" ( contramap Cabal.pkgconfigDepends ( listOf pkgconfigDependency ) )
+    , recordField "frameworks" ( contramap Cabal.frameworks ( listOf stringToDhall ) ) 
+    , recordField "extra-framework-dirs" ( contramap Cabal.extraFrameworkDirs ( listOf stringToDhall ) ) 
+    , recordField "c-sources" ( contramap Cabal.cSources ( listOf stringToDhall ) ) 
+    , recordField "js-sources" ( contramap Cabal.jsSources ( listOf stringToDhall ) ) 
+    , recordField "hs-source-dirs" ( contramap Cabal.hsSourceDirs ( listOf stringToDhall ) ) 
+    , recordField "other-modules" ( contramap Cabal.otherModules ( listOf moduleName ) ) 
+    , recordField "autegen-modules" ( contramap Cabal.autogenModules ( listOf moduleName ) ) 
+    -- , recordField "default-language" ( contramap Cabal.defaultLanguage ( maybeToDhall language ) )
+    -- , recordField "other-languages" ( contramap Cabal.otherLanguages ( listOf language ) )
+    -- , recordField "default-extensions" ( Cabal.defaultExtensions >$< listOf extension )
+    -- , recordField "other-extensions" ( Cabal.otherExtensions >$< listOf extension )
+    , recordField "extra-libraries" ( Cabal.extraLibs >$< listOf stringToDhall )
+    , recordField "extra-ghci-libraries" ( Cabal.extraGHCiLibs >$< listOf stringToDhall )
+    , recordField "extra-lib-dirs" ( Cabal.extraLibDirs >$< listOf stringToDhall )
+    , recordField "include-dirs" ( Cabal.includeDirs >$< listOf stringToDhall )
+    , recordField "includes" ( Cabal.includes >$< listOf stringToDhall )
+    , recordField "install-includes" ( Cabal.installIncludes >$< listOf stringToDhall )
+    -- , recordField "compiler-options" ( Cabal.options >$< compilerOptions )
+    -- , recordField "profiling-options" ( Cabal.profOptions >$< compilerOptions )
+    -- , recordField "shared-options" ( Cabal.sharedOptions >$< compilerOptions )
+    , recordField "build-depends" ( Cabal.targetBuildDepends >$< listOf dependency )
+    -- , recordField "mixins" ( Cabal.mixins >$< listOf mixin )
+    ]
+
+
+moduleReexport :: Dhall.InputType Cabal.ModuleReexport
+moduleReexport =
+  runRecordInputType
+    mempty
+
+
+legacyExeDependency :: Dhall.InputType Cabal.LegacyExeDependency
+legacyExeDependency =
+  runRecordInputType
+    ( mconcat
+        [ recordField "exe" ( ( \( Cabal.LegacyExeDependency exe _ ) -> exe ) >$< stringToDhall ) 
+        , recordField "version" ( ( \( Cabal.LegacyExeDependency _ version ) -> version ) >$< versionRange ) 
+        ]
+    )
+
+exeDependency :: Dhall.InputType Cabal.ExeDependency
+exeDependency =
+  runRecordInputType
+    ( mconcat
+        [ recordField "package" ( ( \( Cabal.ExeDependency packageName _ _ ) -> packageName ) >$< packageNameToDhall ) 
+        , recordField "component" ( ( \( Cabal.ExeDependency _ component _ ) -> component ) >$< unqualComponentName ) 
+        , recordField "version" ( ( \( Cabal.ExeDependency _ _ version ) -> version ) >$< versionRange ) 
+        ]
+    )
+
+
+unqualComponentName :: Dhall.InputType Cabal.UnqualComponentName
+unqualComponentName =
+  show . Cabal.disp >$< stringToDhall
+
+
+pkgconfigDependency :: Dhall.InputType Cabal.PkgconfigDependency
+pkgconfigDependency =
+  runRecordInputType
+    ( mconcat
+        [ recordField "name" ( ( \( Cabal.PkgconfigDependency a _version ) -> a ) >$< pkgconfigName )
+        , recordField "version" ( ( \( Cabal.PkgconfigDependency _name a ) -> a ) >$< versionRange ) 
+        ]
+    )
+
+
+pkgconfigName :: Dhall.InputType Cabal.PkgconfigName
+pkgconfigName =
+  show . Cabal.disp >$< stringToDhall
