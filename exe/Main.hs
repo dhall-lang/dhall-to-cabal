@@ -44,7 +44,7 @@ data KnownType
   | Executable
   | Benchmark
   | TestSuite
-  | Guard
+  | Config
   | SourceRepo
   | RepoType
   | RepoKind
@@ -57,6 +57,8 @@ data KnownType
   | License
   | BuildType
   | Package
+  | VersionRange
+  | Version
   deriving (Bounded, Enum, Eq, Ord, Read, Show)
 
 
@@ -187,6 +189,7 @@ printType t = do
 
     dhallType t =
       case t of
+        Config -> configRecordType
         Library -> Dhall.expected library
         ForeignLibrary -> Dhall.expected foreignLib
         Executable -> Dhall.expected executable
@@ -204,7 +207,8 @@ printType t = do
         License -> Dhall.expected license
         BuildType -> Dhall.expected buildType
         Package -> Dhall.expected genericPackageDescription
-        Guard -> Dhall.expected guard
+        VersionRange -> Dhall.expected versionRange
+        Version -> Dhall.expected version
 
     letDhallType t =
       liftCSE ( fromString ( show t ) ) ( dhallType t )

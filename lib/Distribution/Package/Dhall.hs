@@ -1,4 +1,5 @@
 {-# language ApplicativeDo #-}
+{-# language FlexibleContexts #-}
 {-# language FlexibleInstances #-}
 {-# language GADTs #-}
 {-# language LambdaCase #-}
@@ -27,13 +28,14 @@ module Distribution.Package.Dhall
   , benchmark
   , foreignLib
   , buildType
-  , guard
   , versionRange
   , version
+  , configRecordType
   ) where
 
 import Control.Exception ( Exception, throwIO )
 import Data.Function ( (&) )
+import Data.List ( partition )
 import Data.Maybe ( fromMaybe )
 import Data.Monoid ( (<>) )
 import Data.Text.Buildable ( Buildable(..) )
@@ -41,12 +43,11 @@ import Text.Trifecta.Delta ( Delta(..) )
 
 import qualified Data.ByteString.Lazy as LazyByteString
 import qualified Data.HashMap.Strict.InsOrd as Map
+import qualified Data.Text as StrictText
+import qualified Data.Text.Encoding as StrictText
 import qualified Data.Text.Lazy as LazyText
 import qualified Data.Text.Lazy.Builder as Builder
 import qualified Data.Text.Lazy.Encoding as LazyText
-import qualified Data.Text as StrictText
-import qualified Data.Text.Encoding as StrictText
-import qualified Data.Vector as Vector
 import qualified Dhall
 import qualified Dhall.Core
 import qualified Dhall.Import
@@ -80,6 +81,8 @@ import qualified Dhall.Core as Expr
   ( Chunks(..), Const(..), Expr(..), Var(..) )
 
 import Dhall.Extra
+import DhallToCabal.ConfigTree ( ConfigTree(..), toConfigTree )
+import DhallToCabal.Diff ( Diffable(..)  )
 
 
 
@@ -547,19 +550,6 @@ dhallToCabal fileName source =
   input fileName source genericPackageDescription
 
 
-builtins :: Expr.Expr Dhall.Parser.Src Dhall.TypeCheck.X
-builtins =
-  let
-    builtinTypes =
-      [ ( "v"
-        , Expr.Pi "_" ( Dhall.expected Dhall.string ) ( Dhall.expected version )
-        )
-      ]
-
-  in
-  Expr.Record ( Map.fromList builtinTypes )
-
-
 input :: FilePath -> LazyText.Text -> Dhall.Type a -> IO a
 input fileName source t = do
   let
@@ -942,101 +932,28 @@ extension =
 
 
 guarded
-  :: Monoid a
+  :: ( Monoid a, Eq a, Diffable a )
   => Dhall.Type a
   -> Dhall.Type ( Cabal.CondTree Cabal.ConfVar [Cabal.Dependency] a )
 guarded t =
-  fmap compileGuards
-    $ Dhall.list
-    $ makeRecord
-    $ (,) <$> keyValue "guard" guard <*> keyValue "body" t
-
-  where
-
-    compileGuards =
-      foldl combineCondTree emptyCondTree . map toCondNode
-
-    emptyCondTree =
-      Cabal.CondNode mempty [] []
-
-    combineCondTree ( Cabal.CondNode a c1 xs ) ( Cabal.CondNode b c2 ys ) =
-      Cabal.CondNode ( a <> b ) ( c1 <> c2 ) ( xs <> ys )
-
-    toCondNode ( guard, a ) =
-      let
-        trueBranch =
-          Cabal.CondNode a mempty mempty
-
-      in
-        if guard == Cabal.Lit True then
-          trueBranch
-        else
-          Cabal.CondNode
-            { condTreeData = mempty
-            , condTreeConstraints = mempty
-            , condTreeComponents =
-                [ Cabal.CondBranch
-                    { condBranchCondition = guard
-                    , condBranchIfTrue = trueBranch
-                    , condBranchIfFalse = Nothing
-                    }
-                ]
-            }
-
-
-
-guard :: Dhall.Type ( Cabal.Condition Cabal.ConfVar )
-guard =
   let
-    extractBody body =
+    extractConfVar body =
       case body of
-        Expr.BoolLit b ->
-          return ( Cabal.Lit b )
-
-        Expr.BoolAnd a b ->
-          Cabal.CAnd <$> extractBody a <*> extractBody b
-
-        Expr.BoolOr a b ->
-          Cabal.COr <$> extractBody a <*> extractBody b
-
-        Expr.BoolEQ a b ->
-          Cabal.COr
-            <$> ( Cabal.CAnd <$> extractBody a <*> extractBody b )
-            <*> ( Cabal.CAnd
-                    <$> ( Cabal.CNot <$> extractBody a )
-                    <*> ( Cabal.CNot <$> extractBody b )
-                )
-
-        -- a != b ==> (a && !y) || (!a && y), but I think the following is
-        -- cleaner.
-        Expr.BoolNE a b ->
-          Cabal.CNot <$> extractBody ( Expr.BoolEQ a b )
-
-        Expr.BoolIf p a b ->
-          Cabal.COr
-            <$> ( Cabal.CAnd <$> extractBody p <*> extractBody a )
-            <*> ( Cabal.CAnd
-                    <$> ( Cabal.CNot <$> extractBody p )
-                    <*> extractBody b
-                )
-
         Expr.App ( Expr.App ( Expr.Field ( V0 "config" ) "impl" ) compiler ) version ->
-          Cabal.Var
-            <$> ( Cabal.Impl
-                    <$> Dhall.extract compilerFlavor compiler
-                    <*> Dhall.extract versionRange version
-                )
+          Cabal.Impl
+            <$> Dhall.extract compilerFlavor compiler
+            <*> Dhall.extract versionRange version
 
         Expr.App ( Expr.Field ( V0 "config" ) field ) x ->
           case field of
             "os" ->
-              Cabal.Var . Cabal.OS <$> Dhall.extract operatingSystem x
+              Cabal.OS <$> Dhall.extract operatingSystem x
 
             "arch" ->
-              Cabal.Var . Cabal.Arch <$> Dhall.extract arch x
+              Cabal.Arch <$> Dhall.extract arch x
 
             "flag" ->
-              Cabal.Var . Cabal.Flag <$> Dhall.extract flagName x
+              Cabal.Flag <$> Dhall.extract flagName x
 
             _ ->
               error "Unknown field"
@@ -1044,35 +961,154 @@ guard =
         _ ->
           error ( "Unexpected guard expression. This is a bug, please report this! I'm stuck on: " ++ show body )
 
-    extract expr = do
-      Expr.Lam _ _ body <-
-        return expr
+    extract expr =
+      configTreeToCondTree [] <$> extractConfigTree ( toConfigTree expr )
 
-      extractBody body
+    extractConfigTree ( Leaf a ) =
+      Leaf <$> Dhall.extract t a
+
+    extractConfigTree ( Branch cond a b ) =
+      Branch <$> extractConfVar cond <*> extractConfigTree a <*> extractConfigTree b
+
+    configTreeToCondTree confVars = \case
+      Leaf a ->
+        Cabal.CondNode a mempty mempty
+
+      -- The condition has already been shown to hold. Consider only the true
+      -- branch and discard the false branch.
+      Branch confVar a _impossible | confVar `elem` confVars ->
+        configTreeToCondTree confVars a
+
+      Branch confVar a b ->
+        let
+          confVars' =
+            pure confVar <> confVars
+
+          true =
+            configTreeToCondTree confVars' a
+
+          false =
+            configTreeToCondTree confVars' b
+
+          ( common, true', false' ) =
+            diff ( Cabal.condTreeData true ) ( Cabal.condTreeData false )
+
+          ( duplicates, true'', false'' ) =
+            diff
+              ( Cabal.condTreeComponents false )
+              ( Cabal.condTreeComponents true )
+
+        in
+          Cabal.CondNode
+            common
+            mempty
+            ( mergeCommonGuards
+                ( Cabal.CondBranch
+                    ( Cabal.Var confVar )
+                    true
+                      { Cabal.condTreeData = true'
+                      , Cabal.condTreeComponents = true''
+                      }
+                    ( Just
+                        false
+                          { Cabal.condTreeData = false'
+                          , Cabal.condTreeComponents = false''
+                          }
+                    )
+                : duplicates
+                )
+            )
 
     expected =
-      let
-        predicate on =
-          Expr.Pi "_" on Expr.Bool
-
-      in
-        predicate
-          ( Expr.Record
-              ( Map.fromList
-                  [ ( "os", predicate ( Dhall.expected operatingSystem ) )
-                  , ( "arch", predicate ( Dhall.expected arch ) )
-                  , ( "flag", predicate ( Dhall.expected flagName ) )
-                  , ( "impl"
-                    , Expr.Pi
-                        "_"
-                        ( Dhall.expected compilerFlavor )
-                        ( Expr.Pi "_" ( Dhall.expected versionRange ) Expr.Bool )
-                    )
-                  ]
-              )
-          )
+        Expr.Pi "_" configRecordType ( Dhall.expected t )
 
   in Dhall.Type { .. }
+
+
+
+catCondTree
+  :: ( Monoid c, Monoid a )
+  => Cabal.CondTree v c a -> Cabal.CondTree v c a -> Cabal.CondTree v c a
+catCondTree a b =
+  Cabal.CondNode
+    { Cabal.condTreeData =
+        Cabal.condTreeData a <> Cabal.condTreeData b
+    , Cabal.condTreeConstraints =
+        Cabal.condTreeConstraints a <> Cabal.condTreeConstraints b
+    , Cabal.condTreeComponents =
+        Cabal.condTreeComponents a <> Cabal.condTreeComponents b
+    }
+
+
+
+emptyCondTree :: ( Monoid b, Monoid c ) => Cabal.CondTree a b c
+emptyCondTree =
+  Cabal.CondNode mempty mempty mempty
+
+
+
+mergeCommonGuards
+  :: ( Monoid a, Monoid c, Eq v )
+  => [Cabal.CondBranch v c a]
+  -> [Cabal.CondBranch v c a]
+mergeCommonGuards [] =
+  []
+
+mergeCommonGuards ( a : as ) =
+  let
+    ( sameGuard, differentGuard ) =
+      partition
+        ( ( Cabal.condBranchCondition a == ) . Cabal.condBranchCondition )
+        as
+
+  in
+    a
+      { Cabal.condBranchIfTrue =
+          catCondTree
+            ( Cabal.condBranchIfTrue a )
+            ( foldl
+                catCondTree
+                emptyCondTree
+                ( Cabal.condBranchIfTrue <$> sameGuard )
+            )
+      , Cabal.condBranchIfFalse =
+          Just
+            ( catCondTree
+              ( fromMaybe emptyCondTree ( Cabal.condBranchIfFalse a ) )
+              ( foldl
+                  catCondTree
+                  emptyCondTree
+                  ( fromMaybe emptyCondTree
+                      . Cabal.condBranchIfFalse
+                      <$> sameGuard
+                  )
+              )
+            )
+      }
+      : mergeCommonGuards differentGuard
+
+
+
+configRecordType :: Expr.Expr Dhall.Parser.Src Dhall.TypeCheck.X
+configRecordType =
+  let
+    predicate on =
+      Expr.Pi "_" on Expr.Bool
+
+  in
+    Expr.Record
+      ( Map.fromList
+          [ ( "os", predicate ( Dhall.expected operatingSystem ) )
+          , ( "arch", predicate ( Dhall.expected arch ) )
+          , ( "flag", predicate ( Dhall.expected flagName ) )
+          , ( "impl"
+            , Expr.Pi
+                "_"
+                ( Dhall.expected compilerFlavor )
+                ( Expr.Pi "_" ( Dhall.expected versionRange ) Expr.Bool )
+            )
+          ]
+      )
 
 
 
