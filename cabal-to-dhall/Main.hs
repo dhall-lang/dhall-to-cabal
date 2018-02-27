@@ -45,7 +45,7 @@ import qualified Distribution.Types.Executable as Cabal
 import qualified Distribution.Types.ExecutableScope as Cabal
 import qualified Distribution.Types.ForeignLib as Cabal
 import qualified Distribution.Types.ForeignLibOption as Cabal
-import qualified Distribution.Types.ForeignLibType as Cabal 
+import qualified Distribution.Types.ForeignLibType as Cabal
 import qualified Distribution.Types.GenericPackageDescription as Cabal
 import qualified Distribution.Types.IncludeRenaming as Cabal
 import qualified Distribution.Types.LegacyExeDependency as Cabal
@@ -256,14 +256,12 @@ versionToDhall :: Dhall.InputType Cabal.Version
 versionToDhall =
   Dhall.InputType
     { Dhall.embed =
-        \a ->
-          Expr.Lam "Version" ( Expr.Const Expr.Type )
-            $ Expr.Lam "v" ( Expr.Pi "_" Expr.Text ( Expr.Var "Version" ) )
-            $ Expr.App
-                ( Expr.Var "v" )
-                ( Dhall.embed stringToDhall ( show ( Cabal.disp a ) ) )
+        Expr.App ( Expr.Var "prelude" `Expr.Field` "v" )
+          . Dhall.embed stringToDhall
+          . show
+          . Cabal.disp
     , Dhall.declared =
-        Dhall.expected DhallToCabal.version
+        Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "Version"
     }
 
 
@@ -274,25 +272,29 @@ stringToDhall =
 
 licenseToDhall :: Dhall.InputType Cabal.License
 licenseToDhall =
-  runUnion
-    ( mconcat
-        [ gpl
-        , agpl
-        , lgpl
-        , bsd2
-        , bsd3
-        , bsd4
-        , mit
-        , isc
-        , mpl
-        , apache
-        , publicDomain
-        , allRightsReserved
-        , unspecified
-        , other
-        -- , unknown
-        ]
-    )
+  ( runUnion
+      ( mconcat
+          [ gpl
+          , agpl
+          , lgpl
+          , bsd2
+          , bsd3
+          , bsd4
+          , mit
+          , isc
+          , mpl
+          , apache
+          , publicDomain
+          , allRightsReserved
+          , unspecified
+          , other
+          -- , unknown
+          ]
+      )
+  )
+    { Dhall.declared =
+        Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "License"
+    }
 
   where
 
@@ -337,7 +339,7 @@ licenseToDhall =
         "Unspecified"
         ( \l ->
             case l of
-              Cabal.UnspecifiedLicense -> 
+              Cabal.UnspecifiedLicense ->
                 Just ()
 
               Cabal.UnknownLicense "UnspecifiedLicense" ->
@@ -442,7 +444,9 @@ compilerFlavor =
       Dhall.inject
 
   in
-  t { Dhall.declared = sortExpr ( Dhall.declared t ) }
+  t { Dhall.declared =
+        Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "Compiler"
+    }
 
 
 versionRange :: Dhall.InputType Cabal.VersionRange
@@ -450,66 +454,72 @@ versionRange =
   Dhall.InputType
     { Dhall.embed =
         \versionRange0 ->
-          Expr.Lam "VersionRange" ( Expr.Const Expr.Type )
-            $ Expr.Lam "anyVersion" ( Expr.Var "VersionRange" )
-            $ Expr.Lam "noVersion" ( Expr.Var "VersionRange" )
-            $ Expr.Lam "thisVersion" ( Expr.Pi "_" ( Dhall.expected DhallToCabal.version ) ( Expr.Var "VersionRange" ) )
-            $ Expr.Lam "notThisVersion" ( Expr.Pi "_" ( Dhall.expected DhallToCabal.version ) ( Expr.Var "VersionRange" ) )
-            $ Expr.Lam "laterVersion" ( Expr.Pi "_" ( Dhall.expected DhallToCabal.version ) ( Expr.Var "VersionRange" ) )
-            $ Expr.Lam "earlierVersion" ( Expr.Pi "_" ( Dhall.expected DhallToCabal.version ) ( Expr.Var "VersionRange" ) )
-            $ Expr.Lam "orLaterVersion" ( Expr.Pi "_" ( Dhall.expected DhallToCabal.version ) ( Expr.Var "VersionRange" ) )
-            $ Expr.Lam "orEarlierVersion" ( Expr.Pi "_" ( Dhall.expected DhallToCabal.version ) ( Expr.Var "VersionRange" ) )
-            $ Expr.Lam "withinVersion" ( Expr.Pi "_" ( Dhall.expected DhallToCabal.version ) ( Expr.Var "VersionRange" ) )
-            $ Expr.Lam "majorBoundVersion" ( Expr.Pi "_" ( Dhall.expected DhallToCabal.version ) ( Expr.Var "VersionRange" ) )
-            $ Expr.Lam "unionVersionRanges" ( Expr.Pi "_" ( Expr.Var "VersionRange" ) ( Expr.Pi "_" ( Expr.Var "VersionRange" ) ( Expr.Var "VersionRange" ) ) )
-            $ Expr.Lam "intersectVersionRanges" ( Expr.Pi "_" ( Expr.Var "VersionRange" ) ( Expr.Pi "_" ( Expr.Var "VersionRange" ) ( Expr.Var "VersionRange" ) ) )
-            $ Expr.Lam "differenceVersionRanges" ( Expr.Pi "_" ( Expr.Var "VersionRange" ) ( Expr.Pi "_" ( Expr.Var "VersionRange" ) ( Expr.Var "VersionRange" ) ) )
-            $ Expr.Lam "invertVersionRange" ( Expr.Pi "_" ( Expr.Var "VersionRange" ) ( Expr.Var "VersionRange" ) )
-            $ let
-                go versionRange =
-                  case versionRange of
-                    Cabal.AnyVersion ->
-                      Expr.Var "anyVersion"
+          let
+            go versionRange =
+              case versionRange of
+                Cabal.AnyVersion ->
+                  Expr.Var "prelude" `Expr.Field` "anyVersion"
 
-                    Cabal.IntersectVersionRanges ( Cabal.LaterVersion ( Cabal.versionNumbers -> [ 1 ] ) ) ( Cabal.EarlierVersion ( Cabal.versionNumbers -> [ 1 ] ) ) ->
-                      Expr.Var "noVersion"
+                Cabal.IntersectVersionRanges ( Cabal.LaterVersion ( Cabal.versionNumbers -> [ 1 ] ) ) ( Cabal.EarlierVersion ( Cabal.versionNumbers -> [ 1 ] ) ) ->
+                  Expr.Var "prelude" `Expr.Field` "noVersion"
 
-                    Cabal.ThisVersion v ->
-                      Expr.App ( Expr.Var "thisVersion" ) ( Dhall.embed versionToDhall v )
+                Cabal.ThisVersion v ->
+                  Expr.App
+                    ( Expr.Var "prelude" `Expr.Field` "thisVersion" )
+                    ( Dhall.embed versionToDhall v )
 
-                    Cabal.UnionVersionRanges ( Cabal.EarlierVersion v ) ( Cabal.LaterVersion v' ) | v == v' ->
-                      Expr.App ( Expr.Var "notThisVersion" ) ( Dhall.embed versionToDhall v )
+                Cabal.UnionVersionRanges ( Cabal.EarlierVersion v ) ( Cabal.LaterVersion v' ) | v == v' ->
+                  Expr.App
+                    ( Expr.Var "prelude" `Expr.Field` "notThisVersion" )
+                    ( Dhall.embed versionToDhall v )
 
-                    Cabal.LaterVersion v ->
-                      Expr.App ( Expr.Var "laterVersion" ) ( Dhall.embed versionToDhall v )
+                Cabal.LaterVersion v ->
+                  Expr.App
+                    ( Expr.Var "prelude" `Expr.Field` "laterVersion" )
+                    ( Dhall.embed versionToDhall v )
 
-                    Cabal.UnionVersionRanges ( Cabal.ThisVersion v ) ( Cabal.LaterVersion v' ) | v == v' ->
-                      Expr.App ( Expr.Var "orLaterVersion" ) ( Dhall.embed versionToDhall v )
+                Cabal.UnionVersionRanges ( Cabal.ThisVersion v ) ( Cabal.LaterVersion v' ) | v == v' ->
+                  Expr.App
+                    ( Expr.Var "prelude" `Expr.Field` "orLaterVersion" )
+                    ( Dhall.embed versionToDhall v )
 
-                    Cabal.EarlierVersion v ->
-                      Expr.App ( Expr.Var "earlierVersion" ) ( Dhall.embed versionToDhall v )
+                Cabal.EarlierVersion v ->
+                  Expr.App
+                    ( Expr.Var "prelude" `Expr.Field` "earlierVersion" )
+                    ( Dhall.embed versionToDhall v )
 
-                    Cabal.UnionVersionRanges ( Cabal.ThisVersion v ) ( Cabal.EarlierVersion v' ) | v == v' ->
-                      Expr.App ( Expr.Var "orEarlierVersion" ) ( Dhall.embed versionToDhall v )
+                Cabal.UnionVersionRanges ( Cabal.ThisVersion v ) ( Cabal.EarlierVersion v' ) | v == v' ->
+                  Expr.App
+                    ( Expr.Var "prelude" `Expr.Field` "orEarlierVersion" )
+                    ( Dhall.embed versionToDhall v )
 
-                    Cabal.UnionVersionRanges a b ->
-                      Expr.App ( Expr.App ( Expr.Var "unionVersionRanges" ) ( go a ) ) ( go b )
+                Cabal.UnionVersionRanges a b ->
+                  Expr.App
+                    ( Expr.App ( Expr.Var "prelude" `Expr.Field` "unionVersionRanges" ) ( go a ) )
+                    ( go b )
 
-                    Cabal.IntersectVersionRanges a b ->
-                      Expr.App ( Expr.App ( Expr.Var "intersectVersionRanges" ) ( go a ) ) ( go b )
+                Cabal.IntersectVersionRanges a b ->
+                  Expr.App
+                    ( Expr.App ( Expr.Var "prelude" `Expr.Field` "intersectVersionRanges" ) ( go a ) )
+                    ( go b )
 
-                    Cabal.WildcardVersion v ->
-                      Expr.App ( Expr.Var "withinVersion" ) ( Dhall.embed versionToDhall v )
+                Cabal.WildcardVersion v ->
+                  Expr.App
+                    ( Expr.Var "prelude" `Expr.Field` "withinVersion" )
+                    ( Dhall.embed versionToDhall v )
 
-                    Cabal.MajorBoundVersion v ->
-                      Expr.App ( Expr.Var "majorBoundVersion" ) ( Dhall.embed versionToDhall v )
+                Cabal.MajorBoundVersion v ->
+                  Expr.App
+                    ( Expr.Var "prelude" `Expr.Field` "majorBoundVersion" )
+                    ( Dhall.embed versionToDhall v )
 
-                    Cabal.VersionRangeParens vr ->
-                      go vr
+                Cabal.VersionRangeParens vr ->
+                  go vr
 
-              in
-                go ( Cabal.fromVersionIntervals ( Cabal.toVersionIntervals versionRange0 ) )
-    , Dhall.declared = Dhall.expected DhallToCabal.versionRange
+          in
+          go ( Cabal.fromVersionIntervals ( Cabal.toVersionIntervals versionRange0 ) )
+    , Dhall.declared =
+        Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "VersionRange"
     }
 
 
@@ -530,30 +540,38 @@ sourceRepo =
 
 repoKind :: Dhall.InputType Cabal.RepoKind
 repoKind =
-  runUnion
-    ( mconcat
-        [ unionAlt "RepoThis" ( \x -> case x of Cabal.RepoThis -> Just () ; _ -> Nothing) Dhall.inject
-        , unionAlt "RepoKindUnknown" ( \x -> case x of Cabal.RepoKindUnknown str -> Just  str ; _ -> Nothing) ( runRecordInputType ( recordField "_1" stringToDhall ) )
-        , unionAlt "RepoHead" ( \x -> case x of Cabal.RepoHead -> Just () ; _ -> Nothing) Dhall.inject
-        ]
-    )
+  ( runUnion
+      ( mconcat
+          [ unionAlt "RepoThis" ( \x -> case x of Cabal.RepoThis -> Just () ; _ -> Nothing) Dhall.inject
+          , unionAlt "RepoKindUnknown" ( \x -> case x of Cabal.RepoKindUnknown str -> Just  str ; _ -> Nothing) ( runRecordInputType ( recordField "_1" stringToDhall ) )
+          , unionAlt "RepoHead" ( \x -> case x of Cabal.RepoHead -> Just () ; _ -> Nothing) Dhall.inject
+          ]
+      )
+  )
+    { Dhall.declared =
+         Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "RepoKind"
+    }
 
 
 repoType :: Dhall.InputType Cabal.RepoType
 repoType =
-  runUnion
-    ( mconcat
-        [ unionAlt "Darcs" ( \x -> case x of Cabal.Darcs -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "Git" ( \x -> case x of Cabal.Git -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "SVN" ( \x -> case x of Cabal.SVN -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "CVS" ( \x -> case x of Cabal.CVS -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "Mercurial" ( \x -> case x of Cabal.Mercurial -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "GnuArch" ( \x -> case x of Cabal.GnuArch -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "Monotone" ( \x -> case x of Cabal.Monotone -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "OtherRepoType" ( \x -> case x of Cabal.OtherRepoType s -> Just s ; _ -> Nothing ) ( runRecordInputType ( recordField "_1" stringToDhall ) )
-        , unionAlt "Bazaar" ( \x -> case x of Cabal.Bazaar -> Just () ; _ -> Nothing ) Dhall.inject
-        ]
-    )
+  ( runUnion
+      ( mconcat
+          [ unionAlt "Darcs" ( \x -> case x of Cabal.Darcs -> Just () ; _ -> Nothing ) Dhall.inject
+          , unionAlt "Git" ( \x -> case x of Cabal.Git -> Just () ; _ -> Nothing ) Dhall.inject
+          , unionAlt "SVN" ( \x -> case x of Cabal.SVN -> Just () ; _ -> Nothing ) Dhall.inject
+          , unionAlt "CVS" ( \x -> case x of Cabal.CVS -> Just () ; _ -> Nothing ) Dhall.inject
+          , unionAlt "Mercurial" ( \x -> case x of Cabal.Mercurial -> Just () ; _ -> Nothing ) Dhall.inject
+          , unionAlt "GnuArch" ( \x -> case x of Cabal.GnuArch -> Just () ; _ -> Nothing ) Dhall.inject
+          , unionAlt "Monotone" ( \x -> case x of Cabal.Monotone -> Just () ; _ -> Nothing ) Dhall.inject
+          , unionAlt "OtherRepoType" ( \x -> case x of Cabal.OtherRepoType s -> Just s ; _ -> Nothing ) ( runRecordInputType ( recordField "_1" stringToDhall ) )
+          , unionAlt "Bazaar" ( \x -> case x of Cabal.Bazaar -> Just () ; _ -> Nothing ) Dhall.inject
+          ]
+      )
+  )
+    { Dhall.declared =
+        Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "RepoType"
+    }
 
 
 specVersion :: Dhall.InputType ( Either Cabal.Version Cabal.VersionRange )
@@ -566,24 +584,49 @@ specVersion =
 
 buildType :: Dhall.InputType Cabal.BuildType
 buildType =
-  runUnion
-    ( mconcat
-        [ unionAlt "Simple" ( \x -> case x of Cabal.Simple -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "Configure" ( \x -> case x of Cabal.Configure -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "Custom" ( \x -> case x of Cabal.Custom -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "UnknownBuildType" ( \x -> case x of Cabal.UnknownBuildType s -> Just s ; _ -> Nothing ) ( runRecordInputType ( recordField "_1" stringToDhall ) )
-        , unionAlt "Make" ( \x -> case x of Cabal.Make -> Just () ; _ -> Nothing ) Dhall.inject
-        ]
-    )
+  Dhall.InputType
+    { Dhall.embed = \case
+        Cabal.Simple ->
+          Expr.App
+            ( Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "BuildTypes" `Expr.Field` "Simple" )
+            ( Expr.RecordLit mempty )
+
+        Cabal.Configure ->
+          Expr.App
+            ( Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "BuildTypes" `Expr.Field` "Configure" )
+            ( Expr.RecordLit mempty )
+
+        Cabal.Custom ->
+          Expr.App
+            ( Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "BuildTypes" `Expr.Field` "Custom" )
+            ( Expr.RecordLit mempty )
+
+        Cabal.Make ->
+          Expr.App
+            ( Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "BuildTypes" `Expr.Field` "Make" )
+            ( Expr.RecordLit mempty )
+
+        Cabal.UnknownBuildType s ->
+          Expr.App
+            ( Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "BuildTypes" `Expr.Field` "UnknownBuildType" )
+            ( Expr.RecordLit ( Map.singleton "_1" ( Dhall.embed Dhall.inject s ) ) )
+
+    , Dhall.declared =
+        Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "BuildType"
+    }
 
 
 setupBuildInfo :: Dhall.InputType Cabal.SetupBuildInfo
 setupBuildInfo =
-  runRecordInputType
-    ( mconcat
-        [ recordField "setup-depends" ( contramap Cabal.setupDepends ( listOf dependency ) )
-        ]
-    )
+  ( runRecordInputType
+      ( mconcat
+          [ recordField "setup-depends" ( contramap Cabal.setupDepends ( listOf dependency ) )
+          ]
+      )
+  )
+    { Dhall.declared =
+        Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "CustomSetup"
+    }
 
 
 dependency :: Dhall.InputType Cabal.Dependency
@@ -615,20 +658,24 @@ flagName =
 
 library :: Dhall.InputType Cabal.Library
 library =
-  runRecordInputType
-    ( mconcat
-        [ contramap Cabal.libBuildInfo buildInfoRecord
-        , recordField
-            "exposed-modules"
-            ( contramap Cabal.exposedModules ( listOf moduleName ) )
-        , recordField
-            "reexported-modules"
-            ( contramap Cabal.reexportedModules ( listOf moduleReexport ) )
-        , recordField
-            "signatures"
-            ( contramap Cabal.signatures ( listOf moduleName ) )
-        ]
-    )
+  ( runRecordInputType
+      ( mconcat
+          [ contramap Cabal.libBuildInfo buildInfoRecord
+          , recordField
+              "exposed-modules"
+              ( contramap Cabal.exposedModules ( listOf moduleName ) )
+          , recordField
+              "reexported-modules"
+              ( contramap Cabal.reexportedModules ( listOf moduleReexport ) )
+          , recordField
+              "signatures"
+              ( contramap Cabal.signatures ( listOf moduleName ) )
+          ]
+      )
+  )
+    { Dhall.declared =
+        Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "Library"
+    }
 
 
 data CondIfTree v a
@@ -659,7 +706,7 @@ unifyCondTree =
                 ( acc <> Cabal.condTreeData condTree )
                 ( case Cabal.condBranchIfFalse c of
                     Nothing ->
-                      Cabal.CondNode mempty mempty mempty 
+                      Cabal.CondNode mempty mempty mempty
 
                     Just c ->
                       c
@@ -675,8 +722,8 @@ unifyCondTree =
             pushDownTree a ( Cabal.condBranchIfTrue b )
         , Cabal.condBranchIfFalse =
             case Cabal.condBranchIfFalse b of
-              Nothing -> 
-                Just ( Cabal.CondNode mempty mempty [a] ) 
+              Nothing ->
+                Just ( Cabal.CondNode mempty mempty [a] )
 
               Just tree ->
                 Just ( pushDownTree a tree )
@@ -705,10 +752,17 @@ condTree t =
           ( go a )
           ( go b )
 
+    configRecord =
+      Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "ConfigOptions"
+
   in
   Dhall.InputType
-    { Dhall.embed = Expr.Lam "config" DhallToCabal.configRecordType . go . unifyCondTree
-    , Dhall.declared = Expr.Pi "_" DhallToCabal.configRecordType ( Dhall.declared t )
+    { Dhall.embed =
+        Expr.Lam "config" configRecord
+          . go
+          . unifyCondTree
+    , Dhall.declared =
+        Expr.Pi "_" configRecord ( Dhall.declared t )
     }
 
 
@@ -752,27 +806,91 @@ condBranchCondition =
 
 os :: Dhall.InputType Cabal.OS
 os =
-  runUnion
-    ( mconcat
-        [ unionAlt "Linux" ( \x -> case x of Cabal.Linux -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "Windows" ( \x -> case x of Cabal.Windows -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "OSX" ( \x -> case x of Cabal.OSX -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "FreeBSD" ( \x -> case x of Cabal.FreeBSD -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "OpenBSD" ( \x -> case x of Cabal.OpenBSD -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "NetBSD" ( \x -> case x of Cabal.NetBSD -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "DragonFly" ( \x -> case x of Cabal.DragonFly -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "Solaris" ( \x -> case x of Cabal.Solaris -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "AIX" ( \x -> case x of Cabal.AIX -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "HPUX" ( \x -> case x of Cabal.HPUX -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "IRIX" ( \x -> case x of Cabal.IRIX -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "HaLVM" ( \x -> case x of Cabal.HaLVM -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "Hurd" ( \x -> case x of Cabal.Hurd -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "IOS" ( \x -> case x of Cabal.IOS -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "Android" ( \x -> case x of Cabal.Android -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "Ghcjs" ( \x -> case x of Cabal.Ghcjs -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "OtherOS" ( \x -> case x of Cabal.OtherOS s -> Just s ; _ -> Nothing ) ( runRecordInputType ( recordField "_1" stringToDhall ) )
-        ]
-    )
+  Dhall.InputType
+    { Dhall.embed = \case
+        Cabal.Linux ->
+          Expr.App
+            ( Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "OSs" `Expr.Field` "Linux" )
+            ( Expr.RecordLit mempty )
+
+        Cabal.Windows ->
+          Expr.App
+            ( Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "OSs" `Expr.Field` "Windows" )
+            ( Expr.RecordLit mempty )
+
+        Cabal.OSX ->
+          Expr.App
+            ( Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "OSs" `Expr.Field` "OSX" )
+            ( Expr.RecordLit mempty )
+
+        Cabal.FreeBSD ->
+          Expr.App
+            ( Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "OSs" `Expr.Field` "FreeBSD" )
+            ( Expr.RecordLit mempty )
+
+        Cabal.OpenBSD ->
+          Expr.App
+            ( Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "OSs" `Expr.Field` "OpenBSD" )
+            ( Expr.RecordLit mempty )
+
+        Cabal.NetBSD ->
+          Expr.App
+            ( Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "OSs" `Expr.Field` "NetBSD" )
+            ( Expr.RecordLit mempty )
+
+        Cabal.DragonFly ->
+          Expr.App
+            ( Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "OSs" `Expr.Field` "DragonFly" )
+            ( Expr.RecordLit mempty )
+
+        Cabal.Solaris ->
+          Expr.App
+            ( Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "OSs" `Expr.Field` "Solaris" )
+            ( Expr.RecordLit mempty )
+
+        Cabal.AIX ->
+          Expr.App
+            ( Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "OSs" `Expr.Field` "AIX" )
+            ( Expr.RecordLit mempty )
+
+        Cabal.HPUX ->
+          Expr.App
+            ( Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "OSs" `Expr.Field` "HPUX" )
+            ( Expr.RecordLit mempty )
+
+        Cabal.IRIX ->
+          Expr.App
+            ( Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "OSs" `Expr.Field` "IRIX" )
+            ( Expr.RecordLit mempty )
+
+        Cabal.HaLVM ->
+          Expr.App
+            ( Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "OSs" `Expr.Field` "HaLVM" )
+            ( Expr.RecordLit mempty )
+
+        Cabal.Hurd ->
+          Expr.App
+            ( Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "OSs" `Expr.Field` "Hurd" )
+            ( Expr.RecordLit mempty )
+
+        Cabal.IOS ->
+          Expr.App
+            ( Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "OSs" `Expr.Field` "IOS" )
+            ( Expr.RecordLit mempty )
+
+        Cabal.Android ->
+          Expr.App
+            ( Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "OSs" `Expr.Field` "Android" )
+            ( Expr.RecordLit mempty )
+
+        Cabal.Ghcjs ->
+          Expr.App
+            ( Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "OSs" `Expr.Field` "Ghcjs" )
+            ( Expr.RecordLit mempty )
+
+    , Dhall.declared =
+        Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "OS"
+    }
 
 
 arch :: Dhall.InputType Cabal.Arch
@@ -810,13 +928,13 @@ buildInfoRecord =
     , recordField "cc-options" ( contramap Cabal.ccOptions ( listOf stringToDhall ) )
     , recordField "ld-options" ( contramap Cabal.ldOptions ( listOf stringToDhall ) )
     , recordField "pkgconfig-depends" ( contramap Cabal.pkgconfigDepends ( listOf pkgconfigDependency ) )
-    , recordField "frameworks" ( contramap Cabal.frameworks ( listOf stringToDhall ) ) 
-    , recordField "extra-framework-dirs" ( contramap Cabal.extraFrameworkDirs ( listOf stringToDhall ) ) 
-    , recordField "c-sources" ( contramap Cabal.cSources ( listOf stringToDhall ) ) 
-    , recordField "js-sources" ( contramap Cabal.jsSources ( listOf stringToDhall ) ) 
-    , recordField "hs-source-dirs" ( contramap Cabal.hsSourceDirs ( listOf stringToDhall ) ) 
-    , recordField "other-modules" ( contramap Cabal.otherModules ( listOf moduleName ) ) 
-    , recordField "autogen-modules" ( contramap Cabal.autogenModules ( listOf moduleName ) ) 
+    , recordField "frameworks" ( contramap Cabal.frameworks ( listOf stringToDhall ) )
+    , recordField "extra-framework-dirs" ( contramap Cabal.extraFrameworkDirs ( listOf stringToDhall ) )
+    , recordField "c-sources" ( contramap Cabal.cSources ( listOf stringToDhall ) )
+    , recordField "js-sources" ( contramap Cabal.jsSources ( listOf stringToDhall ) )
+    , recordField "hs-source-dirs" ( contramap Cabal.hsSourceDirs ( listOf stringToDhall ) )
+    , recordField "other-modules" ( contramap Cabal.otherModules ( listOf moduleName ) )
+    , recordField "autogen-modules" ( contramap Cabal.autogenModules ( listOf moduleName ) )
     , recordField "default-language" ( contramap Cabal.defaultLanguage ( maybeToDhall language ) )
     , recordField "other-languages" ( contramap Cabal.otherLanguages ( listOf language ) )
     , recordField "default-extensions" ( Cabal.defaultExtensions >$< listOf extension )
@@ -857,8 +975,8 @@ legacyExeDependency :: Dhall.InputType Cabal.LegacyExeDependency
 legacyExeDependency =
   runRecordInputType
     ( mconcat
-        [ recordField "exe" ( ( \( Cabal.LegacyExeDependency exe _ ) -> exe ) >$< stringToDhall ) 
-        , recordField "version" ( ( \( Cabal.LegacyExeDependency _ version ) -> version ) >$< versionRange ) 
+        [ recordField "exe" ( ( \( Cabal.LegacyExeDependency exe _ ) -> exe ) >$< stringToDhall )
+        , recordField "version" ( ( \( Cabal.LegacyExeDependency _ version ) -> version ) >$< versionRange )
         ]
     )
 
@@ -866,9 +984,9 @@ exeDependency :: Dhall.InputType Cabal.ExeDependency
 exeDependency =
   runRecordInputType
     ( mconcat
-        [ recordField "package" ( ( \( Cabal.ExeDependency packageName _ _ ) -> packageName ) >$< packageNameToDhall ) 
-        , recordField "component" ( ( \( Cabal.ExeDependency _ component _ ) -> component ) >$< unqualComponentName ) 
-        , recordField "version" ( ( \( Cabal.ExeDependency _ _ version ) -> version ) >$< versionRange ) 
+        [ recordField "package" ( ( \( Cabal.ExeDependency packageName _ _ ) -> packageName ) >$< packageNameToDhall )
+        , recordField "component" ( ( \( Cabal.ExeDependency _ component _ ) -> component ) >$< unqualComponentName )
+        , recordField "version" ( ( \( Cabal.ExeDependency _ _ version ) -> version ) >$< versionRange )
         ]
     )
 
@@ -883,7 +1001,7 @@ pkgconfigDependency =
   runRecordInputType
     ( mconcat
         [ recordField "name" ( ( \( Cabal.PkgconfigDependency a _version ) -> a ) >$< pkgconfigName )
-        , recordField "version" ( ( \( Cabal.PkgconfigDependency _name a ) -> a ) >$< versionRange ) 
+        , recordField "version" ( ( \( Cabal.PkgconfigDependency _name a ) -> a ) >$< versionRange )
         ]
     )
 
@@ -895,13 +1013,17 @@ pkgconfigName =
 
 language :: Dhall.InputType Cabal.Language
 language =
-  runUnion
-    ( mconcat
-        [ unionAlt "Haskell2010" ( \x -> case x of Cabal.Haskell2010 -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "UnknownLanguage" ( \x -> case x of Cabal.UnknownLanguage s -> Just s ; _ -> Nothing ) ( runRecordInputType ( recordField "_1" stringToDhall ) ) 
-        , unionAlt "Haskell98" ( \x -> case x of Cabal.Haskell98 -> Just () ; _ -> Nothing ) Dhall.inject
-        ]
-    )
+  ( runUnion
+      ( mconcat
+          [ unionAlt "Haskell2010" ( \x -> case x of Cabal.Haskell2010 -> Just () ; _ -> Nothing ) Dhall.inject
+          , unionAlt "UnknownLanguage" ( \x -> case x of Cabal.UnknownLanguage s -> Just s ; _ -> Nothing ) ( runRecordInputType ( recordField "_1" stringToDhall ) )
+          , unionAlt "Haskell98" ( \x -> case x of Cabal.Haskell98 -> Just () ; _ -> Nothing ) Dhall.inject
+          ]
+      )
+  )
+    { Dhall.declared =
+        Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "Language"
+    }
 
 extension :: Dhall.InputType Cabal.Extension
 extension =
@@ -917,8 +1039,8 @@ extension =
 
             _ ->
               error "Unknown extension"
-    , Dhall.declared = 
-        sortExpr ( Expr.Union ( Map.fromList [ ( extName e, Expr.Bool ) | e <- [ minBound..maxBound ] ] ) )
+    , Dhall.declared =
+        Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "Extension"
     }
 
   where
@@ -928,29 +1050,36 @@ extension =
     LazyText.pack ( show e )
 
   extWith trueFalse ext =
-    Expr.UnionLit
-      ( extName ext )
+    Expr.App
+      ( Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "Extensions" `Expr.Field` extName ext )
       ( Expr.BoolLit trueFalse )
-      ( Map.fromList [ ( extName e, Expr.Bool ) | e <- filter ( ext /= ) [ minBound..maxBound ] ] )
 
 
 compilerOptions :: Dhall.InputType [ ( Cabal.CompilerFlavor, [ String ] ) ]
 compilerOptions =
-  runRecordInputType
-    ( foldMap
-        field
-        [ Cabal.GHC
-        , Cabal.GHCJS
-        , Cabal.NHC
-        , Cabal.YHC
-        , Cabal.Hugs
-        , Cabal.HBC
-        , Cabal.Helium
-        , Cabal.JHC
-        , Cabal.LHC
-        , Cabal.UHC 
-        ] 
-    )
+  Dhall.InputType
+    { Dhall.embed = \l ->
+        case filter ( not . null . snd ) l of
+          [] ->
+            Expr.Var "prelude" `Expr.Field` "defaults" `Expr.Field` "compiler-options"
+
+          xs ->
+            Expr.Merge
+              ( Expr.Var "prelude" `Expr.Field` "defaults" `Expr.Field` "compiler-options" )
+              ( Expr.RecordLit
+                  ( Map.fromList
+                      ( map
+                          ( \( c, opts ) ->
+                              ( LazyText.pack ( show c ), Dhall.embed Dhall.inject opts )
+                          )
+                          xs
+                      )
+                  )
+              )
+              Nothing
+    , Dhall.declared =
+        Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "CompilerOptions"
+    }
 
   where
 
@@ -977,7 +1106,7 @@ includeRenaming :: Dhall.InputType Cabal.IncludeRenaming
 includeRenaming =
   runRecordInputType
     ( mconcat
-        [ recordField "provides" ( Cabal.includeProvidesRn >$< moduleRenaming ) 
+        [ recordField "provides" ( Cabal.includeProvidesRn >$< moduleRenaming )
         , recordField "requires" ( Cabal.includeRequiresRn >$< moduleRenaming )
         ]
     )
@@ -991,29 +1120,37 @@ moduleRenaming =
         ( mconcat
             [ recordField "rename" ( ( \( a, _ ) -> a ) >$< moduleName )
             , recordField "to" ( ( \( _, a ) -> a ) >$< moduleName )
-            ] 
+            ]
         )
     )
 
 
 benchmark :: Dhall.InputType Cabal.Benchmark
 benchmark =
-  runRecordInputType
-    ( mconcat
-        [ recordField "main-is" ( ( \( Cabal.BenchmarkExeV10 _ s ) -> s ) . Cabal.benchmarkInterface >$< stringToDhall )
-        , Cabal.benchmarkBuildInfo >$< buildInfoRecord
-        ]
-    )
+  (  runRecordInputType
+       ( mconcat
+           [ recordField "main-is" ( ( \( Cabal.BenchmarkExeV10 _ s ) -> s ) . Cabal.benchmarkInterface >$< stringToDhall )
+           , Cabal.benchmarkBuildInfo >$< buildInfoRecord
+           ]
+       )
+  )
+    { Dhall.declared =
+        Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "Benchmark"
+    }
 
 
 testSuite :: Dhall.InputType Cabal.TestSuite
 testSuite =
-  runRecordInputType
-    ( mconcat
-        [ recordField "type" ( Cabal.testInterface >$< testSuiteInterface )
-        , Cabal.testBuildInfo >$< buildInfoRecord
-        ]
-    )
+  ( runRecordInputType
+      ( mconcat
+          [ recordField "type" ( Cabal.testInterface >$< testSuiteInterface )
+          , Cabal.testBuildInfo >$< buildInfoRecord
+          ]
+      )
+  )
+    { Dhall.declared =
+        Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "TestSuite"
+    }
 
 
 testSuiteInterface :: Dhall.InputType Cabal.TestSuiteInterface
@@ -1026,7 +1163,7 @@ testSuiteInterface =
                 case x of
                   Cabal.TestSuiteExeV10 _ main ->
                     Just main
-            
+
                   _ ->
                     Nothing
             )
@@ -1037,24 +1174,28 @@ testSuiteInterface =
                 case x of
                   Cabal.TestSuiteLibV09 _ m ->
                     Just m
-            
+
                   _ ->
                     Nothing
             )
-            ( runRecordInputType ( recordField "module" moduleName ) ) 
+            ( runRecordInputType ( recordField "module" moduleName ) )
         ]
     )
 
 
 executable :: Dhall.InputType Cabal.Executable
 executable =
-  runRecordInputType
-    ( mconcat
-        [ recordField "main-is" ( Cabal.modulePath >$< stringToDhall )
-        , recordField "scope" ( Cabal.exeScope >$< executableScope )
-        , Cabal.buildInfo >$< buildInfoRecord 
-        ]
-    )
+  ( runRecordInputType
+      ( mconcat
+          [ recordField "main-is" ( Cabal.modulePath >$< stringToDhall )
+          , recordField "scope" ( Cabal.exeScope >$< executableScope )
+          , Cabal.buildInfo >$< buildInfoRecord
+          ]
+      )
+  )
+    { Dhall.declared =
+        Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "Executable"
+    }
 
 
 executableScope :: Dhall.InputType Cabal.ExecutableScope
@@ -1062,23 +1203,27 @@ executableScope =
   runUnion
     ( mconcat
         [ unionAlt "Public" ( \x -> case x of Cabal.ExecutablePublic -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "Private" ( \x -> case x of Cabal.ExecutablePrivate -> Just () ; _ -> Nothing ) Dhall.inject 
+        , unionAlt "Private" ( \x -> case x of Cabal.ExecutablePrivate -> Just () ; _ -> Nothing ) Dhall.inject
         ]
     )
 
 
 foreignLibrary :: Dhall.InputType Cabal.ForeignLib
 foreignLibrary =
-  runRecordInputType
-    ( mconcat
-        [ recordField "type" ( Cabal.foreignLibType >$< foreignLibType ) 
-        , recordField "options" ( Cabal.foreignLibOptions >$< ( listOf foreignLibOption ) )
-        , Cabal.foreignLibBuildInfo >$< buildInfoRecord
-        , recordField "lib-version-info" ( Cabal.foreignLibVersionInfo >$< maybeToDhall versionInfo )
-        , recordField "lib-version-linux" ( Cabal.foreignLibVersionLinux >$< maybeToDhall versionToDhall ) 
-        , recordField "mod-def-files" ( Cabal.foreignLibModDefFile >$< listOf stringToDhall )
-        ]
-    )
+  ( runRecordInputType
+      ( mconcat
+          [ recordField "type" ( Cabal.foreignLibType >$< foreignLibType )
+          , recordField "options" ( Cabal.foreignLibOptions >$< ( listOf foreignLibOption ) )
+          , Cabal.foreignLibBuildInfo >$< buildInfoRecord
+          , recordField "lib-version-info" ( Cabal.foreignLibVersionInfo >$< maybeToDhall versionInfo )
+          , recordField "lib-version-linux" ( Cabal.foreignLibVersionLinux >$< maybeToDhall versionToDhall )
+          , recordField "mod-def-files" ( Cabal.foreignLibModDefFile >$< listOf stringToDhall )
+          ]
+      )
+  )
+    { Dhall.declared =
+        Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "ForeignLibrary"
+    }
 
 
 versionInfo :: Dhall.InputType Cabal.LibVersionInfo
@@ -1088,7 +1233,7 @@ versionInfo =
     ( mconcat
         [ recordField "current" ( ( \( a, _, _ ) -> fromIntegral a :: Natural ) >$< ( Dhall.inject ) )
         , recordField "revision" ( ( \( _, a, _ ) -> fromIntegral a :: Natural ) >$< ( Dhall.inject ) )
-        , recordField "age" ( ( \( _, _, a ) -> fromIntegral a :: Natural ) >$< ( Dhall.inject ) ) 
+        , recordField "age" ( ( \( _, _, a ) -> fromIntegral a :: Natural ) >$< ( Dhall.inject ) )
         ]
     )
 
