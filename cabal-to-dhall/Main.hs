@@ -404,7 +404,7 @@ maybeToDhall :: Dhall.InputType a -> Dhall.InputType ( Maybe a )
 maybeToDhall t =
   Dhall.InputType
     { Dhall.embed =
-        \a -> Expr.OptionalLit ( Dhall.declared t ) ( foldMap pure ( Dhall.embed t <$> a ) )
+        \a -> Expr.OptionalLit ( Dhall.declared t ) ( Dhall.embed t <$> a )
     , Dhall.declared = Expr.App Expr.Optional ( Dhall.declared t )
     }
 

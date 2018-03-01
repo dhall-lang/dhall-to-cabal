@@ -2,13 +2,15 @@
 
 ((nixpkgs.haskell.packages.${compiler}.override {
   overrides = self: super: {
+    prettyprinter = self.callPackage ./prettyprinter.nix {};
+
     dhall =
       super.callPackage
         ( nixpkgs.fetchFromGitHub {
             repo = "dhall-haskell";
             owner = "dhall-lang";
-            rev = "0091b09183599198d8e77c056fb3887354b243d1";
-            sha256 = "0wp0fh60awmfs1cby2s8r6x7i1y3mzyxasfra12m2cn6fdzw5kqr";
+            rev = "404c97d96c4ee00db773bd3d23fdcf7e93b9fd23";
+            sha256 = "1v584yqy1k8p1bjyzzvd0x1pqahzwgac7mmpbmapjlsqvrrjk43q";
           }
         )
         {};

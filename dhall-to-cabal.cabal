@@ -21,7 +21,7 @@ library
         bytestring ^>=0.10,
         containers ^>=0.5,
         insert-ordered-containers ^>=0.2.1.0,
-        dhall ^>=1.9,
+        dhall ^>=1.9 || ^>=1.10,
         hashable,
         text ^>=1.2,
         text-format ^>=0.3,
@@ -42,10 +42,10 @@ executable  dhall-to-cabal
     build-depends:
         Cabal ^>=2.0,
         base ^>=4.10,
-        dhall ^>=1.9,
+        dhall ^>=1.9 || ^>= 1.10,
         dhall-to-cabal -any,
         optparse-applicative ^>=0.13.2 || ^>=0.14,
-        prettyprinter ^>=1.1.1,
+        prettyprinter ^>=1.1.1 || ^>=1.2.0.1,
         text ^>=1.2
     other-extensions: NamedFieldPuns
     hs-source-dirs: exe
@@ -57,12 +57,12 @@ executable  cabal-to-dhall
         Cabal ^>=2.0,
         base ^>=4.10,
         contravariant,
-        dhall ^>=1.9,
+        dhall ^>=1.10,
         dhall-to-cabal -any,
         insert-ordered-containers ^>=0.2.1.0,
         hashable,
         optparse-applicative ^>=0.13.2 || ^>=0.14,
-        prettyprinter ^>=1.1.1,
+        prettyprinter ^>=1.2.0.1,
         text ^>=1.2
     other-extensions: NamedFieldPuns
     hs-source-dirs: cabal-to-dhall
