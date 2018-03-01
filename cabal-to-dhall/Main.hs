@@ -1101,7 +1101,7 @@ compilerOptions =
             Expr.Var "prelude" `Expr.Field` "defaults" `Expr.Field` "compiler-options"
 
           xs ->
-            Expr.Merge
+            Expr.Prefer
               ( Expr.Var "prelude" `Expr.Field` "defaults" `Expr.Field` "compiler-options" )
               ( Expr.RecordLit
                   ( Map.fromList
@@ -1113,7 +1113,6 @@ compilerOptions =
                       )
                   )
               )
-              Nothing
     , Dhall.declared =
         Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "CompilerOptions"
     }
