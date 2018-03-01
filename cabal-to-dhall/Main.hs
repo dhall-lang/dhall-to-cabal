@@ -1131,12 +1131,17 @@ compilerOptions =
 
 mixin :: Dhall.InputType Cabal.Mixin
 mixin =
-  runRecordInputType
-    ( mconcat
-        [ recordField "package" ( Cabal.mixinPackageName >$< packageNameToDhall )
-        , recordField "renaming" ( Cabal.mixinIncludeRenaming >$< includeRenaming )
-        ]
-    )
+  ( runRecordInputType
+      ( mconcat
+          [ recordField "package" ( Cabal.mixinPackageName >$< packageNameToDhall )
+          , recordField "renaming" ( Cabal.mixinIncludeRenaming >$< includeRenaming )
+          ]
+      )
+  )
+    { Dhall.declared =
+        Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "Mixin"
+
+    }
 
 
 includeRenaming :: Dhall.InputType Cabal.IncludeRenaming
