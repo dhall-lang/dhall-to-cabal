@@ -440,11 +440,48 @@ instance Dhall.Inject Cabal.CompilerFlavor
 compilerFlavor :: Dhall.InputType Cabal.CompilerFlavor
 compilerFlavor =
   let
-    t =
-      Dhall.inject
+    constructor k v =
+      Expr.App ( Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "Compilers" `Expr.Field` k ) v
 
   in
-  t { Dhall.declared =
+  Dhall.InputType
+    { Dhall.embed = \case
+        Cabal.GHC ->
+          constructor "GHC" ( Expr.RecordLit mempty )
+
+        Cabal.GHCJS ->
+          constructor "GHCJS" ( Expr.RecordLit mempty )
+
+        Cabal.HBC ->
+          constructor "HBC" ( Expr.RecordLit mempty )
+
+        Cabal.HaskellSuite v ->
+          constructor "HaskellSuite" ( Expr.Record ( Map.singleton "_1" ( Dhall.embed Dhall.inject v ) ) )
+
+        Cabal.Helium ->
+          constructor "Helium" ( Expr.RecordLit mempty )
+
+        Cabal.Hugs ->
+          constructor "Hugs" ( Expr.RecordLit mempty )
+
+        Cabal.JHC ->
+          constructor "JHC" ( Expr.RecordLit mempty )
+
+        Cabal.LHC ->
+          constructor "LHC" ( Expr.RecordLit mempty )
+
+        Cabal.NHC ->
+          constructor "NHC" ( Expr.RecordLit mempty )
+
+        Cabal.OtherCompiler v ->
+          constructor "OtherCompiler" ( Expr.Record ( Map.singleton "_1" ( Dhall.embed Dhall.inject v ) ) )
+
+        Cabal.UHC ->
+          constructor "UHC" ( Expr.RecordLit mempty )
+
+        Cabal.YHC ->
+          constructor "YHC" ( Expr.RecordLit mempty )
+    , Dhall.declared =
         Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "Compiler"
     }
 
