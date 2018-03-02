@@ -1265,9 +1265,16 @@ executableScope :: Dhall.InputType Cabal.ExecutableScope
 executableScope =
   runUnion
     ( mconcat
-        [ unionAlt "Public" ( \x -> case x of Cabal.ExecutablePublic -> Just () ; _ -> Nothing ) Dhall.inject
+        [ unionAlt
+            "Public"
+            ( \x ->
+                case x of
+                  Cabal.ExecutablePublic -> Just ()
+                  Cabal.ExecutableScopeUnknown -> Just ()
+                  _ -> Nothing
+            )
+            Dhall.inject
         , unionAlt "Private" ( \x -> case x of Cabal.ExecutablePrivate -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "Public" ( \x -> case x of Cabal.ExecutableScopeUnknown -> Just () ; _ -> Nothing ) Dhall.inject
         ]
     )
 
