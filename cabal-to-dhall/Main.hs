@@ -25,6 +25,7 @@ import qualified Data.Text.Lazy.IO as LazyText
 import qualified Dhall
 import qualified Dhall.Core
 import qualified Dhall.Core as Expr ( Const(..), Expr(..) )
+import qualified Dhall.Import
 import qualified Dhall.Parser
 import qualified Dhall.TypeCheck
 import qualified Distribution.Compiler as Cabal
@@ -134,7 +135,28 @@ runCabalToDhall CabalToDhallOptions{ cabalFilePath } = do
     Cabal.ParseOk _warnings genericPackageDescription -> do
       let
         dhall =
-          Dhall.embed genericPackageDescriptionToDhall genericPackageDescription
+          Expr.Let
+            "prelude"
+            Nothing
+            ( Expr.Embed
+                ( Dhall.Core.Path
+                    { Dhall.Core.pathHashed =
+                        Dhall.Core.PathHashed
+                          { Dhall.Core.hash =
+                              Nothing
+                          , Dhall.Core.pathType =
+                              Dhall.Core.File Dhall.Core.Homeless "./dhall/prelude.dhall"
+                          }
+                    , Dhall.Core.pathMode =
+                        Dhall.Core.Code
+                    }
+                )
+            )
+            ( Dhall.TypeCheck.absurd <$>
+              Dhall.embed
+                genericPackageDescriptionToDhall
+                genericPackageDescription
+            )
 
       LazyText.putStrLn ( Dhall.Core.pretty dhall )
 

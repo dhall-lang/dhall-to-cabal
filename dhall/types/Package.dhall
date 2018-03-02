@@ -13,7 +13,7 @@
 , copyright :
     Text
 , custom-setup :
-    Optional { setup-depends : List ./Dependency.dhall  }
+    Optional ./CustomSetup.dhall 
 , data-dir :
     Text
 , data-files :
