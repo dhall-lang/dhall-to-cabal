@@ -57,12 +57,76 @@ in  let deps =
           }
 
 in    stdlib.GitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
-    ⫽ { license =
+    ⫽ { extra-source-files =
+          [ "Changelog.md"
+          , "dhall/stdlib.dhall"
+          , "dhall/defaults"
+          , "dhall/defaults/BuildInfo.dhall"
+          , "dhall/defaults/Library.dhall"
+          , "dhall/defaults/CompilerOptions.dhall"
+          , "dhall/defaults/SourceRepo.dhall"
+          , "dhall/defaults/TestSuite.dhall"
+          , "dhall/defaults/Executable.dhall"
+          , "dhall/defaults/Package.dhall"
+          , "dhall/defaults/Benchmark.dhall"
+          , "dhall/unconditional.dhall"
+          , "dhall/GitHub-project.dhall"
+          , "dhall/prelude.dhall"
+          , "dhall/types"
+          , "dhall/types/VersionRange.dhall"
+          , "dhall/types/OS.dhall"
+          , "dhall/types/Guarded.dhall"
+          , "dhall/types/License.dhall"
+          , "dhall/types/Library.dhall"
+          , "dhall/types/Version.dhall"
+          , "dhall/types/Language.dhall"
+          , "dhall/types/Extension.dhall"
+          , "dhall/types/CompilerOptions.dhall"
+          , "dhall/types/SourceRepo.dhall"
+          , "dhall/types/TestSuite.dhall"
+          , "dhall/types/Executable.dhall"
+          , "dhall/types/Dependency.dhall"
+          , "dhall/types/Mixin.dhall"
+          , "dhall/types/Compiler.dhall"
+          , "dhall/types/Config.dhall"
+          , "dhall/types/Package.dhall"
+          , "dhall/types/builtin.dhall"
+          , "dhall/types/BuildType.dhall"
+          , "dhall/types/RepoKind.dhall"
+          , "dhall/types/Version"
+          , "dhall/types/Version/v.dhall"
+          , "dhall/types/Arch.dhall"
+          , "dhall/types/Scope.dhall"
+          , "dhall/types/CustomSetup.dhall"
+          , "dhall/types/Benchmark.dhall"
+          , "dhall/types/Flag.dhall"
+          , "dhall/types/ForeignLibrary.dhall"
+          , "dhall/types/ModuleRenaming.dhall"
+          , "dhall/types/RepoType.dhall"
+          , "dhall/types/TestType.dhall"
+          , "dhall/types/VersionRange"
+          , "dhall/types/VersionRange/IntersectVersionRanges.dhall"
+          , "dhall/types/VersionRange/WithinVersion.dhall"
+          , "dhall/types/VersionRange/InvertVersionRange.dhall"
+          , "dhall/types/VersionRange/EarlierVersion.dhall"
+          , "dhall/types/VersionRange/DifferenceVersionRanges.dhall"
+          , "dhall/types/VersionRange/ThisVersion.dhall"
+          , "dhall/types/VersionRange/OrLaterVersion.dhall"
+          , "dhall/types/VersionRange/OrEarlierVersion.dhall"
+          , "dhall/types/VersionRange/AnyVersion.dhall"
+          , "dhall/types/VersionRange/NotThisVersion.dhall"
+          , "dhall/types/VersionRange/LaterVersion.dhall"
+          , "dhall/types/VersionRange/NoVersion.dhall"
+          , "dhall/types/VersionRange/MajorBoundVersion.dhall"
+          , "dhall/types/VersionRange/UnionVersionRanges.dhall"
+          , "dhall/types/SetupBuildInfo.dhall"
+          ]
+      , license =
           stdlib.`constructors`.Licenses.MIT {=}
       , license-files =
           [ "LICENSE" ]
       , version =
-          v "0.1.0"
+          v "1.0.0"
       , library =
           stdlib.unconditional.library
           (   stdlib.default.Library
