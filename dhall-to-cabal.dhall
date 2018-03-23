@@ -25,7 +25,7 @@ in  let deps =
           , containers =
               majorVersions "containers" [ v "0.5" ]
           , dhall =
-              majorVersions "dhall" [ v "1.9" ]
+              majorVersions "dhall" [ v "1.11" ]
           , dhall-to-cabal =
               package "dhall-to-cabal" anyVersion
           , filepath =
@@ -35,15 +35,19 @@ in  let deps =
           , optparse-applicative =
               majorVersions "optparse-applicative" [ v "0.13.2", v "0.14" ]
           , prettyprinter =
-              majorVersions "prettyprinter" [ v "1.1.1" ]
+              majorVersions "prettyprinter" [ v "1.2.0.1" ]
+          , contravariant =
+              majorVersions "contravariant" [ v "1.4" ]
+          , hashable =
+              majorVersions "hashable" [ v "1.2.6.1" ]
           , tasty =
               majorVersions "tasty" [ v "0.11" ]
           , tasty-golden =
               majorVersions "tasty-golden" [ v "2.3" ]
           , text =
               majorVersions "text" [ v "1.2" ]
-          , text-format =
-              majorVersions "text-format" [ v "0.3" ]
+          , formatting =
+              majorVersions "formatting" [ v "6.3.1" ]
           , transformers =
               majorVersions "transformers" [ v "0.5.2" ]
           , trifecta =
@@ -67,10 +71,11 @@ in    stdlib.GitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                   , deps.base
                   , deps.bytestring
                   , deps.containers
-                  , deps.insert-ordered-containers
                   , deps.dhall
+                  , deps.formatting
+                  , deps.hashable
+                  , deps.insert-ordered-containers
                   , deps.text
-                  , deps.text-format
                   , deps.transformers
                   , deps.trifecta
                   , deps.vector
@@ -79,7 +84,7 @@ in    stdlib.GitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                     stdlib.default.CompilerOptions
                   ⫽ { GHC = [ "-Wall", "-fno-warn-name-shadowing" ] }
               , exposed-modules =
-                  [ "Distribution.Package.Dhall" ]
+                  [ "Distribution.Package.Dhall", "Dhall.Extra" ]
               , hs-source-dirs =
                   [ "lib" ]
               , other-extensions =
@@ -93,10 +98,7 @@ in    stdlib.GitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                   , stdlib.`constructors`.Extensions.TypeApplications True
                   ]
               , other-modules =
-                  [ "DhallToCabal.ConfigTree"
-                  , "DhallToCabal.Diff"
-                  , "Dhall.Extra"
-                  ]
+                  [ "DhallToCabal.ConfigTree", "DhallToCabal.Diff" ]
               }
           )
       , executables =
@@ -126,7 +128,10 @@ in    stdlib.GitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
               ⫽ { build-depends =
                     [ deps.Cabal
                     , deps.base
+                    , deps.contravariant
                     , deps.dhall
+                    , deps.hashable
+                    , deps.dhall-to-cabal
                     , deps.insert-ordered-containers
                     , deps.optparse-applicative
                     , deps.prettyprinter

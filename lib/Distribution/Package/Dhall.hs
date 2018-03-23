@@ -38,7 +38,7 @@ import Data.Function ( (&) )
 import Data.List ( partition )
 import Data.Maybe ( fromMaybe )
 import Data.Monoid ( (<>) )
-import Data.Text.Buildable ( Buildable(..) )
+import Formatting.Buildable ( Buildable(..) )
 import Text.Trifecta.Delta ( Delta(..) )
 
 import qualified Data.ByteString.Lazy as LazyByteString
