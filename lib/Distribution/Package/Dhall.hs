@@ -521,7 +521,7 @@ sourceRepo =
 
 repoKind :: Dhall.Type Cabal.RepoKind
 repoKind =
-  Dhall.genericAuto
+  sortType Dhall.genericAuto
 
 
 
@@ -711,7 +711,7 @@ versionRange =
 
 buildType :: Dhall.Type Cabal.BuildType
 buildType =
-  Dhall.genericAuto
+  sortType Dhall.genericAuto
 
 
 
@@ -749,13 +749,13 @@ compiler =
 
 compilerFlavor :: Dhall.Type Cabal.CompilerFlavor
 compilerFlavor =
-  Dhall.genericAuto
+  sortType Dhall.genericAuto
 
 
 
 repoType :: Dhall.Type Cabal.RepoType
 repoType =
-  Dhall.genericAuto
+  sortType Dhall.genericAuto
 
 
 
@@ -813,7 +813,7 @@ exeDependency =
 
 language :: Dhall.Type Cabal.Language
 language =
-  Dhall.genericAuto
+  sortType Dhall.genericAuto
 
 
 
@@ -895,7 +895,7 @@ extension :: Dhall.Type Cabal.Extension
 extension =
   let
     knownExtension =
-      Dhall.genericAuto
+      sortType Dhall.genericAuto
 
     unitType =
       Expr.Record Map.empty
@@ -922,7 +922,7 @@ extension =
     expected =
       case Dhall.expected knownExtension of
         Expr.Union alts ->
-          Expr.Union ( Expr.Bool <$ alts )
+          sortExpr ( Expr.Union ( Expr.Bool <$ alts ) )
 
         _ ->
           error "Could not derive extension type"
@@ -932,7 +932,7 @@ extension =
 
 
 guarded
-  :: ( Monoid a, Eq a, Show a, Diffable a )
+  :: ( Monoid a, Eq a, Diffable a )
   => Dhall.Type a
   -> Dhall.Type ( Cabal.CondTree Cabal.ConfVar [Cabal.Dependency] a )
 guarded t =
@@ -1156,13 +1156,13 @@ genericPackageDescription =
 
 operatingSystem :: Dhall.Type Cabal.OS
 operatingSystem =
-  Dhall.genericAuto
+  sortType Dhall.genericAuto
 
 
 
 arch :: Dhall.Type Cabal.Arch
 arch =
-  Dhall.genericAuto
+  sortType Dhall.genericAuto
 
 
 
@@ -1242,3 +1242,8 @@ moduleRenaming =
   Dhall.list $
   makeRecord $
     (,) <$> keyValue "rename" moduleName <*> keyValue "to" moduleName
+
+
+sortType :: Dhall.Type a -> Dhall.Type a
+sortType t =
+  t { Dhall.expected = sortExpr ( Dhall.expected t ) }

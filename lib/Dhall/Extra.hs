@@ -1,6 +1,7 @@
 {-# language ApplicativeDo #-}
 {-# language GADTs #-}
 {-# language GeneralizedNewtypeDeriving #-}
+{-# language LambdaCase #-}
 {-# language RecordWildCards #-}
 
 module Dhall.Extra
@@ -9,6 +10,7 @@ module Dhall.Extra
   , makeRecord
   , makeUnion
   , validateType
+  , sortExpr
   )
   where
 
@@ -17,6 +19,9 @@ import Control.Monad ( join )
 import Control.Monad.Trans.Reader ( Reader, reader, runReader )
 import Data.Functor.Compose ( Compose(..) )
 import Data.Functor.Product ( Product(..) )
+import Data.Hashable ( Hashable )
+import Data.List ( sortBy )
+import Data.Ord ( comparing )
 
 import qualified Data.HashMap.Strict.InsOrd as Map
 import qualified Data.Text.Lazy as LazyText
@@ -56,7 +61,7 @@ makeRecord ( RecordBuilder ( Pair ( Const fields ) ( Compose extractF ) ) ) =
       runReader extractF
 
     expected =
-      Expr.Record fields
+      sortExpr ( Expr.Record fields )
 
   in Dhall.Type { .. }
 
@@ -93,7 +98,7 @@ makeUnion alts =
       Dhall.extract t v
 
     expected =
-      Expr.Union ( Dhall.expected <$> alts )
+      sortExpr ( Expr.Union ( Dhall.expected <$> alts ) )
 
   in Dhall.Type { .. }
 
@@ -102,3 +107,23 @@ makeUnion alts =
 validateType :: Dhall.Type ( Maybe a ) -> Dhall.Type a
 validateType a =
   a { Dhall.extract = join . Dhall.extract a }
+
+
+sortInsOrdHashMap :: ( Hashable k, Ord k ) => Map.InsOrdHashMap k v -> Map.InsOrdHashMap k v
+sortInsOrdHashMap =
+  Map.fromList . sortBy ( comparing fst ) . Map.toList
+
+
+sortExpr :: Dhall.Expr s a -> Dhall.Expr s a
+sortExpr = \case
+  Expr.RecordLit r ->
+    Expr.RecordLit ( sortInsOrdHashMap r )
+
+  Expr.Record r ->
+    Expr.Record ( sortInsOrdHashMap r )
+
+  Expr.Union r ->
+    Expr.Union ( sortInsOrdHashMap r )
+
+  e ->
+    e

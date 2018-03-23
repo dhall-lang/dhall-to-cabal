@@ -14,13 +14,15 @@ source-repository head
 library
     exposed-modules:
         Distribution.Package.Dhall
+        Dhall.Extra
     build-depends:
         Cabal ^>=2.0,
         base ^>=4.10,
         bytestring ^>=0.10,
         containers ^>=0.5,
         insert-ordered-containers ^>=0.2.1.0,
-        dhall ^>=1.9,
+        dhall ^>=1.9 || ^>=1.10,
+        hashable,
         text ^>=1.2,
         text-format ^>=0.3,
         transformers ^>=0.5.2,
@@ -32,7 +34,6 @@ library
     other-modules:
         DhallToCabal.ConfigTree
         DhallToCabal.Diff
-        Dhall.Extra
     ghc-options: -Wall -fno-warn-name-shadowing
 
 executable  dhall-to-cabal
@@ -41,13 +42,30 @@ executable  dhall-to-cabal
     build-depends:
         Cabal ^>=2.0,
         base ^>=4.10,
-        dhall ^>=1.9,
+        dhall ^>=1.9 || ^>= 1.10,
         dhall-to-cabal -any,
         optparse-applicative ^>=0.13.2 || ^>=0.14,
-        prettyprinter ^>=1.1.1,
+        prettyprinter ^>=1.1.1 || ^>=1.2.0.1,
         text ^>=1.2
     other-extensions: NamedFieldPuns
     hs-source-dirs: exe
+
+executable  cabal-to-dhall
+    main-is: Main.hs
+    scope: public
+    build-depends:
+        Cabal ^>=2.0,
+        base ^>=4.10,
+        contravariant,
+        dhall ^>=1.10,
+        dhall-to-cabal -any,
+        insert-ordered-containers ^>=0.2.1.0,
+        hashable,
+        optparse-applicative ^>=0.13.2 || ^>=0.14,
+        prettyprinter ^>=1.2.0.1,
+        text ^>=1.2
+    other-extensions: NamedFieldPuns
+    hs-source-dirs: cabal-to-dhall
 
 test-suite  golden-tests
     type: exitcode-stdio-1.0
