@@ -7,7 +7,7 @@
 {-# language PatternSynonyms #-}
 {-# language RecordWildCards #-}
 
-module Distribution.Package.Dhall
+module DhallToCabal
   ( dhallToCabal
   , genericPackageDescription
   , sourceRepo
@@ -31,6 +31,8 @@ module Distribution.Package.Dhall
   , versionRange
   , version
   , configRecordType
+
+  , sortExpr
   ) where
 
 import Control.Exception ( Exception, throwIO )

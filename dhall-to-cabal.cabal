@@ -13,8 +13,7 @@ source-repository head
 
 library
     exposed-modules:
-        Distribution.Package.Dhall
-        Dhall.Extra
+        DhallToCabal
     build-depends:
         Cabal ^>=2.0,
         base ^>=4.10,
@@ -34,6 +33,7 @@ library
     other-modules:
         DhallToCabal.ConfigTree
         DhallToCabal.Diff
+        Dhall.Extra
     ghc-options: -Wall -fno-warn-name-shadowing
 
 executable  dhall-to-cabal

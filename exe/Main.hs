@@ -16,7 +16,7 @@ import Data.Text.Lazy (Text)
 import System.Environment ( getArgs )
 import Data.String ( fromString )
 
-import Distribution.Package.Dhall
+import DhallToCabal
 
 import qualified Data.Text.Lazy.IO as LazyText
 import qualified Data.Text.Prettyprint.Doc as Pretty

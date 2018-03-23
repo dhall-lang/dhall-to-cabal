@@ -84,7 +84,7 @@ in    stdlib.GitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                     stdlib.default.CompilerOptions
                   ⫽ { GHC = [ "-Wall", "-fno-warn-name-shadowing" ] }
               , exposed-modules =
-                  [ "Distribution.Package.Dhall", "Dhall.Extra" ]
+                  [ "DhallToCabal" ]
               , hs-source-dirs =
                   [ "lib" ]
               , other-extensions =
@@ -98,7 +98,10 @@ in    stdlib.GitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                   , stdlib.`constructors`.Extensions.TypeApplications True
                   ]
               , other-modules =
-                  [ "DhallToCabal.ConfigTree", "DhallToCabal.Diff" ]
+                  [ "DhallToCabal.ConfigTree"
+                  , "DhallToCabal.Diff"
+                  , "Dhall.Extra"
+                  ]
               }
           )
       , executables =

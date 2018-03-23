@@ -68,9 +68,9 @@ import qualified Distribution.Version as Cabal
 import qualified Language.Haskell.Extension as Cabal
 import qualified Options.Applicative as OptParse
 
-import Dhall.Extra ( sortExpr )
+import DhallToCabal ( sortExpr )
 
-import qualified Distribution.Package.Dhall as DhallToCabal
+import qualified DhallToCabal
 
 
 type DhallExpr =
