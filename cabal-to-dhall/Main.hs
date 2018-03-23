@@ -73,6 +73,23 @@ import DhallToCabal ( sortExpr )
 import qualified DhallToCabal
 
 
+preludeLocation :: Dhall.Core.Path
+preludeLocation =
+  Dhall.Core.Path
+    { Dhall.Core.pathHashed =
+        Dhall.Core.PathHashed
+          { Dhall.Core.hash =
+              Nothing
+          , Dhall.Core.pathType =
+              Dhall.Core.URL
+                "https://raw.githubusercontent.com/dhall-lang/dhall-to-cabal/1.0.0/dhall/prelude.dhall"
+                Nothing
+          }
+    , Dhall.Core.pathMode =
+        Dhall.Core.Code
+    }
+
+
 type DhallExpr =
   Dhall.Core.Expr Dhall.Parser.Src Dhall.TypeCheck.X
 
@@ -138,20 +155,7 @@ runCabalToDhall CabalToDhallOptions{ cabalFilePath } = do
           Expr.Let
             "prelude"
             Nothing
-            ( Expr.Embed
-                ( Dhall.Core.Path
-                    { Dhall.Core.pathHashed =
-                        Dhall.Core.PathHashed
-                          { Dhall.Core.hash =
-                              Nothing
-                          , Dhall.Core.pathType =
-                              Dhall.Core.File Dhall.Core.Homeless "./dhall/prelude.dhall"
-                          }
-                    , Dhall.Core.pathMode =
-                        Dhall.Core.Code
-                    }
-                )
-            )
+            ( Expr.Embed preludeLocation )
             ( Dhall.TypeCheck.absurd <$>
               Dhall.embed
                 genericPackageDescriptionToDhall
