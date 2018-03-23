@@ -4,15 +4,10 @@
   overrides = self: super: {
     prettyprinter = self.callPackage ./prettyprinter.nix {};
 
-    dhall =
-      super.callPackage
-        ( nixpkgs.fetchFromGitHub {
-            repo = "dhall-haskell";
-            owner = "dhall-lang";
-            rev = "404c97d96c4ee00db773bd3d23fdcf7e93b9fd23";
-            sha256 = "1v584yqy1k8p1bjyzzvd0x1pqahzwgac7mmpbmapjlsqvrrjk43q";
-          }
-        )
-        {};
+    dhall = super.callPackage ./dhall.nix {};
+    
+    repline = nixpkgs.haskell.lib.doJailbreak super.repline;
+    
+    formatting = super.callPackage ./formatting.nix {};
   };
 }).callCabal2nix "dhall-to-cabal" ./. {}).env
