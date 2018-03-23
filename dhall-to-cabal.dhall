@@ -25,7 +25,7 @@ in  let deps =
           , containers =
               majorVersions "containers" [ v "0.5" ]
           , dhall =
-              majorVersions "dhall" [ v "1.11" ]
+              majorVersions "dhall" [ v "1.12.0" ]
           , dhall-to-cabal =
               package "dhall-to-cabal" anyVersion
           , filepath =
