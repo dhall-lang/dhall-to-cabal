@@ -5,6 +5,12 @@
         ./types/BuildType.dhall 
     , BuildTypes =
         constructors ./types/BuildType.dhall 
+    , OSs =
+        constructors ./types/OS.dhall 
+    , OS =
+        ./types/OS.dhall 
+    , CompilerOptions =
+        ./types/CompilerOptions.dhall 
     , Compilers =
         constructors ./types/Compiler.dhall 
     , ConfigOptions =
@@ -37,6 +43,10 @@
         ./types/Version.dhall 
     , VersionRange =
         ./types/VersionRange.dhall 
+    , License =
+        ./types/License.dhall 
+    , Compiler =
+        ./types/Compiler.dhall 
     }
 , defaults =
     { compiler-options = ./defaults/CompilerOptions.dhall  }
@@ -44,14 +54,26 @@
     ./types/VersionRange/AnyVersion.dhall 
 , earlierVersion =
     ./types/VersionRange/EarlierVersion.dhall 
+, orEarlierVersion =
+    ./types/VersionRange/OrEarlierVersion.dhall 
 , intersectVersionRanges =
     ./types/VersionRange/IntersectVersionRanges.dhall 
+, unionVersionRanges =
+    ./types/VersionRange/UnionVersionRanges.dhall 
+, majorBoundVersion =
+    ./types/VersionRange/MajorBoundVersion.dhall 
 , orLaterVersion =
     ./types/VersionRange/OrLaterVersion.dhall 
+, laterVersion =
+    ./types/VersionRange/LaterVersion.dhall 
 , thisVersion =
     ./types/VersionRange/ThisVersion.dhall 
+, notThisVersion =
+    ./types/VersionRange/NotThisVersion.dhall 
 , withinVersion =
     ./types/VersionRange/WithinVersion.dhall 
 , v =
     ./types/Version/v.dhall 
+, noVersion =
+    ./types/VersionRange/NoVersion.dhall 
 }
