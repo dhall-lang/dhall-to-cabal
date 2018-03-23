@@ -1124,7 +1124,7 @@ compilerOptions =
     { Dhall.embed = \l ->
         case filter ( not . null . snd ) l of
           [] ->
-            Expr.Var "prelude" `Expr.Field` "defaults" `Expr.Field` "compiler-options"
+            Expr.Var "prelude" `Expr.Field` "defaults" `Expr.Field` "CompilerOptions"
 
           xs ->
             Expr.Prefer

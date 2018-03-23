@@ -1,17 +1,17 @@
-    let stdlib = ./dhall/stdlib.dhall 
+    let prelude = ./dhall/prelude.dhall 
 
-in  let v = ./dhall/types/Version/v.dhall 
+in  let v = prelude.v
 
-in  let anyVersion = ./dhall/types/VersionRange/AnyVersion.dhall 
+in  let anyVersion = prelude.anyVersion
 
-in  let OS = ./dhall/types/OS.dhall 
+in  let OS = prelude.types.OS
 
 in  let package =
             λ(package : Text)
-          → λ(version-range : ./dhall/types/VersionRange.dhall )
+          → λ(version-range : prelude.types.VersionRange)
           → { bounds = version-range, package = package }
 
-in  let majorVersions = stdlib.dependency.majorVersions
+in  let majorVersions = prelude.utils.majorVersions
 
 in  let deps =
           { Cabal =
@@ -56,10 +56,10 @@ in  let deps =
               majorVersions "vector" [ v "0.12" ]
           }
 
-in    stdlib.GitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
+in    prelude.utils.GitHub-project
+      { owner = "ocharles", repo = "dhall-to-cabal" }
     ⫽ { extra-source-files =
           [ "Changelog.md"
-          , "dhall/stdlib.dhall"
           , "dhall/defaults"
           , "dhall/defaults/BuildInfo.dhall"
           , "dhall/defaults/Library.dhall"
@@ -122,14 +122,14 @@ in    stdlib.GitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
           , "dhall/types/SetupBuildInfo.dhall"
           ]
       , license =
-          stdlib.`constructors`.Licenses.MIT {=}
+          prelude.types.Licenses.MIT {=}
       , license-files =
           [ "LICENSE" ]
       , version =
           v "1.0.0"
       , library =
-          stdlib.unconditional.library
-          (   stdlib.default.Library
+          prelude.unconditional.library
+          (   prelude.defaults.Library
             ⫽ { build-depends =
                   [ deps.Cabal
                   , deps.base
@@ -145,21 +145,20 @@ in    stdlib.GitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                   , deps.vector
                   ]
               , compiler-options =
-                    stdlib.default.CompilerOptions
+                    prelude.defaults.CompilerOptions
                   ⫽ { GHC = [ "-Wall", "-fno-warn-name-shadowing" ] }
               , exposed-modules =
                   [ "DhallToCabal" ]
               , hs-source-dirs =
                   [ "lib" ]
               , other-extensions =
-                  [ stdlib.`constructors`.Extensions.ApplicativeDo True
-                  , stdlib.`constructors`.Extensions.GADTs True
-                  , stdlib.`constructors`.Extensions.GeneralizedNewtypeDeriving
-                    True
-                  , stdlib.`constructors`.Extensions.LambdaCase True
-                  , stdlib.`constructors`.Extensions.OverloadedStrings True
-                  , stdlib.`constructors`.Extensions.RecordWildCards True
-                  , stdlib.`constructors`.Extensions.TypeApplications True
+                  [ prelude.types.Extensions.ApplicativeDo True
+                  , prelude.types.Extensions.GADTs True
+                  , prelude.types.Extensions.GeneralizedNewtypeDeriving True
+                  , prelude.types.Extensions.LambdaCase True
+                  , prelude.types.Extensions.OverloadedStrings True
+                  , prelude.types.Extensions.RecordWildCards True
+                  , prelude.types.Extensions.TypeApplications True
                   ]
               , other-modules =
                   [ "DhallToCabal.ConfigTree"
@@ -169,9 +168,9 @@ in    stdlib.GitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
               }
           )
       , executables =
-          [ stdlib.unconditional.executable
+          [ prelude.unconditional.executable
             "dhall-to-cabal"
-            (   stdlib.default.Executable
+            (   prelude.defaults.Executable
               ⫽ { build-depends =
                     [ deps.Cabal
                     , deps.base
@@ -186,12 +185,12 @@ in    stdlib.GitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                 , main-is =
                     "Main.hs"
                 , other-extensions =
-                    [ stdlib.`constructors`.Extensions.NamedFieldPuns True ]
+                    [ prelude.types.Extensions.NamedFieldPuns True ]
                 }
             )
-          , stdlib.unconditional.executable
+          , prelude.unconditional.executable
             "cabal-to-dhall"
-            (   stdlib.default.Executable
+            (   prelude.defaults.Executable
               ⫽ { build-depends =
                     [ deps.Cabal
                     , deps.base
@@ -209,14 +208,14 @@ in    stdlib.GitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                 , main-is =
                     "Main.hs"
                 , other-extensions =
-                    [ stdlib.`constructors`.Extensions.NamedFieldPuns True ]
+                    [ prelude.types.Extensions.NamedFieldPuns True ]
                 }
             )
           ]
       , test-suites =
-          [ stdlib.unconditional.test-suite
+          [ prelude.unconditional.test-suite
             "golden-tests"
-            (   stdlib.default.TestSuite
+            (   prelude.defaults.TestSuite
               ⫽ { build-depends =
                     [ deps.base
                     , deps.Cabal
@@ -231,7 +230,7 @@ in    stdlib.GitHub-project { owner = "ocharles", repo = "dhall-to-cabal" }
                 , hs-source-dirs =
                     [ "golden-tests" ]
                 , type =
-                    stdlib.`constructors`.TestTypes.exitcode-stdio
+                    prelude.types.TestTypes.exitcode-stdio
                     { main-is = "GoldenTests.hs" }
                 }
             )

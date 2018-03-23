@@ -8,7 +8,6 @@ homepage: https://github.com/ocharles/dhall-to-cabal
 bug-reports: https://github.com/ocharles/dhall-to-cabal/issues
 extra-source-files:
     Changelog.md
-    dhall/stdlib.dhall
     dhall/defaults
     dhall/defaults/BuildInfo.dhall
     dhall/defaults/Library.dhall
