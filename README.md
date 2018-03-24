@@ -17,7 +17,7 @@ Dhall expressions. Such is the beauty of having a powerful language behind us!
 I love Cabal, and `.cabal` files aren't *bad*, but they are hardly great either.
 A major limitation is the lack of a way to import things. This leads to code
 duplication and repetition, and we all know this is a bad thing. The means of
-abstraction in a cabal file a pretty rudimentary too - why not just give us
+abstraction in a cabal file is pretty rudimentary too - why not just give us
 proper variables and let us figure out how best to abstract things?
 
 If you accept the above argument, then Dhall-to-Cabal might be of interest to
@@ -45,7 +45,7 @@ you. This approach enables a few nice things:
   goodness.
 
   We can also see the desire to have this import/reuse functionality in core
-  libraries. The [`network`](https://hackage.haskell.org/package/network) opens
-  with a stanza about how you have to add the library to your cabal file which
-  is totally non-standard. Just give me an expression to import, and then I
-  don't have to worry about the details!
+  libraries. The [`network`](https://hackage.haskell.org/package/network)
+  library opens with a stanza about how you have to add the library to your
+  cabal file which is totally non-standard. Just give me an expression to
+  import, and then I don't have to worry about the details!
