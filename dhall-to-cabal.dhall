@@ -73,8 +73,11 @@ in    prelude.utils.GitHub-project
           "Distribution"
       , maintainer =
           "ollie@ocharles.org.uk"
+      , author =
+          "Ollie Charles <ollie@ocharles.org.uk>"
       , extra-source-files =
           [ "Changelog.md"
+          , "README.md"
           , "dhall/defaults/BuildInfo.dhall"
           , "dhall/defaults/Library.dhall"
           , "dhall/defaults/CompilerOptions.dhall"
@@ -141,7 +144,7 @@ in    prelude.utils.GitHub-project
       , license-files =
           [ "LICENSE" ]
       , version =
-          v "1.0.0"
+          v "1.0.0.1"
       , library =
           prelude.unconditional.library
           (   prelude.defaults.Library
