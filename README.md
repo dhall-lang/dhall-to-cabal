@@ -77,27 +77,23 @@ example of a Dhall expression that can be used with `dhall-to-cabal`:
 
 ```
     let GitHub-project =
-          https://raw.githubusercontent.com/ocharles/dhall-to-cabal/1.0-RC1/dhall/GitHub-project.dhall
+          https://raw.githubusercontent.com/ocharles/dhall-to-cabal/1.0.0/dhall/GitHub-project.dhall
 
-in  let library =
-              let unconditional =
-                    https://raw.githubusercontent.com/ocharles/dhall-to-cabal/1.0-RC1/dhall/unconditional.dhall
-          
-          in  unconditional.library
-
-in  let empty-Library =
-          https://raw.githubusercontent.com/ocharles/dhall-to-cabal/1.0-RC1/dhall/defaults/Library.dhall 
+in  let prelude =
+          https://raw.githubusercontent.com/ocharles/dhall-to-cabal/1.0.0/dhall/prelude.dhall
 
 in    GitHub-project
       { owner = "ocharles", repo = "example" }
-    ⫽ { library =
-          library
-          (   empty-Library
+    ⫽ { version =
+          prelude.v "1.0.0"
+      , library =
+          prelude.unconditional.library
+          (   prelude.defaults.Library
             ⫽ { build-depends =
                   [ { package =
                         "base"
                     , bounds =
-                        majorBoundVersion (v "4")
+                        prelude.majorBoundVersion (prelude.v "4")
                     }
                   ]
               , exposed-modules = 
@@ -127,8 +123,7 @@ and [other documentation](https://github.com/dhall-lang/dhall-lang/wiki).
 
 ## Cabal?
 
-Cabal is something that regular readers of my blog are likely to be more
-familiar with, but if you're not, Cabal is:
+Cabal is something that you might already be familiar with, but if you're not, Cabal is:
 
 > a system for building and packaging Haskell libraries and programs. It defines
 > a common interface for package authors and distributors to easily build their
