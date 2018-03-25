@@ -10,11 +10,11 @@
 }:
 mkDerivation {
   pname = "dhall";
-  version = "1.11.1";
+  version = "1.12.0";
   src = fetchgit {
     url = "git://github.com/dhall-lang/dhall-haskell";
-    sha256 = "04jxiy61bmwpr84y1xs3dxbwnmsf1k7ycmga41p32m3yrsl0dqc7";
-    rev = "ed2041ee7709969ca63b4d9d1a82a34ffc145f3d";
+    sha256 = "0kywaizrp4d7l7qfq0af70m95qn8mv5dkd1mw50vpjx3b8mar59h";
+    rev = "7d7b8590b5ef82598bbf36e146a0c4c20e4dec04";
   };
   isLibrary = true;
   isExecutable = true;
