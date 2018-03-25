@@ -1,54 +1,16 @@
 { types =
-    { Benchmark =
-        ./types/Benchmark.dhall 
-    , BuildType =
-        ./types/BuildType.dhall 
-    , BuildTypes =
+    { BuildTypes =
         constructors ./types/BuildType.dhall 
     , OSs =
         constructors ./types/OS.dhall 
-    , OS =
-        ./types/OS.dhall 
-    , CompilerOptions =
-        ./types/CompilerOptions.dhall 
     , Compilers =
         constructors ./types/Compiler.dhall 
-    , ConfigOptions =
-        ./types/Config.dhall 
-    , CustomSetup =
-        ./types/CustomSetup.dhall 
-    , Executable =
-        ./types/Executable.dhall 
-    , Extension =
-        ./types/Extension.dhall 
     , Extensions =
         constructors ./types/Extension.dhall 
-    , ForeignLibrary =
-        ./types/ForeignLibrary.dhall 
-    , Language =
-        ./types/Language.dhall 
     , Languages =
         constructors ./types/Language.dhall 
-    , Library =
-        ./types/Library.dhall 
-    , Mixin =
-        ./types/Mixin.dhall 
-    , RepoKind =
-        ./types/RepoKind.dhall 
-    , RepoType =
-        ./types/RepoType.dhall 
-    , TestSuite =
-        ./types/TestSuite.dhall 
-    , Version =
-        ./types/Version.dhall 
-    , VersionRange =
-        ./types/VersionRange.dhall 
-    , License =
-        ./types/License.dhall 
     , Licenses =
         constructors ./types/License.dhall 
-    , Compiler =
-        ./types/Compiler.dhall 
     , TestTypes =
         constructors ./types/TestType.dhall 
     }

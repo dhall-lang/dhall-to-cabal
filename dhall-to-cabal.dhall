@@ -1,14 +1,16 @@
     let prelude = ./dhall/prelude.dhall 
 
+in  let types = ./dhall/types.dhall 
+
 in  let v = prelude.v
 
 in  let anyVersion = prelude.anyVersion
 
-in  let OS = prelude.types.OS
+in  let OS = types.OS
 
 in  let package =
             λ(package : Text)
-          → λ(version-range : prelude.types.VersionRange)
+          → λ(version-range : types.VersionRange)
           → { bounds = version-range, package = package }
 
 in  let majorVersions = prelude.utils.majorVersions
