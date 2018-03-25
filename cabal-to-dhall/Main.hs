@@ -90,6 +90,23 @@ preludeLocation =
     }
 
 
+typesLocation :: Dhall.Core.Path
+typesLocation =
+  Dhall.Core.Path
+    { Dhall.Core.pathHashed =
+        Dhall.Core.PathHashed
+          { Dhall.Core.hash =
+              Nothing
+          , Dhall.Core.pathType =
+              Dhall.Core.URL
+                "https://raw.githubusercontent.com/dhall-lang/dhall-to-cabal/1.0.0/dhall/types.dhall"
+                Nothing
+          }
+    , Dhall.Core.pathMode =
+        Dhall.Core.Code
+    }
+
+
 type DhallExpr =
   Dhall.Core.Expr Dhall.Parser.Src Dhall.TypeCheck.X
 
@@ -152,15 +169,13 @@ runCabalToDhall CabalToDhallOptions{ cabalFilePath } = do
     Cabal.ParseOk _warnings genericPackageDescription -> do
       let
         dhall =
-          Expr.Let
-            "prelude"
-            Nothing
-            ( Expr.Embed preludeLocation )
-            ( Dhall.TypeCheck.absurd <$>
-              Dhall.embed
-                genericPackageDescriptionToDhall
-                genericPackageDescription
-            )
+          Expr.Let "prelude" Nothing ( Expr.Embed preludeLocation )
+            $ Expr.Let "types" Nothing ( Expr.Embed typesLocation )
+            $ ( Dhall.TypeCheck.absurd <$>
+                Dhall.embed
+                  genericPackageDescriptionToDhall
+                  genericPackageDescription
+              )
 
       LazyText.putStrLn ( Dhall.Core.pretty dhall )
 
@@ -287,7 +302,7 @@ versionToDhall =
           . show
           . Cabal.disp
     , Dhall.declared =
-        Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "Version"
+        Expr.Var "types" `Expr.Field` "Version"
     }
 
 
@@ -319,7 +334,7 @@ licenseToDhall =
       )
   )
     { Dhall.declared =
-        Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "License"
+        Expr.Var "types" `Expr.Field` "License"
     }
 
   where
@@ -508,7 +523,7 @@ compilerFlavor =
         Cabal.YHC ->
           constructor "YHC" ( Expr.RecordLit mempty )
     , Dhall.declared =
-        Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "Compiler"
+        Expr.Var "types" `Expr.Field` "Compiler"
     }
 
 
@@ -582,7 +597,7 @@ versionRange =
           in
           go ( Cabal.fromVersionIntervals ( Cabal.toVersionIntervals versionRange0 ) )
     , Dhall.declared =
-        Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "VersionRange"
+        Expr.Var "types" `Expr.Field` "VersionRange"
     }
 
 
@@ -612,7 +627,7 @@ repoKind =
       )
   )
     { Dhall.declared =
-         Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "RepoKind"
+         Expr.Var "types" `Expr.Field` "RepoKind"
     }
 
 
@@ -633,7 +648,7 @@ repoType =
       )
   )
     { Dhall.declared =
-        Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "RepoType"
+        Expr.Var "types" `Expr.Field` "RepoType"
     }
 
 
@@ -675,7 +690,7 @@ buildType =
             ( Expr.RecordLit ( Map.singleton "_1" ( Dhall.embed Dhall.inject s ) ) )
 
     , Dhall.declared =
-        Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "BuildType"
+        Expr.Var "types" `Expr.Field` "BuildType"
     }
 
 
@@ -688,7 +703,7 @@ setupBuildInfo =
       )
   )
     { Dhall.declared =
-        Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "CustomSetup"
+        Expr.Var "types" `Expr.Field` "CustomSetup"
     }
 
 
@@ -737,7 +752,7 @@ library =
       )
   )
     { Dhall.declared =
-        Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "Library"
+        Expr.Var "types" `Expr.Field` "Library"
     }
 
 
@@ -816,7 +831,7 @@ condTree t =
           ( go b )
 
     configRecord =
-      Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "ConfigOptions"
+      Expr.Var "types" `Expr.Field` "ConfigOptions"
 
   in
   Dhall.InputType
@@ -1085,7 +1100,7 @@ language =
       )
   )
     { Dhall.declared =
-        Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "Language"
+        Expr.Var "types" `Expr.Field` "Language"
     }
 
 extension :: Dhall.InputType Cabal.Extension
@@ -1103,7 +1118,7 @@ extension =
             _ ->
               error "Unknown extension"
     , Dhall.declared =
-        Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "Extension"
+        Expr.Var "types" `Expr.Field` "Extension"
     }
 
   where
@@ -1140,7 +1155,7 @@ compilerOptions =
                   )
               )
     , Dhall.declared =
-        Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "CompilerOptions"
+        Expr.Var "types" `Expr.Field` "CompilerOptions"
     }
 
   where
@@ -1164,7 +1179,7 @@ mixin =
       )
   )
     { Dhall.declared =
-        Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "Mixin"
+        Expr.Var "types" `Expr.Field` "Mixin"
 
     }
 
@@ -1202,7 +1217,7 @@ benchmark =
        )
   )
     { Dhall.declared =
-        Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "Benchmark"
+        Expr.Var "types" `Expr.Field` "Benchmark"
     }
 
 
@@ -1216,7 +1231,7 @@ testSuite =
       )
   )
     { Dhall.declared =
-        Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "TestSuite"
+        Expr.Var "types" `Expr.Field` "TestSuite"
     }
 
 
@@ -1261,7 +1276,7 @@ executable =
       )
   )
     { Dhall.declared =
-        Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "Executable"
+        Expr.Var "types" `Expr.Field` "Executable"
     }
 
 
@@ -1297,7 +1312,7 @@ foreignLibrary =
       )
   )
     { Dhall.declared =
-        Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "ForeignLibrary"
+        Expr.Var "types" `Expr.Field` "ForeignLibrary"
     }
 
 
