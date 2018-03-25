@@ -60,9 +60,21 @@ in  let deps =
 
 in    prelude.utils.GitHub-project
       { owner = "ocharles", repo = "dhall-to-cabal" }
-    ⫽ { extra-source-files =
+    ⫽ { synopsis =
+          "Compile Dhall expressions to Cabal files"
+      , description =
+          ''
+          dhall-to-cabal takes Dhall expressions and compiles them into Cabal 
+          files. All of the features of Dhall are supported, such as let
+          bindings and imports, and all features of Cabal are supported 
+          (including conditional stanzas).
+          ''
+      , category =
+          "Distribution"
+      , maintainer =
+          "ollie@ocharles.org.uk"
+      , extra-source-files =
           [ "Changelog.md"
-          , "dhall/defaults"
           , "dhall/defaults/BuildInfo.dhall"
           , "dhall/defaults/Library.dhall"
           , "dhall/defaults/CompilerOptions.dhall"
@@ -74,7 +86,6 @@ in    prelude.utils.GitHub-project
           , "dhall/unconditional.dhall"
           , "dhall/GitHub-project.dhall"
           , "dhall/prelude.dhall"
-          , "dhall/types"
           , "dhall/types/VersionRange.dhall"
           , "dhall/types/OS.dhall"
           , "dhall/types/Guarded.dhall"
@@ -95,7 +106,6 @@ in    prelude.utils.GitHub-project
           , "dhall/types/builtin.dhall"
           , "dhall/types/BuildType.dhall"
           , "dhall/types/RepoKind.dhall"
-          , "dhall/types/Version"
           , "dhall/types/Version/v.dhall"
           , "dhall/types/Arch.dhall"
           , "dhall/types/Scope.dhall"
@@ -106,7 +116,6 @@ in    prelude.utils.GitHub-project
           , "dhall/types/ModuleRenaming.dhall"
           , "dhall/types/RepoType.dhall"
           , "dhall/types/TestType.dhall"
-          , "dhall/types/VersionRange"
           , "dhall/types/VersionRange/IntersectVersionRanges.dhall"
           , "dhall/types/VersionRange/WithinVersion.dhall"
           , "dhall/types/VersionRange/InvertVersionRange.dhall"
@@ -167,6 +176,9 @@ in    prelude.utils.GitHub-project
                   , "DhallToCabal.Diff"
                   , "Dhall.Extra"
                   ]
+              , default-language =
+                  [ prelude.types.Languages.Haskell2010 {=} ] : Optional
+                                                                types.Language
               }
           )
       , executables =
@@ -188,6 +200,9 @@ in    prelude.utils.GitHub-project
                     "Main.hs"
                 , other-extensions =
                     [ prelude.types.Extensions.NamedFieldPuns True ]
+                , default-language =
+                    [ prelude.types.Languages.Haskell2010 {=} ] : Optional
+                                                                  types.Language
                 }
             )
           , prelude.unconditional.executable
@@ -211,6 +226,9 @@ in    prelude.utils.GitHub-project
                     "Main.hs"
                 , other-extensions =
                     [ prelude.types.Extensions.NamedFieldPuns True ]
+                , default-language =
+                    [ prelude.types.Languages.Haskell2010 {=} ] : Optional
+                                                                  types.Language
                 }
             )
           ]
@@ -234,6 +252,9 @@ in    prelude.utils.GitHub-project
                 , type =
                     prelude.types.TestTypes.exitcode-stdio
                     { main-is = "GoldenTests.hs" }
+                , default-language =
+                    [ prelude.types.Languages.Haskell2010 {=} ] : Optional
+                                                                  types.Language
                 }
             )
           ]

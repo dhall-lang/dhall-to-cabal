@@ -4,11 +4,19 @@ cabal-version: 2.0
 build-type: Simple
 license: MIT
 license-file: LICENSE
+maintainer: ollie@ocharles.org.uk
 homepage: https://github.com/ocharles/dhall-to-cabal
 bug-reports: https://github.com/ocharles/dhall-to-cabal/issues
+synopsis: Compile Dhall expressions to Cabal files
+description:
+    dhall-to-cabal takes Dhall expressions and compiles them into Cabal 
+    files. All of the features of Dhall are supported, such as let
+    bindings and imports, and all features of Cabal are supported 
+    (including conditional stanzas).
+    .
+category: Distribution
 extra-source-files:
     Changelog.md
-    dhall/defaults
     dhall/defaults/BuildInfo.dhall
     dhall/defaults/Library.dhall
     dhall/defaults/CompilerOptions.dhall
@@ -20,7 +28,6 @@ extra-source-files:
     dhall/unconditional.dhall
     dhall/GitHub-project.dhall
     dhall/prelude.dhall
-    dhall/types
     dhall/types/VersionRange.dhall
     dhall/types/OS.dhall
     dhall/types/Guarded.dhall
@@ -41,7 +48,6 @@ extra-source-files:
     dhall/types/builtin.dhall
     dhall/types/BuildType.dhall
     dhall/types/RepoKind.dhall
-    dhall/types/Version
     dhall/types/Version/v.dhall
     dhall/types/Arch.dhall
     dhall/types/Scope.dhall
@@ -52,7 +58,6 @@ extra-source-files:
     dhall/types/ModuleRenaming.dhall
     dhall/types/RepoType.dhall
     dhall/types/TestType.dhall
-    dhall/types/VersionRange
     dhall/types/VersionRange/IntersectVersionRanges.dhall
     dhall/types/VersionRange/WithinVersion.dhall
     dhall/types/VersionRange/InvertVersionRange.dhall
@@ -89,6 +94,7 @@ library
         transformers ^>=0.5.2,
         trifecta ^>=1.7,
         vector ^>=0.12
+    default-language: Haskell2010
     other-extensions: ApplicativeDo GADTs GeneralizedNewtypeDeriving
                       LambdaCase OverloadedStrings RecordWildCards TypeApplications
     hs-source-dirs: lib
@@ -109,6 +115,7 @@ executable  dhall-to-cabal
         optparse-applicative ^>=0.13.2 || ^>=0.14,
         prettyprinter ^>=1.2.0.1,
         text ^>=1.2
+    default-language: Haskell2010
     other-extensions: NamedFieldPuns
     hs-source-dirs: exe
 
@@ -126,6 +133,7 @@ executable  cabal-to-dhall
         optparse-applicative ^>=0.13.2 || ^>=0.14,
         prettyprinter ^>=1.2.0.1,
         text ^>=1.2
+    default-language: Haskell2010
     other-extensions: NamedFieldPuns
     hs-source-dirs: cabal-to-dhall
 
@@ -142,5 +150,6 @@ test-suite  golden-tests
         tasty ^>=0.11,
         tasty-golden ^>=2.3,
         text ^>=1.2
+    default-language: Haskell2010
     hs-source-dirs: golden-tests
 
