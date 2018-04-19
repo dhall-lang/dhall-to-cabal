@@ -11,13 +11,14 @@ import Test.Tasty.Golden.Advanced ( goldenTest )
 import qualified Data.ByteString.Lazy as LBS
 import qualified Data.Text.Lazy as LazyText
 import qualified Data.Text.Lazy.Encoding as LazyText
+import qualified Data.Text.Lazy.IO as LazyText
 import qualified Distribution.PackageDescription.Configuration as Cabal
 import qualified Distribution.PackageDescription.Parse as Cabal
 import qualified Distribution.PackageDescription.PrettyPrint as Cabal
 import qualified Distribution.PackageDescription as Cabal
 import qualified Distribution.Verbosity as Cabal
 
-import Distribution.Package.Dhall ( dhallFileToCabal )
+import DhallToCabal ( dhallToCabal )
 
 
   
@@ -37,7 +38,7 @@ goldenTests = do
         [ goldenTest
             ( takeBaseName dhallFile )
             ( Cabal.readGenericPackageDescription Cabal.normal cabalFile )
-            ( dhallFileToCabal dhallFile )
+            ( LazyText.readFile dhallFile >>= dhallToCabal dhallFile  )
             ( \expected actual ->
                 return $
                   if on (==) Cabal.showGenericPackageDescription expected actual then
