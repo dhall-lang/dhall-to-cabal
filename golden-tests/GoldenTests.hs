@@ -39,12 +39,17 @@ goldenTests = do
             ( takeBaseName dhallFile )
             ( Cabal.readGenericPackageDescription Cabal.normal cabalFile )
             ( LazyText.readFile dhallFile >>= dhallToCabal dhallFile  )
-            ( \expected actual ->
-                return $
-                  if on (==) Cabal.showGenericPackageDescription expected actual then
-                    Nothing
-                  else
-                    Just "Generated .cabal file does not match input"
+            ( \expected actual -> do
+                let [exp,act] = map Cabal.showGenericPackageDescription
+                                [expected, actual]
+                if exp == act then
+                    return Nothing
+                else do
+                  putStrLn $ "Diff between expected " ++ cabalFile ++
+                             " and actual " ++ dhallFile ++ " :"
+                  let gDiff = getGroupedDiff (map show exp) (map show act)
+                  putStrLn $ ppDiff gDiff
+                  return $ Just "Generated .cabal file does not match input"
             )
             ( Cabal.writeGenericPackageDescription cabalFile )
         | dhallFile <- dhallFiles
