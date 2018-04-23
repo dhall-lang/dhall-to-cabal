@@ -1,10 +1,78 @@
 name: dhall-to-cabal
-version: 0.1.0
+version: 1.0.0
 cabal-version: 2.0
 build-type: Simple
 license: MIT
+license-file: LICENSE
+maintainer: ollie@ocharles.org.uk
 homepage: https://github.com/ocharles/dhall-to-cabal
 bug-reports: https://github.com/ocharles/dhall-to-cabal/issues
+synopsis: Compile Dhall expressions to Cabal files
+description:
+    dhall-to-cabal takes Dhall expressions and compiles them into Cabal 
+    files. All of the features of Dhall are supported, such as let
+    bindings and imports, and all features of Cabal are supported 
+    (including conditional stanzas).
+    .
+category: Distribution
+extra-source-files:
+    Changelog.md
+    dhall/defaults/BuildInfo.dhall
+    dhall/defaults/Library.dhall
+    dhall/defaults/CompilerOptions.dhall
+    dhall/defaults/SourceRepo.dhall
+    dhall/defaults/TestSuite.dhall
+    dhall/defaults/Executable.dhall
+    dhall/defaults/Package.dhall
+    dhall/defaults/Benchmark.dhall
+    dhall/unconditional.dhall
+    dhall/GitHub-project.dhall
+    dhall/prelude.dhall
+    dhall/types/VersionRange.dhall
+    dhall/types/OS.dhall
+    dhall/types/Guarded.dhall
+    dhall/types/License.dhall
+    dhall/types/Library.dhall
+    dhall/types/Version.dhall
+    dhall/types/Language.dhall
+    dhall/types/Extension.dhall
+    dhall/types/CompilerOptions.dhall
+    dhall/types/SourceRepo.dhall
+    dhall/types/TestSuite.dhall
+    dhall/types/Executable.dhall
+    dhall/types/Dependency.dhall
+    dhall/types/Mixin.dhall
+    dhall/types/Compiler.dhall
+    dhall/types/Config.dhall
+    dhall/types/Package.dhall
+    dhall/types/builtin.dhall
+    dhall/types/BuildType.dhall
+    dhall/types/RepoKind.dhall
+    dhall/types/Version/v.dhall
+    dhall/types/Arch.dhall
+    dhall/types/Scope.dhall
+    dhall/types/CustomSetup.dhall
+    dhall/types/Benchmark.dhall
+    dhall/types/Flag.dhall
+    dhall/types/ForeignLibrary.dhall
+    dhall/types/ModuleRenaming.dhall
+    dhall/types/RepoType.dhall
+    dhall/types/TestType.dhall
+    dhall/types/VersionRange/IntersectVersionRanges.dhall
+    dhall/types/VersionRange/WithinVersion.dhall
+    dhall/types/VersionRange/InvertVersionRange.dhall
+    dhall/types/VersionRange/EarlierVersion.dhall
+    dhall/types/VersionRange/DifferenceVersionRanges.dhall
+    dhall/types/VersionRange/ThisVersion.dhall
+    dhall/types/VersionRange/OrLaterVersion.dhall
+    dhall/types/VersionRange/OrEarlierVersion.dhall
+    dhall/types/VersionRange/AnyVersion.dhall
+    dhall/types/VersionRange/NotThisVersion.dhall
+    dhall/types/VersionRange/LaterVersion.dhall
+    dhall/types/VersionRange/NoVersion.dhall
+    dhall/types/VersionRange/MajorBoundVersion.dhall
+    dhall/types/VersionRange/UnionVersionRanges.dhall
+    dhall/types/SetupBuildInfo.dhall
 
 source-repository head
     type: git
@@ -12,22 +80,27 @@ source-repository head
 
 library
     exposed-modules:
-        Distribution.Package.Dhall
+        DhallToCabal
     build-depends:
-        base ^>=4.10,
         Cabal ^>=2.0,
-        dhall ^>=1.9,
-        text ^>=1.2,
+        base ^>=4.10,
         bytestring ^>=0.10,
         containers ^>=0.5,
-        vector ^>=0.12,
+        dhall ^>=1.12.0,
+        formatting ^>=6.3.1,
+        hashable ^>=1.2.6.1,
+        insert-ordered-containers ^>=0.2.1.0,
+        text ^>=1.2,
+        transformers ^>=0.5.2,
         trifecta ^>=1.7,
-        text-format ^>=0.3,
-        transformers ^>=0.5.2
+        vector ^>=0.12
+    default-language: Haskell2010
     other-extensions: ApplicativeDo GADTs GeneralizedNewtypeDeriving
                       LambdaCase OverloadedStrings RecordWildCards TypeApplications
     hs-source-dirs: lib
     other-modules:
+        DhallToCabal.ConfigTree
+        DhallToCabal.Diff
         Dhall.Extra
     ghc-options: -Wall -fno-warn-name-shadowing
 
@@ -35,27 +108,48 @@ executable  dhall-to-cabal
     main-is: Main.hs
     scope: public
     build-depends:
+        Cabal ^>=2.0,
         base ^>=4.10,
+        dhall ^>=1.12.0,
         dhall-to-cabal -any,
         optparse-applicative ^>=0.13.2 || ^>=0.14,
-        text ^>=1.2,
-        dhall ^>=1.9,
-        Cabal ^>=2.0
+        prettyprinter ^>=1.2.0.1,
+        text ^>=1.2
+    default-language: Haskell2010
     other-extensions: NamedFieldPuns
     hs-source-dirs: exe
+
+executable  cabal-to-dhall
+    main-is: Main.hs
+    scope: public
+    build-depends:
+        Cabal ^>=2.0,
+        base ^>=4.10,
+        contravariant ^>=1.4,
+        dhall ^>=1.12.0,
+        hashable ^>=1.2.6.1,
+        dhall-to-cabal -any,
+        insert-ordered-containers ^>=0.2.1.0,
+        optparse-applicative ^>=0.13.2 || ^>=0.14,
+        prettyprinter ^>=1.2.0.1,
+        text ^>=1.2
+    default-language: Haskell2010
+    other-extensions: NamedFieldPuns
+    hs-source-dirs: cabal-to-dhall
 
 test-suite  golden-tests
     type: exitcode-stdio-1.0
     main-is: GoldenTests.hs
     build-depends:
-        bytestring ^>=0.10,
         base ^>=4.10,
         Cabal ^>=2.0,
-        text ^>=1.2,
-        tasty ^>=0.11,
-        filepath ^>=1.4,
+        Diff ^>=0.3.4,
+        bytestring ^>=0.10,
         dhall-to-cabal -any,
+        filepath ^>=1.4,
+        tasty ^>=0.11,
         tasty-golden ^>=2.3,
-        Diff ^>=0.3.4
+        text ^>=1.2
+    default-language: Haskell2010
     hs-source-dirs: golden-tests
 
