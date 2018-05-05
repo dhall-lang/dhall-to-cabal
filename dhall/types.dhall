@@ -8,7 +8,7 @@
     ./types/Compiler.dhall
 , CompilerOptions =
     ./types/CompilerOptions.dhall
-, ConfigOptions =
+, Config =
     ./types/Config.dhall 
 , CustomSetup =
     ./types/CustomSetup.dhall
