@@ -31,7 +31,10 @@ main =
 goldenTests :: IO TestTree
 goldenTests = do
   dhallFiles <-
-    findByExtension [ ".dhall" ] "golden-tests"
+    return [ "./golden-tests/dhall-to-etlas.dhall"
+           , "./golden-tests/empty-package.dhall"
+           , "./golden-tests/wai-servlet.dhall" ]
+    -- findByExtension [ ".dhall" ] "golden-tests"
 
   return
     $ testGroup "dhall-to-cabal golden tests"
@@ -47,7 +50,7 @@ goldenTests = do
                 else do
                   putStrLn $ "Diff between expected " ++ cabalFile ++
                              " and actual " ++ dhallFile ++ " :"
-                  let gDiff = getGroupedDiff (map show exp) (map show act)
+                  let gDiff = getGroupedDiff (lines exp) (lines act)
                   putStrLn $ ppDiff gDiff
                   return $ Just "Generated .cabal file does not match input"
             )
