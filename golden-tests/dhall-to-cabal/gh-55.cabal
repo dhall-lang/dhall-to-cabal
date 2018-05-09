@@ -12,6 +12,7 @@ library
         cpp-options: -DCOND1
         other-modules:
             OtherModule
+    else
     exposed-modules:
         Module1
 

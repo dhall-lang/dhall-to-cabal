@@ -28,6 +28,9 @@
 * The signature of `CabalToDhall.cabalToDhall` has changed: it now takes the location
   of the `prelude.dhall` and `types.dhall` to import as a parameter.
 
+* Upgrade to Cabal 2.2. This introduces SPDX license identifiers and Dhall 
+  functionality to manipulate them; see <golden-tests/dhall-to-cabal/SPDX.dhall>
+  for a (convoluted) demonstration.
 
 ## 1.0.0.1 -- 2018-03-25
 

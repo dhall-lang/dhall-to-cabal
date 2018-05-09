@@ -7,7 +7,7 @@ import Control.Applicative ( (<**>), optional )
 import Data.Version ( showVersion )
 import GHC.Stack
 
-import qualified Data.Text.Lazy as LazyText
+import qualified Data.ByteString as ByteString
 import qualified Data.Text.Lazy.IO as LazyText
 import qualified Data.Text.Prettyprint.Doc as Pretty
 import qualified Data.Text.Prettyprint.Doc.Render.Text as Pretty
@@ -114,10 +114,10 @@ runCabalToDhall CabalToDhallOptions{ cabalFilePath } = do
   source <-
     case cabalFilePath of
       Nothing ->
-        LazyText.getContents
+        ByteString.getContents
 
       Just filePath ->
-        LazyText.readFile filePath
+        ByteString.readFile filePath
 
   dhall <-
     cabalToDhall dhallLocation source

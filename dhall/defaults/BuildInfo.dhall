@@ -60,7 +60,27 @@
 , profiling-options =
     ./CompilerOptions.dhall 
 , shared-options =
-    ./CompilerOptions.dhall 
+    ./CompilerOptions.dhall
+, static-options =
+    ./CompilerOptions.dhall
 , mixins =
-    [] : List ../types/Mixin.dhall 
+    [] : List ../types/Mixin.dhall
+, asm-options =
+    [] : List Text
+, asm-sources =
+    [] : List Text
+, cmm-options =
+    [] : List Text
+, cmm-sources =
+    [] : List Text
+, cxx-options =
+    [] : List Text
+, cxx-sources =
+    [] : List Text
+, virtual-modules =
+    [] : List Text
+, extra-lib-flavours =
+    [] : List Text
+, extra-bundled-libs =
+    [] : List Text
 }

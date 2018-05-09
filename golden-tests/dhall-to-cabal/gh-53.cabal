@@ -14,8 +14,10 @@ library
     if impl(ghc >=0.0.9)
         c-sources:
             java/Utils.java
+    else
     
     if flag(wai-servlet-debug)
         cpp-options: -DWAI_SERVLET_DEBUG
+    else
 
 

@@ -9,6 +9,7 @@ import Test.Tasty ( defaultMain, TestTree, testGroup )
 import Test.Tasty.Golden ( findByExtension, goldenVsStringDiff )
 import Test.Tasty.Golden.Advanced ( goldenTest )
 
+import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as LBS
 import qualified Data.Text.Lazy as LazyText
 import qualified Data.Text.Lazy.Encoding as LazyText
@@ -17,7 +18,7 @@ import qualified Data.Text.Prettyprint.Doc as Pretty
 import qualified Data.Text.Prettyprint.Doc.Render.Text as Pretty
 import qualified Dhall.Core
 import qualified Distribution.PackageDescription.Configuration as Cabal
-import qualified Distribution.PackageDescription.Parse as Cabal
+import qualified Distribution.PackageDescription.Parsec as Cabal
 import qualified Distribution.PackageDescription.PrettyPrint as Cabal
 import qualified Distribution.PackageDescription as Cabal
 import qualified Distribution.Verbosity as Cabal
@@ -114,7 +115,7 @@ goldenTests = do
              ( takeBaseName cabalFile )
              ( \ ref new -> [ "diff", "-u", ref, new ] )
              dhallFile
-             ( LazyText.readFile cabalFile >>= cabalToDhall dhallLocation
+             ( BS.readFile cabalFile >>= cabalToDhall dhallLocation
                  & fmap ( LazyText.encodeUtf8 . Pretty.renderLazy
                         . Pretty.layoutSmart layoutOpts . Pretty.pretty
                         )

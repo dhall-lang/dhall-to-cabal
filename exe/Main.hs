@@ -68,6 +68,9 @@ data KnownType
   | Package
   | VersionRange
   | Version
+  | SPDX
+  | LicenseId
+  | LicenseExceptionId
   deriving (Bounded, Enum, Eq, Ord, Read, Show)
 
 
@@ -273,6 +276,9 @@ printType t = do
         Package -> Dhall.expected genericPackageDescription
         VersionRange -> Dhall.expected versionRange
         Version -> Dhall.expected version
+        SPDX -> Dhall.expected spdxLicense
+        LicenseId -> Dhall.expected spdxLicenseId
+        LicenseExceptionId -> Dhall.expected spdxLicenseExceptionId
 
     letDhallType t =
       liftCSE ( isCandidateSubrecord t ) ( fromString ( show t ) ) ( dhallType t )
