@@ -31,10 +31,7 @@ main =
 goldenTests :: IO TestTree
 goldenTests = do
   dhallFiles <-
-    return [ "./golden-tests/dhall-to-etlas.dhall"
-           , "./golden-tests/empty-package.dhall"
-           , "./golden-tests/wai-servlet.dhall" ]
-    -- findByExtension [ ".dhall" ] "golden-tests"
+    findByExtension [ ".dhall" ] "golden-tests"
 
   return
     $ testGroup "dhall-to-cabal golden tests"
