@@ -64,9 +64,9 @@ in    prelude.utils.GitHub-project
           "Compile Dhall expressions to Cabal files"
       , description =
           ''
-          dhall-to-cabal takes Dhall expressions and compiles them into Cabal 
+          dhall-to-cabal takes Dhall expressions and compiles them into Cabal
           files. All of the features of Dhall are supported, such as let
-          bindings and imports, and all features of Cabal are supported 
+          bindings and imports, and all features of Cabal are supported
           (including conditional stanzas).
           ''
       , category =

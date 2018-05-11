@@ -11,13 +11,14 @@ import Test.Tasty.Golden.Advanced ( goldenTest )
 import qualified Data.ByteString.Lazy as LBS
 import qualified Data.Text.Lazy as LazyText
 import qualified Data.Text.Lazy.Encoding as LazyText
+import qualified Data.Text.Lazy.IO as LazyText
 import qualified Distribution.PackageDescription.Configuration as Cabal
 import qualified Distribution.PackageDescription.Parse as Cabal
 import qualified Distribution.PackageDescription.PrettyPrint as Cabal
 import qualified Distribution.PackageDescription as Cabal
 import qualified Distribution.Verbosity as Cabal
 
-import Distribution.Package.Dhall ( dhallFileToCabal )
+import DhallToCabal ( dhallToCabal )
 
 
   
@@ -37,13 +38,18 @@ goldenTests = do
         [ goldenTest
             ( takeBaseName dhallFile )
             ( Cabal.readGenericPackageDescription Cabal.normal cabalFile )
-            ( dhallFileToCabal dhallFile )
-            ( \expected actual ->
-                return $
-                  if on (==) Cabal.showGenericPackageDescription expected actual then
-                    Nothing
-                  else
-                    Just "Generated .cabal file does not match input"
+            ( LazyText.readFile dhallFile >>= dhallToCabal dhallFile  )
+            ( \expected actual -> do
+                let [exp,act] = map Cabal.showGenericPackageDescription
+                                [expected, actual]
+                if exp == act then
+                    return Nothing
+                else do
+                  putStrLn $ "Diff between expected " ++ cabalFile ++
+                             " and actual " ++ dhallFile ++ " :"
+                  let gDiff = getGroupedDiff (lines exp) (lines act)
+                  putStrLn $ ppDiff gDiff
+                  return $ Just "Generated .cabal file does not match input"
             )
             ( Cabal.writeGenericPackageDescription cabalFile )
         | dhallFile <- dhallFiles

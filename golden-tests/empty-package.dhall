@@ -2,17 +2,13 @@
 ⫽ { name =
       "Name"
   , version =
-      [ +1 ]
+      ./dhall/types/Version/v.dhall  "1"
   , executables =
       [ { name =
             "foo"
         , executable =
-            [ { guard =
-                  λ(config : ./dhall/types/Config.dhall ) → True
-              , body =
-                  ./dhall/defaults/Executable.dhall 
-              }
-            ]
+            λ(config : ./dhall/types/Config.dhall)
+          → ./dhall/defaults/Executable.dhall
         }
       ]
   }
