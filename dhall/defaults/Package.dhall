@@ -87,8 +87,10 @@
          , version :
              ../types/VersionRange.dhall 
          }
+, version =
+    ../types/Version/v.dhall "0"
 , x-fields =
     [] : List { _1 : Text, _2 : Text }
 , custom-setup =
-    [] : Optional ../types/SetupBuildInfo.dhall 
+    [] : Optional ../types/SetupBuildInfo.dhall
 }
