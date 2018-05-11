@@ -40,6 +40,8 @@
     ./types/ModuleRenaming.dhall
 , OS =
     ./types/OS.dhall
+, Package =
+    ./types/Package.dhall
 , RepoKind =
     ./types/RepoKind.dhall
 , RepoType =
