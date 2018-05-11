@@ -997,8 +997,8 @@ guarded t =
 
           ( duplicates, true'', false'' ) =
             diff
-              ( Cabal.condTreeComponents false )
               ( Cabal.condTreeComponents true )
+              ( Cabal.condTreeComponents false )
 
         in
           Cabal.CondNode
