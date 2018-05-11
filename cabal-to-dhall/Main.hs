@@ -831,7 +831,7 @@ condTree t =
           ( go b )
 
     configRecord =
-      Expr.Var "types" `Expr.Field` "ConfigOptions"
+      Expr.Var "types" `Expr.Field` "Config"
 
   in
   Dhall.InputType
