@@ -24,8 +24,6 @@
     ./types/Flag.dhall
 , ForeignLibrary =
     ./types/ForeignLibrary.dhall
-, Guarded =
-    ./types/Guarded.dhall
 , Language =
     ./types/Language.dhall 
 , Languages =
