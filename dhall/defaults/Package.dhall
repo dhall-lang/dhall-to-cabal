@@ -56,8 +56,6 @@
     [] : List Text
 , maintainer =
     ""
-, name =
-    ""
 , package-url =
     ""
 , source-repos =
