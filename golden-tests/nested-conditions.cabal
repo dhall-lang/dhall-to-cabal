@@ -1,0 +1,22 @@
+name: foo
+version: 0
+cabal-version: 2.0
+build-type: Simple
+license: UnspecifiedLicense
+
+library
+    
+    if impl(ghc >=8.2)
+        
+        if impl(ghc >=8.4)
+            ghc-options: -Weverything -Wno-redundant-constraints -Wno-missing-export-lists
+        else
+            ghc-options: -Weverything -Wno-redundant-constraints
+    else
+        
+        if impl(ghc >=8.4)
+            ghc-options: -Weverything -Wno-missing-export-lists
+        else
+            ghc-options: -Weverything
+
+
