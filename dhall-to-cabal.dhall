@@ -131,6 +131,10 @@ in    prelude.utils.GitHub-project
           , "dhall/types/VersionRange/MajorBoundVersion.dhall"
           , "dhall/types/VersionRange/UnionVersionRanges.dhall"
           , "dhall/types/SetupBuildInfo.dhall"
+          , "golden-tests/dhall-to-cabal/*.dhall"
+          , "golden-tests/dhall-to-cabal/*.cabal"
+          , "golden-tests/cabal-to-dhall/*.dhall"
+          , "golden-tests/cabal-to-dhall/*.cabal"
           ]
       , license =
           prelude.types.Licenses.MIT {=}
