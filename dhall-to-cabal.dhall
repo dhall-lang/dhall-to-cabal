@@ -131,6 +131,10 @@ in    prelude.utils.GitHub-project
           , "dhall/types/VersionRange/MajorBoundVersion.dhall"
           , "dhall/types/VersionRange/UnionVersionRanges.dhall"
           , "dhall/types/SetupBuildInfo.dhall"
+          , "golden-tests/dhall-to-cabal/*.dhall"
+          , "golden-tests/dhall-to-cabal/*.cabal"
+          , "golden-tests/cabal-to-dhall/*.dhall"
+          , "golden-tests/cabal-to-dhall/*.cabal"
           ]
       , license =
           prelude.types.Licenses.MIT {=}
@@ -146,6 +150,7 @@ in    prelude.utils.GitHub-project
                   , deps.base
                   , deps.bytestring
                   , deps.containers
+                  , deps.contravariant
                   , deps.dhall
                   , deps.formatting
                   , deps.hashable
@@ -159,7 +164,9 @@ in    prelude.utils.GitHub-project
                     prelude.defaults.CompilerOptions
                   ⫽ { GHC = [ "-Wall", "-fno-warn-name-shadowing" ] }
               , exposed-modules =
-                  [ "DhallToCabal" ]
+                  [ "DhallToCabal"
+                  , "CabalToDhall"
+                  ]
               , hs-source-dirs =
                   [ "lib" ]
               , other-extensions =
@@ -209,15 +216,9 @@ in    prelude.utils.GitHub-project
             "cabal-to-dhall"
             (   prelude.defaults.Executable
               ⫽ { build-depends =
-                    [ deps.Cabal
-                    , deps.base
-                    , deps.contravariant
-                    , deps.dhall
-                    , deps.hashable
+                    [ deps.base
                     , deps.dhall-to-cabal
-                    , deps.insert-ordered-containers
                     , deps.optparse-applicative
-                    , deps.prettyprinter
                     , deps.text
                     ]
                 , hs-source-dirs =
