@@ -41,7 +41,6 @@ import Data.List ( partition )
 import Data.Maybe ( fromMaybe )
 import Data.Monoid ( (<>) )
 import Formatting.Buildable ( Buildable(..) )
-import Text.Trifecta.Delta ( Delta(..) )
 
 import qualified Data.ByteString.Lazy as LazyByteString
 import qualified Data.HashMap.Strict.InsOrd as Map
@@ -554,12 +553,8 @@ dhallToCabal fileName source =
 
 input :: FilePath -> LazyText.Text -> Dhall.Type a -> IO a
 input fileName source t = do
-  let
-    delta =
-      Directed ( StrictText.encodeUtf8 ( StrictText.pack fileName ) ) 0 0 0 0
-
   expr  <-
-    throws ( Dhall.Parser.exprFromText delta source )
+    throws ( Dhall.Parser.exprFromText fileName source )
 
   expr' <-
     Dhall.Import.load expr
@@ -569,8 +564,6 @@ input fileName source t = do
       Dhall.expected t
         & build
         & Builder.toLazyText
-        & LazyText.encodeUtf8
-        & LazyByteString.toStrict
 
   let
     annot =
