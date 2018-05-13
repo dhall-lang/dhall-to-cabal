@@ -27,7 +27,7 @@ in  let deps =
           , containers =
               majorVersions "containers" [ v "0.5" ]
           , dhall =
-              majorVersions "dhall" [ v "1.12.0" ]
+              majorVersions "dhall" [ v "1.12.0", v "1.13.0" ]
           , dhall-to-cabal =
               package "dhall-to-cabal" anyVersion
           , filepath =
@@ -52,8 +52,6 @@ in  let deps =
               majorVersions "formatting" [ v "6.3.1" ]
           , transformers =
               majorVersions "transformers" [ v "0.5.2" ]
-          , trifecta =
-              majorVersions "trifecta" [ v "1.7" ]
           , vector =
               majorVersions "vector" [ v "0.12" ]
           }
@@ -160,7 +158,6 @@ in    prelude.utils.GitHub-project
                   , deps.insert-ordered-containers
                   , deps.text
                   , deps.transformers
-                  , deps.trifecta
                   , deps.vector
                   ]
               , compiler-options =
