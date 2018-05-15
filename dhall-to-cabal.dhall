@@ -43,7 +43,7 @@ in  let deps =
           , hashable =
               majorVersions "hashable" [ v "1.2.6.1" ]
           , tasty =
-              majorVersions "tasty" [ v "0.11" ]
+              majorVersions "tasty" [ v "0.11", v "0.12", v "1.0", v "1.1" ]
           , tasty-golden =
               majorVersions "tasty-golden" [ v "2.3" ]
           , text =
