@@ -21,7 +21,7 @@ in  let deps =
           , Diff =
               majorVersions "Diff" [ v "0.3.4" ]
           , base =
-              majorVersions "base" [ v "4.10" ]
+              majorVersions "base" [ v "4.10", v "4.11" ]
           , bytestring =
               majorVersions "bytestring" [ v "0.10" ]
           , containers =
@@ -164,9 +164,7 @@ in    prelude.utils.GitHub-project
                     prelude.defaults.CompilerOptions
                   ⫽ { GHC = [ "-Wall", "-fno-warn-name-shadowing" ] }
               , exposed-modules =
-                  [ "DhallToCabal"
-                  , "CabalToDhall"
-                  ]
+                  [ "DhallToCabal", "CabalToDhall" ]
               , hs-source-dirs =
                   [ "lib" ]
               , other-extensions =
