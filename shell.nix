@@ -1,1 +1,1 @@
-(import ./release.nix {}).dhall-to-cabal.env
+(import ./release.nix).dhall-to-cabal.env
