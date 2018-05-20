@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveFunctor #-}
 {-# language FlexibleInstances #-}
 {-# language GeneralizedNewtypeDeriving #-}
 {-# language LambdaCase #-}
@@ -7,10 +8,11 @@
 
 module CabalToDhall ( cabalToDhall ) where
 
-import Control.Monad ( join )
+import Control.Monad ( ap, join, liftM2 )
 import Data.Foldable ( foldMap )
 import Data.Functor.Contravariant ( (>$<), Contravariant( contramap ) )
-import Data.Monoid ( First(..), (<>) )
+import Data.Monoid ( First(..) )
+import Data.Semigroup ( Semigroup ( (<>) ) )
 import GHC.Stack
 import Numeric.Natural ( Natural )
 
@@ -712,7 +714,28 @@ library =
 data CondIfTree v a
   = Val a
   | If v ( CondIfTree v a ) ( CondIfTree v a )
-  deriving (Eq, Show)
+  deriving (Eq, Functor, Show)
+
+
+instance Monad ( CondIfTree v ) where
+  return = pure
+  x >>= f =
+    case x of
+      Val a ->
+        f a
+      If cond true false ->
+        If cond ( true >>= f ) ( false >>= f )
+
+instance Applicative ( CondIfTree v ) where
+  pure = Val
+  (<*>) = ap
+
+instance ( Semigroup a ) => Semigroup ( CondIfTree v a ) where
+  (<>) = liftM2 (<>)
+
+instance ( Monoid a ) => Monoid ( CondIfTree v a ) where
+  mempty = Val mempty
+  mappend = liftM2 mappend
 
 
 unifyCondTree
@@ -721,50 +744,21 @@ unifyCondTree
   -> CondIfTree ( Cabal.Condition v ) a
 unifyCondTree =
   let
-    go acc condTree =
-      case Cabal.condTreeComponents condTree of
-        [] ->
-          Val ( acc <> Cabal.condTreeData condTree )
+    branch
+      :: ( Monoid a, Monoid x )
+      => Cabal.CondBranch v x a
+      -> CondIfTree ( Cabal.Condition v ) a
+    branch ( Cabal.CondBranch cond true false ) =
+      If cond ( tree true ) ( maybe mempty tree false )
 
-        [c] ->
-          If
-            ( Cabal.condBranchCondition c )
-            ( go
-                ( acc <> Cabal.condTreeData condTree )
-                ( Cabal.condBranchIfTrue c )
-            )
-            ( go
-                ( acc <> Cabal.condTreeData condTree )
-                ( case Cabal.condBranchIfFalse c of
-                    Nothing ->
-                      Cabal.CondNode mempty mempty mempty
-
-                    Just c ->
-                      c
-                )
-            )
-
-        (c:cs) ->
-          go acc ( condTree { Cabal.condTreeComponents = pushDownBranch c <$> cs } )
-
-    pushDownBranch a b =
-      b
-        { Cabal.condBranchIfTrue =
-            pushDownTree a ( Cabal.condBranchIfTrue b )
-        , Cabal.condBranchIfFalse =
-            case Cabal.condBranchIfFalse b of
-              Nothing ->
-                Just ( Cabal.CondNode mempty mempty [a] )
-
-              Just tree ->
-                Just ( pushDownTree a tree )
-        }
-
-    pushDownTree a b =
-      b { Cabal.condTreeComponents = a : Cabal.condTreeComponents b }
-
+    tree
+      :: ( Monoid a, Monoid x )
+      => Cabal.CondTree v x a
+      -> CondIfTree ( Cabal.Condition v ) a
+    tree ( Cabal.CondNode acc _ branches) =
+      return acc `mappend` foldMap branch branches
   in
-  go mempty
+  tree
 
 
 condTree
