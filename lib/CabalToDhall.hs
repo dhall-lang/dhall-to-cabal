@@ -711,20 +711,20 @@ library =
 
 
 unifyCondTree
-  :: ( Monoid a, Monoid x )
+  :: ( Monoid a )
   => Cabal.CondTree v x a
   -> ConfigTree ( Cabal.Condition v ) a
 unifyCondTree =
   let
     branch
-      :: ( Monoid a, Monoid x )
+      :: ( Monoid a )
       => Cabal.CondBranch v x a
       -> ConfigTree ( Cabal.Condition v ) a
     branch ( Cabal.CondBranch cond true false ) =
       Branch cond ( tree true ) ( maybe mempty tree false )
 
     tree
-      :: ( Monoid a, Monoid x )
+      :: ( Monoid a )
       => Cabal.CondTree v x a
       -> ConfigTree ( Cabal.Condition v ) a
     tree ( Cabal.CondNode acc _ branches) =
