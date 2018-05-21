@@ -1,4 +1,3 @@
-{-# LANGUAGE DeriveFunctor #-}
 {-# language FlexibleInstances #-}
 {-# language GeneralizedNewtypeDeriving #-}
 {-# language LambdaCase #-}
