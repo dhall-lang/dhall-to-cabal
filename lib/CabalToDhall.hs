@@ -8,11 +8,10 @@
 
 module CabalToDhall ( cabalToDhall ) where
 
-import Control.Monad ( ap, join, liftM2 )
+import Control.Monad ( join )
 import Data.Foldable ( foldMap )
 import Data.Functor.Contravariant ( (>$<), Contravariant( contramap ) )
 import Data.Monoid ( First(..) )
-import Data.Semigroup ( Semigroup ( (<>) ) )
 import GHC.Stack
 import Numeric.Natural ( Natural )
 
@@ -63,6 +62,7 @@ import qualified Distribution.Version as Cabal
 import qualified Language.Haskell.Extension as Cabal
 
 import DhallToCabal ( sortExpr )
+import DhallToCabal.ConfigTree ( ConfigTree(..) )
 
 
 preludeLocation :: Dhall.Core.Import
@@ -711,50 +711,23 @@ library =
     }
 
 
-data CondIfTree v a
-  = Val a
-  | If v ( CondIfTree v a ) ( CondIfTree v a )
-  deriving (Eq, Functor, Show)
-
-
-instance Monad ( CondIfTree v ) where
-  return = pure
-  x >>= f =
-    case x of
-      Val a ->
-        f a
-      If cond true false ->
-        If cond ( true >>= f ) ( false >>= f )
-
-instance Applicative ( CondIfTree v ) where
-  pure = Val
-  (<*>) = ap
-
-instance ( Semigroup a ) => Semigroup ( CondIfTree v a ) where
-  (<>) = liftM2 (<>)
-
-instance ( Monoid a ) => Monoid ( CondIfTree v a ) where
-  mempty = Val mempty
-  mappend = liftM2 mappend
-
-
 unifyCondTree
   :: ( Monoid a, Monoid x )
   => Cabal.CondTree v x a
-  -> CondIfTree ( Cabal.Condition v ) a
+  -> ConfigTree ( Cabal.Condition v ) a
 unifyCondTree =
   let
     branch
       :: ( Monoid a, Monoid x )
       => Cabal.CondBranch v x a
-      -> CondIfTree ( Cabal.Condition v ) a
+      -> ConfigTree ( Cabal.Condition v ) a
     branch ( Cabal.CondBranch cond true false ) =
-      If cond ( tree true ) ( maybe mempty tree false )
+      Branch cond ( tree true ) ( maybe mempty tree false )
 
     tree
       :: ( Monoid a, Monoid x )
       => Cabal.CondTree v x a
-      -> CondIfTree ( Cabal.Condition v ) a
+      -> ConfigTree ( Cabal.Condition v ) a
     tree ( Cabal.CondNode acc _ branches) =
       return acc `mappend` foldMap branch branches
   in
@@ -768,10 +741,10 @@ condTree
 condTree t =
   let
     go = \case
-      Val a ->
+      Leaf a ->
         Dhall.embed t a
 
-      If cond a b ->
+      Branch cond a b ->
         Expr.BoolIf
           ( Dhall.embed condBranchCondition cond )
           ( go a )
