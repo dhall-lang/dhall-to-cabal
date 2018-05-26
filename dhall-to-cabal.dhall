@@ -241,6 +241,7 @@ in    prelude.utils.GitHub-project
                     , deps.Cabal
                     , deps.Diff
                     , deps.bytestring
+                    , deps.dhall
                     , deps.dhall-to-cabal
                     , deps.filepath
                     , deps.tasty

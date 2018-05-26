@@ -156,6 +156,7 @@ test-suite  golden-tests
         Cabal ^>=2.0,
         Diff ^>=0.3.4,
         bytestring ^>=0.10,
+        dhall ^>=1.14.0,
         dhall-to-cabal -any,
         filepath ^>=1.4,
         tasty ^>=0.11 || ^>=0.12 || ^>=1.0 || ^>=1.1,
