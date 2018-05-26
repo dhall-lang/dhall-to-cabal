@@ -142,6 +142,7 @@ executable  cabal-to-dhall
         base ^>=4.10 || ^>=4.11,
         dhall-to-cabal -any,
         optparse-applicative ^>=0.13.2 || ^>=0.14,
+        prettyprinter ^>=1.2.0.1,
         text ^>=1.2
     default-language: Haskell2010
     other-extensions: NamedFieldPuns
@@ -155,6 +156,7 @@ test-suite  golden-tests
         Cabal ^>=2.0,
         Diff ^>=0.3.4,
         bytestring ^>=0.10,
+        dhall ^>=1.14.0,
         dhall-to-cabal -any,
         filepath ^>=1.4,
         tasty ^>=0.11 || ^>=0.12 || ^>=1.0 || ^>=1.1,

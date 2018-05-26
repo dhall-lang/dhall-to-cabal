@@ -217,6 +217,7 @@ in    prelude.utils.GitHub-project
                     [ deps.base
                     , deps.dhall-to-cabal
                     , deps.optparse-applicative
+                    , deps.prettyprinter
                     , deps.text
                     ]
                 , hs-source-dirs =
@@ -240,6 +241,7 @@ in    prelude.utils.GitHub-project
                     , deps.Cabal
                     , deps.Diff
                     , deps.bytestring
+                    , deps.dhall
                     , deps.dhall-to-cabal
                     , deps.filepath
                     , deps.tasty

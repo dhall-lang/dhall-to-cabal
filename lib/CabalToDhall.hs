@@ -112,7 +112,7 @@ type DhallExpr =
   Dhall.Core.Expr Dhall.Parser.Src Dhall.TypeCheck.X
 
 
-cabalToDhall :: LazyText.Text -> IO LazyText.Text
+cabalToDhall :: LazyText.Text -> IO ( Expr.Expr Dhall.Parser.Src Dhall.Core.Import )
 cabalToDhall source =
   case Cabal.parseGenericPackageDescription ( LazyText.unpack source ) of
     Cabal.ParseFailed e -> do
@@ -131,7 +131,7 @@ cabalToDhall source =
                   genericPackageDescription
               )
 
-      return ( Dhall.Core.pretty dhall )
+      return dhall
 
 
 newtype RecordInputType a =

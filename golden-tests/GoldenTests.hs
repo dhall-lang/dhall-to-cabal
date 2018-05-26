@@ -12,6 +12,7 @@ import qualified Data.ByteString.Lazy as LBS
 import qualified Data.Text.Lazy as LazyText
 import qualified Data.Text.Lazy.Encoding as LazyText
 import qualified Data.Text.Lazy.IO as LazyText
+import qualified Dhall.Core
 import qualified Distribution.PackageDescription.Configuration as Cabal
 import qualified Distribution.PackageDescription.Parse as Cabal
 import qualified Distribution.PackageDescription.PrettyPrint as Cabal
@@ -63,7 +64,9 @@ goldenTests = do
          [ goldenVsString
              ( takeBaseName cabalFile )
              dhallFile
-             ( LazyText.readFile cabalFile >>= fmap LazyText.encodeUtf8 . cabalToDhall )
+             ( LazyText.readFile cabalFile
+                 >>= fmap ( LazyText.encodeUtf8 . Dhall.Core.pretty ) . cabalToDhall
+             )
          | cabalFile <- cabalFiles
          , let dhallFile = replaceExtension cabalFile ".dhall"
          ]
