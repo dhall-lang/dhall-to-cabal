@@ -2,10 +2,12 @@
 {-# language NoMonomorphismRestriction #-}
 {-# language NamedFieldPuns #-}
 {-# language OverloadedStrings #-}
+{-# language ViewPatterns #-}
 
 module Main ( main ) where
 
 import Control.Applicative ( (<**>), (<|>), Const(..), optional )
+import Control.Monad ( guard )
 import Data.Foldable ( asum, foldl' )
 import Data.Functor.Product ( Product(..) )
 import Data.Functor.Identity ( Identity(..) )
@@ -18,6 +20,7 @@ import Data.String ( fromString )
 
 import DhallToCabal
 
+import qualified Data.HashMap.Strict.InsOrd as InsOrdHashMap
 import qualified Data.Text.Lazy.IO as LazyText
 import qualified Data.Text.Prettyprint.Doc as Pretty
 import qualified Data.Text.Prettyprint.Doc.Render.Text as Pretty
@@ -41,9 +44,10 @@ data Command
 data KnownType
   = Library
   | ForeignLibrary
-  | Executable
   | Benchmark
+  | Executable
   | TestSuite
+  | BuildInfo
   | Config
   | SourceRepo
   | RepoType
@@ -195,6 +199,7 @@ printType t = do
         Executable -> Dhall.expected executable
         Benchmark -> Dhall.expected benchmark
         TestSuite -> Dhall.expected testSuite
+        BuildInfo -> buildInfoType
         SourceRepo -> Dhall.expected sourceRepo
         RepoType -> Dhall.expected repoType
         RepoKind -> Dhall.expected repoKind
@@ -252,8 +257,41 @@ liftCSE name body expr =
     shiftVar delta ( Expr.V name' n ) =
       Expr.V name' ( n + delta )
 
+    subtractRecordFields a b = do
+      Expr.Record left <-
+        return a
+
+      Expr.Record right <-
+        return b
+
+      let
+        intersection =
+          InsOrdHashMap.intersectionWith (==) left right
+
+      -- The right record cannot have any fields not in left.
+      guard ( InsOrdHashMap.null ( InsOrdHashMap.difference right left ) )
+
+      -- We must have at least one field with a common name
+      guard ( not ( InsOrdHashMap.null intersection ) )
+
+      -- All common fields must have identical types
+      guard ( and intersection )
+
+      let
+        extra =
+          InsOrdHashMap.difference left right
+
+      guard ( not ( InsOrdHashMap.null extra ) )
+
+      return ( Expr.Record extra )
+
     go e v | e == body =
       Pair ( Const ( Any True ) ) ( Identity ( Expr.Var v ) )
+
+    go ( ( `subtractRecordFields` body ) -> Just extra ) v =
+      Pair
+        ( Const ( Any True ) )
+        ( Identity ( Expr.CombineTypes ( Expr.Var v ) extra ) )
 
     go e v =
       case e of
@@ -338,6 +376,12 @@ liftCSE name body expr =
 
         Expr.Note s e ->
           Expr.Note s <$> go e v
+
+        Expr.CombineTypes a b ->
+          Expr.CombineTypes <$> go a v <*> go b v
+
+        Expr.Project e fs ->
+          Expr.Project <$> go e v <*> pure fs
 
         Expr.Embed{} ->
           pure e

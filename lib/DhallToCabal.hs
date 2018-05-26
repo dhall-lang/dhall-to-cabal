@@ -31,6 +31,7 @@ module DhallToCabal
   , versionRange
   , version
   , configRecordType
+  , buildInfoType
 
   , sortExpr
   ) where
@@ -364,6 +365,10 @@ buildInfo = do
 
   return Cabal.BuildInfo { ..  }
 
+
+buildInfoType :: Expr.Expr Dhall.Parser.Src Dhall.TypeCheck.X
+buildInfoType =
+  Dhall.expected ( makeRecord buildInfo )
 
 
 testSuite :: Dhall.Type Cabal.TestSuite

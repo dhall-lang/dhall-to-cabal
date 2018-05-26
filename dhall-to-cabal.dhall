@@ -195,6 +195,7 @@ in    prelude.utils.GitHub-project
                     , deps.base
                     , deps.dhall
                     , deps.dhall-to-cabal
+                    , deps.insert-ordered-containers
                     , deps.optparse-applicative
                     , deps.prettyprinter
                     , deps.text
