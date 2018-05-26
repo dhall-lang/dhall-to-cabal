@@ -1,6 +1,6 @@
 { mkDerivation, ansi-terminal, base, bytestring, case-insensitive
 , containers, contravariant, cryptonite, deepseq, directory
-, exceptions, filepath, formatting, haskeline, http-client
+, doctest, exceptions, filepath, formatting, haskeline, http-client
 , http-client-tls, insert-ordered-containers, lens-family-core
 , megaparsec, memory, mtl, optparse-applicative, parsers
 , prettyprinter, prettyprinter-ansi-terminal, repline, scientific
@@ -9,8 +9,8 @@
 }:
 mkDerivation {
   pname = "dhall";
-  version = "1.13.1";
-  sha256 = "c075ac87c2fe5f47573b872126dbb94cabc4441fb532135963741d7edbec50d6";
+  version = "1.14.0";
+  sha256 = "f415842889ca4811f5279714446bad35583829de3c6de04e0d7d3e92f310a836";
   isLibrary = true;
   isExecutable = true;
   libraryHaskellDepends = [
@@ -26,7 +26,7 @@ mkDerivation {
     prettyprinter prettyprinter-ansi-terminal repline text
   ];
   testHaskellDepends = [
-    base deepseq insert-ordered-containers prettyprinter tasty
+    base deepseq doctest insert-ordered-containers prettyprinter tasty
     tasty-hunit text vector
   ];
   description = "A configuration language guaranteed to terminate";
