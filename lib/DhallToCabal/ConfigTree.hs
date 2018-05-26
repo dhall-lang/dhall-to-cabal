@@ -5,6 +5,7 @@
 module DhallToCabal.ConfigTree ( ConfigTree(..), toConfigTree ) where
 
 import Control.Monad
+import Data.Semigroup ( Semigroup ( (<>) ) )
 import Dhall.Core hiding ( Const )
 
 
@@ -26,6 +27,12 @@ instance Monad ( ConfigTree cond ) where
   Leaf a >>= f = f a
   Branch cond l r >>= f = Branch cond ( l >>= f ) ( r >>= f )
 
+instance ( Semigroup a ) => Semigroup ( ConfigTree cond a ) where
+  (<>) = liftM2 (<>)
+
+instance ( Monoid a ) => Monoid ( ConfigTree cond a ) where
+  mempty = pure mempty
+  mappend = liftM2 mappend
 
 
 -- | Given a Dhall expression that is of the form @λ( config : Config ) -> a@,

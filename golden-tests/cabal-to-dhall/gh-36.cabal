@@ -1,0 +1,17 @@
+name:                wai-servlet
+version:             0.1.5.0
+cabal-version:       2.0
+                                          
+Flag wai-servlet-debug
+    Description: print debug output. not suitable for production
+    Default:     False
+
+library
+  if impl(ghc >= 0.0.9.7)
+     cpp-options:      -DINTEROP
+  if impl(ghc < 0.7.0.2)
+     cpp-options:      -DPURE_JAVA_WITH
+  if impl(ghc >= 0.0.9)
+     c-sources:        java/Utils.java
+  if flag(wai-servlet-debug)
+     cpp-options:      -DWAI_SERVLET_DEBUG
