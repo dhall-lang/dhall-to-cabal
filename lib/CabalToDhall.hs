@@ -63,36 +63,46 @@ import qualified Language.Haskell.Extension as Cabal
 import DhallToCabal ( sortExpr )
 
 
-preludeLocation :: Dhall.Core.Path
+preludeLocation :: Dhall.Core.Import
 preludeLocation =
-  Dhall.Core.Path
-    { Dhall.Core.pathHashed =
-        Dhall.Core.PathHashed
+  Dhall.Core.Import
+    { Dhall.Core.importHashed =
+        Dhall.Core.ImportHashed
           { Dhall.Core.hash =
               Nothing
-          , Dhall.Core.pathType =
+          , Dhall.Core.importType =
               Dhall.Core.URL
-                "https://raw.githubusercontent.com/dhall-lang/dhall-to-cabal/1.0.0/dhall/prelude.dhall"
+                "https://raw.githubusercontent.com"
+                ( Dhall.Core.File
+                   ( Dhall.Core.Directory [ "dhall", "1.0.0", "dhall-to-cabal", "dhall-lang" ] )
+                   "prelude.dhall"
+                )
+                ""
                 Nothing
           }
-    , Dhall.Core.pathMode =
+    , Dhall.Core.importMode =
         Dhall.Core.Code
     }
 
 
-typesLocation :: Dhall.Core.Path
+typesLocation :: Dhall.Core.Import
 typesLocation =
-  Dhall.Core.Path
-    { Dhall.Core.pathHashed =
-        Dhall.Core.PathHashed
+  Dhall.Core.Import
+    { Dhall.Core.importHashed =
+        Dhall.Core.ImportHashed
           { Dhall.Core.hash =
               Nothing
-          , Dhall.Core.pathType =
+          , Dhall.Core.importType =
               Dhall.Core.URL
-                "https://raw.githubusercontent.com/dhall-lang/dhall-to-cabal/1.0.0/dhall/types.dhall"
+                "https://raw.githubusercontent.com"
+                ( Dhall.Core.File
+                   ( Dhall.Core.Directory [ "dhall", "1.0.0", "dhall-to-cabal", "dhall-lang" ] )
+                   "types.dhall"
+                )
+                ""
                 Nothing
           }
-    , Dhall.Core.pathMode =
+    , Dhall.Core.importMode =
         Dhall.Core.Code
     }
 
