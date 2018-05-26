@@ -21,6 +21,8 @@
 * cabal-to-dhall: Rewrite conditional handling to avoid hangs with complicated ones.
   See https://github.com/dhall-lang/dhall-to-cabal/pull/54 and linked issues.
 
+* Added a warning to generated `.cabal` files against hand-editing.
+
 
 ## 1.0.0.1 -- 2018-03-25
 
