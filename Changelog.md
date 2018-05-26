@@ -18,6 +18,8 @@
   Thank you to @jneira and @quasicomputational for helping identify and fix this
   bug.
 
+* Added a warning to generated `.cabal` files against hand-editing.
+
 
 ## 1.0.0.1 -- 2018-03-25
 
