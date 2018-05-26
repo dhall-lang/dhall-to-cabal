@@ -2,6 +2,12 @@
 
 ## 1.0.1.0 -- UNRELEASED
 
+* Increase upper-bound of base to allow 4.11.
+
+* Increase upper-bound of tasty to allow 1.1.
+
+* Switch to Dhall 1.14.0.
+
 * dhall-to-cabal: Fix tracking which branches are already true or false in
   conditionals. Dhall expressions with lots of conditions previously produced
   Cabal files that did not correctly match the requested conditions. See
