@@ -23,6 +23,8 @@
 
 * Added a warning to generated `.cabal` files against hand-editing.
 
+* `cabal-to-dhall` now pretty prints the resulting Dhall.
+
 
 ## 1.0.0.1 -- 2018-03-25
 
