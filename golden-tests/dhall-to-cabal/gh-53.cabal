@@ -1,0 +1,21 @@
+name: wai-servlet
+version: 0.1.5.0
+cabal-version: 2.0
+build-type: Simple
+license: UnspecifiedLicense
+
+flag wai-servlet-debug
+    description:
+        print debug output. not suitable for production
+    default: False
+
+library
+    
+    if impl(ghc >=0.0.9)
+        c-sources:
+            java/Utils.java
+    
+    if flag(wai-servlet-debug)
+        cpp-options: -DWAI_SERVLET_DEBUG
+
+

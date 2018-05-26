@@ -8,6 +8,16 @@
 
 * Switch to Dhall 1.14.0.
 
+* dhall-to-cabal: Fix tracking which branches are already true or false in
+  conditionals. Dhall expressions with lots of conditions previously produced
+  Cabal files that did not correctly match the requested conditions. See
+  https://github.com/dhall-lang/dhall-to-cabal/pull/56,
+  https://github.com/dhall-lang/dhall-to-cabal/issues/53 and
+  https://github.com/dhall-lang/dhall-to-cabal/issues/55 for more information.
+
+  Thank you to @jneira and @quasicomputational for helping identify and fix this
+  bug.
+
 
 ## 1.0.0.1 -- 2018-03-25
 
