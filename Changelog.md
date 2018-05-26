@@ -18,6 +18,9 @@
   Thank you to @jneira and @quasicomputational for helping identify and fix this
   bug.
 
+* cabal-to-dhall: Rewrite conditional handling to avoid hangs with complicated ones.
+  See https://github.com/dhall-lang/dhall-to-cabal/pull/54 and linked issues.
+
 * Added a warning to generated `.cabal` files against hand-editing.
 
 
