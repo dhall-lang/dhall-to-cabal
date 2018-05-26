@@ -957,7 +957,7 @@ guarded t =
           error ( "Unexpected guard expression. This is a bug, please report this! I'm stuck on: " ++ show body )
 
     extract expr =
-      configTreeToCondTree [] <$> extractConfigTree ( toConfigTree expr )
+      configTreeToCondTree [] [] <$> extractConfigTree ( toConfigTree expr )
 
     extractConfigTree ( Leaf a ) =
       Leaf <$> Dhall.extract t a
@@ -965,25 +965,26 @@ guarded t =
     extractConfigTree ( Branch cond a b ) =
       Branch <$> extractConfVar cond <*> extractConfigTree a <*> extractConfigTree b
 
-    configTreeToCondTree confVars = \case
+    configTreeToCondTree confVarsTrue confVarsFalse = \case
       Leaf a ->
         Cabal.CondNode a mempty mempty
 
       -- The condition has already been shown to hold. Consider only the true
       -- branch and discard the false branch.
-      Branch confVar a _impossible | confVar `elem` confVars ->
-        configTreeToCondTree confVars a
+      Branch confVar a _impossible | confVar `elem` confVarsTrue ->
+        configTreeToCondTree confVarsTrue confVarsFalse a
+
+      -- ...and here, the condition has been shown *not* to hold.
+      Branch confVar _impossible b | confVar `elem` confVarsFalse ->
+        configTreeToCondTree confVarsTrue confVarsFalse b
 
       Branch confVar a b ->
         let
-          confVars' =
-            pure confVar <> confVars
-
           true =
-            configTreeToCondTree confVars' a
+            configTreeToCondTree ( pure confVar <> confVarsTrue ) confVarsFalse a
 
           false =
-            configTreeToCondTree confVars' b
+            configTreeToCondTree confVarsTrue ( pure confVar <> confVarsFalse ) b
 
           ( common, true', false' ) =
             diff ( Cabal.condTreeData true ) ( Cabal.condTreeData false )
