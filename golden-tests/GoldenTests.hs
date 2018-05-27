@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 module Main ( main ) where
 
 import Data.Algorithm.Diff
@@ -21,7 +22,7 @@ import qualified Distribution.PackageDescription.PrettyPrint as Cabal
 import qualified Distribution.PackageDescription as Cabal
 import qualified Distribution.Verbosity as Cabal
 
-import CabalToDhall ( cabalToDhall )
+import CabalToDhall ( cabalToDhall, DhallLocation ( DhallLocation ) )
 import DhallToCabal ( dhallToCabal )
 
 
@@ -31,6 +32,45 @@ main =
   defaultMain =<< goldenTests
 
 
+preludeLocation :: Dhall.Core.Import
+preludeLocation =
+  Dhall.Core.Import
+    { Dhall.Core.importHashed =
+        Dhall.Core.ImportHashed
+          { Dhall.Core.hash =
+              Nothing
+          , Dhall.Core.importType =
+              Dhall.Core.Local
+                Dhall.Core.Parent
+                ( Dhall.Core.File
+                   ( Dhall.Core.Directory [ "dhall", ".." ] )
+                   "prelude.dhall"
+                )
+          }
+    , Dhall.Core.importMode =
+        Dhall.Core.Code
+    }
+
+
+typesLocation :: Dhall.Core.Import
+typesLocation =
+  Dhall.Core.Import
+    { Dhall.Core.importHashed =
+        Dhall.Core.ImportHashed
+          { Dhall.Core.hash =
+              Nothing
+          , Dhall.Core.importType =
+              Dhall.Core.Local
+                Dhall.Core.Parent
+                ( Dhall.Core.File
+                   ( Dhall.Core.Directory [ "dhall", ".." ] )
+                   "types.dhall"
+                )
+          }
+    , Dhall.Core.importMode =
+        Dhall.Core.Code
+    }
+
 
 goldenTests :: IO TestTree
 goldenTests = do
@@ -39,6 +79,7 @@ goldenTests = do
   -- at the command line.
   let layoutOpts = Pretty.defaultLayoutOptions
         { Pretty.layoutPageWidth = Pretty.AvailablePerLine 80 1.0 }
+      dhallLocation = DhallLocation preludeLocation typesLocation
 
   dhallFiles <-
     findByExtension [ ".dhall" ] "golden-tests/dhall-to-cabal"
@@ -73,7 +114,7 @@ goldenTests = do
              ( takeBaseName cabalFile )
              ( \ ref new -> [ "diff", "-u", ref, new ] )
              dhallFile
-             ( LazyText.readFile cabalFile >>= cabalToDhall
+             ( LazyText.readFile cabalFile >>= cabalToDhall dhallLocation
                  & fmap ( LazyText.encodeUtf8 . Pretty.renderLazy
                         . Pretty.layoutSmart layoutOpts . Pretty.pretty
                         )

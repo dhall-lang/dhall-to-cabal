@@ -140,6 +140,7 @@ executable  cabal-to-dhall
     scope: public
     build-depends:
         base ^>=4.10 || ^>=4.11,
+        dhall ^>=1.14.0,
         dhall-to-cabal -any,
         optparse-applicative ^>=0.13.2 || ^>=0.14,
         prettyprinter ^>=1.2.0.1,
@@ -147,6 +148,8 @@ executable  cabal-to-dhall
     default-language: Haskell2010
     other-extensions: NamedFieldPuns
     hs-source-dirs: cabal-to-dhall
+    other-modules:
+        Paths_dhall_to_cabal
 
 test-suite  golden-tests
     type: exitcode-stdio-1.0

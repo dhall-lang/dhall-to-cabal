@@ -13,7 +13,8 @@ import qualified Data.Text.Prettyprint.Doc.Symbols.Unicode as Pretty
 import qualified Options.Applicative as OptParse
 import qualified System.IO
 
-import CabalToDhall ( cabalToDhall )
+import CabalToDhall ( cabalToDhall, DhallLocation ( DhallLocation ) )
+import qualified Paths_dhall_to_cabal as Paths
 
 
 data Command
@@ -55,6 +56,54 @@ main = do
       runCabalToDhall options
 
 
+version :: LazyText.Text
+version = LazyText.pack ( showVersion Paths.version )
+
+
+preludeLocation :: Dhall.Core.Import
+preludeLocation =
+  Dhall.Core.Import
+    { Dhall.Core.importHashed =
+        Dhall.Core.ImportHashed
+          { Dhall.Core.hash =
+              Nothing
+          , Dhall.Core.importType =
+              Dhall.Core.URL
+                "https://raw.githubusercontent.com"
+                ( Dhall.Core.File
+                   ( Dhall.Core.Directory [ "dhall", version, "dhall-to-cabal", "dhall-lang" ] )
+                   "prelude.dhall"
+                )
+                ""
+                Nothing
+          }
+    , Dhall.Core.importMode =
+        Dhall.Core.Code
+    }
+
+
+typesLocation :: Dhall.Core.Import
+typesLocation =
+  Dhall.Core.Import
+    { Dhall.Core.importHashed =
+        Dhall.Core.ImportHashed
+          { Dhall.Core.hash =
+              Nothing
+          , Dhall.Core.importType =
+              Dhall.Core.URL
+                "https://raw.githubusercontent.com"
+                ( Dhall.Core.File
+                   ( Dhall.Core.Directory [ "dhall", version, "dhall-to-cabal", "dhall-lang" ] )
+                   "types.dhall"
+                )
+                ""
+                Nothing
+          }
+    , Dhall.Core.importMode =
+        Dhall.Core.Code
+    }
+
+
 runCabalToDhall :: CabalToDhallOptions -> IO ()
 runCabalToDhall CabalToDhallOptions{ cabalFilePath } = do
   source <-
@@ -66,7 +115,7 @@ runCabalToDhall CabalToDhallOptions{ cabalFilePath } = do
         LazyText.readFile filePath
 
   dhall <-
-    cabalToDhall source
+    cabalToDhall dhallLocation source
 
   Pretty.renderIO
     System.IO.stdout
