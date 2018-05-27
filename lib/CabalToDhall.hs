@@ -14,7 +14,6 @@ import Control.Monad ( join )
 import Data.Foldable ( foldMap )
 import Data.Functor.Contravariant ( (>$<), Contravariant( contramap ) )
 import Data.Monoid ( First(..) )
-import Data.Version ( showVersion )
 import GHC.Stack
 import Numeric.Natural ( Natural )
 

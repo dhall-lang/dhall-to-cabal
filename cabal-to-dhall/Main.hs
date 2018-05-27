@@ -1,8 +1,10 @@
 {-# language NamedFieldPuns #-}
+{-# language OverloadedStrings #-}
 
 module Main ( main ) where
 
 import Control.Applicative ( (<**>), optional )
+import Data.Version ( showVersion )
 import GHC.Stack
 
 import qualified Data.Text.Lazy as LazyText
@@ -10,6 +12,7 @@ import qualified Data.Text.Lazy.IO as LazyText
 import qualified Data.Text.Prettyprint.Doc as Pretty
 import qualified Data.Text.Prettyprint.Doc.Render.Text as Pretty
 import qualified Data.Text.Prettyprint.Doc.Symbols.Unicode as Pretty
+import qualified Dhall.Core
 import qualified Options.Applicative as OptParse
 import qualified System.IO
 
@@ -106,6 +109,8 @@ typesLocation =
 
 runCabalToDhall :: CabalToDhallOptions -> IO ()
 runCabalToDhall CabalToDhallOptions{ cabalFilePath } = do
+  let dhallLocation = DhallLocation preludeLocation typesLocation
+
   source <-
     case cabalFilePath of
       Nothing ->
