@@ -244,6 +244,7 @@ in    prelude.utils.GitHub-project
                     , deps.dhall
                     , deps.dhall-to-cabal
                     , deps.filepath
+                    , deps.prettyprinter
                     , deps.tasty
                     , deps.tasty-golden
                     , deps.text
