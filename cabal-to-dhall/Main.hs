@@ -80,6 +80,9 @@ runCabalToDhall CabalToDhallOptions{ cabalFilePath } = do
 
 -- Shamelessly taken from dhall-format
 
+-- Note: must remain in sync with the layout options in
+-- golden-tests/GoldenTests.hs, so that test output is easy to generate
+-- at the command line.
 opts :: Pretty.LayoutOptions
 opts =
   Pretty.defaultLayoutOptions

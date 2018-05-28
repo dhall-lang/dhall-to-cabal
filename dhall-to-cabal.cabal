@@ -159,6 +159,7 @@ test-suite  golden-tests
         dhall ^>=1.14.0,
         dhall-to-cabal -any,
         filepath ^>=1.4,
+        prettyprinter ^>=1.2.0.1,
         tasty ^>=0.11 || ^>=0.12 || ^>=1.0 || ^>=1.1,
         tasty-golden ^>=2.3,
         text ^>=1.2
