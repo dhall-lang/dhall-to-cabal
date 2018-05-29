@@ -35,6 +35,9 @@
 * `prelude.defaults.Executable` has lost its `main-is` field, as it
   makes little sense to have an executable without it.
 
+* `--print-type` now omits the lengthy definition of `Extension`, instead importing
+  it from the prelude. `--self-contained` is a new switch to disable this behaviour.
+
 
 ## 1.0.0.1 -- 2018-03-25
 

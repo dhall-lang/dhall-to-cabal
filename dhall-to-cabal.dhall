@@ -173,7 +173,7 @@ in    prelude.utils.GitHub-project
                     prelude.defaults.CompilerOptions
                   ⫽ { GHC = [ "-Wall", "-fno-warn-name-shadowing" ] }
               , exposed-modules =
-                  [ "DhallToCabal", "CabalToDhall" ]
+                  [ "DhallToCabal", "DhallLocation", "CabalToDhall" ]
               , hs-source-dirs =
                   [ "lib" ]
               , other-extensions =
@@ -189,6 +189,7 @@ in    prelude.utils.GitHub-project
                   [ "DhallToCabal.ConfigTree"
                   , "DhallToCabal.Diff"
                   , "Dhall.Extra"
+                  , "Paths_dhall_to_cabal"
                   ]
               , default-language =
                   [ prelude.types.Languages.Haskell2010 {=} ] : Optional
@@ -208,6 +209,7 @@ in    prelude.utils.GitHub-project
                     , deps.optparse-applicative
                     , deps.prettyprinter
                     , deps.text
+                    , deps.transformers
                     ]
                 , hs-source-dirs =
                     [ "exe" ]
@@ -238,8 +240,6 @@ in    prelude.utils.GitHub-project
                     "Main.hs"
                 , other-extensions =
                     [ prelude.types.Extensions.NamedFieldPuns True ]
-                , other-modules =
-                    [ "Paths_dhall_to_cabal" ]
                 , default-language =
                     [ prelude.types.Languages.Haskell2010 {=} ] : Optional
                                                                   types.Language

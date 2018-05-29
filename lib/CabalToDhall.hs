@@ -7,7 +7,6 @@
 
 module CabalToDhall
   ( cabalToDhall
-  , DhallLocation ( DhallLocation )
   ) where
 
 import Control.Monad ( join )
@@ -66,18 +65,13 @@ import qualified Distribution.Types.UnqualComponentName as Cabal
 import qualified Distribution.Version as Cabal
 import qualified Language.Haskell.Extension as Cabal
 
+import DhallLocation ( DhallLocation(..) )
 import DhallToCabal ( sortExpr )
 import DhallToCabal.ConfigTree ( ConfigTree(..) )
 
 
 type DhallExpr =
   Dhall.Core.Expr Dhall.Parser.Src Dhall.TypeCheck.X
-
-
-data DhallLocation = DhallLocation
-  { preludeLocation :: Dhall.Core.Import
-  , typesLocation :: Dhall.Core.Import
-  }
 
 
 cabalToDhall :: DhallLocation -> ByteString.ByteString -> IO ( Expr.Expr Dhall.Parser.Src Dhall.Core.Import )

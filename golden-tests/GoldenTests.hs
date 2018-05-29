@@ -23,7 +23,8 @@ import qualified Distribution.PackageDescription.PrettyPrint as Cabal
 import qualified Distribution.PackageDescription as Cabal
 import qualified Distribution.Verbosity as Cabal
 
-import CabalToDhall ( cabalToDhall, DhallLocation ( DhallLocation ) )
+import CabalToDhall ( cabalToDhall )
+import DhallLocation ( DhallLocation ( DhallLocation ) )
 import DhallToCabal ( dhallToCabal )
 
 
