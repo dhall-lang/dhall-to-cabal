@@ -2,10 +2,12 @@
 {-# language NoMonomorphismRestriction #-}
 {-# language NamedFieldPuns #-}
 {-# language OverloadedStrings #-}
+{-# language ViewPatterns #-}
 
 module Main ( main ) where
 
 import Control.Applicative ( (<**>), (<|>), Const(..), optional )
+import Control.Monad ( guard )
 import Data.Char ( isAlphaNum )
 import Data.Foldable ( asum, foldl' )
 import Data.Functor.Product ( Product(..) )
@@ -19,6 +21,7 @@ import Data.String ( fromString )
 
 import DhallToCabal
 
+import qualified Data.HashMap.Strict.InsOrd as InsOrdHashMap
 import qualified Data.Text.Lazy.IO as LazyText
 import qualified Data.Text.Prettyprint.Doc as Pretty
 import qualified Data.Text.Prettyprint.Doc.Render.Text as Pretty
@@ -46,9 +49,10 @@ data Command
 data KnownType
   = Library
   | ForeignLibrary
-  | Executable
   | Benchmark
+  | Executable
   | TestSuite
+  | BuildInfo
   | Config
   | SourceRepo
   | RepoType
@@ -66,6 +70,14 @@ data KnownType
   | Version
   deriving (Bounded, Enum, Eq, Ord, Read, Show)
 
+
+-- | A 'Benchmark' is a proper subrecord of an 'Executable', but we
+-- don't want to write 'Executable' in terms of 'Benchmark'! Hence,
+-- limit which types we will do the common-field extraction for to
+-- only 'BuildInfo', for the time being.
+isCandidateSubrecord :: KnownType -> Bool
+isCandidateSubrecord BuildInfo = True
+isCandidateSubrecord _ = False
 
 
 data DhallToCabalOptions = DhallToCabalOptions
@@ -246,6 +258,7 @@ printType t = do
         Executable -> Dhall.expected executable
         Benchmark -> Dhall.expected benchmark
         TestSuite -> Dhall.expected testSuite
+        BuildInfo -> buildInfoType
         SourceRepo -> Dhall.expected sourceRepo
         RepoType -> Dhall.expected repoType
         RepoKind -> Dhall.expected repoKind
@@ -262,7 +275,7 @@ printType t = do
         Version -> Dhall.expected version
 
     letDhallType t =
-      liftCSE ( fromString ( show t ) ) ( dhallType t )
+      liftCSE ( isCandidateSubrecord t ) ( fromString ( show t ) ) ( dhallType t )
 
     factoredType =
       foldl'
@@ -273,11 +286,12 @@ printType t = do
 
 liftCSE
   :: (Eq s, Eq a)
-  => Text          -- ^ The name of the binding
+  => Bool          -- ^ Should we attempt to find the subexpression as a sub-record?
+  -> Text          -- ^ The name of the binding
   -> Expr.Expr s a -- ^ The common subexpression to lift
   -> Expr.Expr s a -- ^ The expression to remove a common subexpression from
   -> Expr.Expr s a
-liftCSE name body expr =
+liftCSE subrecord name body expr =
   let
     v0 =
       Expr.V name 0
@@ -303,8 +317,43 @@ liftCSE name body expr =
     shiftVar delta ( Expr.V name' n ) =
       Expr.V name' ( n + delta )
 
+    subtractRecordFields a b = do
+      guard subrecord
+
+      Expr.Record left <-
+        return a
+
+      Expr.Record right <-
+        return b
+
+      let
+        intersection =
+          InsOrdHashMap.intersectionWith (==) left right
+
+      -- The right record cannot have any fields not in left.
+      guard ( InsOrdHashMap.null ( InsOrdHashMap.difference right left ) )
+
+      -- We must have at least one field with a common name
+      guard ( not ( InsOrdHashMap.null intersection ) )
+
+      -- All common fields must have identical types
+      guard ( and intersection )
+
+      let
+        extra =
+          InsOrdHashMap.difference left right
+
+      guard ( not ( InsOrdHashMap.null extra ) )
+
+      return ( Expr.Record extra )
+
     go e v | e == body =
       Pair ( Const ( Any True ) ) ( Identity ( Expr.Var v ) )
+
+    go ( ( `subtractRecordFields` body ) -> Just extra ) v =
+      Pair
+        ( Const ( Any True ) )
+        ( Identity ( Expr.CombineTypes ( Expr.Var v ) extra ) )
 
     go e v =
       case e of
@@ -389,6 +438,12 @@ liftCSE name body expr =
 
         Expr.Note s e ->
           Expr.Note s <$> go e v
+
+        Expr.CombineTypes a b ->
+          Expr.CombineTypes <$> go a v <*> go b v
+
+        Expr.Project e fs ->
+          Expr.Project <$> go e v <*> pure fs
 
         Expr.Embed{} ->
           pure e
