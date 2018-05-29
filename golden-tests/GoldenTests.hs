@@ -2,16 +2,19 @@ module Main ( main ) where
 
 import Data.Algorithm.Diff
 import Data.Algorithm.DiffOutput
-import Data.Function ( on )
+import Data.Function ( on, (&) )
 import System.FilePath ( takeBaseName, replaceExtension )
 import Test.Tasty ( defaultMain, TestTree, testGroup )
-import Test.Tasty.Golden ( findByExtension, goldenVsString )
+import Test.Tasty.Golden ( findByExtension, goldenVsStringDiff )
 import Test.Tasty.Golden.Advanced ( goldenTest )
 
 import qualified Data.ByteString.Lazy as LBS
 import qualified Data.Text.Lazy as LazyText
 import qualified Data.Text.Lazy.Encoding as LazyText
 import qualified Data.Text.Lazy.IO as LazyText
+import qualified Data.Text.Prettyprint.Doc as Pretty
+import qualified Data.Text.Prettyprint.Doc.Render.Text as Pretty
+import qualified Dhall.Core
 import qualified Distribution.PackageDescription.Configuration as Cabal
 import qualified Distribution.PackageDescription.Parse as Cabal
 import qualified Distribution.PackageDescription.PrettyPrint as Cabal
@@ -31,6 +34,12 @@ main =
 
 goldenTests :: IO TestTree
 goldenTests = do
+  -- Note: must remain in sync with the layout options in
+  -- cabal-to-dhall/Main.hs, so that test output is easy to generate
+  -- at the command line.
+  let layoutOpts = Pretty.defaultLayoutOptions
+        { Pretty.layoutPageWidth = Pretty.AvailablePerLine 80 1.0 }
+
   dhallFiles <-
     findByExtension [ ".dhall" ] "golden-tests/dhall-to-cabal"
   cabalFiles <-
@@ -60,10 +69,15 @@ goldenTests = do
           , let cabalFile = replaceExtension dhallFile ".cabal"
           ]
      , testGroup "cabal-to-dhall"
-         [ goldenVsString
+         [ goldenVsStringDiff
              ( takeBaseName cabalFile )
+             ( \ ref new -> [ "diff", "-u", ref, new ] )
              dhallFile
-             ( LazyText.readFile cabalFile >>= fmap LazyText.encodeUtf8 . cabalToDhall )
+             ( LazyText.readFile cabalFile >>= cabalToDhall
+                 & fmap ( LazyText.encodeUtf8 . Pretty.renderLazy
+                        . Pretty.layoutSmart layoutOpts . Pretty.pretty
+                        )
+             )
          | cabalFile <- cabalFiles
          , let dhallFile = replaceExtension cabalFile ".dhall"
          ]
