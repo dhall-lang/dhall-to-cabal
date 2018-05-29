@@ -66,6 +66,14 @@ data KnownType
   deriving (Bounded, Enum, Eq, Ord, Read, Show)
 
 
+-- | A 'Benchmark' is a proper subrecord of an 'Executable', but we
+-- don't want to write 'Executable' in terms of 'Benchmark'! Hence,
+-- limit which types we will do the common-field extraction for to
+-- only 'BuildInfo', for the time being.
+isCandidateSubrecord :: KnownType -> Bool
+isCandidateSubrecord BuildInfo = True
+isCandidateSubrecord _ = False
+
 
 data DhallToCabalOptions = DhallToCabalOptions
   { dhallFilePath :: Maybe String
@@ -216,7 +224,7 @@ printType t = do
         Version -> Dhall.expected version
 
     letDhallType t =
-      liftCSE ( fromString ( show t ) ) ( dhallType t )
+      liftCSE ( isCandidateSubrecord t ) ( fromString ( show t ) ) ( dhallType t )
 
     factoredType =
       foldl'
@@ -227,11 +235,12 @@ printType t = do
 
 liftCSE
   :: (Eq s, Eq a)
-  => Text          -- ^ The name of the binding
+  => Bool          -- ^ Should we attempt to find the subexpression as a sub-record?
+  -> Text          -- ^ The name of the binding
   -> Expr.Expr s a -- ^ The common subexpression to lift
   -> Expr.Expr s a -- ^ The expression to remove a common subexpression from
   -> Expr.Expr s a
-liftCSE name body expr =
+liftCSE subrecord name body expr =
   let
     v0 =
       Expr.V name 0
@@ -258,6 +267,8 @@ liftCSE name body expr =
       Expr.V name' ( n + delta )
 
     subtractRecordFields a b = do
+      guard subrecord
+
       Expr.Record left <-
         return a
 
