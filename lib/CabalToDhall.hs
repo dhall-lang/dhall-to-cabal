@@ -5,7 +5,10 @@
 {-# language OverloadedStrings #-}
 {-# language ViewPatterns #-}
 
-module CabalToDhall ( cabalToDhall ) where
+module CabalToDhall
+  ( cabalToDhall
+  , DhallLocation ( DhallLocation )
+  ) where
 
 import Control.Monad ( join )
 import Data.Foldable ( foldMap )
@@ -64,56 +67,18 @@ import DhallToCabal ( sortExpr )
 import DhallToCabal.ConfigTree ( ConfigTree(..) )
 
 
-preludeLocation :: Dhall.Core.Import
-preludeLocation =
-  Dhall.Core.Import
-    { Dhall.Core.importHashed =
-        Dhall.Core.ImportHashed
-          { Dhall.Core.hash =
-              Nothing
-          , Dhall.Core.importType =
-              Dhall.Core.URL
-                "https://raw.githubusercontent.com"
-                ( Dhall.Core.File
-                   ( Dhall.Core.Directory [ "dhall", "1.0.0", "dhall-to-cabal", "dhall-lang" ] )
-                   "prelude.dhall"
-                )
-                ""
-                Nothing
-          }
-    , Dhall.Core.importMode =
-        Dhall.Core.Code
-    }
-
-
-typesLocation :: Dhall.Core.Import
-typesLocation =
-  Dhall.Core.Import
-    { Dhall.Core.importHashed =
-        Dhall.Core.ImportHashed
-          { Dhall.Core.hash =
-              Nothing
-          , Dhall.Core.importType =
-              Dhall.Core.URL
-                "https://raw.githubusercontent.com"
-                ( Dhall.Core.File
-                   ( Dhall.Core.Directory [ "dhall", "1.0.0", "dhall-to-cabal", "dhall-lang" ] )
-                   "types.dhall"
-                )
-                ""
-                Nothing
-          }
-    , Dhall.Core.importMode =
-        Dhall.Core.Code
-    }
-
-
 type DhallExpr =
   Dhall.Core.Expr Dhall.Parser.Src Dhall.TypeCheck.X
 
 
-cabalToDhall :: LazyText.Text -> IO ( Expr.Expr Dhall.Parser.Src Dhall.Core.Import )
-cabalToDhall source =
+data DhallLocation = DhallLocation
+  { preludeLocation :: Dhall.Core.Import
+  , typesLocation :: Dhall.Core.Import
+  }
+
+
+cabalToDhall :: DhallLocation -> LazyText.Text -> IO ( Expr.Expr Dhall.Parser.Src Dhall.Core.Import )
+cabalToDhall dhallLocation source =
   case Cabal.parseGenericPackageDescription ( LazyText.unpack source ) of
     Cabal.ParseFailed e -> do
       putStrLn "Could not parse Cabal file: "
@@ -123,13 +88,12 @@ cabalToDhall source =
     Cabal.ParseOk _warnings genericPackageDescription -> do
       let
         dhall =
-          Expr.Let "prelude" Nothing ( Expr.Embed preludeLocation )
-            $ Expr.Let "types" Nothing ( Expr.Embed typesLocation )
-            $ ( Dhall.TypeCheck.absurd <$>
-                Dhall.embed
-                  genericPackageDescriptionToDhall
-                  genericPackageDescription
-              )
+          Expr.Let "prelude" Nothing ( Expr.Embed ( preludeLocation dhallLocation ) )
+          $ Expr.Let "types" Nothing ( Expr.Embed ( typesLocation dhallLocation ) )
+          $ Dhall.TypeCheck.absurd <$>
+              Dhall.embed
+                genericPackageDescriptionToDhall
+                genericPackageDescription
 
       return dhall
 

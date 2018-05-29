@@ -1,8 +1,6 @@
-    let prelude =
-          https://raw.githubusercontent.com/dhall-lang/dhall-to-cabal/1.0.0/dhall/prelude.dhall 
+    let prelude = ../../dhall/prelude.dhall 
 
-in  let types =
-          https://raw.githubusercontent.com/dhall-lang/dhall-to-cabal/1.0.0/dhall/types.dhall 
+in  let types = ../../dhall/types.dhall 
 
 in  { author =
         ""

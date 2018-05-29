@@ -215,6 +215,7 @@ in    prelude.utils.GitHub-project
             (   prelude.defaults.Executable
               ⫽ { build-depends =
                     [ deps.base
+                    , deps.dhall
                     , deps.dhall-to-cabal
                     , deps.optparse-applicative
                     , deps.prettyprinter
@@ -226,6 +227,8 @@ in    prelude.utils.GitHub-project
                     "Main.hs"
                 , other-extensions =
                     [ prelude.types.Extensions.NamedFieldPuns True ]
+                , other-modules =
+                    [ "Paths_dhall_to_cabal" ]
                 , default-language =
                     [ prelude.types.Languages.Haskell2010 {=} ] : Optional
                                                                   types.Language
