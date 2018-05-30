@@ -107,7 +107,9 @@
         
         in  majorVersions
     , GitHub-project =
-        ./GitHub-project.dhall 
+        ./GitHub-project.dhall
+    , GitHubWithSourceRepo-project =
+        ./GitHubWithSourceRepo-project.dhall
     }
 , unconditional =
     ./unconditional.dhall 
