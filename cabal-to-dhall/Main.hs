@@ -8,6 +8,7 @@ import Data.Version ( showVersion )
 import GHC.Stack
 
 import qualified Data.ByteString as ByteString
+import qualified Data.Text.Lazy as LazyText
 import qualified Data.Text.Lazy.IO as LazyText
 import qualified Data.Text.Prettyprint.Doc as Pretty
 import qualified Data.Text.Prettyprint.Doc.Render.Text as Pretty
