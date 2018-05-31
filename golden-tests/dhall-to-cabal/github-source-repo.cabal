@@ -1,0 +1,16 @@
+name: repo
+version: 1.0.0
+cabal-version: 2.0
+build-type: Simple
+license: UnspecifiedLicense
+homepage: https://github.com/owner/repo
+bug-reports: https://github.com/owner/repo/issues
+
+source-repository this
+    type: git
+    location: https://github.com/owner/repo
+    tag: 1.0.0
+
+executable  foo
+
+
