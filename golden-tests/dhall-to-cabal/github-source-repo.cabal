@@ -12,5 +12,5 @@ source-repository this
     tag: 1.0.0
 
 executable  foo
-
+    scope: public
 
