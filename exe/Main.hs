@@ -19,7 +19,7 @@ import Data.Functor.Identity ( Identity(..) )
 import Data.Monoid ( Any(..) )
 import Data.Function ( (&) )
 import Data.Maybe ( fromMaybe )
-import Data.Text.Lazy (Text)
+import Data.Text (Text)
 import Data.String ( fromString )
 import Data.Version ( showVersion )
 
@@ -28,7 +28,7 @@ import DhallToCabal
 import qualified Paths_dhall_to_cabal as Paths
 
 import qualified Data.HashMap.Strict.InsOrd as InsOrdHashMap
-import qualified Data.Text.Lazy.IO as LazyText
+import qualified Data.Text.IO as StrictText
 import qualified Data.Text.Prettyprint.Doc as Pretty
 import qualified Data.Text.Prettyprint.Doc.Render.Text as Pretty
 import qualified Dhall
@@ -175,10 +175,10 @@ runDhallToCabal DhallToCabalOptions { dhallFilePath, explain } = do
   source <-
     case dhallFilePath of
       Nothing ->
-        LazyText.getContents
+        StrictText.getContents
 
       Just filePath ->
-        LazyText.readFile filePath
+        StrictText.readFile filePath
 
   let
     fileName = fromMaybe "(STDIN)" dhallFilePath

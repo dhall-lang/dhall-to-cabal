@@ -39,19 +39,13 @@ module DhallToCabal
   , sortExpr
   ) where
 
-import Control.Exception ( Exception, throwIO )
-import Data.Function ( (&) )
 import Data.List ( partition )
 import Data.Maybe ( fromMaybe )
 import Data.Monoid ( (<>) )
-import Formatting.Buildable ( Buildable(..) )
 
 import qualified Data.HashMap.Strict.InsOrd as Map
-import qualified Data.Text.Lazy as LazyText
-import qualified Data.Text.Lazy.Builder as Builder
+import qualified Data.Text as StrictText
 import qualified Dhall
-import qualified Dhall.Core
-import qualified Dhall.Import
 import qualified Dhall.Parser
 import qualified Dhall.TypeCheck
 import qualified Distribution.Compiler as Cabal
@@ -229,10 +223,10 @@ packageDescription = do
 version :: Dhall.Type Cabal.Version
 version =
   let
-    parse builder =
+    parse text =
       fromMaybe
         ( error "Could not parse version" )
-        ( Cabal.simpleParse ( LazyText.unpack ( Builder.toLazyText builder ) ) )
+        ( Cabal.simpleParse ( StrictText.unpack text ) )
 
     extract =
       \case
@@ -244,8 +238,8 @@ version =
 
     go =
       \case
-        Expr.App ( V0 "v" ) ( Expr.TextLit ( Expr.Chunks [] builder ) ) ->
-          return ( parse builder )
+        Expr.App ( V0 "v" ) ( Expr.TextLit ( Expr.Chunks [] text ) ) ->
+          return ( parse text )
 
         e ->
           error ( show e )
@@ -595,56 +589,9 @@ moduleName =
 
 
 
-dhallToCabal :: FilePath -> LazyText.Text -> IO Cabal.GenericPackageDescription
-dhallToCabal fileName source =
-  input fileName source genericPackageDescription
-
-
-input :: FilePath -> LazyText.Text -> Dhall.Type a -> IO a
-input fileName source t = do
-  expr  <-
-    throws ( Dhall.Parser.exprFromText fileName source )
-
-  expr' <-
-    Dhall.Import.load expr
-
-  let
-    suffix =
-      Dhall.expected t
-        & build
-        & Builder.toLazyText
-
-  let
-    annot =
-      case expr' of
-        Expr.Note ( Dhall.Parser.Src begin end bytes ) _ ->
-          Expr.Note
-            ( Dhall.Parser.Src begin end bytes' )
-            ( Expr.Annot expr' ( Dhall.expected t ) )
-
-          where
-
-          bytes' =
-            bytes <> " : " <> suffix
-
-        _ ->
-          Expr.Annot expr' ( Dhall.expected t )
-
-  _ <-
-    throws (Dhall.TypeCheck.typeOf annot)
-
-  case Dhall.extract t ( Dhall.Core.normalize expr' ) of
-    Just x  ->
-      return x
-
-    Nothing ->
-      throwIO Dhall.InvalidType
-
-  where
-
-    throws :: Exception e => Either e a -> IO a
-    throws =
-      either throwIO return
+dhallToCabal :: FilePath -> StrictText.Text -> IO Cabal.GenericPackageDescription
+dhallToCabal fileName =
+  Dhall.inputFrom fileName genericPackageDescription
 
 
 

@@ -20,8 +20,7 @@ import Numeric.Natural ( Natural )
 import qualified Data.ByteString as ByteString
 import qualified Data.HashMap.Strict.InsOrd as Map
 import qualified Data.Sequence as Seq
-import qualified Data.Text.Lazy as LazyText
-import qualified Data.Text.Lazy.Builder as Builder
+import qualified Data.Text as StrictText
 import qualified Dhall
 import qualified Dhall.Core
 import qualified Dhall.Core as Expr ( Expr(..), Var(..) )
@@ -77,7 +76,7 @@ type DhallExpr =
 
 
 dhallString :: String -> Expr.Expr s a
-dhallString = Expr.TextLit . Dhall.Core.Chunks [] . Builder.fromString
+dhallString = Expr.TextLit . Dhall.Core.Chunks [] . StrictText.pack
 
 
 parseGenericPackageDescriptionThrows
@@ -107,32 +106,32 @@ cabalToDhall dhallLocation genericPackageDescription =
           genericPackageDescription
 
 
-type Default s a = Map.InsOrdHashMap LazyText.Text ( Expr.Expr s a )
+type Default s a = Map.InsOrdHashMap StrictText.Text ( Expr.Expr s a )
 
 
 emptyListDefault
-  :: LazyText.Text
+  :: StrictText.Text
   -> Expr.Expr s a
-  -> ( LazyText.Text, Expr.Expr s a )
+  -> ( StrictText.Text, Expr.Expr s a )
 emptyListDefault name ty =
   ( name, Expr.ListLit ( Just ty ) mempty )
 
 
 emptyOptionalDefault
-  :: LazyText.Text
+  :: StrictText.Text
   -> Expr.Expr s a
-  -> ( LazyText.Text, Expr.Expr s a )
+  -> ( StrictText.Text, Expr.Expr s a )
 emptyOptionalDefault name ty =
   ( name, Expr.OptionalLit ty Nothing )
 
 
 textFieldDefault
-  :: LazyText.Text
-  -> LazyText.Text
-  -> ( LazyText.Text, Expr.Expr s a )
+  :: StrictText.Text
+  -> StrictText.Text
+  -> ( StrictText.Text, Expr.Expr s a )
 textFieldDefault name def =
   ( name
-  , Expr.TextLit ( Dhall.Core.Chunks [] ( Builder.fromLazyText def ) )
+  , Expr.TextLit ( Dhall.Core.Chunks [] def )
   )
 
 
@@ -319,9 +318,9 @@ extractDefaultComparisonReplace ( DefaultComparisonReplace expr ) =
 
 nonDefaultFields
   :: ( Eq a )
-  => Map.InsOrdHashMap LazyText.Text ( Expr.Expr s a )
-  -> Map.InsOrdHashMap LazyText.Text ( Expr.Expr s a )
-  -> Map.InsOrdHashMap LazyText.Text ( Expr.Expr s a )
+  => Map.InsOrdHashMap StrictText.Text ( Expr.Expr s a )
+  -> Map.InsOrdHashMap StrictText.Text ( Expr.Expr s a )
+  -> Map.InsOrdHashMap StrictText.Text ( Expr.Expr s a )
 nonDefaultFields defs fields =
   let
     withoutDefaults = Map.difference fields defs
@@ -338,7 +337,7 @@ compareToDefault _ expr =
   DefaultComparisonReplace expr
 
 
-withDefault :: ( Eq a ) => LazyText.Text -> Default s a -> Expr.Expr s a -> Expr.Expr s a
+withDefault :: ( Eq a ) => StrictText.Text -> Default s a -> Expr.Expr s a -> Expr.Expr s a
 withDefault name defs ( Expr.RecordLit fields ) =
   let
     nonDefaults = nonDefaultFields defs fields
@@ -379,7 +378,7 @@ runRecordInputType ( RecordInputType m ) =
     }
 
 
-runRecordInputTypeWithDefault :: LazyText.Text -> Default Dhall.Parser.Src Dhall.TypeCheck.X -> RecordInputType a -> Dhall.InputType a
+runRecordInputTypeWithDefault :: StrictText.Text -> Default Dhall.Parser.Src Dhall.TypeCheck.X -> RecordInputType a -> Dhall.InputType a
 runRecordInputTypeWithDefault defName def m =
   let
     Dhall.InputType embed declared = runRecordInputType m
@@ -488,7 +487,7 @@ versionToDhall =
 
 stringToDhall :: Dhall.InputType String
 stringToDhall =
-  contramap LazyText.pack Dhall.inject
+  contramap StrictText.pack Dhall.inject
 
 licenseToDhall :: Dhall.InputType (Either SPDX.License Cabal.License)
 licenseToDhall =
@@ -610,9 +609,9 @@ spdxLicenseIdToDhall =
 
   where
 
-  identName :: SPDX.LicenseId -> LazyText.Text
+  identName :: SPDX.LicenseId -> StrictText.Text
   identName e =
-    LazyText.pack ( show e )
+    StrictText.pack ( show e )
 
 spdxLicenseExceptionIdToDhall :: Dhall.InputType SPDX.LicenseExceptionId
 spdxLicenseExceptionIdToDhall =
@@ -627,9 +626,9 @@ spdxLicenseExceptionIdToDhall =
 
   where
 
-  identName :: SPDX.LicenseExceptionId -> LazyText.Text
+  identName :: SPDX.LicenseExceptionId -> StrictText.Text
   identName e =
-    LazyText.pack ( show e )
+    StrictText.pack ( show e )
 
 newtype Union a =
   Union
@@ -1301,9 +1300,9 @@ extension =
 
   where
 
-  extName :: Cabal.KnownExtension -> LazyText.Text
+  extName :: Cabal.KnownExtension -> StrictText.Text
   extName e =
-    LazyText.pack ( show e )
+    StrictText.pack ( show e )
 
   extWith trueFalse ext =
     Expr.App
@@ -1320,7 +1319,7 @@ compilerOptions =
               ( Map.fromList
                   ( map
                       ( \( c, opts ) ->
-                          ( LazyText.pack ( show c )
+                          ( StrictText.pack ( show c )
                           , Expr.ListLit ( Just Expr.Text ) ( dhallString <$> Seq.fromList opts )
                           )
                       )

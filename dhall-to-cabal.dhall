@@ -27,7 +27,7 @@ in  let deps =
           , containers =
               majorVersions "containers" [ v "0.5" ]
           , dhall =
-              majorVersions "dhall" [ v "1.14.0" ]
+              majorVersions "dhall" [ v "1.15.0" ]
           , dhall-to-cabal =
               package "dhall-to-cabal" anyVersion
           , filepath =
@@ -48,8 +48,6 @@ in  let deps =
               majorVersions "tasty-golden" [ v "2.3" ]
           , text =
               majorVersions "text" [ v "1.2" ]
-          , formatting =
-              majorVersions "formatting" [ v "6.3.1" ]
           , transformers =
               majorVersions "transformers" [ v "0.5.2" ]
           , vector =
@@ -179,7 +177,6 @@ in    prelude.utils.GitHub-project
                   , deps.containers
                   , deps.contravariant
                   , deps.dhall
-                  , deps.formatting
                   , deps.hashable
                   , deps.insert-ordered-containers
                   , deps.text

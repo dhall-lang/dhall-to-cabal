@@ -8,7 +8,7 @@ module DhallLocation
 
 import Data.Version ( showVersion )
 
-import qualified Data.Text.Lazy as LazyText
+import qualified Data.Text as StrictText
 import qualified Dhall.Core
 
 import qualified Paths_dhall_to_cabal as Paths
@@ -20,8 +20,8 @@ data DhallLocation = DhallLocation
   }
 
 
-version :: LazyText.Text
-version = LazyText.pack ( showVersion Paths.version )
+version :: StrictText.Text
+version = StrictText.pack ( showVersion Paths.version )
 
 
 dhallFromGitHub :: DhallLocation
