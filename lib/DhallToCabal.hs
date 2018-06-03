@@ -46,13 +46,9 @@ import Data.Maybe ( fromMaybe )
 import Data.Monoid ( (<>) )
 import Formatting.Buildable ( Buildable(..) )
 
-import qualified Data.ByteString.Lazy as LazyByteString
 import qualified Data.HashMap.Strict.InsOrd as Map
-import qualified Data.Text as StrictText
-import qualified Data.Text.Encoding as StrictText
 import qualified Data.Text.Lazy as LazyText
 import qualified Data.Text.Lazy.Builder as Builder
-import qualified Data.Text.Lazy.Encoding as LazyText
 import qualified Dhall
 import qualified Dhall.Core
 import qualified Dhall.Import

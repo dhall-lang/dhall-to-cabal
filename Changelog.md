@@ -1,6 +1,19 @@
 # dhall-to-cabal change log
 
-## 1.0.1.0 -- UNRELEASED
+## NEXT
+
+* `os` conditions where the operating system's name was not recognised
+  (e.g., `os(multics)`) were crashing cabal-to-dhall. They now work as
+  expected.
+
+## 1.1.0.0 -- 2018-06-03
+
+### Breaking Changes
+
+* The type of DhallToCabal.license has changed to
+  `Dhall.Type (Either SPDX.License Cabal.License)` to accomodate Cabal 2.2.
+
+### Other Changes
 
 * Increase upper-bound of base to allow 4.11.
 
@@ -28,12 +41,15 @@
 * The signature of `CabalToDhall.cabalToDhall` has changed: it now takes the location
   of the `prelude.dhall` and `types.dhall` to import as a parameter.
 
-* Upgrade to Cabal 2.2. This introduces SPDX license identifiers and Dhall 
+* Upgrade to Cabal 2.2. This introduces SPDX license identifiers and Dhall
   functionality to manipulate them; see <golden-tests/dhall-to-cabal/SPDX.dhall>
   for a (convoluted) demonstration.
 
 * `prelude.defaults.Executable` has lost its `main-is` field, as it
   makes little sense to have an executable without it.
+
+* `--print-type` now omits the lengthy definition of `Extension`, instead importing
+  it from the prelude. `--self-contained` is a new switch to disable this behaviour.
 
 
 ## 1.0.0.1 -- 2018-03-25

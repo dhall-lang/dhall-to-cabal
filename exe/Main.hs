@@ -2,47 +2,49 @@
 {-# language NoMonomorphismRestriction #-}
 {-# language NamedFieldPuns #-}
 {-# language OverloadedStrings #-}
+{-# language RecordWildCards #-}
 {-# language ViewPatterns #-}
 
 module Main ( main ) where
 
-import Control.Applicative ( (<**>), (<|>), Const(..), optional )
+import Control.Applicative ( (<**>), Const(..), optional )
 import Control.Monad ( guard )
 import Data.Char ( isAlphaNum )
-import Data.Foldable ( asum, foldl' )
+import Control.Monad.Trans.Class ( lift )
+import Control.Monad.Trans.State ( State, execState, get, modify, put )
+import Control.Monad.Trans.Writer ( WriterT, execWriterT, tell )
+import Data.Foldable ( asum, traverse_ )
 import Data.Functor.Product ( Product(..) )
 import Data.Functor.Identity ( Identity(..) )
-import Data.Monoid ( Any(..), (<>) )
+import Data.Monoid ( Any(..) )
 import Data.Function ( (&) )
 import Data.Maybe ( fromMaybe )
 import Data.Text.Lazy (Text)
-import System.Environment ( getArgs )
 import Data.String ( fromString )
 
+import DhallLocation ( typesLocation, dhallFromGitHub )
 import DhallToCabal
 
 import qualified Data.HashMap.Strict.InsOrd as InsOrdHashMap
 import qualified Data.Text.Lazy.IO as LazyText
 import qualified Data.Text.Prettyprint.Doc as Pretty
 import qualified Data.Text.Prettyprint.Doc.Render.Text as Pretty
-import qualified Data.Text.Prettyprint.Doc.Symbols.Unicode as Pretty
 import qualified Dhall
-import qualified Dhall.Context
 import qualified Dhall.Core as Dhall
 import qualified Dhall.Core as Expr ( Expr(..), Var(..), shift )
 import qualified Distribution.PackageDescription as Cabal
+import qualified Dhall.Parser
+import qualified Dhall.TypeCheck as Dhall
 import qualified Distribution.PackageDescription.PrettyPrint as Cabal
-import qualified Distribution.Types.GenericPackageDescription as Cabal
 import qualified Distribution.Types.PackageId as Cabal
 import qualified Distribution.Types.PackageName as Cabal
 import qualified Options.Applicative as OptParse
 import qualified System.IO
 
 
-
 data Command
   = RunDhallToCabal DhallToCabalOptions
-  | PrintType KnownType
+  | PrintType PrintTypeOptions
 
 
 
@@ -83,6 +85,14 @@ isCandidateSubrecord BuildInfo = True
 isCandidateSubrecord _ = False
 
 
+shouldBeImported :: KnownType -> Bool
+shouldBeImported Extension = True
+shouldBeImported LicenseId = True
+shouldBeImported LicenseExceptionId = True
+shouldBeImported _ = False
+
+
+
 data DhallToCabalOptions = DhallToCabalOptions
   { dhallFilePath :: Maybe String
   , explain :: Bool
@@ -114,10 +124,26 @@ dhallToCabalOptionsParser =
         )
 
 
+data PrintTypeOptions = PrintTypeOptions
+  { typeToPrint :: KnownType
+  , selfContained :: Bool
+  }
 
-printTypeParser :: OptParse.Parser KnownType
-printTypeParser =
-  OptParse.option OptParse.auto modifiers
+
+printTypeOptionsParser :: OptParse.Parser PrintTypeOptions
+printTypeOptionsParser =
+  PrintTypeOptions
+    <$>
+      OptParse.option OptParse.auto modifiers
+    <*>
+      OptParse.flag
+        False
+        True
+        ( mconcat
+            [ OptParse.long "self-contained"
+            , OptParse.help "Emit self-contained types. Without this flag, some large enumerations are referenced by import."
+            ]
+        )
 
   where
 
@@ -211,15 +237,15 @@ main = do
     RunDhallToCabal options ->
       runDhallToCabal options
 
-    PrintType t ->
-      printType t
+    PrintType options ->
+      printType options
 
   where
 
   parser =
     asum
       [ RunDhallToCabal <$> dhallToCabalOptionsParser
-      , PrintType <$> printTypeParser
+      , PrintType <$> printTypeOptionsParser
       ]
 
   opts =
@@ -241,8 +267,28 @@ opts =
 
 
 
-printType :: KnownType -> IO ()
-printType t = do
+data CSEState a = CSEState
+  { _factoredOutTypes :: [ ( KnownType, Expr.Expr Dhall.Parser.Src a ) ]
+    -- ^ Things we've already factored out (which may undergo further factoring themselves).
+  , _rootType :: Expr.Expr Dhall.Parser.Src a
+    -- ^ The original type, which we started factoring things from.
+  }
+
+
+traverseTypes
+  :: ( Applicative f )
+  => ( Expr.Expr Dhall.Parser.Src a -> f ( Expr.Expr Dhall.Parser.Src b ) )
+  -> CSEState a
+  -> f ( CSEState b )
+traverseTypes f (CSEState types root) =
+  CSEState
+    <$> traverse (traverse f) types
+    <*> f root
+
+
+
+printType :: PrintTypeOptions -> IO ()
+printType PrintTypeOptions { .. } = do
   Pretty.renderIO
     System.IO.stdout
     ( Pretty.layoutSmart opts
@@ -253,50 +299,108 @@ printType t = do
 
   where
 
-    dhallType t =
-      case t of
-        Config -> configRecordType
-        Library -> Dhall.expected library
-        ForeignLibrary -> Dhall.expected foreignLib
-        Executable -> Dhall.expected executable
-        Benchmark -> Dhall.expected benchmark
-        TestSuite -> Dhall.expected testSuite
-        BuildInfo -> buildInfoType
-        SourceRepo -> Dhall.expected sourceRepo
-        RepoType -> Dhall.expected repoType
-        RepoKind -> Dhall.expected repoKind
-        Compiler -> Dhall.expected compilerFlavor
-        OS -> Dhall.expected operatingSystem
-        Extension -> Dhall.expected extension
-        CompilerOptions -> Dhall.expected compilerOptions
-        Arch -> Dhall.expected arch
-        Language -> Dhall.expected language
-        License -> Dhall.expected license
-        BuildType -> Dhall.expected buildType
-        Package -> Dhall.expected genericPackageDescription
-        VersionRange -> Dhall.expected versionRange
-        Version -> Dhall.expected version
-        SPDX -> Dhall.expected spdxLicense
-        LicenseId -> Dhall.expected spdxLicenseId
-        LicenseExceptionId -> Dhall.expected spdxLicenseExceptionId
+    dhallType :: KnownType -> Dhall.Expr Dhall.Parser.Src a
+    dhallType t = fmap Dhall.absurd
+      ( case t of
+          Config -> configRecordType
+          Library -> Dhall.expected library
+          ForeignLibrary -> Dhall.expected foreignLib
+          Executable -> Dhall.expected executable
+          Benchmark -> Dhall.expected benchmark
+          TestSuite -> Dhall.expected testSuite
+          BuildInfo -> buildInfoType
+          SourceRepo -> Dhall.expected sourceRepo
+          RepoType -> Dhall.expected repoType
+          RepoKind -> Dhall.expected repoKind
+          Compiler -> Dhall.expected compilerFlavor
+          OS -> Dhall.expected operatingSystem
+          Extension -> Dhall.expected extension
+          CompilerOptions -> Dhall.expected compilerOptions
+          Arch -> Dhall.expected arch
+          Language -> Dhall.expected language
+          License -> Dhall.expected license
+          BuildType -> Dhall.expected buildType
+          Package -> Dhall.expected genericPackageDescription
+          VersionRange -> Dhall.expected versionRange
+          Version -> Dhall.expected version
+          SPDX -> Dhall.expected spdxLicense
+          LicenseId -> Dhall.expected spdxLicenseId
+          LicenseExceptionId -> Dhall.expected spdxLicenseExceptionId
+      )
 
-    letDhallType t =
-      liftCSE ( isCandidateSubrecord t ) ( fromString ( show t ) ) ( dhallType t )
+    makeLetOrImport t val reduced =
+      let
+        name = fromString ( show t )
+      in if shouldBeImported t && not selfContained
+         then Dhall.subst ( Expr.V name 0 ) ( Expr.Var ( Expr.V "types" 0 ) `Expr.Field` name ) reduced
+         else Expr.Let name Nothing val reduced
 
+    factoredType :: Expr.Expr Dhall.Parser.Src Dhall.Import
     factoredType =
-      foldl'
-        ( flip letDhallType )
-        ( dhallType t )
-        [ minBound .. maxBound ]
+      let
+        initialState :: CSEState Dhall.Import
+        initialState = CSEState mempty ( dhallType typeToPrint )
+
+        CSEState types expr =
+          execState
+            ( traverse_ step [ minBound .. maxBound ] )
+            initialState
+
+        -- Note: right fold here, though the above traversal is a left
+        -- fold. We need the types we factor out last to be the
+        -- outermost-bound.
+        body = foldr ( uncurry makeLetOrImport ) expr types
+
+        importing = if any shouldBeImported ( fst <$> types ) && not selfContained
+          then Expr.Let "types" Nothing ( Expr.Embed ( typesLocation dhallFromGitHub ) )
+          else id
+
+      in
+        importing body
+
+    step
+      :: (Eq a)
+      => KnownType
+         -- ^ Name of the type we're trying to factor out
+      -> State ( CSEState a ) ()
+    step factorType = do
+      Any usedFactor <- execWriterT
+        ( lift . put =<< traverseTypes ( tryCSE factorType ) =<< lift get )
+      let
+        addingUsedFactor =
+          if usedFactor then ( ( factorType, ( dhallType factorType ) ) : ) else id
+      modify $ \ ( CSEState types expr ) -> CSEState ( addingUsedFactor types ) expr
+
+    tryCSE
+      :: (Eq a, Monad m)
+      => KnownType -- ^ The type we're factoring out
+      -> Expr.Expr Dhall.Parser.Src a
+      -> WriterT Any m ( Expr.Expr Dhall.Parser.Src a )
+    tryCSE factorType expr =
+      let
+        name = fromString ( show factorType )
+        subrecord = isCandidateSubrecord factorType
+      in
+        case liftCSE subrecord name ( dhallType factorType ) expr of
+          Just expr' -> do
+            tell (Any True)
+            return expr'
+          Nothing ->
+            return expr
 
 
 liftCSE
   :: (Eq s, Eq a)
-  => Bool          -- ^ Should we attempt to find the subexpression as a sub-record?
-  -> Text          -- ^ The name of the binding
-  -> Expr.Expr s a -- ^ The common subexpression to lift
-  -> Expr.Expr s a -- ^ The expression to remove a common subexpression from
+  => Bool
+     -- ^ Should we attempt to find the subexpression as a sub-record?
+  -> Text
+     -- ^ The name of the binding
   -> Expr.Expr s a
+     -- ^ The common subexpression to lift
+  -> Expr.Expr s a
+     -- ^ The expression to remove a common subexpression from
+  -> Maybe (Expr.Expr s a)
+  -- ^ 'Just' the CSE-ed expression, or Nothing if the subexpression wasn't found.
 liftCSE subrecord name body expr =
   let
     v0 =
@@ -306,11 +410,14 @@ liftCSE subrecord name body expr =
     case go ( Expr.shift 1 v0 expr ) v0 of
       Pair ( Const ( Any False ) ) _ ->
         -- There was nothing to lift
-        expr
+        Nothing
+
+      Pair _ ( Identity reduced ) | reduced == Expr.Var v0 ->
+        -- We lifted the whole expression out. This is not a win, so don't bother.
+        Nothing
 
       Pair _ ( Identity reduced ) ->
-        -- We did manage to lift a CSE, so let bind it
-        Expr.Let name Nothing body reduced
+        Just reduced
 
   where
 

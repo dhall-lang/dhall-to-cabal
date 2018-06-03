@@ -1,29 +1,27 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE ViewPatterns #-}
 module Main ( main ) where
 
 import Data.Algorithm.Diff
 import Data.Algorithm.DiffOutput
-import Data.Function ( on, (&) )
+import Data.Function ( (&) )
 import System.FilePath ( takeBaseName, replaceExtension )
 import Test.Tasty ( defaultMain, TestTree, testGroup )
 import Test.Tasty.Golden ( findByExtension, goldenVsStringDiff )
 import Test.Tasty.Golden.Advanced ( goldenTest )
 
 import qualified Data.ByteString as BS
-import qualified Data.ByteString.Lazy as LBS
-import qualified Data.Text.Lazy as LazyText
 import qualified Data.Text.Lazy.Encoding as LazyText
 import qualified Data.Text.Lazy.IO as LazyText
 import qualified Data.Text.Prettyprint.Doc as Pretty
 import qualified Data.Text.Prettyprint.Doc.Render.Text as Pretty
 import qualified Dhall.Core
-import qualified Distribution.PackageDescription.Configuration as Cabal
 import qualified Distribution.PackageDescription.Parsec as Cabal
 import qualified Distribution.PackageDescription.PrettyPrint as Cabal
-import qualified Distribution.PackageDescription as Cabal
 import qualified Distribution.Verbosity as Cabal
 
-import CabalToDhall ( cabalToDhall, DhallLocation ( DhallLocation ) )
+import CabalToDhall ( cabalToDhall )
+import DhallLocation ( DhallLocation ( DhallLocation ) )
 import DhallToCabal ( dhallToCabal )
 
 
@@ -94,9 +92,7 @@ goldenTests = do
               ( takeBaseName dhallFile )
               ( Cabal.readGenericPackageDescription Cabal.normal cabalFile )
               ( LazyText.readFile dhallFile >>= dhallToCabal dhallFile  )
-              ( \expected actual -> do
-                  let [exp,act] = map Cabal.showGenericPackageDescription
-                                  [expected, actual]
+              ( \ ( Cabal.showGenericPackageDescription -> exp ) ( Cabal.showGenericPackageDescription -> act ) -> do
                   if exp == act then
                       return Nothing
                   else do
@@ -124,6 +120,3 @@ goldenTests = do
          , let dhallFile = replaceExtension cabalFile ".dhall"
          ]
     ]
-
-reverseArtifacts pkg =
-  pkg { Cabal.executables = reverse (Cabal.executables pkg) }

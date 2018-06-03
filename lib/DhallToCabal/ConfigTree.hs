@@ -18,11 +18,11 @@ data ConfigTree cond a
   deriving (Functor, Show)
 
 instance Applicative ( ConfigTree cond ) where
-  pure = return
+  pure = Leaf
   (<*>) = ap
 
 instance Monad ( ConfigTree cond ) where
-  return = Leaf
+  return = pure
 
   Leaf a >>= f = f a
   Branch cond l r >>= f = Branch cond ( l >>= f ) ( r >>= f )
@@ -40,7 +40,7 @@ instance ( Monoid a ) => Monoid ( ConfigTree cond a ) where
 -- @False@. The two substitutions are captured in a 'Branch'.
 
 toConfigTree
-  :: ( Eq a, Eq s )
+  :: ( Eq a )
   => Expr s a
   -> ConfigTree ( Expr s a ) ( Expr s a )
 toConfigTree e =
