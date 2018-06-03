@@ -23,6 +23,9 @@ module DhallToCabal
   , compilerFlavor
   , language
   , license
+  , spdxLicense
+  , spdxLicenseId
+  , spdxLicenseExceptionId
   , executable
   , testSuite
   , benchmark
@@ -31,6 +34,7 @@ module DhallToCabal
   , versionRange
   , version
   , configRecordType
+  , buildInfoType
 
   , sortExpr
   ) where
@@ -58,6 +62,7 @@ import qualified Distribution.Compiler as Cabal
 import qualified Distribution.License as Cabal
 import qualified Distribution.ModuleName as Cabal
 import qualified Distribution.PackageDescription as Cabal
+import qualified Distribution.SPDX as SPDX
 import qualified Distribution.System as Cabal ( Arch(..), OS(..) )
 import qualified Distribution.Text as Cabal ( simpleParse )
 import qualified Distribution.Types.CondTree as Cabal
@@ -139,10 +144,10 @@ packageDescription = do
   specVersionRaw <-
     Left <$> keyValue "cabal-version" version
 
-  buildType <-
+  buildTypeRaw <-
     keyValue "build-type" ( Dhall.maybe buildType )
 
-  license <-
+  licenseRaw <-
     keyValue "license" license
 
   licenseFiles <-
@@ -353,6 +358,9 @@ buildInfo = do
   sharedOptions <-
     keyValue "shared-options" compilerOptions
 
+  staticOptions <-
+    keyValue "static-options" compilerOptions
+
   customFieldsBI <-
     pure []
 
@@ -362,8 +370,39 @@ buildInfo = do
   mixins <-
     keyValue "mixins" ( Dhall.list mixin )
 
+  asmOptions <-
+    keyValue "asm-options" ( Dhall.list Dhall.string )
+
+  asmSources <-
+    keyValue "asm-sources" ( Dhall.list Dhall.string )
+
+  cmmOptions <-
+    keyValue "cmm-options" ( Dhall.list Dhall.string )
+
+  cmmSources <-
+    keyValue "cmm-sources" ( Dhall.list Dhall.string )
+
+  cxxOptions <-
+    keyValue "cxx-options" ( Dhall.list Dhall.string )
+
+  cxxSources <-
+    keyValue "cxx-sources" ( Dhall.list Dhall.string )
+
+  virtualModules <-
+    keyValue "virtual-modules" ( Dhall.list moduleName )
+
+  extraLibFlavours <-
+    keyValue "extra-lib-flavours" ( Dhall.list Dhall.string )
+
+  extraBundledLibs <-
+    keyValue "extra-bundled-libs" ( Dhall.list Dhall.string )
+
   return Cabal.BuildInfo { ..  }
 
+
+buildInfoType :: Expr.Expr Dhall.Parser.Src Dhall.TypeCheck.X
+buildInfoType =
+  Dhall.expected ( makeRecord buildInfo )
 
 
 testSuite :: Dhall.Type Cabal.TestSuite
@@ -604,6 +643,7 @@ pattern LamArr a b <- Expr.Lam _ a b
 
 
 
+pattern V0 :: Dhall.Text -> Expr.Expr s a
 pattern V0 v = Expr.Var ( Expr.V v 0 )
 
 
@@ -710,26 +750,117 @@ buildType =
 
 
 
-license :: Dhall.Type Cabal.License
+license :: Dhall.Type (Either SPDX.License Cabal.License)
 license =
   makeUnion
     ( Map.fromList
-        [ ( "GPL", Cabal.GPL <$> Dhall.maybe version )
-        , ( "AGPL", Cabal.AGPL <$> Dhall.maybe version )
-        , ( "LGPL", Cabal.LGPL <$> Dhall.maybe version )
-        , ( "BSD2", Cabal.BSD2 <$ Dhall.unit )
-        , ( "BSD3", Cabal.BSD3 <$ Dhall.unit )
-        , ( "BSD4", Cabal.BSD4 <$ Dhall.unit )
-        , ( "MIT", Cabal.MIT <$ Dhall.unit )
-        , ( "ISC", Cabal.ISC <$ Dhall.unit )
-        , ( "MPL", Cabal.MPL <$> version )
-        , ( "Apache", Cabal.Apache <$> Dhall.maybe version )
-        , ( "PublicDomain", Cabal.PublicDomain <$ Dhall.unit )
-        , ( "AllRightsReserved", Cabal.AllRightsReserved<$ Dhall.unit )
-        , ( "Unspecified", Cabal.UnspecifiedLicense <$ Dhall.unit )
-        , ( "Other", Cabal.OtherLicense <$ Dhall.unit )
+        [ ( "GPL", Right . Cabal.GPL <$> Dhall.maybe version )
+        , ( "AGPL", Right . Cabal.AGPL <$> Dhall.maybe version )
+        , ( "LGPL", Right . Cabal.LGPL <$> Dhall.maybe version )
+        , ( "BSD2", Right Cabal.BSD2 <$ Dhall.unit )
+        , ( "BSD3", Right Cabal.BSD3 <$ Dhall.unit )
+        , ( "BSD4", Right Cabal.BSD4 <$ Dhall.unit )
+        , ( "MIT", Right Cabal.MIT <$ Dhall.unit )
+        , ( "ISC", Right Cabal.ISC <$ Dhall.unit )
+        , ( "MPL", Right . Cabal.MPL <$> version )
+        , ( "Apache", Right . Cabal.Apache <$> Dhall.maybe version )
+        , ( "PublicDomain", Right Cabal.PublicDomain <$ Dhall.unit )
+        , ( "AllRightsReserved", Right Cabal.AllRightsReserved<$ Dhall.unit )
+        , ( "Unspecified", Right Cabal.UnspecifiedLicense <$ Dhall.unit )
+        , ( "Other", Right Cabal.OtherLicense <$ Dhall.unit )
+        , ( "SPDX", Left . SPDX.License <$> spdxLicense )
         ]
     )
+
+
+spdxLicense :: Dhall.Type SPDX.LicenseExpression
+spdxLicense =
+  let
+    extract =
+      \case
+        LamArr _spdx (LamArr _licenseExactVersion (LamArr _licenseVersionOrLater (LamArr _licenseRef (LamArr _licenseRefWithFile (LamArr _licenseAnd (LamArr _licenseOr license)))))) ->
+          go license
+
+        _ ->
+          Nothing
+
+    go =
+      \case
+        Expr.App ( Expr.App ( V0 "license" ) identM ) exceptionMayM -> do
+          ident <- Dhall.extract spdxLicenseId identM
+          exceptionMay <- Dhall.extract ( Dhall.maybe spdxLicenseExceptionId ) exceptionMayM
+          return ( SPDX.ELicense ( SPDX.ELicenseId ident ) exceptionMay )
+
+        Expr.App ( Expr.App ( V0 "licenseVersionOrLater" ) identM ) exceptionMayM -> do          
+          ident <- Dhall.extract spdxLicenseId identM
+          exceptionMay <- Dhall.extract ( Dhall.maybe spdxLicenseExceptionId ) exceptionMayM
+          return ( SPDX.ELicense ( SPDX.ELicenseIdPlus ident ) exceptionMay )
+
+        Expr.App ( Expr.App ( V0 "ref" ) identM ) exceptionMayM -> do
+          ident <- Dhall.extract Dhall.string identM
+          exceptionMay <- Dhall.extract ( Dhall.maybe spdxLicenseExceptionId ) exceptionMayM
+          return ( SPDX.ELicense ( SPDX.ELicenseRef ( SPDX.mkLicenseRef' Nothing ident ) ) exceptionMay )
+
+        Expr.App ( Expr.App ( Expr.App ( V0 "refWithFile" ) identM ) filenameM) exceptionMayM -> do
+          ident <- Dhall.extract Dhall.string identM
+          filename <- Dhall.extract Dhall.string filenameM
+          exceptionMay <- Dhall.extract ( Dhall.maybe spdxLicenseExceptionId ) exceptionMayM
+          return ( SPDX.ELicense ( SPDX.ELicenseRef ( SPDX.mkLicenseRef' ( Just filename ) ident ) ) exceptionMay )
+
+        Expr.App ( Expr.App ( V0 "and" ) a ) b ->
+          SPDX.EAnd <$> go a <*> go b
+
+        Expr.App ( Expr.App ( V0 "or" ) a ) b ->
+          SPDX.EOr <$> go a <*> go b
+
+        _ ->
+          Nothing
+
+    expected =
+      let
+        licenseType =
+          V0 "SPDX"
+
+        licenseIdAndException
+          = Expr.Pi "id" ( Dhall.expected spdxLicenseId )
+          $ Expr.Pi "exception" ( Dhall.expected ( Dhall.maybe spdxLicenseExceptionId ) )
+          $ licenseType
+
+        licenseRef
+          = Expr.Pi "ref" ( Dhall.expected Dhall.string )
+          $ Expr.Pi "exception" ( Dhall.expected ( Dhall.maybe spdxLicenseExceptionId ) )
+          $ licenseType
+
+        licenseRefWithFile
+          = Expr.Pi "ref" ( Dhall.expected Dhall.string )
+          $ Expr.Pi "file" ( Dhall.expected Dhall.string )
+          $ Expr.Pi "exception" ( Dhall.expected ( Dhall.maybe spdxLicenseExceptionId ) )
+          $ licenseType
+
+        combine =
+          Expr.Pi "_" licenseType ( Expr.Pi "_" licenseType licenseType )
+
+      in
+      Expr.Pi "SPDX" ( Expr.Const Expr.Type )
+        $ Expr.Pi "license" licenseIdAndException
+        $ Expr.Pi "licenseVersionOrLater" licenseIdAndException
+        $ Expr.Pi "ref" licenseRef
+        $ Expr.Pi "refWithFile" licenseRefWithFile
+        $ Expr.Pi "and" combine
+        $ Expr.Pi "or" combine
+        $ licenseType
+
+  in Dhall.Type { .. }
+
+
+
+spdxLicenseId :: Dhall.Type SPDX.LicenseId
+spdxLicenseId = Dhall.genericAuto
+
+
+
+spdxLicenseExceptionId :: Dhall.Type SPDX.LicenseExceptionId
+spdxLicenseExceptionId = Dhall.genericAuto
 
 
 

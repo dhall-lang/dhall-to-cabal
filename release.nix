@@ -13,6 +13,8 @@ let
     packageOverrides = pkgs: {
       haskellPackages = pkgs.haskellPackages.override {
         overrides = self: super: {
+          text = self.callPackage ./text.nix {};
+
           prettyprinter = self.callPackage ./prettyprinter.nix {};
 
           dhall = super.callPackage ./dhall.nix {};
@@ -21,7 +23,9 @@ let
 
           formatting = super.callPackage ./formatting.nix {};
 
-          dhall-to-cabal = super.callCabal2nix "dhall-to-cabal" ./. {};
+          dhall-to-cabal = super.callCabal2nix "dhall-to-cabal" ./. {
+            Cabal = self.callPackage ./cabal.nix {};
+          };
         };
       };
     };
