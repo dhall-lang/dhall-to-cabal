@@ -28,6 +28,9 @@
 * The signature of `CabalToDhall.cabalToDhall` has changed: it now takes the location
   of the `prelude.dhall` and `types.dhall` to import as a parameter.
 
+* `prelude.defaults.Executable` has lost its `main-is` field, as it
+  makes little sense to have an executable without it.
+
 
 ## 1.0.0.1 -- 2018-03-25
 
