@@ -118,7 +118,11 @@ library
     default-language: Haskell2010
     other-extensions: ApplicativeDo GADTs GeneralizedNewtypeDeriving
                       LambdaCase OverloadedStrings RecordWildCards TypeApplications
-    ghc-options: -Wall -fno-warn-name-shadowing
+    ghc-options: -Weverything -Wno-safe -Wno-unsafe
+                 -Wno-implicit-prelude -Wno-missed-specialisations
+                 -Wno-all-missed-specialisations -Wno-missing-import-lists
+                 -Wno-missing-local-signatures -Wno-monomorphism-restriction
+                 -fno-warn-name-shadowing
     build-depends:
         Cabal ^>=2.2,
         base ^>=4.10 || ^>=4.11,
@@ -138,6 +142,11 @@ executable dhall-to-cabal
     hs-source-dirs: exe
     default-language: Haskell2010
     other-extensions: NamedFieldPuns
+    ghc-options: -Weverything -Wno-safe -Wno-unsafe
+                 -Wno-implicit-prelude -Wno-missed-specialisations
+                 -Wno-all-missed-specialisations -Wno-missing-import-lists
+                 -Wno-missing-local-signatures -Wno-monomorphism-restriction
+                 -fno-warn-name-shadowing
     build-depends:
         Cabal ^>=2.2,
         base ^>=4.10 || ^>=4.11,
@@ -154,6 +163,11 @@ executable cabal-to-dhall
     hs-source-dirs: cabal-to-dhall
     default-language: Haskell2010
     other-extensions: NamedFieldPuns
+    ghc-options: -Weverything -Wno-safe -Wno-unsafe
+                 -Wno-implicit-prelude -Wno-missed-specialisations
+                 -Wno-all-missed-specialisations -Wno-missing-import-lists
+                 -Wno-missing-local-signatures -Wno-monomorphism-restriction
+                 -fno-warn-name-shadowing
     build-depends:
         base ^>=4.10 || ^>=4.11,
         dhall ^>=1.14.0,
@@ -168,6 +182,11 @@ test-suite golden-tests
     main-is: GoldenTests.hs
     hs-source-dirs: golden-tests
     default-language: Haskell2010
+    ghc-options: -Weverything -Wno-safe -Wno-unsafe
+                 -Wno-implicit-prelude -Wno-missed-specialisations
+                 -Wno-all-missed-specialisations -Wno-missing-import-lists
+                 -Wno-missing-local-signatures -Wno-monomorphism-restriction
+                 -fno-warn-name-shadowing
     build-depends:
         base ^>=4.10 || ^>=4.11,
         Cabal ^>=2.2,
