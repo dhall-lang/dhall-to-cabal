@@ -1,6 +1,13 @@
 # dhall-to-cabal change log
 
-## 1.0.1.0 -- UNRELEASED
+## 1.1.0.0 -- 2018-06-03
+
+### Breaking Changes
+
+* The type of DhallToCabal.license has changed to
+  `Dhall.Type (Either SPDX.License Cabal.License)` to accomodate Cabal 2.2.
+
+### Other Changes
 
 * Increase upper-bound of base to allow 4.11.
 
@@ -28,7 +35,7 @@
 * The signature of `CabalToDhall.cabalToDhall` has changed: it now takes the location
   of the `prelude.dhall` and `types.dhall` to import as a parameter.
 
-* Upgrade to Cabal 2.2. This introduces SPDX license identifiers and Dhall 
+* Upgrade to Cabal 2.2. This introduces SPDX license identifiers and Dhall
   functionality to manipulate them; see <golden-tests/dhall-to-cabal/SPDX.dhall>
   for a (convoluted) demonstration.
 
