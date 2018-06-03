@@ -9,7 +9,6 @@ module CabalToDhall
   ( cabalToDhall
   ) where
 
-import Control.Monad ( join )
 import Data.Foldable ( foldMap )
 import Data.Functor.Contravariant ( (>$<), Contravariant( contramap ) )
 import Data.Monoid ( First(..) )
@@ -97,7 +96,7 @@ cabalToDhall dhallLocation source =
 
 newtype RecordInputType a =
   RecordInputType
-    { unRecordInputType ::
+    { _unRecordInputType ::
         Map.InsOrdHashMap Dhall.Text ( Dhall.InputType a )
     }
   deriving ( Semigroup, Monoid )
@@ -310,9 +309,6 @@ licenseToDhall =
     other =
       unionAlt "Other" ( \l -> case l of Right Cabal.OtherLicense -> Just () ; _ -> Nothing ) Dhall.inject
 
-    unknown =
-      unionAlt "Unknown" ( \l -> case l of Right ( Cabal.UnknownLicense s ) -> Just s ; _ -> Nothing ) stringToDhall
-
     spdxLicense =
       unionAlt "SPDX" ( \l -> case l of Left ( SPDX.License x ) -> Just x ; _ -> Nothing ) spdxLicenseExpressionToDhall
 
@@ -410,7 +406,7 @@ spdxLicenseExceptionIdToDhall =
 
 newtype Union a =
   Union
-    { unUnion ::
+    { _unUnion ::
         ( a ->
           ( First ( Dhall.Text, DhallExpr )
           , Map.InsOrdHashMap Dhall.Text DhallExpr
@@ -445,7 +441,7 @@ unionAlt k f t =
           Nothing ->
             ( mempty, Map.singleton k ( Dhall.declared t ) )
 
-          Just b ->
+          Just _ ->
             ( First ( fmap ( \b -> ( k, Dhall.embed t b ) ) ( f a ) ), mempty )
     , Map.singleton k ( Dhall.declared t )
     )
@@ -1111,16 +1107,6 @@ compilerOptions =
     , Dhall.declared =
         Expr.Var "types" `Expr.Field` "CompilerOptions"
     }
-
-  where
-
-    field c =
-      recordField ( LazyText.pack ( show c ) ) ( filtering c )
-
-    filtering c =
-      contramap
-        ( \l -> join [ opts | ( c', opts ) <- l, c == c' ] )
-        ( listOf stringToDhall )
 
 
 mixin :: Dhall.InputType Cabal.Mixin
