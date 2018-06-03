@@ -756,7 +756,7 @@ unifyCondTree =
 
 
 condTree
-  :: ( Monoid a, Monoid x )
+  :: ( Monoid a )
   => Dhall.InputType a
   -> Dhall.InputType ( Cabal.CondTree Cabal.ConfVar x a )
 condTree t =

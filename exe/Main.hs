@@ -7,20 +7,19 @@
 
 module Main ( main ) where
 
-import Control.Applicative ( (<**>), (<|>), Const(..), optional )
+import Control.Applicative ( (<**>), Const(..), optional )
 import Control.Monad ( guard )
 import Data.Char ( isAlphaNum )
 import Control.Monad.Trans.Class ( lift )
 import Control.Monad.Trans.State ( State, execState, get, modify, put )
 import Control.Monad.Trans.Writer ( WriterT, execWriterT, tell )
-import Data.Foldable ( asum, foldl', traverse_ )
+import Data.Foldable ( asum, traverse_ )
 import Data.Functor.Product ( Product(..) )
 import Data.Functor.Identity ( Identity(..) )
-import Data.Monoid ( Any(..), (<>) )
+import Data.Monoid ( Any(..) )
 import Data.Function ( (&) )
 import Data.Maybe ( fromMaybe )
 import Data.Text.Lazy (Text)
-import System.Environment ( getArgs )
 import Data.String ( fromString )
 
 import DhallLocation ( typesLocation, dhallFromGitHub )
@@ -30,16 +29,13 @@ import qualified Data.HashMap.Strict.InsOrd as InsOrdHashMap
 import qualified Data.Text.Lazy.IO as LazyText
 import qualified Data.Text.Prettyprint.Doc as Pretty
 import qualified Data.Text.Prettyprint.Doc.Render.Text as Pretty
-import qualified Data.Text.Prettyprint.Doc.Symbols.Unicode as Pretty
 import qualified Dhall
-import qualified Dhall.Context
 import qualified Dhall.Core as Dhall
 import qualified Dhall.Core as Expr ( Expr(..), Var(..), shift )
 import qualified Distribution.PackageDescription as Cabal
 import qualified Dhall.Parser
 import qualified Dhall.TypeCheck as Dhall
 import qualified Distribution.PackageDescription.PrettyPrint as Cabal
-import qualified Distribution.Types.GenericPackageDescription as Cabal
 import qualified Distribution.Types.PackageId as Cabal
 import qualified Distribution.Types.PackageName as Cabal
 import qualified Options.Applicative as OptParse
@@ -272,9 +268,9 @@ opts =
 
 
 data CSEState a = CSEState
-  { factoredOutTypes :: [ ( KnownType, Expr.Expr Dhall.Parser.Src a ) ]
+  { _factoredOutTypes :: [ ( KnownType, Expr.Expr Dhall.Parser.Src a ) ]
     -- ^ Things we've already factored out (which may undergo further factoring themselves).
-  , rootType :: Expr.Expr Dhall.Parser.Src a
+  , _rootType :: Expr.Expr Dhall.Parser.Src a
     -- ^ The original type, which we started factoring things from.
   }
 
