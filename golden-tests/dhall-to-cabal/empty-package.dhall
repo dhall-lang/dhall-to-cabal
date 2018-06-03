@@ -9,6 +9,7 @@
         , executable =
             λ(config : ./dhall/types/Config.dhall)
           → ./dhall/defaults/Executable.dhall
+          ⫽ { main-is = "Main.hs" }
         }
       ]
   }

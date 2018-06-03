@@ -32,6 +32,10 @@
   functionality to manipulate them; see <golden-tests/dhall-to-cabal/SPDX.dhall>
   for a (convoluted) demonstration.
 
+* `prelude.defaults.Executable` has lost its `main-is` field, as it
+  makes little sense to have an executable without it.
+
+
 ## 1.0.0.1 -- 2018-03-25
 
 Small packaging only tweaks:
