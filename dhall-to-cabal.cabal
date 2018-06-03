@@ -113,6 +113,8 @@ library
         DhallToCabal.Diff
         Dhall.Extra
         Paths_dhall_to_cabal
+    autogen-modules:
+        Paths_dhall_to_cabal
     default-language: Haskell2010
     other-extensions: ApplicativeDo GADTs GeneralizedNewtypeDeriving
                       LambdaCase OverloadedStrings RecordWildCards TypeApplications

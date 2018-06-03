@@ -172,6 +172,8 @@ in    prelude.utils.GitHub-project
               , compiler-options =
                     prelude.defaults.CompilerOptions
                   ⫽ { GHC = [ "-Wall", "-fno-warn-name-shadowing" ] }
+              , autogen-modules =
+                  [ "Paths_dhall_to_cabal" ]
               , exposed-modules =
                   [ "DhallToCabal", "DhallLocation", "CabalToDhall" ]
               , hs-source-dirs =
