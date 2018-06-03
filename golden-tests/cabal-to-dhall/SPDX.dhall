@@ -9,9 +9,9 @@ in  { author =
     , bug-reports =
         ""
     , build-type =
-        [] : Optional types.BuildType
+        [ prelude.types.BuildTypes.Simple {=} ] : Optional types.BuildType
     , cabal-version =
-        prelude.v "2.0"
+        prelude.v "2.2"
     , category =
         ""
     , copyright =
@@ -43,8 +43,31 @@ in  { author =
     , library =
         [] : Optional (types.Config → types.Library)
     , license =
-        < AllRightsReserved =
-            {=}
+        < SPDX =
+            prelude.SPDX.and
+            ( prelude.SPDX.or
+              ( prelude.SPDX.license
+                (prelude.types.LicenseId.AGPL_3_0_or_later {=})
+                ( [ prelude.types.LicenseExceptionId.Classpath_exception_2_0 {=}
+                  ] : Optional types.LicenseExceptionId
+                )
+              )
+              ( prelude.SPDX.licenseVersionOrLater
+                (prelude.types.LicenseId.Apache_2_0 {=})
+                ([] : Optional types.LicenseExceptionId)
+              )
+            )
+            ( prelude.SPDX.or
+              ( prelude.SPDX.ref
+                "MyFancyLicense"
+                ([] : Optional types.LicenseExceptionId)
+              )
+              ( prelude.SPDX.refWithFile
+                "MyFancierLicense"
+                "LICENSE.txt"
+                ([] : Optional types.LicenseExceptionId)
+              )
+            )
         | GPL :
             Optional types.Version
         | AGPL :
@@ -67,19 +90,19 @@ in  { author =
             Optional types.Version
         | PublicDomain :
             {}
+        | AllRightsReserved :
+            {}
         | Unspecified :
             {}
         | Other :
             {}
-        | SPDX :
-            types.SPDX
         >
     , license-files =
         [] : List Text
     , maintainer =
         ""
     , name =
-        "test"
+        "foo"
     , package-url =
         ""
     , source-repos =
@@ -110,7 +133,7 @@ in  { author =
     , tested-with =
         [] : List { compiler : types.Compiler, version : types.VersionRange }
     , version =
-        prelude.v "1.0"
+        prelude.v "0"
     , x-fields =
         [] : List { _1 : Text, _2 : Text }
     }

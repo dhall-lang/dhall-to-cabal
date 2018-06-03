@@ -10,7 +10,11 @@
     , Languages =
         constructors ./types/Language.dhall 
     , Licenses =
-        constructors ./types/License.dhall 
+        constructors ./types/License.dhall
+    , LicenseExceptionId =
+        constructors ./types/SPDX/LicenseExceptionId.dhall
+    , LicenseId =
+        constructors ./types/SPDX/LicenseId.dhall
     , TestTypes =
         constructors ./types/TestType.dhall 
     }
@@ -110,5 +114,21 @@
         ./GitHub-project.dhall 
     }
 , unconditional =
-    ./unconditional.dhall 
+    ./unconditional.dhall
+, SPDX =
+    { license =
+        ./types/SPDX/License.dhall
+    , licenseVersionOrLater =
+        ./types/SPDX/LicenseVersionOrLater.dhall
+    , ref =
+        ./types/SPDX/Ref.dhall
+    , refWithFile =
+        ./types/SPDX/RefWithFile.dhall
+    , and =
+        ./types/SPDX/And.dhall
+    , or =
+        ./types/SPDX/Or.dhall
+    , noException =
+        [] : Optional ./types/SPDX/LicenseExceptionId.dhall
+    }
 }

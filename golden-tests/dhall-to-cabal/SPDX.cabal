@@ -1,0 +1,7 @@
+cabal-version: 2.2
+name: foo
+version: 0
+license: (AGPL-3.0-or-later OR Apache-2.0+ WITH Classpath-exception-2.0) AND (LicenseRef-MyFancyLicense OR DocumentRef-LICENSE.txt:LicenseRef-MyFancierLicense)
+build-type: Simple
+
+library

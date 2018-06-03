@@ -26,4 +26,6 @@
     {}
 | Unspecified :
     {}
+| SPDX :
+    ./SPDX.dhall
 >

@@ -9,10 +9,12 @@ library
     if impl(ghc >=8.2)
         build-depends:
             B -any
+    else
     
     if impl(ghc >=8.4)
         build-depends:
             C -any
+    else
     build-depends:
         A -any
 

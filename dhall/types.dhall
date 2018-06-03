@@ -31,7 +31,11 @@
 , Library =
     ./types/Library.dhall 
 , License =
-    ./types/License.dhall 
+    ./types/License.dhall
+, LicenseExceptionId =
+    ./types/SPDX/LicenseExceptionId.dhall
+, LicenseId =
+    ./types/SPDX/LicenseId.dhall
 , Mixin =
     ./types/Mixin.dhall
 , ModuleRenaming =
@@ -48,6 +52,8 @@
     ./types/Scope.dhall
 , SetupBuildInfo =
     ./types/SetupBuildInfo.dhall
+, SPDX =
+    ./types/SPDX.dhall
 , TestSuite =
     ./types/TestSuite.dhall
 , TestType =

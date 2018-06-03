@@ -38,6 +38,8 @@
     Bool
 | DeriveTraversable :
     Bool
+| DerivingStrategies :
+    Bool
 | DisambiguateRecordFields :
     Bool
 | DoAndIfThenElse :
@@ -79,6 +81,8 @@
 | Generics :
     Bool
 | HereDocuments :
+    Bool
+| HexFloatLiterals :
     Bool
 | ImplicitParams :
     Bool
@@ -219,6 +223,8 @@
 | TypeOperators :
     Bool
 | TypeSynonymInstances :
+    Bool
+| UnboxedSums :
     Bool
 | UnboxedTuples :
     Bool

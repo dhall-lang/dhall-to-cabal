@@ -17,7 +17,7 @@ in  let majorVersions = prelude.utils.majorVersions
 
 in  let deps =
           { Cabal =
-              majorVersions "Cabal" [ v "2.0" ]
+              majorVersions "Cabal" [ v "2.2" ]
           , Diff =
               majorVersions "Diff" [ v "0.3.4" ]
           , base =
@@ -132,6 +132,15 @@ in    prelude.utils.GitHub-project
           , "dhall/types/VersionRange/MajorBoundVersion.dhall"
           , "dhall/types/VersionRange/UnionVersionRanges.dhall"
           , "dhall/types/SetupBuildInfo.dhall"
+          , "dhall/types/SPDX.dhall"
+          , "dhall/types/SPDX/License.dhall"
+          , "dhall/types/SPDX/LicenseVersionOrLater.dhall"
+          , "dhall/types/SPDX/Ref.dhall"
+          , "dhall/types/SPDX/RefWithFile.dhall"
+          , "dhall/types/SPDX/And.dhall"
+          , "dhall/types/SPDX/Or.dhall"
+          , "dhall/types/SPDX/LicenseExceptionId.dhall"
+          , "dhall/types/SPDX/LicenseId.dhall"
           , "golden-tests/dhall-to-cabal/*.dhall"
           , "golden-tests/dhall-to-cabal/*.cabal"
           , "golden-tests/cabal-to-dhall/*.dhall"
@@ -217,6 +226,7 @@ in    prelude.utils.GitHub-project
               ⫽ { build-depends =
                     [ deps.base
                     , deps.dhall
+                    , deps.bytestring
                     , deps.dhall-to-cabal
                     , deps.optparse-applicative
                     , deps.prettyprinter
