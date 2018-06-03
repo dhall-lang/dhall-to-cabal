@@ -1,0 +1,10 @@
+cabal-version: 2.0
+name: test
+version: 0
+
+library
+  exposed-modules:
+    A
+  if os(multics)
+    exposed-modules:
+      B

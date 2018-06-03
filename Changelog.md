@@ -1,5 +1,11 @@
 # dhall-to-cabal change log
 
+## NEXT
+
+* `os` conditions where the operating system's name was not recognised
+  (e.g., `os(multics)`) were crashing cabal-to-dhall. They now work as
+  expected.
+
 ## 1.1.0.0 -- 2018-06-03
 
 ### Breaking Changes

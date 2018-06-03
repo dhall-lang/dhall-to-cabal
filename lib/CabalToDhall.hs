@@ -19,6 +19,7 @@ import Numeric.Natural ( Natural )
 import qualified Data.ByteString as ByteString
 import qualified Data.HashMap.Strict.InsOrd as Map
 import qualified Data.Text.Lazy as LazyText
+import qualified Data.Text.Lazy.Builder as Builder
 import qualified Dhall
 import qualified Dhall.Core
 import qualified Dhall.Core as Expr ( Expr(..) )
@@ -905,6 +906,15 @@ os =
           Expr.App
             ( Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "OSs" `Expr.Field` "Ghcjs" )
             ( Expr.RecordLit mempty )
+
+        Cabal.OtherOS os ->
+          Expr.App
+            ( Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "OSs" `Expr.Field` "OtherOS" )
+            ( Expr.RecordLit
+              ( Map.singleton "_1"
+                ( Expr.TextLit ( Dhall.Core.Chunks [] ( Builder.fromString os ) ) )
+              )
+            )
 
     , Dhall.declared =
         Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "OS"
