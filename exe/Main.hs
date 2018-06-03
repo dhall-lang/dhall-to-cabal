@@ -91,6 +91,8 @@ isCandidateSubrecord _ = False
 
 shouldBeImported :: KnownType -> Bool
 shouldBeImported Extension = True
+shouldBeImported LicenseId = True
+shouldBeImported LicenseExceptionId = True
 shouldBeImported _ = False
 
 
