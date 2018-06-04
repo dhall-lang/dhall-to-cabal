@@ -4,6 +4,8 @@
 module Main ( main ) where
 
 import Control.Applicative ( (<**>), optional )
+import Data.Foldable ( asum )
+import Data.Version ( showVersion )
 
 import qualified Data.ByteString as ByteString
 import qualified Data.Text.Prettyprint.Doc as Pretty
@@ -13,10 +15,12 @@ import qualified System.IO
 
 import CabalToDhall ( cabalToDhall )
 import DhallLocation ( dhallFromGitHub )
+import Paths_dhall_to_cabal ( version )
 
 
 data Command
   = RunCabalToDhall CabalToDhallOptions
+  | PrintVersion
 
 
 data CabalToDhallOptions = CabalToDhallOptions
@@ -39,19 +43,36 @@ cabalToDhallOptionsParser =
         )
 
 
-commandLineParser =
-  RunCabalToDhall <$> ( cabalToDhallOptionsParser <**> OptParse.helper )
+printVersionParser :: OptParse.Parser ()
+printVersionParser =
+  OptParse.flag'
+    ()
+    ( mconcat
+      [ OptParse.long "version"
+      , OptParse.help "Display dhall-to-cabal's version and exit."
+      ]
+    )
+
+
+optionsParser = OptParse.info ( parser <**> OptParse.helper ) mempty
+  where
+    parser =
+      asum
+        [ RunCabalToDhall <$> cabalToDhallOptionsParser
+        , PrintVersion <$ printVersionParser
+        ]
 
 
 main :: IO ()
 main = do
   command <-
-    OptParse.execParser
-      ( OptParse.info commandLineParser mempty )
+    OptParse.execParser optionsParser
 
   case command of
     RunCabalToDhall options ->
       runCabalToDhall options
+    PrintVersion ->
+      printVersion
 
 
 runCabalToDhall :: CabalToDhallOptions -> IO ()
@@ -86,3 +107,8 @@ opts :: Pretty.LayoutOptions
 opts =
   Pretty.defaultLayoutOptions
     { Pretty.layoutPageWidth = Pretty.AvailablePerLine 80 1.0 }
+
+
+printVersion :: IO ()
+printVersion = do
+  putStrLn ( "cabal-to-dhall version " ++ showVersion version )

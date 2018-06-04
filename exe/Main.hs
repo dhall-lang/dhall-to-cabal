@@ -21,9 +21,11 @@ import Data.Function ( (&) )
 import Data.Maybe ( fromMaybe )
 import Data.Text.Lazy (Text)
 import Data.String ( fromString )
+import Data.Version ( showVersion )
 
 import DhallLocation ( typesLocation, dhallFromGitHub )
 import DhallToCabal
+import qualified Paths_dhall_to_cabal as Paths
 
 import qualified Data.HashMap.Strict.InsOrd as InsOrdHashMap
 import qualified Data.Text.Lazy.IO as LazyText
@@ -45,6 +47,7 @@ import qualified System.IO
 data Command
   = RunDhallToCabal DhallToCabalOptions
   | PrintType PrintTypeOptions
+  | PrintVersion
 
 
 
@@ -156,6 +159,17 @@ printTypeOptionsParser =
 
 
 
+printVersionParser :: OptParse.Parser ()
+printVersionParser =
+  OptParse.flag'
+    ()
+    ( mconcat
+      [ OptParse.long "version"
+      , OptParse.help "Display dhall-to-cabal's version and exit."
+      ]
+    )
+
+
 runDhallToCabal :: DhallToCabalOptions -> IO ()
 runDhallToCabal DhallToCabalOptions { dhallFilePath, explain } = do
   source <-
@@ -240,12 +254,16 @@ main = do
     PrintType options ->
       printType options
 
+    PrintVersion ->
+      printVersion
+
   where
 
   parser =
     asum
       [ RunDhallToCabal <$> dhallToCabalOptionsParser
       , PrintType <$> printTypeOptionsParser
+      , PrintVersion <$ printVersionParser
       ]
 
   opts =
@@ -656,3 +674,8 @@ liftCSE subrecord name body expr =
 
         Expr.OptionalBuild ->
           pure e
+
+
+printVersion :: IO ()
+printVersion = do
+  putStrLn ( "dhall-to-cabal version " ++ showVersion Paths.version )
