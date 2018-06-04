@@ -6,6 +6,9 @@
   (e.g., `os(multics)`) were crashing cabal-to-dhall. They now work as
   expected.
 
+* Remove orphan `Dhall.Core.Inject` instances for `[Char]` and
+  `CompilerFlavor`.
+
 ## 1.1.0.0 -- 2018-06-03
 
 ### Breaking Changes
