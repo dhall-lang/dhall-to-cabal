@@ -1,0 +1,8 @@
+cabal-version: 2.0
+name: blah
+version: 1
+
+benchmark fancy-benchmark
+  type: exitcode-stdio-1.0
+  main-is: Main.hs
+  ghc-options: -O2

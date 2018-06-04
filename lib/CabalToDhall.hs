@@ -13,7 +13,7 @@ module CabalToDhall
 import Data.Foldable ( foldMap )
 import Data.Functor.Contravariant ( (>$<), Contravariant( contramap ) )
 import Data.Monoid ( First(..) )
-import Data.Semigroup ( Semigroup )
+import Data.Semigroup ( Semigroup, (<>) )
 import GHC.Stack
 import Numeric.Natural ( Natural )
 
@@ -24,7 +24,7 @@ import qualified Data.Text.Lazy as LazyText
 import qualified Data.Text.Lazy.Builder as Builder
 import qualified Dhall
 import qualified Dhall.Core
-import qualified Dhall.Core as Expr ( Expr(..) )
+import qualified Dhall.Core as Expr ( Expr(..), Var(..) )
 import qualified Dhall.Parser
 import qualified Dhall.TypeCheck
 import qualified Distribution.Compiler as Cabal
@@ -107,6 +107,251 @@ cabalToDhall dhallLocation genericPackageDescription =
           genericPackageDescription
 
 
+type Default s a = Map.InsOrdHashMap LazyText.Text ( Expr.Expr s a )
+
+
+emptyListDefault
+  :: LazyText.Text
+  -> Expr.Expr s a
+  -> ( LazyText.Text, Expr.Expr s a )
+emptyListDefault name ty =
+  ( name, Expr.ListLit ( Just ty ) mempty )
+
+
+emptyOptionalDefault
+  :: LazyText.Text
+  -> Expr.Expr s a
+  -> ( LazyText.Text, Expr.Expr s a )
+emptyOptionalDefault name ty =
+  ( name, Expr.OptionalLit ty Nothing )
+
+
+textFieldDefault
+  :: LazyText.Text
+  -> LazyText.Text
+  -> ( LazyText.Text, Expr.Expr s a )
+textFieldDefault name def =
+  ( name
+  , Expr.TextLit ( Dhall.Core.Chunks [] ( Builder.fromLazyText def ) )
+  )
+
+
+compilerOptionsDefault :: Default s a
+compilerOptionsDefault =
+  ( Map.fromList
+    [ emptyListDefault "GHC" Expr.Text
+    , emptyListDefault "GHCJS" Expr.Text
+    , emptyListDefault "HBC" Expr.Text
+    , emptyListDefault "Helium" Expr.Text
+    , emptyListDefault "Hugs" Expr.Text
+    , emptyListDefault "JHC" Expr.Text
+    , emptyListDefault "LHC" Expr.Text
+    , emptyListDefault "NHC" Expr.Text
+    , emptyListDefault "UHC" Expr.Text
+    , emptyListDefault "YHC" Expr.Text
+    ]
+  )
+
+
+buildInfoDefault :: Default Dhall.Parser.Src Dhall.TypeCheck.X
+buildInfoDefault = Map.fromList
+  [ emptyListDefault "autogen-modules" Expr.Text
+  , emptyListDefault "build-depends" ( Dhall.declared dependency )
+  , emptyListDefault "build-tool-depends" ( Dhall.declared exeDependency )
+  , emptyListDefault "build-tools" ( Dhall.declared legacyExeDependency )
+  , ( "buildable", Expr.BoolLit True )
+  , emptyListDefault "c-sources" Expr.Text
+  , emptyListDefault "cc-options" Expr.Text
+  , ( "compiler-options", Expr.Var "prelude" `Expr.Field` "defaults" `Expr.Field` "CompilerOptions" )
+  , emptyListDefault "cpp-options" Expr.Text
+  , emptyListDefault "default-extensions" ( Dhall.declared extension )
+  , emptyOptionalDefault "default-language" ( Dhall.declared language )
+  , emptyListDefault "extra-framework-dirs" Expr.Text
+  , emptyListDefault "extra-ghci-libraries" Expr.Text
+  , emptyListDefault "extra-lib-dirs" Expr.Text
+  , emptyListDefault "extra-libraries" Expr.Text
+  , emptyListDefault "frameworks" Expr.Text
+  , emptyListDefault "hs-source-dirs" Expr.Text
+  , emptyListDefault "includes" Expr.Text
+  , emptyListDefault "include-dirs" Expr.Text
+  , emptyListDefault "install-includes" Expr.Text
+  , emptyListDefault "js-sources" Expr.Text
+  , emptyListDefault "ld-options" Expr.Text
+  , emptyListDefault "other-extensions" ( Dhall.declared extension )
+  , emptyListDefault "other-languages" ( Dhall.declared language )
+  , emptyListDefault "other-modules" Expr.Text
+  , emptyListDefault "pkgconfig-depends" ( Dhall.declared pkgconfigDependency )
+  , ( "profiling-options", Expr.Var "prelude" `Expr.Field` "defaults" `Expr.Field` "CompilerOptions" )
+  , ( "shared-options", Expr.Var "prelude" `Expr.Field` "defaults" `Expr.Field` "CompilerOptions" )
+  , ( "static-options", Expr.Var "prelude" `Expr.Field` "defaults" `Expr.Field` "CompilerOptions" )
+  , emptyListDefault "mixins" ( Dhall.declared mixin )
+  , emptyListDefault "asm-options" Expr.Text
+  , emptyListDefault "asm-sources" Expr.Text
+  , emptyListDefault "cmm-options" Expr.Text
+  , emptyListDefault "cmm-sources" Expr.Text
+  , emptyListDefault "cxx-options" Expr.Text
+  , emptyListDefault "cxx-sources" Expr.Text
+  , emptyListDefault "virtual-modules" Expr.Text
+  , emptyListDefault "extra-lib-flavours" Expr.Text
+  , emptyListDefault "extra-bundled-libs" Expr.Text
+  ]
+
+
+libraryDefault :: Default Dhall.Parser.Src Dhall.TypeCheck.X
+libraryDefault = buildInfoDefault <> specificFields
+  where
+    specificFields = Map.fromList
+      [ emptyListDefault "exposed-modules" Expr.Text
+      , emptyListDefault "other-modules" Expr.Text
+      , emptyListDefault "reexported-modules" ( Dhall.declared moduleReexport )
+      , emptyListDefault "signatures" Expr.Text
+      ]
+
+
+benchmarkDefault :: Default Dhall.Parser.Src Dhall.TypeCheck.X
+benchmarkDefault = buildInfoDefault
+
+
+testSuiteDefault :: Default Dhall.Parser.Src Dhall.TypeCheck.X
+testSuiteDefault = buildInfoDefault
+
+
+executableDefault :: Default Dhall.Parser.Src Dhall.TypeCheck.X
+executableDefault = buildInfoDefault <> specificFields
+  where
+    specificFields =
+      Map.singleton "scope"
+        ( Expr.UnionLit "Public" ( Expr.RecordLit mempty )
+            ( Map.singleton "Private" ( Expr.Record mempty ) )
+        )
+
+
+packageDefault :: Default Dhall.Parser.Src Dhall.TypeCheck.X
+packageDefault = fields
+  where
+    named name typ = Expr.Record
+      ( Map.fromList
+          [ ( "name"
+            , Expr.Text
+            )
+          , ( name
+            , Expr.Pi
+                "config"
+                ( Expr.Var "types" `Expr.Field` "Config" )
+                ( Dhall.declared typ )
+            )
+          ]
+      )
+
+    fields = Map.fromList
+      [ textFieldDefault "author" ""
+      , emptyListDefault "flags" ( Dhall.declared flag )
+      , emptyListDefault "benchmarks" ( named "benchmark" benchmark )
+      , textFieldDefault "bug-reports" ""
+      , emptyOptionalDefault "build-type" ( Dhall.declared buildType )
+      , ( "cabal-version"
+        , Expr.App
+            ( Expr.Var "prelude" `Expr.Field` "v" )
+            ( Expr.TextLit ( Dhall.Core.Chunks [] "2.0" ) )
+        )
+      , textFieldDefault "category" ""
+      , textFieldDefault "copyright" ""
+      , textFieldDefault "data-dir" ""
+      , emptyListDefault "data-files" Expr.Text
+      , textFieldDefault "description" ""
+      , emptyListDefault "executables" ( named "executable" executable )
+      , emptyListDefault "extra-doc-files" Expr.Text
+      , emptyListDefault "extra-source-files" Expr.Text
+      , emptyListDefault "extra-tmp-files" Expr.Text
+      , emptyListDefault "foreign-libraries" ( named "foreign-lib" foreignLibrary )
+      , textFieldDefault "homepage" ""
+      , emptyOptionalDefault "library"
+          ( Expr.Pi
+              "config"
+              ( Expr.Var "types" `Expr.Field` "Config" )
+              ( Dhall.declared library )
+          )
+      , ( "license"
+        , Expr.App
+            ( Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "Licenses" `Expr.Field` "AllRightsReserved" )
+            ( Expr.RecordLit mempty )
+        )
+      , emptyListDefault "license-files" Expr.Text
+      , textFieldDefault "maintainer" ""
+      , textFieldDefault "package-url" ""
+      , emptyListDefault "source-repos" ( Dhall.declared sourceRepo )
+      , textFieldDefault "stability" ""
+      , emptyListDefault "sub-libraries" ( named "library" library )
+      , textFieldDefault "synopsis" ""
+      , emptyListDefault "test-suites" ( named "test-suite" testSuite )
+      , emptyListDefault "tested-with"
+          ( Expr.Record
+              ( Map.fromList
+                  [ ( "compiler", Dhall.declared compilerFlavor )
+                  , ( "version", Dhall.declared versionRange )
+                  ]
+              )
+          )
+      , emptyListDefault "x-fields"
+          ( Expr.Record
+              ( Map.fromList
+                  [ ( "_1", Expr.Text ), ( "_2", Expr.Text ) ]
+              )
+          )
+      , emptyOptionalDefault "custom-setup" ( Dhall.declared setupBuildInfo )
+      ]
+
+
+data DefaultComparison s a
+  = DefaultComparisonMatch
+  | DefaultComparisonReplace ( Expr.Expr s a )
+  deriving ( Show )
+
+
+extractDefaultComparisonReplace
+  :: DefaultComparison s a
+  -> Maybe ( Expr.Expr s a )
+extractDefaultComparisonReplace DefaultComparisonMatch =
+  Nothing
+extractDefaultComparisonReplace ( DefaultComparisonReplace expr ) =
+  Just expr
+
+
+nonDefaultFields
+  :: ( Eq a )
+  => Map.InsOrdHashMap LazyText.Text ( Expr.Expr s a )
+  -> Map.InsOrdHashMap LazyText.Text ( Expr.Expr s a )
+  -> Map.InsOrdHashMap LazyText.Text ( Expr.Expr s a )
+nonDefaultFields defs fields =
+  let
+    withoutDefaults = Map.difference fields defs
+    compared = Map.intersectionWith compareToDefault defs fields
+    changed = Map.mapMaybe extractDefaultComparisonReplace compared
+  in
+    withoutDefaults <> changed
+
+
+compareToDefault :: ( Eq a ) => Expr.Expr s a -> Expr.Expr s a -> DefaultComparison s a
+compareToDefault def expr | Dhall.Core.judgmentallyEqual def expr =
+  DefaultComparisonMatch
+compareToDefault _ expr =
+  DefaultComparisonReplace expr
+
+
+withDefault :: ( Eq a ) => LazyText.Text -> Default s a -> Expr.Expr s a -> Expr.Expr s a
+withDefault name defs ( Expr.RecordLit fields ) =
+  let
+    nonDefaults = nonDefaultFields defs fields
+  in
+    if null nonDefaults
+    then Expr.Var ( Expr.V "prelude" 0 ) `Expr.Field` "defaults" `Expr.Field` name
+    else Expr.Prefer
+           ( Expr.Var ( Expr.V "prelude" 0 ) `Expr.Field` "defaults" `Expr.Field` name )
+           ( Expr.RecordLit nonDefaults )
+withDefault _ _ expr =
+  expr
+
+
 newtype RecordInputType a =
   RecordInputType
     { _unRecordInputType ::
@@ -134,6 +379,14 @@ runRecordInputType ( RecordInputType m ) =
     }
 
 
+runRecordInputTypeWithDefault :: LazyText.Text -> Default Dhall.Parser.Src Dhall.TypeCheck.X -> RecordInputType a -> Dhall.InputType a
+runRecordInputTypeWithDefault defName def m =
+  let
+    Dhall.InputType embed declared = runRecordInputType m
+  in
+    Dhall.InputType ( withDefault defName def . embed ) declared
+
+
 genericPackageDescriptionToDhall
   :: Dhall.InputType Cabal.GenericPackageDescription
 genericPackageDescriptionToDhall =
@@ -149,7 +402,7 @@ genericPackageDescriptionToDhall =
         )
 
   in
-  runRecordInputType
+  runRecordInputTypeWithDefault "Package" packageDefault
     ( mconcat
         [ Cabal.packageDescription >$< packageDescriptionToRecord
         , recordField "flags" ( Cabal.genPackageFlags >$< ( listOf flag ) )
@@ -681,7 +934,7 @@ flagName =
 
 library :: Dhall.InputType Cabal.Library
 library =
-  ( runRecordInputType
+  ( runRecordInputTypeWithDefault "Library" libraryDefault
       ( mconcat
           [ contramap Cabal.libBuildInfo buildInfoRecord
           , recordField
@@ -1061,26 +1314,20 @@ extension =
 compilerOptions :: Dhall.InputType [ ( Cabal.CompilerFlavor, [ String ] ) ]
 compilerOptions =
   Dhall.InputType
-    { Dhall.embed = \l ->
-        case filter ( not . null . snd ) l of
-          [] ->
-            Expr.Var "prelude" `Expr.Field` "defaults" `Expr.Field` "CompilerOptions"
-
-          xs ->
-            Expr.Prefer
-              ( Expr.Var "prelude" `Expr.Field` "defaults" `Expr.Field` "compiler-options" )
-              ( Expr.RecordLit
-                  ( Map.fromList
-                      ( map
-                          ( \( c, opts ) ->
-                              ( LazyText.pack ( show c )
-                              , Expr.ListLit ( Just Expr.Text ) ( dhallString <$> Seq.fromList opts )
-                              )
+    { Dhall.embed = \xs ->
+        withDefault "CompilerOptions" compilerOptionsDefault
+          ( Expr.RecordLit
+              ( Map.fromList
+                  ( map
+                      ( \( c, opts ) ->
+                          ( LazyText.pack ( show c )
+                          , Expr.ListLit ( Just Expr.Text ) ( dhallString <$> Seq.fromList opts )
                           )
-                          xs
                       )
+                      xs
                   )
               )
+          )
     , Dhall.declared =
         Expr.Var "types" `Expr.Field` "CompilerOptions"
     }
@@ -1126,7 +1373,7 @@ moduleRenaming =
 
 benchmark :: Dhall.InputType Cabal.Benchmark
 benchmark =
-  (  runRecordInputType
+  (  runRecordInputTypeWithDefault "Benchmark" benchmarkDefault
        ( mconcat
            [ recordField "main-is" ( ( \( Cabal.BenchmarkExeV10 _ s ) -> s ) . Cabal.benchmarkInterface >$< stringToDhall )
            , Cabal.benchmarkBuildInfo >$< buildInfoRecord
@@ -1140,7 +1387,7 @@ benchmark =
 
 testSuite :: Dhall.InputType Cabal.TestSuite
 testSuite =
-  ( runRecordInputType
+  ( runRecordInputTypeWithDefault "TestSuite" testSuiteDefault
       ( mconcat
           [ recordField "type" ( Cabal.testInterface >$< testSuiteInterface )
           , Cabal.testBuildInfo >$< buildInfoRecord
@@ -1184,7 +1431,7 @@ testSuiteInterface =
 
 executable :: Dhall.InputType Cabal.Executable
 executable =
-  ( runRecordInputType
+  ( runRecordInputTypeWithDefault "Executable" executableDefault
       ( mconcat
           [ recordField "main-is" ( Cabal.modulePath >$< stringToDhall )
           , recordField "scope" ( Cabal.exeScope >$< executableScope )
