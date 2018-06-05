@@ -43,37 +43,7 @@ in  { author =
     , library =
         [] : Optional (types.Config → types.Library)
     , license =
-        < AllRightsReserved =
-            {=}
-        | GPL :
-            Optional types.Version
-        | AGPL :
-            Optional types.Version
-        | LGPL :
-            Optional types.Version
-        | BSD2 :
-            {}
-        | BSD3 :
-            {}
-        | BSD4 :
-            {}
-        | MIT :
-            {}
-        | ISC :
-            {}
-        | MPL :
-            types.Version
-        | Apache :
-            Optional types.Version
-        | PublicDomain :
-            {}
-        | Unspecified :
-            {}
-        | Other :
-            {}
-        | SPDX :
-            types.SPDX
-        >
+        prelude.types.Licenses.AllRightsReserved {=}
     , license-files =
         [] : List Text
     , maintainer =
