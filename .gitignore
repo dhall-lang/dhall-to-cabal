@@ -2,3 +2,6 @@
 dist/
 *.hi
 *.o
+dist-newstyle/
+.stack-work/
+.ghc.environment.*
