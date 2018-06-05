@@ -230,93 +230,52 @@ stringToDhall :: Dhall.InputType String
 stringToDhall =
   contramap LazyText.pack Dhall.inject
 
-
 licenseToDhall :: Dhall.InputType (Either SPDX.License Cabal.License)
 licenseToDhall =
-  ( runUnion
-      ( mconcat
-          [ gpl
-          , agpl
-          , lgpl
-          , bsd2
-          , bsd3
-          , bsd4
-          , mit
-          , isc
-          , mpl
-          , apache
-          , publicDomain
-          , allRightsReserved
-          , unspecified
-          , other
-          , spdxLicense
-          -- , unknown
-          ]
-      )
-  )
-    { Dhall.declared =
+  Dhall.InputType
+    { Dhall.embed = \l ->
+        case l of
+          Right ( Cabal.GPL v ) ->
+            license "GPL" ( Dhall.embed ( maybeToDhall versionToDhall ) v )
+          Right ( Cabal.AGPL v ) ->
+            license "AGPL" ( Dhall.embed ( maybeToDhall versionToDhall ) v )
+          Right ( Cabal.LGPL v ) ->
+            license "LGPL" ( Dhall.embed ( maybeToDhall versionToDhall ) v )
+          Right Cabal.BSD2 ->
+            license "BSD2" ( Expr.RecordLit mempty )
+          Right Cabal.BSD3 ->
+            license "BSD3" ( Expr.RecordLit mempty )
+          Right Cabal.BSD4 ->
+            license "BSD4" ( Expr.RecordLit mempty )
+          Right Cabal.MIT ->
+            license "MIT" ( Expr.RecordLit mempty )
+          Right Cabal.ISC ->
+            license "ISC" ( Expr.RecordLit mempty )
+          Right ( Cabal.MPL v ) ->
+            license "MPL" ( Dhall.embed versionToDhall v )
+          Right ( Cabal.Apache v ) ->
+            license "Apache" ( Dhall.embed ( maybeToDhall versionToDhall ) v )
+          Right Cabal.PublicDomain ->
+            license "PublicDomain" ( Expr.RecordLit mempty )
+          Right Cabal.AllRightsReserved ->
+            license "AllRightsReserved" ( Expr.RecordLit mempty )
+          Left SPDX.NONE ->
+            license "AllRightsReserved" ( Expr.RecordLit mempty )
+          Right Cabal.UnspecifiedLicense ->
+            license "Unspecified" ( Expr.RecordLit mempty )
+          Right ( Cabal.UnknownLicense "UnspecifiedLicense" ) ->
+            license "Unspecified" ( Expr.RecordLit mempty )
+          Right Cabal.OtherLicense ->
+            license "Other" ( Expr.RecordLit mempty )
+          Left ( SPDX.License x ) ->
+            license "SPDX" ( Dhall.embed spdxLicenseExpressionToDhall x )
+    , Dhall.declared =
         Expr.Var "types" `Expr.Field` "License"
     }
-
   where
-
-    gpl =
-      unionAlt "GPL" ( \l -> case l of Right ( Cabal.GPL v ) -> Just v; _ -> Nothing ) ( maybeToDhall versionToDhall )
-
-    agpl =
-      unionAlt "AGPL" ( \l -> case l of Right ( Cabal.AGPL v ) -> Just v ; _ -> Nothing ) ( maybeToDhall versionToDhall )
-
-    lgpl =
-      unionAlt "LGPL" ( \l -> case l of Right ( Cabal.LGPL v ) -> Just v ; _ -> Nothing ) ( maybeToDhall versionToDhall )
-
-    bsd2 =
-      unionAlt "BSD2" ( \l -> case l of Right Cabal.BSD2 -> Just () ; _ -> Nothing ) Dhall.inject
-
-    bsd3 =
-      unionAlt "BSD3" ( \l -> case l of Right Cabal.BSD3 -> Just () ; _ -> Nothing ) Dhall.inject
-
-    bsd4 =
-      unionAlt "BSD4" ( \l -> case l of Right Cabal.BSD4 -> Just () ; _ -> Nothing ) Dhall.inject
-
-    mit =
-      unionAlt "MIT" ( \l -> case l of Right Cabal.MIT -> Just () ; _ -> Nothing ) Dhall.inject
-
-    isc =
-      unionAlt "ISC" ( \l -> case l of Right Cabal.ISC -> Just () ; _ -> Nothing ) Dhall.inject
-
-    mpl =
-      unionAlt "MPL" ( \l -> case l of Right ( Cabal.MPL v ) -> Just v ; _ -> Nothing ) versionToDhall
-
-    apache =
-      unionAlt "Apache" ( \l -> case l of Right ( Cabal.Apache v ) -> Just v ; _ -> Nothing ) ( maybeToDhall versionToDhall )
-
-    publicDomain =
-      unionAlt "PublicDomain" ( \l -> case l of Right Cabal.PublicDomain -> Just () ; _ -> Nothing ) Dhall.inject
-
-    allRightsReserved =
-      unionAlt "AllRightsReserved" ( \l -> case l of Right Cabal.AllRightsReserved -> Just () ; Left SPDX.NONE -> Just() ; _ -> Nothing ) Dhall.inject
-
-    unspecified =
-      unionAlt
-        "Unspecified"
-        ( \l ->
-            case l of
-              Right Cabal.UnspecifiedLicense ->
-                Just ()
-
-              Right ( Cabal.UnknownLicense "UnspecifiedLicense" ) ->
-                Just ()
-
-              _ ->
-                Nothing
-        )
-        Dhall.inject
-
-    other =
-      unionAlt "Other" ( \l -> case l of Right Cabal.OtherLicense -> Just () ; _ -> Nothing ) Dhall.inject
-
-    spdxLicense =
-      unionAlt "SPDX" ( \l -> case l of Left ( SPDX.License x ) -> Just x ; _ -> Nothing ) spdxLicenseExpressionToDhall
+    license name =
+      Expr.App
+        ( Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "Licenses" `Expr.Field` name )
 
 spdxLicenseExpressionToDhall :: Dhall.InputType SPDX.LicenseExpression
 spdxLicenseExpressionToDhall =

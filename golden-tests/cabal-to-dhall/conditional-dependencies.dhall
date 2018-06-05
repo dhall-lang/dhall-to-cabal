@@ -510,37 +510,7 @@ in  { author =
                   }
         ] : Optional (types.Config → types.Library)
     , license =
-        < Unspecified =
-            {=}
-        | GPL :
-            Optional types.Version
-        | AGPL :
-            Optional types.Version
-        | LGPL :
-            Optional types.Version
-        | BSD2 :
-            {}
-        | BSD3 :
-            {}
-        | BSD4 :
-            {}
-        | MIT :
-            {}
-        | ISC :
-            {}
-        | MPL :
-            types.Version
-        | Apache :
-            Optional types.Version
-        | PublicDomain :
-            {}
-        | AllRightsReserved :
-            {}
-        | Other :
-            {}
-        | SPDX :
-            types.SPDX
-        >
+        prelude.types.Licenses.Unspecified {=}
     , license-files =
         [] : List Text
     , maintainer =
