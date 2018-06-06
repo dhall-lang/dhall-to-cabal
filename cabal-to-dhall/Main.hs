@@ -13,7 +13,7 @@ import qualified Data.Text.Prettyprint.Doc.Render.Text as Pretty
 import qualified Options.Applicative as OptParse
 import qualified System.IO
 
-import CabalToDhall ( cabalToDhall )
+import CabalToDhall ( cabalToDhall, parseGenericPackageDescriptionThrows )
 import DhallLocation ( dhallFromGitHub )
 import Paths_dhall_to_cabal ( version )
 
@@ -85,8 +85,8 @@ runCabalToDhall CabalToDhallOptions{ cabalFilePath } = do
       Just filePath ->
         ByteString.readFile filePath
 
-  dhall <-
-    cabalToDhall dhallFromGitHub source
+  dhall <- cabalToDhall dhallFromGitHub <$>
+    parseGenericPackageDescriptionThrows source
 
   Pretty.renderIO
     System.IO.stdout

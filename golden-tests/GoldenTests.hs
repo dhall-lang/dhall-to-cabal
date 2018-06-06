@@ -20,7 +20,7 @@ import qualified Distribution.PackageDescription.Parsec as Cabal
 import qualified Distribution.PackageDescription.PrettyPrint as Cabal
 import qualified Distribution.Verbosity as Cabal
 
-import CabalToDhall ( cabalToDhall )
+import CabalToDhall ( cabalToDhall, parseGenericPackageDescriptionThrows )
 import DhallLocation ( DhallLocation ( DhallLocation ) )
 import DhallToCabal ( dhallToCabal )
 
@@ -111,9 +111,10 @@ goldenTests = do
              ( takeBaseName cabalFile )
              ( \ ref new -> [ "diff", "-u", ref, new ] )
              dhallFile
-             ( BS.readFile cabalFile >>= cabalToDhall dhallLocation
+             ( BS.readFile cabalFile >>= parseGenericPackageDescriptionThrows
                  & fmap ( LazyText.encodeUtf8 . Pretty.renderLazy
                         . Pretty.layoutSmart layoutOpts . Pretty.pretty
+                        . cabalToDhall dhallLocation
                         )
              )
          | cabalFile <- cabalFiles
