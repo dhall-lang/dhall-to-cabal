@@ -101,11 +101,10 @@ goldenTests = do
                   if exp == act then
                     return Nothing
                   else do
-                    putStrLn $ "Diff between expected " ++ cabalFile ++
-                               " and actual " ++ dhallFile ++ " :"
-                    let gDiff = getGroupedDiff (lines exp) (lines act)
-                    putStrLn $ ppDiff gDiff
-                    return $ Just "Generated .cabal file does not match input"
+                    let gDiff =  getGroupedDiff (lines exp) (lines act)
+                        ppDiff' = ppDiff gDiff
+                        output = testFailedDiffOutput cabalFile dhallFile ppDiff'
+                    return $ Just output
               )
               ( Cabal.writeGenericPackageDescription cabalFile )
           | dhallFile <- dhallFiles
@@ -125,18 +124,21 @@ goldenTests = do
                         )
              )
              ( \ (LazyText.unpack -> exp) (LazyText.unpack -> act) -> do
-                let gDiff = getGroupedDiff (lines exp) (lines act)
-                let ppDiff' = ppDiff gDiff
-                if  ppDiff' == "\n" then
-                  return Nothing
-                else do
-                  putStrLn $ "Diff between expected " ++ dhallFile ++
-                             " and actual " ++ cabalFile ++ " :"
-                  putStrLn ppDiff'
-                  return $ Just "Generated .dhall file does not match input"
+                let gDiff   = getGroupedDiff (lines exp) (lines act)
+                    ppDiff' = ppDiff gDiff
+                    output  = testFailedDiffOutput dhallFile cabalFile ppDiff'
+                return $ if  ppDiff' == "\n" then Nothing
+                         else Just output
               )
               ( LazyText.writeFile dhallFile )
          | cabalFile <- cabalFiles
          , let dhallFile = replaceExtension cabalFile ".dhall"
          ]
     ]
+
+testFailedDiffOutput :: FilePath -> FilePath -> String -> String
+testFailedDiffOutput expFile actFile ppDiff =
+  unlines [ "Test output was different from '" ++ expFile ++ "'."                            , "Output of diff between '" ++ expFile ++ "' " ++
+            "and test output using '" ++ actFile ++ "':"
+          , ppDiff
+          ]  
