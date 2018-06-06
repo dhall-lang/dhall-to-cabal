@@ -7,6 +7,7 @@
 
 module CabalToDhall
   ( cabalToDhall
+  , parseGenericPackageDescriptionThrows
   ) where
 
 import Data.Foldable ( foldMap )
@@ -79,25 +80,31 @@ dhallString :: String -> Expr.Expr s a
 dhallString = Expr.TextLit . Dhall.Core.Chunks [] . Builder.fromString
 
 
-cabalToDhall :: DhallLocation -> ByteString.ByteString -> IO ( Expr.Expr Dhall.Parser.Src Dhall.Core.Import )
-cabalToDhall dhallLocation source =
+parseGenericPackageDescriptionThrows
+  :: ByteString.ByteString
+  -> IO Cabal.GenericPackageDescription
+parseGenericPackageDescriptionThrows source =
   case Cabal.runParseResult ( Cabal.parseGenericPackageDescription source ) of
     (_warnings, Left e) -> do
       putStrLn "Could not parse Cabal file: "
 
       error ( show e )
 
-    (_warnings, Right genericPackageDescription) -> do
-      let
-        dhall =
-          Expr.Let "prelude" Nothing ( Expr.Embed ( preludeLocation dhallLocation ) )
-          $ Expr.Let "types" Nothing ( Expr.Embed ( typesLocation dhallLocation ) )
-          $ Dhall.TypeCheck.absurd <$>
-              Dhall.embed
-                genericPackageDescriptionToDhall
-                genericPackageDescription
+    (_warnings, Right genericPackageDescription) ->
+      return genericPackageDescription
 
-      return dhall
+
+cabalToDhall
+  :: DhallLocation
+  -> Cabal.GenericPackageDescription
+  -> Expr.Expr Dhall.Parser.Src Dhall.Core.Import
+cabalToDhall dhallLocation genericPackageDescription =
+  Expr.Let "prelude" Nothing ( Expr.Embed ( preludeLocation dhallLocation ) )
+    $ Expr.Let "types" Nothing ( Expr.Embed ( typesLocation dhallLocation ) )
+    $ Dhall.TypeCheck.absurd <$>
+        Dhall.embed
+          genericPackageDescriptionToDhall
+          genericPackageDescription
 
 
 newtype RecordInputType a =

@@ -11,6 +11,10 @@
 
 * `dhall-to-cabal` and `cabal-to-dhall` now respond to `--version`.
 
+* `CabalToDhall.cabalToDhall` is now a pure function that accepts a
+  `GenericPackageDescription`. A new convenience function has been
+  added to `CabalToDhall`, `parseGenericPackageDescriptionThrows`.
+
 ## 1.1.0.0 -- 2018-06-03
 
 ### Breaking Changes
