@@ -138,7 +138,9 @@ goldenTests = do
 
 testFailedDiffOutput :: FilePath -> FilePath -> String -> String
 testFailedDiffOutput expFile actFile ppDiff =
-  unlines [ "Test output was different from '" ++ expFile ++ "'."                            , "Output of diff between '" ++ expFile ++ "' " ++
+  unlines [ "Test output was different from '" ++ expFile ++ "'."
+          , "Output of diff between '" ++ expFile ++ "' " ++
             "and test output using '" ++ actFile ++ "':"
           , ppDiff
-          ]  
+          ]
+  
