@@ -1,14 +1,14 @@
 { types =
     { BuildTypes =
-        constructors ./types/BuildType.dhall 
+        constructors ./types/BuildType.dhall
     , OSs =
-        constructors ./types/OS.dhall 
+        constructors ./types/OS.dhall
     , Compilers =
-        constructors ./types/Compiler.dhall 
+        constructors ./types/Compiler.dhall
     , Extensions =
-        constructors ./types/Extension.dhall 
+        constructors ./types/Extension.dhall
     , Languages =
-        constructors ./types/Language.dhall 
+        constructors ./types/Language.dhall
     , Licenses =
         constructors ./types/License.dhall
     , LicenseExceptionId =
@@ -16,50 +16,54 @@
     , LicenseId =
         constructors ./types/SPDX/LicenseId.dhall
     , TestTypes =
-        constructors ./types/TestType.dhall 
+        constructors ./types/TestType.dhall
+    , RepoType =
+        constructors ./types/RepoType.dhall
+    , RepoKind =
+        constructors ./types/RepoKind.dhall
     }
 , defaults =
     { CompilerOptions =
-        ./defaults/CompilerOptions.dhall 
+        ./defaults/CompilerOptions.dhall
     , Library =
-        ./defaults/Library.dhall 
+        ./defaults/Library.dhall
     , Benchmark =
-        ./defaults/Benchmark.dhall 
+        ./defaults/Benchmark.dhall
     , Executable =
-        ./defaults/Executable.dhall 
+        ./defaults/Executable.dhall
     , Package =
-        ./defaults/Package.dhall 
+        ./defaults/Package.dhall
     , SourceRepo =
-        ./defaults/SourceRepo.dhall 
+        ./defaults/SourceRepo.dhall
     , TestSuite =
-        ./defaults/TestSuite.dhall 
+        ./defaults/TestSuite.dhall
     }
 , anyVersion =
-    ./types/VersionRange/AnyVersion.dhall 
+    ./types/VersionRange/AnyVersion.dhall
 , earlierVersion =
-    ./types/VersionRange/EarlierVersion.dhall 
+    ./types/VersionRange/EarlierVersion.dhall
 , orEarlierVersion =
-    ./types/VersionRange/OrEarlierVersion.dhall 
+    ./types/VersionRange/OrEarlierVersion.dhall
 , intersectVersionRanges =
-    ./types/VersionRange/IntersectVersionRanges.dhall 
+    ./types/VersionRange/IntersectVersionRanges.dhall
 , unionVersionRanges =
-    ./types/VersionRange/UnionVersionRanges.dhall 
+    ./types/VersionRange/UnionVersionRanges.dhall
 , majorBoundVersion =
-    ./types/VersionRange/MajorBoundVersion.dhall 
+    ./types/VersionRange/MajorBoundVersion.dhall
 , orLaterVersion =
-    ./types/VersionRange/OrLaterVersion.dhall 
+    ./types/VersionRange/OrLaterVersion.dhall
 , laterVersion =
-    ./types/VersionRange/LaterVersion.dhall 
+    ./types/VersionRange/LaterVersion.dhall
 , thisVersion =
-    ./types/VersionRange/ThisVersion.dhall 
+    ./types/VersionRange/ThisVersion.dhall
 , notThisVersion =
-    ./types/VersionRange/NotThisVersion.dhall 
+    ./types/VersionRange/NotThisVersion.dhall
 , withinVersion =
-    ./types/VersionRange/WithinVersion.dhall 
+    ./types/VersionRange/WithinVersion.dhall
 , v =
-    ./types/Version/v.dhall 
+    ./types/Version/v.dhall
 , noVersion =
-    ./types/VersionRange/NoVersion.dhall 
+    ./types/VersionRange/NoVersion.dhall
 , utils =
     { majorVersions =
             let majorVersions
@@ -74,44 +78,46 @@
                         package
                     , bounds =
                         Optional/fold
-                        ./types/VersionRange.dhall 
+                        ./types/VersionRange.dhall
                         ( List/fold
-                          ./types/Version.dhall 
+                          ./types/Version.dhall
                           versions
                           (Optional ./types/VersionRange.dhall )
                           (   λ ( v
-                                : ./types/Version.dhall 
+                                : ./types/Version.dhall
                                 )
                             → λ(r : Optional ./types/VersionRange.dhall )
                             → Optional/fold
-                              ./types/VersionRange.dhall 
+                              ./types/VersionRange.dhall
                               r
                               (Optional ./types/VersionRange.dhall )
                               (   λ ( r
-                                    : ./types/VersionRange.dhall 
+                                    : ./types/VersionRange.dhall
                                     )
-                                → [ ./types/VersionRange/UnionVersionRanges.dhall 
-                                    ( ./types/VersionRange/MajorBoundVersion.dhall 
+                                → [ ./types/VersionRange/UnionVersionRanges.dhall
+                                    ( ./types/VersionRange/MajorBoundVersion.dhall
                                       v
                                     )
                                     r
-                                  ] : Optional ./types/VersionRange.dhall 
+                                  ] : Optional ./types/VersionRange.dhall
                               )
-                              ( [ ./types/VersionRange/MajorBoundVersion.dhall 
+                              ( [ ./types/VersionRange/MajorBoundVersion.dhall
                                   v
-                                ] : Optional ./types/VersionRange.dhall 
+                                ] : Optional ./types/VersionRange.dhall
                               )
                           )
                           ([] : Optional ./types/VersionRange.dhall )
                         )
-                        ./types/VersionRange.dhall 
+                        ./types/VersionRange.dhall
                         (λ(a : ./types/VersionRange.dhall ) → a)
-                        ./types/VersionRange/NoVersion.dhall 
+                        ./types/VersionRange/NoVersion.dhall
                     }
         
         in  majorVersions
     , GitHub-project =
-        ./GitHub-project.dhall 
+        ./GitHub-project.dhall
+    , mapSourceRepos =
+        ./mapSourceRepos.dhall
     }
 , unconditional =
     ./unconditional.dhall
