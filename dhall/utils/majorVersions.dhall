@@ -3,12 +3,12 @@
 in let VersionRange =
         ../types/VersionRange.dhall
 in let Versions =  
-        { UnionVersionRanges =
-            ../types/VersionRange/UnionVersionRanges.dhall
-        , MajorBoundVersion =
-            ../types/VersionRange/MajorBoundVersion.dhall
-        , NoVersion =
-            ../types/VersionRange/NoVersion.dhall
+        { unionVersionRanges =
+            ../VersionRange/unionVersionRanges.dhall
+        , majorBoundVersion =
+            ../VersionRange/majorBoundVersion.dhall
+        , noVersion =
+            ../VersionRange/noVersion.dhall
         }
 
 in let majorVersions
@@ -33,12 +33,12 @@ in let majorVersions
                       r
                       (Optional VersionRange )
                       (   λ(r : VersionRange )
-                        → [ Versions.UnionVersionRanges 
-                            ( Versions.MajorBoundVersion  v )
+                        → [ Versions.unionVersionRanges 
+                            ( Versions.majorBoundVersion  v )
                             r
                           ] : Optional VersionRange 
                       )
-                      ( [ Versions.MajorBoundVersion  v
+                      ( [ Versions.majorBoundVersion  v
                         ] : Optional VersionRange 
                       )
                   )
@@ -46,7 +46,7 @@ in let majorVersions
                 )
                 VersionRange 
                 (λ(a : VersionRange ) → a)
-                Versions.NoVersion 
+                Versions.noVersion 
             }
 
 in  majorVersions
