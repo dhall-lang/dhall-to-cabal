@@ -1,15 +1,15 @@
 { Arch =
     ./types/Arch.dhall
 , Benchmark =
-    ./types/Benchmark.dhall 
+    ./types/Benchmark.dhall
 , BuildType =
-    ./types/BuildType.dhall 
+    ./types/BuildType.dhall
 , Compiler =
     ./types/Compiler.dhall
 , CompilerOptions =
     ./types/CompilerOptions.dhall
 , Config =
-    ./types/Config.dhall 
+    ./types/Config.dhall
 , CustomSetup =
     ./types/CustomSetup.dhall
 , Dependency =
@@ -25,11 +25,11 @@
 , ForeignLibrary =
     ./types/ForeignLibrary.dhall
 , Language =
-    ./types/Language.dhall 
+    ./types/Language.dhall
 , Languages =
-    ./types/Language.dhall 
+    ./types/Language.dhall
 , Library =
-    ./types/Library.dhall 
+    ./types/Library.dhall
 , License =
     ./types/License.dhall
 , LicenseExceptionId =
@@ -54,12 +54,14 @@
     ./types/SetupBuildInfo.dhall
 , SPDX =
     ./types/SPDX.dhall
+, SourceRepo =
+    ./types/SourceRepo.dhall
 , TestSuite =
     ./types/TestSuite.dhall
 , TestType =
     ./types/TestType.dhall
 , Version =
-    ./types/Version.dhall 
+    ./types/Version.dhall
 , VersionRange =
-    ./types/VersionRange.dhall 
+    ./types/VersionRange.dhall
 }
