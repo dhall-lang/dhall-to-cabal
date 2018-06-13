@@ -4,9 +4,10 @@ cabal-version: 2.0
 --
 -- Do not edit it by hand, because your changes will be over-written!
 --
--- Instead, edit the source Dhall file, namely
--- 'dhall-to-cabal.dhall', and re-generate this file by running
--- 'dhall-to-cabal -- dhall-to-cabal.dhall > dhall-to-cabal.cabal'.
+-- Instead, edit the source Dhall file (which may have the
+-- '.dhall' extension) and re-run dhall-to-cabal, passing the
+-- source file's name as its argument and redirecting output to
+-- 'dhall-to-cabal.cabal' (this file).
 -- * * * * * * * * * * * * WARNING * * * * * * * * * * * *
 name: dhall-to-cabal
 version: 1.1.0.0
@@ -37,7 +38,6 @@ extra-source-files:
     dhall/defaults/Package.dhall
     dhall/defaults/Benchmark.dhall
     dhall/unconditional.dhall
-    dhall/GitHub-project.dhall
     dhall/prelude.dhall
     dhall/types/VersionRange.dhall
     dhall/types/OS.dhall
@@ -93,6 +93,10 @@ extra-source-files:
     dhall/types/SPDX/Or.dhall
     dhall/types/SPDX/LicenseExceptionId.dhall
     dhall/types/SPDX/LicenseId.dhall
+    dhall/utils/package.dhall
+    dhall/utils/GitHub-project.dhall
+    dhall/utils/majorVersions.dhall
+    dhall/utils/mapSourceRepos.dhall
     golden-tests/dhall-to-cabal/*.dhall
     golden-tests/dhall-to-cabal/*.cabal
     golden-tests/cabal-to-dhall/*.dhall
