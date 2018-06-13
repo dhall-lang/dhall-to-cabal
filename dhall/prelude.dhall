@@ -65,60 +65,7 @@
 , noVersion =
     ./types/VersionRange/NoVersion.dhall
 , utils =
-    { majorVersions =
-            let majorVersions
-                :   Text
-                  → List ./types/Version.dhall 
-                  → { package : Text, bounds : ./types/VersionRange.dhall  }
-                =   λ ( package
-                      : Text
-                      )
-                  → λ(versions : List ./types/Version.dhall )
-                  → { package =
-                        package
-                    , bounds =
-                        Optional/fold
-                        ./types/VersionRange.dhall
-                        ( List/fold
-                          ./types/Version.dhall
-                          versions
-                          (Optional ./types/VersionRange.dhall )
-                          (   λ ( v
-                                : ./types/Version.dhall
-                                )
-                            → λ(r : Optional ./types/VersionRange.dhall )
-                            → Optional/fold
-                              ./types/VersionRange.dhall
-                              r
-                              (Optional ./types/VersionRange.dhall )
-                              (   λ ( r
-                                    : ./types/VersionRange.dhall
-                                    )
-                                → [ ./types/VersionRange/UnionVersionRanges.dhall
-                                    ( ./types/VersionRange/MajorBoundVersion.dhall
-                                      v
-                                    )
-                                    r
-                                  ] : Optional ./types/VersionRange.dhall
-                              )
-                              ( [ ./types/VersionRange/MajorBoundVersion.dhall
-                                  v
-                                ] : Optional ./types/VersionRange.dhall
-                              )
-                          )
-                          ([] : Optional ./types/VersionRange.dhall )
-                        )
-                        ./types/VersionRange.dhall
-                        (λ(a : ./types/VersionRange.dhall ) → a)
-                        ./types/VersionRange/NoVersion.dhall
-                    }
-        
-        in  majorVersions
-    , GitHub-project =
-        ./GitHub-project.dhall
-    , mapSourceRepos =
-        ./mapSourceRepos.dhall
-    }
+    ./utils/package.dhall
 , unconditional =
     ./unconditional.dhall
 , SPDX =

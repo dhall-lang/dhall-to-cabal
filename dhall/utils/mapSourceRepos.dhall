@@ -1,6 +1,6 @@
-    let SourceRepo = ./types/SourceRepo.dhall
+    let SourceRepo = ../types/SourceRepo.dhall
 
-in  let Package = ./types/Package.dhall
+in  let Package = ../types/Package.dhall
 
 in  let mapSourceRepos
         : (SourceRepo → SourceRepo) → Package → Package
