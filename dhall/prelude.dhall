@@ -39,48 +39,48 @@
         ./defaults/TestSuite.dhall
     }
 , anyVersion =
-    ./types/VersionRange/AnyVersion.dhall
+    ./VersionRange/anyVersion.dhall 
 , earlierVersion =
-    ./types/VersionRange/EarlierVersion.dhall
+    ./VersionRange/earlierVersion.dhall 
 , orEarlierVersion =
-    ./types/VersionRange/OrEarlierVersion.dhall
+    ./VersionRange/orEarlierVersion.dhall 
 , intersectVersionRanges =
-    ./types/VersionRange/IntersectVersionRanges.dhall
+    ./VersionRange/intersectVersionRanges.dhall 
 , unionVersionRanges =
-    ./types/VersionRange/UnionVersionRanges.dhall
+    ./VersionRange/unionVersionRanges.dhall 
 , majorBoundVersion =
-    ./types/VersionRange/MajorBoundVersion.dhall
+    ./VersionRange/majorBoundVersion.dhall 
 , orLaterVersion =
-    ./types/VersionRange/OrLaterVersion.dhall
+    ./VersionRange/orLaterVersion.dhall 
 , laterVersion =
-    ./types/VersionRange/LaterVersion.dhall
+    ./VersionRange/laterVersion.dhall 
 , thisVersion =
-    ./types/VersionRange/ThisVersion.dhall
+    ./VersionRange/thisVersion.dhall 
 , notThisVersion =
-    ./types/VersionRange/NotThisVersion.dhall
+    ./VersionRange/notThisVersion.dhall 
 , withinVersion =
-    ./types/VersionRange/WithinVersion.dhall
+    ./VersionRange/withinVersion.dhall 
 , v =
-    ./types/Version/v.dhall
+    ./Version/v.dhall 
 , noVersion =
-    ./types/VersionRange/NoVersion.dhall
+    ./VersionRange/noVersion.dhall 
 , utils =
     ./utils/package.dhall
 , unconditional =
     ./unconditional.dhall
 , SPDX =
     { license =
-        ./types/SPDX/License.dhall
+        ./SPDX/license.dhall
     , licenseVersionOrLater =
-        ./types/SPDX/LicenseVersionOrLater.dhall
+        ./SPDX/licenseVersionOrLater.dhall
     , ref =
-        ./types/SPDX/Ref.dhall
+        ./SPDX/ref.dhall
     , refWithFile =
-        ./types/SPDX/RefWithFile.dhall
+        ./SPDX/refWithFile.dhall
     , and =
-        ./types/SPDX/And.dhall
+        ./SPDX/and.dhall
     , or =
-        ./types/SPDX/Or.dhall
+        ./SPDX/or.dhall
     , noException =
         [] : Optional ./types/SPDX/LicenseExceptionId.dhall
     }

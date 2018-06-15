@@ -15,6 +15,21 @@
   `GenericPackageDescription`. A new convenience function has been
   added to `CabalToDhall`, `parseGenericPackageDescriptionThrows`.
 
+* The `dhall` subdirectory has been reorganised so that things that
+  are not types are not in the `types` subdirectory. Specifically,
+  `dhall/types/Version/v.dhall`, all of
+  `dhall/types/VersionRange/*.dhall` and the operations (i.e., the
+  enumerations `LicenseId.dhall` and `LicenseExceptionId.dhall`) from
+  `dhall/types/SPDX/*.dhall` have been moved to, respectively,
+  `dhall/Version/v.dhall`, `dhall/VersionRange/*.dhall`, and
+  `dhall/SPDX/*.dhall`. In addition, the files have been renamed as
+  appropriate to reflect the name that they are exported from the
+  prelude as; in practice, this means that they have gone from
+  TitleCase to camelCase.
+
+  Code that only imports `prelude.dhall` and `types.dhall` is
+  unaffected by this change.
+
 ## 1.1.0.0 -- 2018-06-03
 
 ### Breaking Changes

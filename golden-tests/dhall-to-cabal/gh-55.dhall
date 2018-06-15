@@ -12,7 +12,7 @@ in ./dhall/defaults/Package.dhall
 // { name =
        "Name"
    , version =
-       ./dhall/types/Version/v.dhall  "1"
+       ./dhall/Version/v.dhall  "1"
    , library =
         [ \ ( config : types.Config )
          -> prelude.defaults.Library

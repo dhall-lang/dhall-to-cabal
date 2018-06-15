@@ -15,7 +15,7 @@
     [ (constructors ../types/BuildType.dhall ).Simple {=}
     ] : Optional ../types/BuildType.dhall 
 , cabal-version =
-    ../types/Version/v.dhall  "2.0"
+    ../Version/v.dhall  "2.0"
 , category =
     ""
 , copyright =

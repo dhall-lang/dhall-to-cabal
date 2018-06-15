@@ -2,7 +2,7 @@
 ⫽ { name =
       "Name"
   , version =
-      ./dhall/types/Version/v.dhall  "1"
+      ./dhall/Version/v.dhall  "1"
   , executables =
       [ { name =
             "foo"
