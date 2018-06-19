@@ -111,7 +111,6 @@ in    prelude.utils.GitHub-project
           , "dhall/VersionRange/unionVersionRanges.dhall"
           , "dhall/VersionRange/withinVersion.dhall"
           , "dhall/defaults/Benchmark.dhall"
-          , "dhall/defaults/Benchmark.dhall"
           , "dhall/defaults/BuildInfo.dhall"
           , "dhall/defaults/CompilerOptions.dhall"
           , "dhall/defaults/Executable.dhall"
