@@ -12,10 +12,9 @@
 , bug-reports =
     ""
 , build-type =
-    [ (constructors ../types/BuildType.dhall ).Simple {=}
-    ] : Optional ../types/BuildType.dhall 
+    [] : Optional ../types/BuildType.dhall
 , cabal-version =
-    ../Version/v.dhall  "2.0"
+    ../Version/v.dhall  "2.2"
 , category =
     ""
 , copyright =

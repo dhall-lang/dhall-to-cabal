@@ -1,7 +1,6 @@
+cabal-version: 2.2
 name: dhall-to-cabal
 version: 1.0.0
-cabal-version: 2.0
-build-type: Simple
 license: MIT
 license-file: LICENSE
 maintainer: ollie@ocharles.org.uk
@@ -9,9 +8,9 @@ homepage: https://github.com/ocharles/dhall-to-cabal
 bug-reports: https://github.com/ocharles/dhall-to-cabal/issues
 synopsis: Compile Dhall expressions to Cabal files
 description:
-    dhall-to-cabal takes Dhall expressions and compiles them into Cabal 
+    dhall-to-cabal takes Dhall expressions and compiles them into Cabal
     files. All of the features of Dhall are supported, such as let
-    bindings and imports, and all features of Cabal are supported 
+    bindings and imports, and all features of Cabal are supported
     (including conditional stanzas).
     .
 category: Distribution
@@ -81,6 +80,15 @@ source-repository head
 library
     exposed-modules:
         DhallToCabal
+    hs-source-dirs: lib
+    other-modules:
+        DhallToCabal.ConfigTree
+        DhallToCabal.Diff
+        Dhall.Extra
+    default-language: Haskell2010
+    other-extensions: ApplicativeDo GADTs GeneralizedNewtypeDeriving
+                      LambdaCase OverloadedStrings RecordWildCards TypeApplications
+    ghc-options: -Wall -fno-warn-name-shadowing
     build-depends:
         Cabal ^>=2.0,
         base ^>=4.10,
@@ -94,19 +102,12 @@ library
         transformers ^>=0.5.2,
         trifecta ^>=1.7,
         vector ^>=0.12
-    default-language: Haskell2010
-    other-extensions: ApplicativeDo GADTs GeneralizedNewtypeDeriving
-                      LambdaCase OverloadedStrings RecordWildCards TypeApplications
-    hs-source-dirs: lib
-    other-modules:
-        DhallToCabal.ConfigTree
-        DhallToCabal.Diff
-        Dhall.Extra
-    ghc-options: -Wall -fno-warn-name-shadowing
 
-executable  dhall-to-cabal
+executable dhall-to-cabal
     main-is: Main.hs
-    scope: public
+    hs-source-dirs: exe
+    default-language: Haskell2010
+    other-extensions: NamedFieldPuns
     build-depends:
         Cabal ^>=2.0,
         base ^>=4.10,
@@ -115,13 +116,12 @@ executable  dhall-to-cabal
         optparse-applicative ^>=0.13.2 || ^>=0.14,
         prettyprinter ^>=1.2.0.1,
         text ^>=1.2
+
+executable cabal-to-dhall
+    main-is: Main.hs
+    hs-source-dirs: cabal-to-dhall
     default-language: Haskell2010
     other-extensions: NamedFieldPuns
-    hs-source-dirs: exe
-
-executable  cabal-to-dhall
-    main-is: Main.hs
-    scope: public
     build-depends:
         Cabal ^>=2.0,
         base ^>=4.10,
@@ -133,13 +133,12 @@ executable  cabal-to-dhall
         optparse-applicative ^>=0.13.2 || ^>=0.14,
         prettyprinter ^>=1.2.0.1,
         text ^>=1.2
-    default-language: Haskell2010
-    other-extensions: NamedFieldPuns
-    hs-source-dirs: cabal-to-dhall
 
-test-suite  golden-tests
+test-suite golden-tests
     type: exitcode-stdio-1.0
     main-is: GoldenTests.hs
+    hs-source-dirs: golden-tests
+    default-language: Haskell2010
     build-depends:
         base ^>=4.10,
         Cabal ^>=2.0,
@@ -150,6 +149,3 @@ test-suite  golden-tests
         tasty ^>=0.11,
         tasty-golden ^>=2.3,
         text ^>=1.2
-    default-language: Haskell2010
-    hs-source-dirs: golden-tests
-
