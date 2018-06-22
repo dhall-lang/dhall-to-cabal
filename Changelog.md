@@ -30,6 +30,11 @@
   Code that only imports `prelude.dhall` and `types.dhall` is
   unaffected by this change.
 
+* `prelude.defaults.Package.license` is now `AllRightsReserved`.
+
+* `dhall-to-cabal` now maps `AllRightsReserved` to `SPDX.NONE` when
+  `cabal-version` is at least 2.2.
+
 ## 1.1.0.0 -- 2018-06-03
 
 ### Breaking Changes

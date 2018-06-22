@@ -51,7 +51,7 @@
 , library =
     [] : Optional (../types/Guarded.dhall  ../types/Library.dhall )
 , license =
-    (constructors ../types/License.dhall ).Unspecified {=}
+    (constructors ../types/License.dhall ).AllRightsReserved {=}
 , license-files =
     [] : List Text
 , maintainer =
