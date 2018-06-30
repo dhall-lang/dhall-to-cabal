@@ -1,8 +1,7 @@
 cabal-version: 2.0
-name: Name
-version: 1
+name: foo
+version: 0
 license: AllRightsReserved
 build-type: Simple
 
-executable foo
-    main-is: Main.hs
+library

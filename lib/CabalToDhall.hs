@@ -266,6 +266,8 @@ licenseToDhall =
             license "PublicDomain" ( Expr.RecordLit mempty )
           Right Cabal.AllRightsReserved ->
             license "AllRightsReserved" ( Expr.RecordLit mempty )
+          -- Note: SPDX.NONE is what Cabal reports for a file without
+          -- a 'license' field, even for pre-2.2 spec versions.
           Left SPDX.NONE ->
             license "AllRightsReserved" ( Expr.RecordLit mempty )
           Right Cabal.UnspecifiedLicense ->

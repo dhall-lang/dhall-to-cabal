@@ -1,8 +1,8 @@
+cabal-version: 2.0
 name: wai-servlet
 version: 0.1.5.0
-cabal-version: 2.0
+license: AllRightsReserved
 build-type: Simple
-license: UnspecifiedLicense
 
 flag wai-servlet-debug
     description:
@@ -19,5 +19,3 @@ library
     if flag(wai-servlet-debug)
         cpp-options: -DWAI_SERVLET_DEBUG
     else
-
-

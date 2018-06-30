@@ -208,8 +208,22 @@ packageDescription = do
   extraDocFiles <-
     keyValue "extra-doc-files" ( Dhall.list Dhall.string )
 
-  return Cabal.PackageDescription { .. }
+  return ( adjustUnspecifiedLicense Cabal.PackageDescription { .. } )
 
+  where
+    -- Cabal reads a 2.0-spec file without a license as having
+    -- SPDX.NONE, but outputting SPDX-style licenses with 2.0 doesn't
+    -- work (and outputting legacy non-SPDX licenses with 2.2 also
+    -- doesn't work). In CabalToDhall we map SPDX.NONE to
+    -- AllRightsReserved, but we still have to switch between
+    -- SPDX-style NONE and legacy-style AllRightsReserved here
+    -- depending on cabal-version.
+    adjustUnspecifiedLicense desc
+      | Cabal.specVersion desc >= Cabal.mkVersion [2,2]
+      , Cabal.licenseRaw desc == Right Cabal.AllRightsReserved
+        = desc { Cabal.licenseRaw = Left SPDX.NONE }
+      | otherwise
+        = desc
 
 
 version :: Dhall.Type Cabal.Version
