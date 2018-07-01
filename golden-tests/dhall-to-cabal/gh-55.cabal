@@ -1,7 +1,7 @@
 cabal-version: 2.2
 name: Name
 version: 1
-license: AllRightsReserved
+license: NONE
 
 library
     exposed-modules:
