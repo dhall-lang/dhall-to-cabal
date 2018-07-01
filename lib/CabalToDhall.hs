@@ -251,7 +251,7 @@ packageDefault = fields
       , ( "cabal-version"
         , Expr.App
             ( Expr.Var "prelude" `Expr.Field` "v" )
-            ( Expr.TextLit ( Dhall.Core.Chunks [] "2.0" ) )
+            ( Expr.TextLit ( Dhall.Core.Chunks [] "2.2" ) )
         )
       , textFieldDefault "category" ""
       , textFieldDefault "copyright" ""

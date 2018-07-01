@@ -21,4 +21,6 @@ in    prelude.defaults.Package
                 "fancy-benchmark"
             }
           ]
+      , cabal-version =
+          prelude.v "2.0"
       }
