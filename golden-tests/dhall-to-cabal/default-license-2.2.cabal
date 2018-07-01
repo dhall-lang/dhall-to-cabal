@@ -2,6 +2,5 @@ cabal-version: 2.2
 name: foo
 version: 0
 license: NONE
-build-type: Simple
 
 library

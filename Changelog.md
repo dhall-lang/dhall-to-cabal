@@ -38,6 +38,9 @@
 * `cabal-to-dhall` will now generate more compact `.dhall` files by
   using defaults.
 
+* The default `build-type` is now omission, to use Cabal 2.2's
+  inference, and the default `cabal-version` has been bumped to 2.2.
+
 ## 1.1.0.0 -- 2018-06-03
 
 ### Breaking Changes

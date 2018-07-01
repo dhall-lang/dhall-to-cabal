@@ -2,7 +2,6 @@ cabal-version: 2.0
 name: wai-servlet
 version: 0.1.5.0
 license: AllRightsReserved
-build-type: Simple
 
 flag wai-servlet-debug
     description:

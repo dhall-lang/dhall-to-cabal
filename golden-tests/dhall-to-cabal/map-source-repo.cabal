@@ -1,10 +1,9 @@
-cabal-version: 2.0
+cabal-version: 2.2
 name: repo
 version: 1.0.0
-license: AllRightsReserved
+license: NONE
 homepage: https://github.com/owner/repo
 bug-reports: https://github.com/owner/repo/issues
-build-type: Simple
 
 source-repository this
     type: git
