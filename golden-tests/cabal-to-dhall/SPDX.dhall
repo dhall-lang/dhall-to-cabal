@@ -7,8 +7,6 @@ in    prelude.defaults.Package
           "foo"
       , version =
           prelude.v "0"
-      , cabal-version =
-          prelude.v "2.2"
       , license =
           prelude.types.Licenses.SPDX
           ( prelude.SPDX.and

@@ -7,6 +7,8 @@ in    prelude.defaults.Package
           "test"
       , version =
           prelude.v "0"
+      , cabal-version =
+          prelude.v "2.0"
       , library =
           [   λ(config : types.Config)
             →       if config.os (prelude.types.OSs.OtherOS { _1 = "multics" })

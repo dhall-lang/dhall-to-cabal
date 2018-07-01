@@ -7,6 +7,8 @@ in    prelude.defaults.Package
           "Name"
       , version =
           prelude.v "1"
+      , cabal-version =
+          prelude.v "2.0"
       , library =
           [   λ(config : types.Config)
             →       if config.impl

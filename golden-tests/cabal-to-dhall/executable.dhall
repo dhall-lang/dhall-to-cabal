@@ -7,6 +7,8 @@ in    prelude.defaults.Package
           "blah"
       , version =
           prelude.v "1"
+      , cabal-version =
+          prelude.v "2.0"
       , executables =
           [ { executable =
                   λ(config : types.Config)

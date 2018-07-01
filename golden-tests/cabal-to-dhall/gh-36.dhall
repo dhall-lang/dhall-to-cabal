@@ -18,6 +18,8 @@ in    prelude.defaults.Package
                 "wai-servlet-debug"
             }
           ]
+      , cabal-version =
+          prelude.v "2.0"
       , library =
           [   λ(config : types.Config)
             →       if config.impl
