@@ -26,6 +26,8 @@ in  let deps =
               majorVersions "bytestring" [ v "0.10" ]
           , containers =
               majorVersions "containers" [ v "0.5", v "0.6" ]
+          , directory =
+              majorVersions "directory" [ v "1.3.3.0" ]
           , dhall =
               majorVersions "dhall" [ v "1.15.0" ]
           , dhall-to-cabal =
@@ -270,6 +272,32 @@ in    prelude.utils.GitHub-project
                 , default-language =
                     [ prelude.types.Languages.Haskell2010 {=} ] : Optional
                                                                   types.Language
+                }
+            )
+          , prelude.unconditional.executable
+            "dhall-to-cabal-meta"
+            (    prelude.defaults.Executable
+              ⫽ { scope =
+                    prelude.types.Scopes.Private {=}
+                , build-depends =
+                    [ deps.base
+                    , deps.directory
+                    , deps.dhall
+                    , deps.dhall-to-cabal
+                    , deps.filepath
+                    , deps.optparse-applicative
+                    , deps.prettyprinter
+                    ]
+                , hs-source-dirs =
+                    [ "meta" ]
+                , default-language =
+                    [ prelude.types.Languages.Haskell2010 {=} ] : Optional
+                                                                  types.Language
+                , compiler-options =
+                      prelude.defaults.CompilerOptions
+                    ⫽ { GHC = warning-options }
+                , main-is =
+                    "Main.hs"
                 }
             )
           ]
