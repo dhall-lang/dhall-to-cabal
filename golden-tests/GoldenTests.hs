@@ -11,8 +11,8 @@ import Test.Tasty.Golden ( findByExtension, goldenVsStringDiff )
 import Test.Tasty.Golden.Advanced ( goldenTest )
 
 import qualified Data.ByteString as BS
+import qualified Data.Text.IO as StrictText
 import qualified Data.Text.Lazy.Encoding as LazyText
-import qualified Data.Text.Lazy.IO as LazyText
 import qualified Data.Text.Prettyprint.Doc as Pretty
 import qualified Data.Text.Prettyprint.Doc.Render.Text as Pretty
 import qualified Dhall.Core
@@ -40,9 +40,9 @@ preludeLocation =
               Nothing
           , Dhall.Core.importType =
               Dhall.Core.Local
-                Dhall.Core.Parent
+                Dhall.Core.Here
                 ( Dhall.Core.File
-                   ( Dhall.Core.Directory [ "dhall", ".." ] )
+                   ( Dhall.Core.Directory [ "dhall", "..", ".." ] )
                    "prelude.dhall"
                 )
           }
@@ -60,9 +60,9 @@ typesLocation =
               Nothing
           , Dhall.Core.importType =
               Dhall.Core.Local
-                Dhall.Core.Parent
+                Dhall.Core.Here
                 ( Dhall.Core.File
-                   ( Dhall.Core.Directory [ "dhall", ".." ] )
+                   ( Dhall.Core.Directory [ "dhall", "..", ".." ] )
                    "types.dhall"
                 )
           }
@@ -91,7 +91,7 @@ goldenTests = do
           [ goldenTest
               ( takeBaseName dhallFile )
               ( Cabal.readGenericPackageDescription Cabal.normal cabalFile )
-              ( LazyText.readFile dhallFile >>= dhallToCabal dhallFile  )
+              ( StrictText.readFile dhallFile >>= dhallToCabal dhallFile  )
               ( \ ( Cabal.showGenericPackageDescription -> exp ) ( Cabal.showGenericPackageDescription -> act ) -> do
                   if exp == act then
                       return Nothing

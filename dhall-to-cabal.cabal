@@ -132,8 +132,7 @@ library
         bytestring ^>=0.10,
         containers ^>=0.5,
         contravariant ^>=1.4,
-        dhall ^>=1.14.0,
-        formatting ^>=6.3.1,
+        dhall ^>=1.15.0,
         hashable ^>=1.2.6.1,
         insert-ordered-containers ^>=0.2.1.0,
         text ^>=1.2,
@@ -157,7 +156,7 @@ executable dhall-to-cabal
     build-depends:
         Cabal ^>=2.2,
         base ^>=4.10 || ^>=4.11,
-        dhall ^>=1.14.0,
+        dhall ^>=1.15.0,
         dhall-to-cabal -any,
         insert-ordered-containers ^>=0.2.1.0,
         optparse-applicative ^>=0.13.2 || ^>=0.14,
@@ -181,7 +180,7 @@ executable cabal-to-dhall
                  -fno-warn-name-shadowing
     build-depends:
         base ^>=4.10 || ^>=4.11,
-        dhall ^>=1.14.0,
+        dhall ^>=1.15.0,
         bytestring ^>=0.10,
         dhall-to-cabal -any,
         optparse-applicative ^>=0.13.2 || ^>=0.14,
@@ -203,7 +202,7 @@ test-suite golden-tests
         Cabal ^>=2.2,
         Diff ^>=0.3.4,
         bytestring ^>=0.10,
-        dhall ^>=1.14.0,
+        dhall ^>=1.15.0,
         dhall-to-cabal -any,
         filepath ^>=1.4,
         prettyprinter ^>=1.2.0.1,
