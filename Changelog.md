@@ -35,6 +35,9 @@
 * `dhall-to-cabal` now maps `AllRightsReserved` to `SPDX.NONE` when
   `cabal-version` is at least 2.2.
 
+* `cabal-to-dhall` will now generate more compact `.dhall` files by
+  using defaults.
+
 ## 1.1.0.0 -- 2018-06-03
 
 ### Breaking Changes
