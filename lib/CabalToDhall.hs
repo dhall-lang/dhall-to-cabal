@@ -128,6 +128,7 @@ data PreludeReference
   = PreludeDefault KnownDefault
   | PreludeConstructorsLicense
   | PreludeConstructorsRepoKind
+  | PreludeConstructorsScope
   | PreludeV
 
 
@@ -141,6 +142,8 @@ resolvePreludeVar = \case
     Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "Licenses"
   PreludeConstructorsRepoKind ->
     Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "RepoKind"
+  PreludeConstructorsScope ->
+    Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "Scopes"
 
 
 type Default s a
@@ -311,8 +314,9 @@ executableDefault resolve = buildInfoDefault resolve <> specificFields
   where
     specificFields =
       Map.singleton "scope"
-        ( Expr.UnionLit "Public" ( Expr.RecordLit mempty )
-            ( Map.singleton "Private" ( Expr.Record mempty ) )
+        ( Expr.App
+            ( resolve PreludeConstructorsScope `Expr.Field` "Public" )
+            ( Expr.RecordLit mempty )
         )
 
 
@@ -1574,19 +1578,19 @@ executable =
 
 executableScope :: Dhall.InputType Cabal.ExecutableScope
 executableScope =
-  runUnion
-    ( mconcat
-        [ unionAlt
-            "Public"
-            ( \x ->
-                case x of
-                  Cabal.ExecutablePublic -> Just ()
-                  _ -> Nothing
-            )
-            Dhall.inject
-        , unionAlt "Private" ( \x -> case x of Cabal.ExecutablePrivate -> Just () ; _ -> Nothing ) Dhall.inject
-        ]
-    )
+  Dhall.InputType
+    { Dhall.embed = \case
+        Cabal.ExecutablePublic ->
+          Expr.App
+            ( Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "Scopes" `Expr.Field` "Public" )
+            ( Expr.RecordLit mempty )
+        Cabal.ExecutablePrivate ->
+          Expr.App
+            ( Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "scopes" `Expr.Field` "Private" )
+            ( Expr.RecordLit mempty )
+    , Dhall.declared =
+        Expr.Var "types" `Expr.Field` "Scope"
+    }
 
 
 foreignLibrary :: Dhall.InputType Cabal.ForeignLib
