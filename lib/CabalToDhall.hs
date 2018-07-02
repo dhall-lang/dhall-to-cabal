@@ -301,6 +301,24 @@ packageDefault = fields
       ]
 
 
+sourceRepoDefault :: Default Dhall.Parser.Src Dhall.TypeCheck.X
+sourceRepoDefault = fields
+  where
+    fields = Map.fromList
+      [ emptyOptionalDefault "type" ( Dhall.declared repoType )
+      , emptyOptionalDefault "location" Expr.Text
+      , emptyOptionalDefault "module" Expr.Text
+      , emptyOptionalDefault "branch" Expr.Text
+      , emptyOptionalDefault "tag" Expr.Text
+      , emptyOptionalDefault "subdir" Expr.Text
+      , ( "kind"
+        , Expr.App
+            ( Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "RepoKind" `Expr.Field` "RepoHead" )
+            ( Expr.RecordLit mempty )
+        )
+      ]
+
+
 data DefaultComparison s a
   = DefaultComparisonMatch
   | DefaultComparisonReplace ( Expr.Expr s a )
@@ -805,7 +823,7 @@ versionRange =
 
 sourceRepo :: Dhall.InputType Cabal.SourceRepo
 sourceRepo =
-  runRecordInputType
+  runRecordInputTypeWithDefault "SourceRepo" sourceRepoDefault
     ( mconcat
         [ recordField "kind" ( contramap Cabal.repoKind repoKind )
         , recordField "type" ( contramap Cabal.repoType ( maybeToDhall repoType ) )
@@ -820,38 +838,55 @@ sourceRepo =
 
 repoKind :: Dhall.InputType Cabal.RepoKind
 repoKind =
-  ( runUnion
-      ( mconcat
-          [ unionAlt "RepoThis" ( \x -> case x of Cabal.RepoThis -> Just () ; _ -> Nothing) Dhall.inject
-          , unionAlt "RepoKindUnknown" ( \x -> case x of Cabal.RepoKindUnknown str -> Just  str ; _ -> Nothing) ( runRecordInputType ( recordField "_1" stringToDhall ) )
-          , unionAlt "RepoHead" ( \x -> case x of Cabal.RepoHead -> Just () ; _ -> Nothing) Dhall.inject
-          ]
-      )
-  )
-    { Dhall.declared =
-         Expr.Var "types" `Expr.Field` "RepoKind"
+  Dhall.InputType
+    { Dhall.embed = \case
+        Cabal.RepoThis ->
+          Expr.App
+            ( Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "RepoKind" `Expr.Field` "RepoThis" )
+            ( Expr.RecordLit mempty )
+        Cabal.RepoHead ->
+          Expr.App
+            ( Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "RepoKind" `Expr.Field` "RepoHead" )
+            ( Expr.RecordLit mempty )
+        Cabal.RepoKindUnknown str ->
+          Expr.App
+            ( Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "RepoKind" `Expr.Field` "RepoThis" )
+            ( Expr.RecordLit ( Map.singleton "_1" ( dhallString str ) ) )
+    , Dhall.declared =
+        Expr.Var "types" `Expr.Field` "RepoKind"
     }
 
 
 repoType :: Dhall.InputType Cabal.RepoType
 repoType =
-  ( runUnion
-      ( mconcat
-          [ unionAlt "Darcs" ( \x -> case x of Cabal.Darcs -> Just () ; _ -> Nothing ) Dhall.inject
-          , unionAlt "Git" ( \x -> case x of Cabal.Git -> Just () ; _ -> Nothing ) Dhall.inject
-          , unionAlt "SVN" ( \x -> case x of Cabal.SVN -> Just () ; _ -> Nothing ) Dhall.inject
-          , unionAlt "CVS" ( \x -> case x of Cabal.CVS -> Just () ; _ -> Nothing ) Dhall.inject
-          , unionAlt "Mercurial" ( \x -> case x of Cabal.Mercurial -> Just () ; _ -> Nothing ) Dhall.inject
-          , unionAlt "GnuArch" ( \x -> case x of Cabal.GnuArch -> Just () ; _ -> Nothing ) Dhall.inject
-          , unionAlt "Monotone" ( \x -> case x of Cabal.Monotone -> Just () ; _ -> Nothing ) Dhall.inject
-          , unionAlt "OtherRepoType" ( \x -> case x of Cabal.OtherRepoType s -> Just s ; _ -> Nothing ) ( runRecordInputType ( recordField "_1" stringToDhall ) )
-          , unionAlt "Bazaar" ( \x -> case x of Cabal.Bazaar -> Just () ; _ -> Nothing ) Dhall.inject
-          ]
-      )
-  )
-    { Dhall.declared =
+  Dhall.InputType
+    { Dhall.embed = \case
+        Cabal.Darcs ->
+          Expr.App ( constr "Darcs" ) ( Expr.RecordLit mempty )
+        Cabal.Git ->
+          Expr.App ( constr "Git" ) ( Expr.RecordLit mempty )
+        Cabal.SVN ->
+          Expr.App ( constr "SVN" ) ( Expr.RecordLit mempty )
+        Cabal.CVS ->
+          Expr.App ( constr "CVS" ) ( Expr.RecordLit mempty )
+        Cabal.Mercurial ->
+          Expr.App ( constr "Mercurial" ) ( Expr.RecordLit mempty )
+        Cabal.GnuArch ->
+          Expr.App ( constr "GnuArch" ) ( Expr.RecordLit mempty )
+        Cabal.Monotone ->
+          Expr.App ( constr "Monotone" ) ( Expr.RecordLit mempty )
+        Cabal.Bazaar ->
+          Expr.App ( constr "Bazaar" ) ( Expr.RecordLit mempty )
+        Cabal.OtherRepoType str ->
+          Expr.App
+            ( constr "OtherRepoType" )
+            ( Expr.RecordLit ( Map.singleton "_1" ( dhallString str ) ) )
+    , Dhall.declared =
         Expr.Var "types" `Expr.Field` "RepoType"
     }
+  where
+    constr name =
+      Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "RepoType" `Expr.Field` name
 
 
 specVersion :: Dhall.InputType ( Either Cabal.Version Cabal.VersionRange )

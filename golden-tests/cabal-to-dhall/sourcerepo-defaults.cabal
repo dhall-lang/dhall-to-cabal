@@ -1,0 +1,11 @@
+cabal-version: 2.2
+name: test
+version: 0
+
+source-repository head
+  type: git
+  location: example.com
+
+source-repository this
+  type: darcs
+  location: example.org
