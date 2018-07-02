@@ -41,6 +41,8 @@
 * The default `build-type` is now omission, to use Cabal 2.2's
   inference, and the default `cabal-version` has been bumped to 2.2.
 
+* Export `prelude.types.Scopes`.
+
 ## 1.1.0.0 -- 2018-06-03
 
 ### Breaking Changes

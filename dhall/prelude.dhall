@@ -21,6 +21,8 @@
         constructors ./types/RepoType.dhall
     , RepoKind =
         constructors ./types/RepoKind.dhall
+    , Scopes =
+        constructors ./types/Scope.dhall
     }
 , defaults =
     { CompilerOptions =
