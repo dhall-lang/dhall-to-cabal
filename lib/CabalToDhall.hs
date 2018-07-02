@@ -921,17 +921,21 @@ versionRange =
 
 sourceRepo :: Dhall.InputType Cabal.SourceRepo
 sourceRepo =
-  runRecordInputTypeWithDefault SourceRepo sourceRepoDefault
-    ( mconcat
-        [ recordField "kind" ( contramap Cabal.repoKind repoKind )
-        , recordField "type" ( contramap Cabal.repoType ( maybeToDhall repoType ) )
-        , recordField "location" ( contramap Cabal.repoLocation ( maybeToDhall stringToDhall ) )
-        , recordField "module" ( contramap Cabal.repoModule ( maybeToDhall stringToDhall ) )
-        , recordField "branch" ( contramap Cabal.repoBranch ( maybeToDhall stringToDhall ) )
-        , recordField "tag" ( contramap Cabal.repoTag ( maybeToDhall stringToDhall ) )
-        , recordField "subdir" ( contramap Cabal.repoSubdir ( maybeToDhall stringToDhall ) )
-        ]
-    )
+  ( runRecordInputTypeWithDefault SourceRepo sourceRepoDefault
+      ( mconcat
+          [ recordField "kind" ( contramap Cabal.repoKind repoKind )
+          , recordField "type" ( contramap Cabal.repoType ( maybeToDhall repoType ) )
+          , recordField "location" ( contramap Cabal.repoLocation ( maybeToDhall stringToDhall ) )
+          , recordField "module" ( contramap Cabal.repoModule ( maybeToDhall stringToDhall ) )
+          , recordField "branch" ( contramap Cabal.repoBranch ( maybeToDhall stringToDhall ) )
+          , recordField "tag" ( contramap Cabal.repoTag ( maybeToDhall stringToDhall ) )
+          , recordField "subdir" ( contramap Cabal.repoSubdir ( maybeToDhall stringToDhall ) )
+          ]
+      )
+  )
+  { Dhall.declared =
+      Expr.Var "types" `Expr.Field` "SourceRepo"
+  }
 
 
 repoKind :: Dhall.InputType Cabal.RepoKind

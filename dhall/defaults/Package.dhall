@@ -62,22 +62,7 @@ in  { author =
     , package-url =
         ""
     , source-repos =
-        [] : List
-             { branch :
-                 Optional Text
-             , kind :
-                 types.RepoKind
-             , location :
-                 Optional Text
-             , module :
-                 Optional Text
-             , subdir :
-                 Optional Text
-             , tag :
-                 Optional Text
-             , type :
-                 Optional types.RepoType
-             }
+        [] : List types.SourceRepo
     , stability =
         ""
     , sub-libraries =
