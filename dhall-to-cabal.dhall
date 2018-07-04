@@ -80,6 +80,9 @@ in    prelude.utils.GitHub-project
           ''
       , category =
           "Distribution"
+      , build-type =
+          [ prelude.types.BuildTypes.Simple {=}
+          ] : Optional types.BuildType
       , maintainer =
           "ollie@ocharles.org.uk"
       , author =
