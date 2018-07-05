@@ -46,7 +46,7 @@ That's it!
 Good news! `dhall-to-cabal` is currently running a two-for-one deal! By
 installing `dhall-to-cabal` we'll throw in the `cabal-to-dhall` executable
 *absolutely free*! `cabal-to-dhall` does the reverse of `dhall-to-cabal` -
-taking `.cabal` files and trasforming them into appropriate Dhall expressions.
+taking `.cabal` files and transforming them into appropriate Dhall expressions.
 This can be a great way to get started with `dhall-to-cabal`.
 
 ## The Details
@@ -116,7 +116,7 @@ this as overriding or extending the result of `GitHub-project` with an extra
 `library` field.
 
 It's OK if you don't follow all of the above - my goal is to simply get you
-familiar with what a Dhall expression would look like. The Dhall lanugage itself
+familiar with what a Dhall expression would look like. The Dhall language itself
 has a [much more detailed
 tutorial](https://hackage.haskell.org/package/dhall-1.9.1/docs/Dhall-Tutorial.html)
 and [other documentation](https://github.com/dhall-lang/dhall-lang/wiki).
