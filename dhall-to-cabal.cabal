@@ -128,10 +128,10 @@ library
                  -fno-warn-name-shadowing
     build-depends:
         Cabal ^>=2.2,
-        base ^>=4.10 || ^>=4.11,
+        base ^>=4.10 || ^>=4.11 || ^>=4.12,
         bytestring ^>=0.10,
-        containers ^>=0.5,
-        contravariant ^>=1.4,
+        containers ^>=0.5 || ^>=0.6,
+        contravariant ^>=1.4 || ^>=1.5,
         dhall ^>=1.15.0,
         hashable ^>=1.2.6.1,
         insert-ordered-containers ^>=0.2.1.0,
@@ -155,7 +155,7 @@ executable dhall-to-cabal
                  -fno-warn-name-shadowing
     build-depends:
         Cabal ^>=2.2,
-        base ^>=4.10 || ^>=4.11,
+        base ^>=4.10 || ^>=4.11 || ^>=4.12,
         dhall ^>=1.15.0,
         dhall-to-cabal -any,
         insert-ordered-containers ^>=0.2.1.0,
@@ -179,7 +179,7 @@ executable cabal-to-dhall
                  -Wno-missing-local-signatures -Wno-monomorphism-restriction
                  -fno-warn-name-shadowing
     build-depends:
-        base ^>=4.10 || ^>=4.11,
+        base ^>=4.10 || ^>=4.11 || ^>=4.12,
         dhall ^>=1.15.0,
         bytestring ^>=0.10,
         dhall-to-cabal -any,
@@ -198,7 +198,7 @@ test-suite golden-tests
                  -Wno-missing-local-signatures -Wno-monomorphism-restriction
                  -fno-warn-name-shadowing
     build-depends:
-        base ^>=4.10 || ^>=4.11,
+        base ^>=4.10 || ^>=4.11 || ^>=4.12,
         Cabal ^>=2.2,
         Diff ^>=0.3.4,
         bytestring ^>=0.10,

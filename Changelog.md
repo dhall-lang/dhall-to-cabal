@@ -50,6 +50,13 @@
 
 * Export `prelude.types.Scopes`.
 
+## Other Changes
+
+* Bump upper-bounds for `base`, `containers` and `contravariant`. This project
+  can build on GHC 8.6 (though will need `--allow-newer` for `Cabal` until this
+  is official released).
+
+
 ## 1.1.0.0 -- 2018-06-03
 
 ### Breaking Changes

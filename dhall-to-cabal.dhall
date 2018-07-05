@@ -21,11 +21,11 @@ in  let deps =
           , Diff =
               majorVersions "Diff" [ v "0.3.4" ]
           , base =
-              majorVersions "base" [ v "4.10", v "4.11" ]
+              majorVersions "base" [ v "4.10", v "4.11", v "4.12" ]
           , bytestring =
               majorVersions "bytestring" [ v "0.10" ]
           , containers =
-              majorVersions "containers" [ v "0.5" ]
+              majorVersions "containers" [ v "0.5", v "0.6" ]
           , dhall =
               majorVersions "dhall" [ v "1.15.0" ]
           , dhall-to-cabal =
@@ -39,7 +39,7 @@ in  let deps =
           , prettyprinter =
               majorVersions "prettyprinter" [ v "1.2.0.1" ]
           , contravariant =
-              majorVersions "contravariant" [ v "1.4" ]
+              majorVersions "contravariant" [ v "1.4", v "1.5" ]
           , hashable =
               majorVersions "hashable" [ v "1.2.6.1" ]
           , tasty =
