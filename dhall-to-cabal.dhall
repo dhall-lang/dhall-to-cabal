@@ -80,6 +80,7 @@ in    prelude.utils.GitHub-project
           ''
       , category =
           "Distribution"
+      -- build-type simple is needed to allow tools compatible with cabal < 2.2 build the package
       , build-type =
           [ prelude.types.BuildTypes.Simple {=}
           ] : Optional types.BuildType
