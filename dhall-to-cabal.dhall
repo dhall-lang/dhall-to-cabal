@@ -1,6 +1,6 @@
-    let prelude = ./dhall/prelude.dhall 
+    let prelude = ./dhall/prelude.dhall
 
-in  let types = ./dhall/types.dhall 
+in  let types = ./dhall/types.dhall
 
 in  let v = prelude.v
 
@@ -54,18 +54,18 @@ in  let deps =
               majorVersions "vector" [ v "0.12" ]
           }
 
-in let warning-options =
-         [ "-Weverything"
-         , "-Wno-safe"
-         , "-Wno-unsafe"
-         , "-Wno-implicit-prelude"
-         , "-Wno-missed-specialisations"
-         , "-Wno-all-missed-specialisations"
-         , "-Wno-missing-import-lists"
-         , "-Wno-missing-local-signatures"
-         , "-Wno-monomorphism-restriction"
-         , "-fno-warn-name-shadowing"
-         ]
+in  let warning-options =
+          [ "-Weverything"
+          , "-Wno-safe"
+          , "-Wno-unsafe"
+          , "-Wno-implicit-prelude"
+          , "-Wno-missed-specialisations"
+          , "-Wno-all-missed-specialisations"
+          , "-Wno-missing-import-lists"
+          , "-Wno-missing-local-signatures"
+          , "-Wno-monomorphism-restriction"
+          , "-fno-warn-name-shadowing"
+          ]
 
 in    prelude.utils.GitHub-project
       { owner = "ocharles", repo = "dhall-to-cabal" }
@@ -166,7 +166,7 @@ in    prelude.utils.GitHub-project
       , license-files =
           [ "LICENSE" ]
       , version =
-          v "1.1.0.0"
+          v "1.2.0.0"
       , library =
           prelude.unconditional.library
           (   prelude.defaults.Library
@@ -184,8 +184,7 @@ in    prelude.utils.GitHub-project
                   , deps.vector
                   ]
               , compiler-options =
-                    prelude.defaults.CompilerOptions
-                  ⫽ { GHC = warning-options }
+                  prelude.defaults.CompilerOptions ⫽ { GHC = warning-options }
               , autogen-modules =
                   [ "Paths_dhall_to_cabal" ]
               , exposed-modules =
@@ -228,8 +227,7 @@ in    prelude.utils.GitHub-project
                     , deps.transformers
                     ]
                 , compiler-options =
-                      prelude.defaults.CompilerOptions
-                    ⫽ { GHC = warning-options }
+                    prelude.defaults.CompilerOptions ⫽ { GHC = warning-options }
                 , hs-source-dirs =
                     [ "exe" ]
                 , main-is =
@@ -258,8 +256,7 @@ in    prelude.utils.GitHub-project
                     , deps.text
                     ]
                 , compiler-options =
-                      prelude.defaults.CompilerOptions
-                    ⫽ { GHC = warning-options }
+                    prelude.defaults.CompilerOptions ⫽ { GHC = warning-options }
                 , hs-source-dirs =
                     [ "cabal-to-dhall" ]
                 , main-is =
@@ -294,8 +291,7 @@ in    prelude.utils.GitHub-project
                     , deps.text
                     ]
                 , compiler-options =
-                      prelude.defaults.CompilerOptions
-                    ⫽ { GHC = warning-options }
+                    prelude.defaults.CompilerOptions ⫽ { GHC = warning-options }
                 , hs-source-dirs =
                     [ "golden-tests" ]
                 , type =
