@@ -14,11 +14,7 @@ module Dhall.Extra
   )
   where
 
-import Control.Applicative ( Const(..) )
 import Control.Monad ( join )
-import Control.Monad.Trans.Reader ( Reader, reader, runReader )
-import Data.Functor.Compose ( Compose(..) )
-import Data.Functor.Product ( Product(..) )
 import Data.Hashable ( Hashable )
 import Data.List ( sortBy )
 import Data.Ord ( comparing )
@@ -28,62 +24,14 @@ import qualified Data.Text as StrictText
 import qualified Dhall
 import qualified Dhall.Core as Dhall ( Expr )
 import qualified Dhall.Core as Expr ( Expr(..) )
-import qualified Dhall.Parser
-import qualified Dhall.TypeCheck 
 
-
-
-newtype RecordBuilder a =
-  RecordBuilder
-    ( Product
-        ( Const
-            ( Map.InsOrdHashMap
-                StrictText.Text
-                ( Dhall.Expr Dhall.Parser.Src Dhall.TypeCheck.X )
-            )
-        )
-        ( Compose
-            ( Reader
-                ( Dhall.Expr Dhall.Parser.Src Dhall.TypeCheck.X )
-            )
-            Maybe
-        )
-        a
-    )
-  deriving (Functor, Applicative)
-
-
+type RecordBuilder = Dhall.RecordType
 
 makeRecord :: RecordBuilder a -> Dhall.Type a
-makeRecord ( RecordBuilder ( Pair ( Const fields ) ( Compose extractF ) ) ) =
-  let
-    extract =
-      runReader extractF
-
-    expected =
-      sortExpr ( Expr.Record fields )
-
-  in Dhall.Type { .. }
-
-
+makeRecord  = Dhall.record
 
 keyValue :: StrictText.Text -> Dhall.Type a -> RecordBuilder a
-keyValue key valueType =
-  let
-    extract expr = do
-      Expr.RecordLit fields <-
-        return expr
-
-      Map.lookup key fields >>= Dhall.extract valueType
-
-  in
-    RecordBuilder
-      ( Pair
-          ( Const ( Map.singleton key ( Dhall.expected valueType ) ) )
-          ( Compose ( reader extract ) )
-      )
-
-
+keyValue = Dhall.field
 
 makeUnion :: Map.InsOrdHashMap StrictText.Text ( Dhall.Type a ) -> Dhall.Type a
 makeUnion alts =
