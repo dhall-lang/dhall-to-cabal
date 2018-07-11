@@ -164,7 +164,16 @@ buildInfoDefault = Map.fromList
   , ( "compiler-options", Expr.Var "prelude" `Expr.Field` "defaults" `Expr.Field` "CompilerOptions" )
   , emptyListDefault "cpp-options" Expr.Text
   , emptyListDefault "default-extensions" ( Dhall.declared extension )
-  , emptyOptionalDefault "default-language" ( Dhall.declared language )
+  , ( "default-language"
+    , Expr.OptionalLit
+        ( Dhall.declared language )
+        ( Just
+          ( Expr.App
+            ( Expr.Var "prelude" `Expr.Field` "Languages" `Expr.Field` "Haskell2010" )
+            ( Expr.RecordLit mempty )
+          )
+        )
+    )
   , emptyListDefault "extra-framework-dirs" Expr.Text
   , emptyListDefault "extra-ghci-libraries" Expr.Text
   , emptyListDefault "extra-lib-dirs" Expr.Text
@@ -1303,15 +1312,21 @@ pkgconfigName =
 
 language :: Dhall.InputType Cabal.Language
 language =
-  ( runUnion
-      ( mconcat
-          [ unionAlt "Haskell2010" ( \x -> case x of Cabal.Haskell2010 -> Just () ; _ -> Nothing ) Dhall.inject
-          , unionAlt "UnknownLanguage" ( \x -> case x of Cabal.UnknownLanguage s -> Just s ; _ -> Nothing ) ( runRecordInputType ( recordField "_1" stringToDhall ) )
-          , unionAlt "Haskell98" ( \x -> case x of Cabal.Haskell98 -> Just () ; _ -> Nothing ) Dhall.inject
-          ]
-      )
-  )
-    { Dhall.declared =
+  Dhall.InputType
+    { Dhall.embed = \case
+        Cabal.Haskell98 ->
+          Expr.App
+            ( Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "Languages" `Expr.Field` "Haskell98" )
+            ( Expr.RecordLit mempty )
+        Cabal.Haskell2010 ->
+          Expr.App
+            ( Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "Languages" `Expr.Field` "Haskell2010" )
+            ( Expr.RecordLit mempty )
+        Cabal.UnknownLanguage s ->
+          Expr.App
+            ( Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "Languages" `Expr.Field` "UnknownLanguage" )
+            ( Expr.RecordLit ( Map.singleton "_1" ( dhallString s ) ) )
+    , Dhall.declared =
         Expr.Var "types" `Expr.Field` "Language"
     }
 

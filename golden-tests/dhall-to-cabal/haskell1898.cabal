@@ -3,4 +3,4 @@ name: foo
 version: 0
 
 library
-    default-language: Haskell2010
+  default-language: Haskell1898

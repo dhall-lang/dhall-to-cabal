@@ -9,6 +9,7 @@ flag wai-servlet-debug
     default: False
 
 library
+    default-language: Haskell2010
     
     if impl(ghc >=0.0.9)
         c-sources:

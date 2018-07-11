@@ -50,6 +50,8 @@ in    prelude.defaults.Package
                                             , "-DPURE_JAVA_WITH"
                                             , "-DWAI_SERVLET_DEBUG"
                                             ]
+                                        , default-language =
+                                            [] : Optional types.Language
                                         }
                                 
                                 else    prelude.defaults.Library
@@ -57,6 +59,8 @@ in    prelude.defaults.Package
                                             [ "java/Utils.java" ]
                                         , cpp-options =
                                             [ "-DINTEROP", "-DPURE_JAVA_WITH" ]
+                                        , default-language =
+                                            [] : Optional types.Language
                                         }
                           
                           else  if config.flag "wai-servlet-debug"
@@ -67,11 +71,15 @@ in    prelude.defaults.Package
                                       , "-DPURE_JAVA_WITH"
                                       , "-DWAI_SERVLET_DEBUG"
                                       ]
+                                  , default-language =
+                                      [] : Optional types.Language
                                   }
                           
                           else    prelude.defaults.Library
                                 ⫽ { cpp-options =
                                       [ "-DINTEROP", "-DPURE_JAVA_WITH" ]
+                                  , default-language =
+                                      [] : Optional types.Language
                                   }
                     
                     else  if config.impl
@@ -88,6 +96,8 @@ in    prelude.defaults.Package
                                       [ "java/Utils.java" ]
                                   , cpp-options =
                                       [ "-DINTEROP", "-DWAI_SERVLET_DEBUG" ]
+                                  , default-language =
+                                      [] : Optional types.Language
                                   }
                           
                           else    prelude.defaults.Library
@@ -95,6 +105,8 @@ in    prelude.defaults.Package
                                       [ "java/Utils.java" ]
                                   , cpp-options =
                                       [ "-DINTEROP" ]
+                                  , default-language =
+                                      [] : Optional types.Language
                                   }
                     
                     else  if config.flag "wai-servlet-debug"
@@ -102,10 +114,16 @@ in    prelude.defaults.Package
                     then    prelude.defaults.Library
                           ⫽ { cpp-options =
                                 [ "-DINTEROP", "-DWAI_SERVLET_DEBUG" ]
+                            , default-language =
+                                [] : Optional types.Language
                             }
                     
                     else    prelude.defaults.Library
-                          ⫽ { cpp-options = [ "-DINTEROP" ] }
+                          ⫽ { cpp-options =
+                                [ "-DINTEROP" ]
+                            , default-language =
+                                [] : Optional types.Language
+                            }
               
               else  if config.impl
                        (prelude.types.Compilers.GHC {=})
@@ -127,6 +145,8 @@ in    prelude.defaults.Package
                                       [ "-DPURE_JAVA_WITH"
                                       , "-DWAI_SERVLET_DEBUG"
                                       ]
+                                  , default-language =
+                                      [] : Optional types.Language
                                   }
                           
                           else    prelude.defaults.Library
@@ -134,6 +154,8 @@ in    prelude.defaults.Package
                                       [ "java/Utils.java" ]
                                   , cpp-options =
                                       [ "-DPURE_JAVA_WITH" ]
+                                  , default-language =
+                                      [] : Optional types.Language
                                   }
                     
                     else  if config.flag "wai-servlet-debug"
@@ -141,10 +163,16 @@ in    prelude.defaults.Package
                     then    prelude.defaults.Library
                           ⫽ { cpp-options =
                                 [ "-DPURE_JAVA_WITH", "-DWAI_SERVLET_DEBUG" ]
+                            , default-language =
+                                [] : Optional types.Language
                             }
                     
                     else    prelude.defaults.Library
-                          ⫽ { cpp-options = [ "-DPURE_JAVA_WITH" ] }
+                          ⫽ { cpp-options =
+                                [ "-DPURE_JAVA_WITH" ]
+                            , default-language =
+                                [] : Optional types.Language
+                            }
               
               else  if config.impl
                        (prelude.types.Compilers.GHC {=})
@@ -160,16 +188,27 @@ in    prelude.defaults.Package
                                 [ "java/Utils.java" ]
                             , cpp-options =
                                 [ "-DWAI_SERVLET_DEBUG" ]
+                            , default-language =
+                                [] : Optional types.Language
                             }
                     
                     else    prelude.defaults.Library
-                          ⫽ { c-sources = [ "java/Utils.java" ] }
+                          ⫽ { c-sources =
+                                [ "java/Utils.java" ]
+                            , default-language =
+                                [] : Optional types.Language
+                            }
               
               else  if config.flag "wai-servlet-debug"
               
               then    prelude.defaults.Library
-                    ⫽ { cpp-options = [ "-DWAI_SERVLET_DEBUG" ] }
+                    ⫽ { cpp-options =
+                          [ "-DWAI_SERVLET_DEBUG" ]
+                      , default-language =
+                          [] : Optional types.Language
+                      }
               
-              else  prelude.defaults.Library
+              else    prelude.defaults.Library
+                    ⫽ { default-language = [] : Optional types.Language }
           ] : Optional (types.Config → types.Library)
       }

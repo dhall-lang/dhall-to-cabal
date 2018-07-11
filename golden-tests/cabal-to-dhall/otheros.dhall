@@ -14,8 +14,17 @@ in    prelude.defaults.Package
             →       if config.os (prelude.types.OSs.OtherOS { _1 = "multics" })
               
               then    prelude.defaults.Library
-                    ⫽ { exposed-modules = [ "A", "B" ] }
+                    ⫽ { default-language =
+                          [] : Optional types.Language
+                      , exposed-modules =
+                          [ "A", "B" ]
+                      }
               
-              else  prelude.defaults.Library ⫽ { exposed-modules = [ "A" ] }
+              else    prelude.defaults.Library
+                    ⫽ { default-language =
+                          [] : Optional types.Language
+                      , exposed-modules =
+                          [ "A" ]
+                      }
           ] : Optional (types.Config → types.Library)
       }

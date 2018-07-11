@@ -1,9 +1,9 @@
 cabal-version: 2.2
 name: Name
 version: 1
-license: NONE
 
 library
+    default-language: Haskell2010
     build-depends:
         A -any
     

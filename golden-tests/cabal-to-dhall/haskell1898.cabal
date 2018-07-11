@@ -1,0 +1,8 @@
+cabal-version: 2.2
+name: test
+version: 0
+
+library
+  exposed-modules:
+    Foo
+  default-language: Haskell1898

@@ -26,7 +26,7 @@
 , default-extensions =
     [] : List ../types/Extension.dhall 
 , default-language =
-    [] : Optional ../types/Language.dhall 
+    [ (constructors ../types/Language.dhall).Haskell2010 {=} ] : Optional ../types/Language.dhall 
 , extra-framework-dirs =
     [] : List Text
 , extra-ghci-libraries =
