@@ -27,7 +27,7 @@ in  let deps =
           , containers =
               majorVersions "containers" [ v "0.5", v "0.6" ]
           , directory =
-              majorVersions "directory" [ v "1.3.3.0" ]
+              majorVersions "directory" [ v "1.3.0.2" ]
           , dhall =
               majorVersions "dhall" [ v "1.15.0" ]
           , dhall-to-cabal =
