@@ -206,9 +206,6 @@ in    prelude.utils.GitHub-project
                   , "Dhall.Extra"
                   , "Paths_dhall_to_cabal"
                   ]
-              , default-language =
-                  [ prelude.types.Languages.Haskell2010 {=} ] : Optional
-                                                                types.Language
               }
           )
       , executables =
@@ -238,9 +235,6 @@ in    prelude.utils.GitHub-project
                     [ "Paths_dhall_to_cabal" ]
                 , autogen-modules =
                     [ "Paths_dhall_to_cabal" ]
-                , default-language =
-                    [ prelude.types.Languages.Haskell2010 {=} ] : Optional
-                                                                  types.Language
                 }
             )
           , prelude.unconditional.executable
@@ -267,9 +261,6 @@ in    prelude.utils.GitHub-project
                     [ "Paths_dhall_to_cabal" ]
                 , autogen-modules =
                     [ "Paths_dhall_to_cabal" ]
-                , default-language =
-                    [ prelude.types.Languages.Haskell2010 {=} ] : Optional
-                                                                  types.Language
                 }
             )
           ]
@@ -297,9 +288,6 @@ in    prelude.utils.GitHub-project
                 , type =
                     prelude.types.TestTypes.exitcode-stdio
                     { main-is = "GoldenTests.hs" }
-                , default-language =
-                    [ prelude.types.Languages.Haskell2010 {=} ] : Optional
-                                                                  types.Language
                 }
             )
           ]
