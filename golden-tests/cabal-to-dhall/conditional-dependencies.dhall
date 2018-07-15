@@ -31,6 +31,8 @@ in    prelude.defaults.Package
                                 , { bounds = prelude.anyVersion, package = "B" }
                                 , { bounds = prelude.anyVersion, package = "C" }
                                 ]
+                            , default-language =
+                                [] : Optional types.Language
                             }
                     
                     else    prelude.defaults.Library
@@ -38,6 +40,8 @@ in    prelude.defaults.Package
                                 [ { bounds = prelude.anyVersion, package = "A" }
                                 , { bounds = prelude.anyVersion, package = "B" }
                                 ]
+                            , default-language =
+                                [] : Optional types.Language
                             }
               
               else  if config.impl
@@ -52,11 +56,15 @@ in    prelude.defaults.Package
                           [ { bounds = prelude.anyVersion, package = "A" }
                           , { bounds = prelude.anyVersion, package = "C" }
                           ]
+                      , default-language =
+                          [] : Optional types.Language
                       }
               
               else    prelude.defaults.Library
                     ⫽ { build-depends =
                           [ { bounds = prelude.anyVersion, package = "A" } ]
+                      , default-language =
+                          [] : Optional types.Language
                       }
           ] : Optional (types.Config → types.Library)
       , license =

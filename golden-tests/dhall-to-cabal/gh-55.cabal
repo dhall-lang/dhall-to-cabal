@@ -1,11 +1,11 @@
 cabal-version: 2.2
 name: Name
 version: 1
-license: NONE
 
 library
     exposed-modules:
         Module1
+    default-language: Haskell2010
     
     if impl(ghc >=7.1.3)
         exposed-modules:

@@ -1,7 +1,6 @@
 cabal-version: 2.2
 name: repo
 version: 1.0.0
-license: NONE
 homepage: https://github.com/owner/repo
 bug-reports: https://github.com/owner/repo/issues
 
@@ -12,3 +11,4 @@ source-repository this
 
 executable foo
     main-is: Main.hs
+    default-language: Haskell2010

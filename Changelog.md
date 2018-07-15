@@ -2,6 +2,7 @@
 
 ## NEXT
 
+* The default `default-language` is now `Haskell2010`, rather than nothing.
 
 ## 1.2.0.0 -- 2018-07-05
 
