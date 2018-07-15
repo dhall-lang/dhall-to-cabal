@@ -5,10 +5,7 @@
 {-# language RecordWildCards #-}
 
 module Dhall.Extra
-  ( RecordBuilder
-  , keyValue
-  , makeRecord
-  , makeUnion
+  ( makeUnion
   , validateType
   , sortExpr
   )
@@ -25,13 +22,6 @@ import qualified Dhall
 import qualified Dhall.Core as Dhall ( Expr )
 import qualified Dhall.Core as Expr ( Expr(..) )
 
-type RecordBuilder = Dhall.RecordType
-
-makeRecord :: RecordBuilder a -> Dhall.Type a
-makeRecord  = Dhall.record
-
-keyValue :: StrictText.Text -> Dhall.Type a -> RecordBuilder a
-keyValue = Dhall.field
 
 makeUnion :: Map.InsOrdHashMap StrictText.Text ( Dhall.Type a ) -> Dhall.Type a
 makeUnion alts =
