@@ -1,4 +1,1 @@
-resolver: lts-11.11
-extra-deps:
-  - Cabal-2.2.0.1
-  - dhall-1.15.0
+resolver: lts-12.0

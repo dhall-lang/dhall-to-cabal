@@ -24,6 +24,7 @@ description:
     (including conditional stanzas).
     .
 category: Distribution
+build-type: Simple
 extra-source-files:
     Changelog.md
     README.md
