@@ -10,6 +10,7 @@ module Main ( main ) where
 import Control.Applicative ( (<**>), Const(..), optional )
 import Control.Monad ( guard )
 import Data.Char ( isAlphaNum )
+import Control.Lens ( set )
 import Control.Monad.Trans.Class ( lift )
 import Control.Monad.Trans.State ( State, execState, get, modify, put )
 import Control.Monad.Trans.Writer ( WriterT, execWriterT, tell )
@@ -22,6 +23,7 @@ import Data.Maybe ( fromMaybe )
 import Data.Text (Text)
 import Data.String ( fromString )
 import Data.Version ( showVersion )
+import System.FilePath ( takeDirectory )
 
 import CabalToDhall ( KnownDefault, getDefault, resolvePreludeVar )
 import DhallLocation ( preludeLocation, typesLocation, dhallFromGitHub )
@@ -201,10 +203,12 @@ runDhallToCabal DhallToCabalOptions { dhallFilePath, explain } = do
         StrictText.readFile filePath
 
   let
-    fileName = fromMaybe "(STDIN)" dhallFilePath
+    settings = Dhall.defaultInputSettings
+      & set Dhall.rootDirectory ( maybe "." takeDirectory dhallFilePath )
+      & set Dhall.sourceName ( fromMaybe "(STDIN)" dhallFilePath )
 
   explaining
-    ( dhallToCabal fileName source
+    ( dhallToCabal settings source
         & fmap ( \ pkgDesc ->
                        pkgDesc
                      & Cabal.showGenericPackageDescription

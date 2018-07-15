@@ -4,6 +4,13 @@
 
 * `dhall-to-cabal` has a new `--print-default TYPE` flag.
 
+* `DhallToCabal.dhallToCabal` now takes an `InputSettings` from
+  `dhall` as its first argument.
+
+* When reading from a file, `dhall-to-cabal` now interprets imports as
+  being relative to that file, rather than the current working
+  directory. (#114)
+
 ## 1.2.0.0 -- 2018-07-05
 
 ### Breaking API Changes

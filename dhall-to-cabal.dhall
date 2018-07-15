@@ -29,13 +29,15 @@ in  let deps =
           , directory =
               majorVersions "directory" [ v "1.3.0.2" ]
           , dhall =
-              majorVersions "dhall" [ v "1.15.0" ]
+              majorVersions "dhall" [ v "1.16.0" ]
           , dhall-to-cabal =
               package "dhall-to-cabal" anyVersion
           , filepath =
               majorVersions "filepath" [ v "1.4" ]
           , insert-ordered-containers =
               majorVersions "insert-ordered-containers" [ v "0.2.1.0" ]
+          , lens =
+              majorVersions "lens" [ v "4.17" ]
           , optparse-applicative =
               majorVersions "optparse-applicative" [ v "0.13.2", v "0.14" ]
           , prettyprinter =
@@ -226,7 +228,9 @@ in    prelude.utils.GitHub-project
                     , deps.base
                     , deps.dhall
                     , deps.dhall-to-cabal
+                    , deps.filepath
                     , deps.insert-ordered-containers
+                    , deps.lens
                     , deps.optparse-applicative
                     , deps.prettyprinter
                     , deps.text
@@ -317,6 +321,7 @@ in    prelude.utils.GitHub-project
                     , deps.dhall
                     , deps.dhall-to-cabal
                     , deps.filepath
+                    , deps.lens
                     , deps.prettyprinter
                     , deps.tasty
                     , deps.tasty-golden

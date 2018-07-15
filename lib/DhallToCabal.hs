@@ -589,9 +589,13 @@ moduleName =
 
 
 
-dhallToCabal :: FilePath -> StrictText.Text -> IO Cabal.GenericPackageDescription
-dhallToCabal fileName =
-  Dhall.inputFrom fileName genericPackageDescription
+dhallToCabal
+  :: Dhall.InputSettings
+  -> StrictText.Text
+  -- ^ The Dhall to parse.
+  -> IO Cabal.GenericPackageDescription
+dhallToCabal settings =
+  Dhall.inputWithSettings settings genericPackageDescription
 
 
 

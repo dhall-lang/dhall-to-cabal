@@ -2,10 +2,11 @@
 {-# LANGUAGE ViewPatterns #-}
 module Main ( main ) where
 
+import Control.Lens ( set )
 import Data.Algorithm.Diff
 import Data.Algorithm.DiffOutput
 import Data.Function ( (&) )
-import System.FilePath ( takeBaseName, replaceExtension )
+import System.FilePath ( takeBaseName, takeDirectory, replaceExtension )
 import Test.Tasty ( defaultMain, TestTree, testGroup )
 import Test.Tasty.Golden ( findByExtension, goldenVsStringDiff )
 import Test.Tasty.Golden.Advanced ( goldenTest )
@@ -15,6 +16,7 @@ import qualified Data.Text.IO as StrictText
 import qualified Data.Text.Lazy.Encoding as LazyText
 import qualified Data.Text.Prettyprint.Doc as Pretty
 import qualified Data.Text.Prettyprint.Doc.Render.Text as Pretty
+import qualified Dhall
 import qualified Dhall.Core
 import qualified Distribution.PackageDescription.Parsec as Cabal
 import qualified Distribution.PackageDescription.PrettyPrint as Cabal
@@ -91,7 +93,7 @@ goldenTests = do
           [ goldenTest
               ( takeBaseName dhallFile )
               ( Cabal.readGenericPackageDescription Cabal.normal cabalFile )
-              ( StrictText.readFile dhallFile >>= dhallToCabal dhallFile  )
+              ( StrictText.readFile dhallFile >>= dhallToCabal settings )
               ( \ ( Cabal.showGenericPackageDescription -> exp ) ( Cabal.showGenericPackageDescription -> act ) -> do
                   if exp == act then
                       return Nothing
@@ -105,6 +107,9 @@ goldenTests = do
               ( Cabal.writeGenericPackageDescription cabalFile )
           | dhallFile <- dhallFiles
           , let cabalFile = replaceExtension dhallFile ".cabal"
+                settings = Dhall.defaultInputSettings
+                  & set Dhall.rootDirectory ( takeDirectory dhallFile )
+                  & set Dhall.sourceName dhallFile
           ]
      , testGroup "cabal-to-dhall"
          [ goldenVsStringDiff
