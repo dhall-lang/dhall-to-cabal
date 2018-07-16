@@ -2,6 +2,7 @@
 
 ## NEXT
 
+* `dhall-to-cabal` has a new `--print-default TYPE` flag.
 
 ## 1.2.0.0 -- 2018-07-05
 

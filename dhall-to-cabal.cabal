@@ -188,6 +188,25 @@ executable cabal-to-dhall
         prettyprinter ^>=1.2.0.1,
         text ^>=1.2
 
+executable dhall-to-cabal-meta
+    main-is: Main.hs
+    scope: private
+    hs-source-dirs: meta
+    default-language: Haskell2010
+    ghc-options: -Weverything -Wno-safe -Wno-unsafe
+                 -Wno-implicit-prelude -Wno-missed-specialisations
+                 -Wno-all-missed-specialisations -Wno-missing-import-lists
+                 -Wno-missing-local-signatures -Wno-monomorphism-restriction
+                 -fno-warn-name-shadowing
+    build-depends:
+        base ^>=4.10 || ^>=4.11,
+        directory ^>=1.3.0.2,
+        dhall ^>=1.15.0,
+        dhall-to-cabal -any,
+        filepath ^>=1.4,
+        optparse-applicative ^>=0.13.2 || ^>=0.14,
+        prettyprinter ^>=1.2.0.1
+
 test-suite golden-tests
     type: exitcode-stdio-1.0
     main-is: GoldenTests.hs

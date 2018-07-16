@@ -23,7 +23,8 @@ import Data.Text (Text)
 import Data.String ( fromString )
 import Data.Version ( showVersion )
 
-import DhallLocation ( typesLocation, dhallFromGitHub )
+import CabalToDhall ( KnownDefault, getDefault, resolvePreludeVar )
+import DhallLocation ( preludeLocation, typesLocation, dhallFromGitHub )
 import DhallToCabal
 import qualified Paths_dhall_to_cabal as Paths
 
@@ -47,6 +48,7 @@ import qualified System.IO
 data Command
   = RunDhallToCabal DhallToCabalOptions
   | PrintType PrintTypeOptions
+  | PrintDefault PrintDefaultOptions
   | PrintVersion
 
 
@@ -170,6 +172,24 @@ printVersionParser =
     )
 
 
+data PrintDefaultOptions =
+  PrintDefaultOptions
+    { defaultToPrint :: KnownDefault }
+
+
+printDefaultOptionsParser :: OptParse.Parser PrintDefaultOptions
+printDefaultOptionsParser =
+  PrintDefaultOptions
+    <$>
+      OptParse.option OptParse.auto
+        ( mconcat
+            [ OptParse.long "print-default"
+            , OptParse.help "Print out the default values for a type, as found in prelude.defaults"
+            , OptParse.metavar "TYPE"
+            ]
+        )
+
+
 runDhallToCabal :: DhallToCabalOptions -> IO ()
 runDhallToCabal DhallToCabalOptions { dhallFilePath, explain } = do
   source <-
@@ -254,6 +274,9 @@ main = do
     PrintType options ->
       printType options
 
+    PrintDefault options ->
+      printDefault options
+
     PrintVersion ->
       printVersion
 
@@ -263,6 +286,7 @@ main = do
     asum
       [ RunDhallToCabal <$> dhallToCabalOptionsParser
       , PrintType <$> printTypeOptionsParser
+      , PrintDefault <$> printDefaultOptionsParser
       , PrintVersion <$ printVersionParser
       ]
 
@@ -679,3 +703,25 @@ liftCSE subrecord name body expr =
 printVersion :: IO ()
 printVersion = do
   putStrLn ( "dhall-to-cabal version " ++ showVersion Paths.version )
+
+
+printDefault :: PrintDefaultOptions -> IO ()
+printDefault PrintDefaultOptions {..} = do
+  Pretty.renderIO
+    System.IO.stdout
+    ( Pretty.layoutSmart opts
+        ( Pretty.pretty ( withPreludeImport expr ) )
+    )
+
+  putStrLn ""
+
+  where
+    withPreludeImport =
+      Expr.Let "prelude" Nothing ( Expr.Embed ( preludeLocation dhallFromGitHub ) )
+
+    expr :: Expr.Expr Dhall.Parser.Src Dhall.Import
+    expr =
+      getDefault
+        ( typesLocation dhallFromGitHub )
+        resolvePreludeVar
+        defaultToPrint
