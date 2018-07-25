@@ -2,10 +2,10 @@
 {-# LANGUAGE ViewPatterns #-}
 module Main ( main ) where
 
-import Control.Lens ( set )
 import Data.Algorithm.Diff
 import Data.Algorithm.DiffOutput
 import Data.Function ( (&) )
+import Lens.Micro ( set )
 import System.FilePath ( takeBaseName, takeDirectory, replaceExtension )
 import Test.Tasty ( defaultMain, TestTree, testGroup )
 import Test.Tasty.Golden ( findByExtension, goldenVsStringDiff )

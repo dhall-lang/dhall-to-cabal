@@ -36,8 +36,8 @@ in  let deps =
               majorVersions "filepath" [ v "1.4" ]
           , insert-ordered-containers =
               majorVersions "insert-ordered-containers" [ v "0.2.1.0" ]
-          , lens =
-              majorVersions "lens" [ v "4.17" ]
+          , microlens =
+              majorVersions "microlens" [ v "0.4.9.1" ]
           , optparse-applicative =
               majorVersions "optparse-applicative" [ v "0.13.2", v "0.14" ]
           , prettyprinter =
@@ -230,7 +230,7 @@ in    prelude.utils.GitHub-project
                     , deps.dhall-to-cabal
                     , deps.filepath
                     , deps.insert-ordered-containers
-                    , deps.lens
+                    , deps.microlens
                     , deps.optparse-applicative
                     , deps.prettyprinter
                     , deps.text
@@ -321,7 +321,7 @@ in    prelude.utils.GitHub-project
                     , deps.dhall
                     , deps.dhall-to-cabal
                     , deps.filepath
-                    , deps.lens
+                    , deps.microlens
                     , deps.prettyprinter
                     , deps.tasty
                     , deps.tasty-golden
