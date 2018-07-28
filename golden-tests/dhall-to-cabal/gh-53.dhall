@@ -1,6 +1,6 @@
-    let prelude = ./dhall/prelude.dhall
+    let prelude = ../../dhall/prelude.dhall
 
-in  let types = ./dhall/types.dhall
+in  let types = ../../dhall/types.dhall
 
 in    prelude.defaults.Package
     ⫽ { cabal-version =

@@ -29,13 +29,17 @@ in  let deps =
           , directory =
               majorVersions "directory" [ v "1.3.0.2" ]
           , dhall =
-              majorVersions "dhall" [ v "1.15.0" ]
+              majorVersions "dhall" [ v "1.16.0" ]
           , dhall-to-cabal =
               package "dhall-to-cabal" anyVersion
           , filepath =
               majorVersions "filepath" [ v "1.4" ]
           , insert-ordered-containers =
               majorVersions "insert-ordered-containers" [ v "0.2.1.0" ]
+          , microlens =
+              majorVersions
+              "microlens"
+              [ v "0.1.0.0", v "0.2.0.0", v "0.3.0.0", v "0.4.0.0" ]
           , optparse-applicative =
               majorVersions "optparse-applicative" [ v "0.13.2", v "0.14" ]
           , prettyprinter =
@@ -84,8 +88,7 @@ in    prelude.utils.GitHub-project
           "Distribution"
       -- build-type simple is needed to allow tools compatible with cabal < 2.2 build the package
       , build-type =
-          [ prelude.types.BuildTypes.Simple {=}
-          ] : Optional types.BuildType
+          [ prelude.types.BuildTypes.Simple {=} ] : Optional types.BuildType
       , maintainer =
           "ollie@ocharles.org.uk"
       , author =
@@ -226,7 +229,9 @@ in    prelude.utils.GitHub-project
                     , deps.base
                     , deps.dhall
                     , deps.dhall-to-cabal
+                    , deps.filepath
                     , deps.insert-ordered-containers
+                    , deps.microlens
                     , deps.optparse-applicative
                     , deps.prettyprinter
                     , deps.text
@@ -280,7 +285,7 @@ in    prelude.utils.GitHub-project
             )
           , prelude.unconditional.executable
             "dhall-to-cabal-meta"
-            (    prelude.defaults.Executable
+            (   prelude.defaults.Executable
               ⫽ { scope =
                     prelude.types.Scopes.Private {=}
                 , build-depends =
@@ -298,8 +303,7 @@ in    prelude.utils.GitHub-project
                     [ prelude.types.Languages.Haskell2010 {=} ] : Optional
                                                                   types.Language
                 , compiler-options =
-                      prelude.defaults.CompilerOptions
-                    ⫽ { GHC = warning-options }
+                    prelude.defaults.CompilerOptions ⫽ { GHC = warning-options }
                 , main-is =
                     "Main.hs"
                 }
@@ -317,6 +321,7 @@ in    prelude.utils.GitHub-project
                     , deps.dhall
                     , deps.dhall-to-cabal
                     , deps.filepath
+                    , deps.microlens
                     , deps.prettyprinter
                     , deps.tasty
                     , deps.tasty-golden

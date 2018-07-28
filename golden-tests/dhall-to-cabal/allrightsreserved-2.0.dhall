@@ -1,5 +1,5 @@
-   let prelude = ./dhall/prelude.dhall
-in let types = ./dhall/types.dhall
+   let prelude = ../../dhall/prelude.dhall
+in let types = ../../dhall/types.dhall
 in   prelude.defaults.Package
   // { name = "foo"
      , version = prelude.v "0"

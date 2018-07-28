@@ -22,6 +22,8 @@ import Data.Maybe ( fromMaybe )
 import Data.Text (Text)
 import Data.String ( fromString )
 import Data.Version ( showVersion )
+import Lens.Micro ( set )
+import System.FilePath ( takeDirectory )
 
 import CabalToDhall ( KnownDefault, getDefault, resolvePreludeVar )
 import DhallLocation ( preludeLocation, typesLocation, dhallFromGitHub )
@@ -201,10 +203,12 @@ runDhallToCabal DhallToCabalOptions { dhallFilePath, explain } = do
         StrictText.readFile filePath
 
   let
-    fileName = fromMaybe "(STDIN)" dhallFilePath
+    settings = Dhall.defaultInputSettings
+      & set Dhall.rootDirectory ( maybe "." takeDirectory dhallFilePath )
+      & set Dhall.sourceName ( fromMaybe "(STDIN)" dhallFilePath )
 
   explaining
-    ( dhallToCabal fileName source
+    ( dhallToCabal settings source
         & fmap ( \ pkgDesc ->
                        pkgDesc
                      & Cabal.showGenericPackageDescription
