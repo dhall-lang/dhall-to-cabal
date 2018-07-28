@@ -37,7 +37,9 @@ in  let deps =
           , insert-ordered-containers =
               majorVersions "insert-ordered-containers" [ v "0.2.1.0" ]
           , microlens =
-              majorVersions "microlens" [ v "0.4.9.1" ]
+              majorVersions
+              "microlens"
+              [ v "0.1.0.0", v "0.2.0.0", v "0.3.0.0", v "0.4.0.0" ]
           , optparse-applicative =
               majorVersions "optparse-applicative" [ v "0.13.2", v "0.14" ]
           , prettyprinter =
@@ -86,8 +88,7 @@ in    prelude.utils.GitHub-project
           "Distribution"
       -- build-type simple is needed to allow tools compatible with cabal < 2.2 build the package
       , build-type =
-          [ prelude.types.BuildTypes.Simple {=}
-          ] : Optional types.BuildType
+          [ prelude.types.BuildTypes.Simple {=} ] : Optional types.BuildType
       , maintainer =
           "ollie@ocharles.org.uk"
       , author =
@@ -284,7 +285,7 @@ in    prelude.utils.GitHub-project
             )
           , prelude.unconditional.executable
             "dhall-to-cabal-meta"
-            (    prelude.defaults.Executable
+            (   prelude.defaults.Executable
               ⫽ { scope =
                     prelude.types.Scopes.Private {=}
                 , build-depends =
@@ -302,8 +303,7 @@ in    prelude.utils.GitHub-project
                     [ prelude.types.Languages.Haskell2010 {=} ] : Optional
                                                                   types.Language
                 , compiler-options =
-                      prelude.defaults.CompilerOptions
-                    ⫽ { GHC = warning-options }
+                    prelude.defaults.CompilerOptions ⫽ { GHC = warning-options }
                 , main-is =
                     "Main.hs"
                 }
