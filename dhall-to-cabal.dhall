@@ -26,12 +26,12 @@ in  let deps =
               majorVersions "bytestring" [ v "0.10" ]
           , containers =
               majorVersions "containers" [ v "0.5", v "0.6" ]
-          , directory =
-              majorVersions "directory" [ v "1.3.0.2" ]
           , dhall =
               majorVersions "dhall" [ v "1.18.0" ]
           , dhall-to-cabal =
               package "dhall-to-cabal" anyVersion
+          , directory =
+              majorVersions "directory" [ v "1.3.0.2" ]
           , filepath =
               majorVersions "filepath" [ v "1.4" ]
           , microlens =
@@ -189,6 +189,7 @@ in    prelude.utils.GitHub-project
                   , deps.containers
                   , deps.contravariant
                   , deps.dhall
+                  , deps.filepath
                   , deps.hashable
                   , deps.text
                   , deps.transformers
@@ -199,7 +200,11 @@ in    prelude.utils.GitHub-project
               , autogen-modules =
                   [ "Paths_dhall_to_cabal" ]
               , exposed-modules =
-                  [ "DhallToCabal", "DhallLocation", "CabalToDhall" ]
+                  [ "CabalToDhall"
+                  , "DhallLocation"
+                  , "DhallToCabal"
+                  , "DhallToCabal.Util"
+                  ]
               , hs-source-dirs =
                   [ "lib" ]
               , other-extensions =
@@ -231,6 +236,7 @@ in    prelude.utils.GitHub-project
                     , deps.base
                     , deps.dhall
                     , deps.dhall-to-cabal
+                    , deps.directory
                     , deps.filepath
                     , deps.microlens
                     , deps.optparse-applicative

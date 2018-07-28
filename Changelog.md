@@ -1,5 +1,18 @@
 # dhall-to-cabal change log
 
+## Next
+
+* `dhall-to-cabal` now accepts`--output-stdout`, `--output-dir-cwd
+  DIR`, and `--output-dir-input DIR` flags control the destination of
+  the generated `.cabal` file. `--output-dir-cwd` interprets its
+  argument relative to the current working directory and
+  `--output-dir-input` interprets its argument relative to the input
+  file.
+
+  The default has been changed to `--output-dir-input .`, which writes
+  to the same directory as the input file; previously it corresponded
+  to `--output-stdout`.
+
 ## 1.3.1.0 -- 2018-10-23
 
 * Allow `Cabal` version 2.4.0.0. There have been consequent changes to
