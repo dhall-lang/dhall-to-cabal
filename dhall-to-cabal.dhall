@@ -86,7 +86,10 @@ in    prelude.utils.GitHub-project
           ''
       , category =
           "Distribution"
-      -- build-type simple is needed to allow tools compatible with cabal < 2.2 build the package
+      -- Note: has to be 2.0 to make it into Stackage.
+      , cabal-version =
+          v "2.0"
+      -- Note: old versions of Stack (and probably cabal-install) over-eagerly read files with unknown cabal-versions. Even though cabal-version 2.2 has nice build type inference, those old versions of build tools will bork if we try to omit it.
       , build-type =
           [ prelude.types.BuildTypes.Simple {=} ] : Optional types.BuildType
       , maintainer =
