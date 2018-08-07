@@ -1,0 +1,9 @@
+cabal-version: 2.2
+name: mixins-test
+version: 0
+
+library
+  mixins:
+    foo,
+    bar (Some.Module, Some.Other.Module, Third.Module as Renamed),
+    baz hiding (Hidden, Also.Hidden)

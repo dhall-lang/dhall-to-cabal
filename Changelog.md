@@ -1,5 +1,16 @@
 # dhall-to-cabal change log
 
+## NEXT
+
+* `dhall-to-cabal` and `cabal-to-dhall` now understand the `mixins`
+  field properly.
+
+  On the Dhall side, `types.ModuleRenaming` has changed significantly:
+  it is now a union.
+
+  `prelude.types.ModuleRenaming` has been added for convenient access
+  to the new constructors.
+
 ## 1.3.0.1 -- 2018-08-10
 
 ### Distribution Changes
