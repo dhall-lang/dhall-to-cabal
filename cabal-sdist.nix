@@ -5,6 +5,7 @@ let
     name = "src-sdist";
     buildCommand = ''
       mkdir -p $out/src
+      mkdir -p $out/.cabal
       cd ${dir}
       HOME="$out" cabal sdist --output-directory=$out/src
     '';
