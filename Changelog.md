@@ -1,5 +1,12 @@
 # dhall-to-cabal change log
 
+## 1.3.0.1 -- 2018-08-10
+
+### Distribution Changes
+
+* Include all files necessary to run tests.
+
+
 ## 1.3.0.0 -- 2018-07-28
 
 ### Breaking API Changes
