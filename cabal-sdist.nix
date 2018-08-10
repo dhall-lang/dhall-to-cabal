@@ -1,18 +1,19 @@
-pkgs: dir:
+{ mkDerivation, cabal-install }:
+dir:
 let
-  src-tree = pkgs.stdenv.mkDerivation {
+  src-tree = mkDerivation {
     name = "src-sdist";
     buildCommand = ''
       mkdir -p $out/src
       cd ${dir}
       cabal sdist --output-directory=$out/src
     '';
-    buildInputs = [ pkgs.cabal-install ];
+    buildInputs = [ cabal-install ];
   };
 
 in
 import
-  ( pkgs.stdenv.mkDerivation {
+  ( mkDerivation {
       name = "src.nix";
       buildCommand = ''echo "${src-tree}"/src > $out'';
     }

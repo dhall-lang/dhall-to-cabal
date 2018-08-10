@@ -23,9 +23,19 @@ let
 
           formatting = super.callPackage ./formatting.nix {};
 
-          dhall-to-cabal = super.callCabal2nix "dhall-to-cabal" (import ./cabal-sdist.nix nixpkgs ./.) {
-            Cabal = self.callPackage ./cabal.nix {};
-          };
+          dhall-to-cabal =
+            super.callCabal2nix
+              "dhall-to-cabal"
+              ( import
+                  ./cabal-sdist.nix
+                  { inherit ( nixpkgs.stdenv ) mkDerivation;
+                    inherit ( nixpkgs ) cabal-install;
+                  }
+                  ./.
+              )
+              {
+                Cabal = self.callPackage ./cabal.nix {};
+              };
         };
       };
     };
