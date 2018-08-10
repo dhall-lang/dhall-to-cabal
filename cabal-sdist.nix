@@ -1,7 +1,5 @@
-dir:
+pkgs: dir:
 let
-  pkgs = import ./pkgs {};
-
   src-tree = pkgs.stdenv.mkDerivation {
     name = "src-sdist";
     buildCommand = ''

@@ -23,7 +23,7 @@ let
 
           formatting = super.callPackage ./formatting.nix {};
 
-          dhall-to-cabal = super.callCabal2nix "dhall-to-cabal" (import ./cabal-sdist.nix ./.) {
+          dhall-to-cabal = super.callCabal2nix "dhall-to-cabal" (import ./cabal-sdist.nix nixpkgs ./.) {
             Cabal = self.callPackage ./cabal.nix {};
           };
         };
