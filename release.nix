@@ -28,8 +28,8 @@ let
               "dhall-to-cabal"
               ( import
                   ./cabal-sdist.nix
-                  { inherit ( nixpkgs.stdenv ) mkDerivation;
-                    inherit ( nixpkgs ) cabal-install;
+                  { inherit ( pkgs.stdenv ) mkDerivation;
+                    inherit ( pkgs ) cabal-install;
                   }
                   ./.
               )
