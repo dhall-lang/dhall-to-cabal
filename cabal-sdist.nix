@@ -1,15 +1,16 @@
-{ mkDerivation, cabal-install }:
+{ mkDerivation, cabal-install, ghc }:
 dir:
 let
   src-tree = mkDerivation {
     name = "src-sdist";
     buildCommand = ''
-      mkdir -p $out/src
-      mkdir -p $out/.cabal
-      cd ${dir}
-      HOME="$out" cabal sdist --output-directory=$out/src
+      mkdir -p $out
+      cp -R ${dir}/* .
+      mkdir -p dist
+      chmod a+w dist
+      HOME=$(pwd) cabal sdist --output-directory=$out/src
     '';
-    buildInputs = [ cabal-install ];
+    buildInputs = [ cabal-install ghc ];
   };
 
 in

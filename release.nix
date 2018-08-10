@@ -30,6 +30,9 @@ let
                   ./cabal-sdist.nix
                   { inherit ( pkgs.stdenv ) mkDerivation;
                     inherit ( pkgs ) cabal-install;
+                    ghc = self.ghcWithPackages (hs: [
+                      (hs.callPackage ./cabal.nix {})
+                    ]);
                   }
                   ./.
               )
