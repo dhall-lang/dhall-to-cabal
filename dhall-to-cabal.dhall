@@ -129,6 +129,7 @@ in    prelude.utils.GitHub-project
           , "dhall/types.dhall"
           , "dhall/types/Arch.dhall"
           , "dhall/types/Benchmark.dhall"
+          , "dhall/types/BuildInfo.dhall"
           , "dhall/types/BuildType.dhall"
           , "dhall/types/Compiler.dhall"
           , "dhall/types/CompilerOptions.dhall"
