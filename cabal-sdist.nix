@@ -6,7 +6,7 @@ let
     buildCommand = ''
       mkdir -p $out/src
       cd ${dir}
-      cabal sdist --output-directory=$out/src
+      HOME=$(pwd) cabal sdist --output-directory=$out/src
     '';
     buildInputs = [ cabal-install ];
   };
