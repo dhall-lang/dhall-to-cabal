@@ -15,6 +15,8 @@
         constructors ./types/SPDX/LicenseExceptionId.dhall
     , LicenseId =
         constructors ./types/SPDX/LicenseId.dhall
+    , ModuleRenaming =
+        constructors ./types/ModuleRenaming.dhall
     , TestTypes =
         constructors ./types/TestType.dhall
     , RepoType =

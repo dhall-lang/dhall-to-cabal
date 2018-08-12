@@ -1326,10 +1326,25 @@ includeRenaming =
 
 moduleRenaming :: Dhall.Type Cabal.ModuleRenaming
 moduleRenaming =
-  fmap Cabal.ModuleRenaming $
-  Dhall.list $
-  Dhall.record $
-    (,) <$> Dhall.field "rename" moduleName <*> Dhall.field "to" moduleName
+  makeUnion
+    ( Map.fromList
+      [ ( "renaming"
+        , fmap Cabal.ModuleRenaming
+            ( Dhall.list
+              ( Dhall.record
+                ( (,) <$> Dhall.field "rename" moduleName <*> Dhall.field "to" moduleName )
+              )
+            )
+        )
+      , ( "default"
+        , Dhall.record ( pure Cabal.DefaultRenaming )
+        )
+      , ( "hiding"
+        , fmap Cabal.HidingRenaming
+            ( Dhall.list moduleName )
+        )
+      ]
+    )
 
 
 sortType :: Dhall.Type a -> Dhall.Type a

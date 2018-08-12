@@ -1496,15 +1496,41 @@ includeRenaming =
 
 moduleRenaming :: Dhall.InputType Cabal.ModuleRenaming
 moduleRenaming =
-  ( \( Cabal.ModuleRenaming a ) -> a ) >$<
-  listOf
-    ( runRecordInputType
-        ( mconcat
-            [ recordField "rename" ( ( \( a, _ ) -> a ) >$< moduleName )
-            , recordField "to" ( ( \( _, a ) -> a ) >$< moduleName )
-            ]
-        )
-    )
+  Dhall.InputType
+    { Dhall.embed =
+        \a ->
+          case a of
+            Cabal.ModuleRenaming renamed ->
+              Expr.App
+                ( Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "ModuleRenaming" `Expr.Field` "renaming" )
+                ( Expr.ListLit
+                    Nothing
+                    ( fmap
+                        (\ ( src, dst ) ->
+                           Expr.RecordLit
+                             ( Map.fromList
+                                 [ ( "rename", Dhall.embed moduleName src )
+                                 , ( "to", Dhall.embed moduleName dst )
+                                 ]
+                             )
+                        )
+                        ( Seq.fromList renamed )
+                    )
+                )
+            Cabal.DefaultRenaming ->
+              Expr.App
+                ( Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "ModuleRenaming" `Expr.Field` "default" )
+                ( Expr.RecordLit mempty )
+            Cabal.HidingRenaming hidden ->
+              Expr.App
+                ( Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "ModuleRenaming" `Expr.Field` "hiding" )
+                ( Expr.ListLit
+                    Nothing
+                    ( Dhall.embed moduleName <$> Seq.fromList hidden )
+                )
+    , Dhall.declared =
+        Expr.Var "types" `Expr.Field` "ModuleRenaming"
+    }
 
 
 benchmark :: Dhall.InputType Cabal.Benchmark
