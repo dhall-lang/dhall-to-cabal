@@ -2,6 +2,8 @@
 
 ## NEXT
 
+* Allow `dhall` version 1.17.
+
 * `dhall-to-cabal` and `cabal-to-dhall` now understand the `mixins`
   field properly.
 

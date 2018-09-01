@@ -34,14 +34,18 @@ dhallFromGitHub =
                 { Dhall.Core.hash =
                     Nothing
                 , Dhall.Core.importType =
-                    Dhall.Core.URL
-                      "https://raw.githubusercontent.com"
-                      ( Dhall.Core.File
-                         ( Dhall.Core.Directory [ "dhall", version, "dhall-to-cabal", "dhall-lang" ] )
-                         "prelude.dhall"
+                    Dhall.Core.Remote
+                      ( Dhall.Core.URL
+                          Dhall.Core.HTTPS
+                          "https://raw.githubusercontent.com"
+                          ( Dhall.Core.File
+                             ( Dhall.Core.Directory [ "dhall", version, "dhall-to-cabal", "dhall-lang" ] )
+                             "prelude.dhall"
+                          )
+                          Nothing
+                          Nothing
+                          Nothing
                       )
-                      ""
-                      Nothing
                 }
           , Dhall.Core.importMode =
               Dhall.Core.Code
@@ -54,14 +58,18 @@ dhallFromGitHub =
                 { Dhall.Core.hash =
                     Nothing
                 , Dhall.Core.importType =
-                    Dhall.Core.URL
-                      "https://raw.githubusercontent.com"
-                      ( Dhall.Core.File
-                         ( Dhall.Core.Directory [ "dhall", version, "dhall-to-cabal", "dhall-lang" ] )
-                         "types.dhall"
+                    Dhall.Core.Remote
+                      ( Dhall.Core.URL
+                          Dhall.Core.HTTPS
+                          "https://raw.githubusercontent.com"
+                          ( Dhall.Core.File
+                             ( Dhall.Core.Directory [ "dhall", version, "dhall-to-cabal", "dhall-lang" ] )
+                             "types.dhall"
+                          )
+                          Nothing
+                          Nothing
+                          Nothing
                       )
-                      ""
-                      Nothing
                 }
           , Dhall.Core.importMode =
               Dhall.Core.Code
