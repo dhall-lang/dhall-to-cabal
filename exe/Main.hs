@@ -604,6 +604,12 @@ liftCSE subrecord name body expr =
         Expr.Project e fs ->
           Expr.Project <$> go e v <*> pure fs
 
+        Expr.ImportAlt l r ->
+          Expr.ImportAlt <$> go l v <*> go r v
+
+        Expr.IntegerToDouble ->
+          pure Expr.IntegerToDouble
+
         Expr.Embed{} ->
           pure e
 
