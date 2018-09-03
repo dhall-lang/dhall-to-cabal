@@ -23,6 +23,8 @@ let
 
           formatting = super.callPackage ./formatting.nix {};
 
+          tasty-hunit = super.callPackage ./tasty-hunit.nix {};
+
           dhall-to-cabal =
             super.callCabal2nix
               "dhall-to-cabal"
