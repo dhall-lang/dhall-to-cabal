@@ -2,6 +2,9 @@
 
 ## NEXT
 
+* Allow `Cabal` version 2.4.0.0. There have been consequent changes to
+  the extensions, compilers and licenses recognised.
+
 * Allow `dhall` version 1.17.
 
 * `dhall-to-cabal` and `cabal-to-dhall` now understand the `mixins`

@@ -176,14 +176,6 @@ packageDescription = do
   category <-
     Dhall.field "category" Dhall.string
 
-  -- Cabal documentation states
-  --
-  --   > YOU PROBABLY DON'T WANT TO USE THIS FIELD.
-  --
-  -- So I guess we won't use this field.
-  buildDepends <-
-    pure []
-
   setupBuildInfo <-
     Dhall.field "custom-setup" ( Dhall.maybe setupBuildInfo )
 
@@ -863,7 +855,8 @@ compilerOptions :: Dhall.Type [ ( Cabal.CompilerFlavor, [ String ] ) ]
 compilerOptions =
   Dhall.record $
     sequenceA
-      [ (,) <$> pure Cabal.GHC <*> Dhall.field "GHC" options
+      [ (,) <$> pure Cabal.Eta <*> Dhall.field "Eta" options
+      , (,) <$> pure Cabal.GHC <*> Dhall.field "GHC" options
       , (,) <$> pure Cabal.GHCJS <*> Dhall.field "GHCJS" options
       , (,) <$> pure Cabal.NHC <*> Dhall.field "NHC" options
       , (,) <$> pure Cabal.YHC <*> Dhall.field "YHC" options

@@ -1,4 +1,6 @@
-< GHC :
+< Eta :
+    {}
+| GHC :
     {}
 | GHCJS :
     {}
