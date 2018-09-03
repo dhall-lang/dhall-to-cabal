@@ -34,6 +34,7 @@ mkDerivation {
   benchmarkHaskellDepends = [
     base bytestring containers criterion directory serialise text
   ];
+  doCheck = false;
   description = "A configuration language guaranteed to terminate";
   license = stdenv.lib.licenses.bsd3;
 }
