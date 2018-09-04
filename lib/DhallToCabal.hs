@@ -4,7 +4,6 @@
 {-# language GADTs #-}
 {-# language LambdaCase #-}
 {-# language OverloadedStrings #-}
-{-# language PatternSynonyms #-}
 {-# language RecordWildCards #-}
 
 module DhallToCabal
@@ -46,6 +45,7 @@ import Data.Monoid ( (<>) )
 import qualified Data.HashMap.Strict.InsOrd as Map
 import qualified Data.Text as StrictText
 import qualified Dhall
+import qualified Dhall.Core
 import qualified Dhall.Parser
 import qualified Dhall.TypeCheck
 import qualified Distribution.Compiler as Cabal
@@ -228,17 +228,15 @@ version =
         ( error "Could not parse version" )
         ( Cabal.simpleParse ( StrictText.unpack text ) )
 
-    extract =
-      \case
-        LamArr _Version (LamArr _v v) ->
-          go v
-
-        e ->
-          error ( show e )
+    extract e =
+      go
+        ( Dhall.Core.normalize ( e `Expr.App` "Version" `Expr.App` "v" )
+            `asTypeOf` e
+        )
 
     go =
       \case
-        Expr.App ( V0 "v" ) ( Expr.TextLit ( Expr.Chunks [] text ) ) ->
+        Expr.App "v" ( Expr.TextLit ( Expr.Chunks [] text ) ) ->
           return ( parse text )
 
         e ->
@@ -248,8 +246,8 @@ version =
       Expr.Pi "Version" ( Expr.Const Expr.Type )
         $ Expr.Pi
             "v"
-            ( Expr.Pi "_" ( Dhall.expected Dhall.string ) ( V0 "Version" ) )
-            ( V0 "Version" )
+            ( Expr.Pi "_" ( Dhall.expected Dhall.string ) "Version" )
+            "Version"
 
   in Dhall.Type { .. }
 
@@ -599,69 +597,74 @@ dhallToCabal settings =
 
 
 
-pattern LamArr :: Expr.Expr s a -> Expr.Expr s a -> Expr.Expr s a
-pattern LamArr a b <- Expr.Lam _ a b
-
-
-
-pattern V0 :: Dhall.Text -> Expr.Expr s a
-pattern V0 v = Expr.Var ( Expr.V v 0 )
-
-
-
 versionRange :: Dhall.Type Cabal.VersionRange
 versionRange =
   let
-    extract =
-      \case
-        LamArr _VersionRange (LamArr _anyVersion (LamArr _noVersion (LamArr _thisVersion (LamArr _notThisVersion (LamArr _laterVersion (LamArr _earlierVersion (LamArr _orLaterVersion (LamArr _orEarlierVersion (LamArr _withinVersion (LamArr _majorBoundVersion (LamArr _unionVersionRanges (LamArr _intersectVersionRanges (LamArr _differenceVersionRanges (LamArr _invertVersionRange versionRange)))))))))))))) ->
-          go versionRange
-
-        _ ->
-          Nothing
+    extract e =
+      go
+        ( Dhall.Core.normalize
+            ( e
+                `Expr.App` "VersionRange"
+                `Expr.App` "anyVersion"
+                `Expr.App` "noVersion"
+                `Expr.App` "thisVersion"
+                `Expr.App` "notThisVersion"
+                `Expr.App` "laterVersion"
+                `Expr.App` "earlierVersion"
+                `Expr.App` "orLaterVersion"
+                `Expr.App` "orEarlierVersion"
+                `Expr.App` "withinVersion"
+                `Expr.App` "majorBoundVersion"
+                `Expr.App` "unionVersionRanges"
+                `Expr.App` "intersectVersionRanges"
+                `Expr.App` "differenceVersionRanges"
+                `Expr.App` "invertVersionRange"
+            )
+            `asTypeOf` e
+        )
 
     go =
       \case
-        V0 "anyVersion" ->
+        "anyVersion" ->
           return Cabal.anyVersion
 
-        V0 "noVersion" ->
+        "noVersion" ->
           return Cabal.noVersion
 
-        Expr.App ( V0 "thisVersion" ) components ->
+        Expr.App "thisVersion" components ->
           Cabal.thisVersion <$> Dhall.extract version components
 
-        Expr.App ( V0 "notThisVersion" ) components ->
+        Expr.App "notThisVersion" components ->
           Cabal.notThisVersion <$> Dhall.extract version components
 
-        Expr.App ( V0 "laterVersion" ) components ->
+        Expr.App "laterVersion" components ->
           Cabal.laterVersion <$> Dhall.extract version components
 
-        Expr.App ( V0 "earlierVersion" ) components ->
+        Expr.App "earlierVersion" components ->
           Cabal.earlierVersion <$> Dhall.extract version components
 
-        Expr.App ( V0 "orLaterVersion" ) components ->
+        Expr.App "orLaterVersion" components ->
           Cabal.orLaterVersion <$> Dhall.extract version components
 
-        Expr.App ( V0 "orEarlierVersion" ) components ->
+        Expr.App "orEarlierVersion" components ->
           Cabal.orEarlierVersion <$> Dhall.extract version components
 
-        Expr.App ( Expr.App ( V0 "unionVersionRanges" ) a ) b ->
+        Expr.App ( Expr.App "unionVersionRanges" a ) b ->
           Cabal.unionVersionRanges <$> go a <*> go b
 
-        Expr.App ( Expr.App ( V0 "intersectVersionRanges" ) a ) b ->
+        Expr.App ( Expr.App "intersectVersionRanges" a ) b ->
           Cabal.intersectVersionRanges <$> go a <*> go b
 
-        Expr.App ( Expr.App ( V0 "differenceVersionRanges" ) a ) b ->
+        Expr.App ( Expr.App "differenceVersionRanges" a ) b ->
           Cabal.differenceVersionRanges <$> go a <*> go b
 
-        Expr.App ( V0 "invertVersionRange" ) components ->
+        Expr.App "invertVersionRange" components ->
           Cabal.invertVersionRange <$> go components
 
-        Expr.App ( V0 "withinVersion" ) components ->
+        Expr.App "withinVersion" components ->
           Cabal.withinVersion <$> Dhall.extract version components
 
-        Expr.App ( V0 "majorBoundVersion" ) components ->
+        Expr.App "majorBoundVersion" components ->
           Cabal.majorBoundVersion <$> Dhall.extract version components
 
         _ ->
@@ -670,7 +673,7 @@ versionRange =
     expected =
       let
         versionRange =
-          V0 "VersionRange"
+          "VersionRange"
 
         versionToVersionRange =
           Expr.Pi
@@ -737,41 +740,48 @@ license =
 spdxLicense :: Dhall.Type SPDX.LicenseExpression
 spdxLicense =
   let
-    extract =
-      \case
-        LamArr _spdx (LamArr _licenseExactVersion (LamArr _licenseVersionOrLater (LamArr _licenseRef (LamArr _licenseRefWithFile (LamArr _licenseAnd (LamArr _licenseOr license)))))) ->
-          go license
-
-        _ ->
-          Nothing
+    extract e =
+      go
+        ( Dhall.Core.normalize
+            ( e
+                `Expr.App` "SPDX"
+                `Expr.App` "license"
+                `Expr.App` "licenseVersionOrLater"
+                `Expr.App` "ref"
+                `Expr.App` "refWithFile"
+                `Expr.App` "and"
+                `Expr.App` "or"
+            )
+            `asTypeOf` e
+        )
 
     go =
       \case
-        Expr.App ( Expr.App ( V0 "license" ) identM ) exceptionMayM -> do
+        Expr.App ( Expr.App "license" identM ) exceptionMayM -> do
           ident <- Dhall.extract spdxLicenseId identM
           exceptionMay <- Dhall.extract ( Dhall.maybe spdxLicenseExceptionId ) exceptionMayM
           return ( SPDX.ELicense ( SPDX.ELicenseId ident ) exceptionMay )
 
-        Expr.App ( Expr.App ( V0 "licenseVersionOrLater" ) identM ) exceptionMayM -> do          
+        Expr.App ( Expr.App "licenseVersionOrLater" identM ) exceptionMayM -> do
           ident <- Dhall.extract spdxLicenseId identM
           exceptionMay <- Dhall.extract ( Dhall.maybe spdxLicenseExceptionId ) exceptionMayM
           return ( SPDX.ELicense ( SPDX.ELicenseIdPlus ident ) exceptionMay )
 
-        Expr.App ( Expr.App ( V0 "ref" ) identM ) exceptionMayM -> do
+        Expr.App ( Expr.App "ref" identM ) exceptionMayM -> do
           ident <- Dhall.extract Dhall.string identM
           exceptionMay <- Dhall.extract ( Dhall.maybe spdxLicenseExceptionId ) exceptionMayM
           return ( SPDX.ELicense ( SPDX.ELicenseRef ( SPDX.mkLicenseRef' Nothing ident ) ) exceptionMay )
 
-        Expr.App ( Expr.App ( Expr.App ( V0 "refWithFile" ) identM ) filenameM) exceptionMayM -> do
+        Expr.App ( Expr.App ( Expr.App "refWithFile" identM ) filenameM) exceptionMayM -> do
           ident <- Dhall.extract Dhall.string identM
           filename <- Dhall.extract Dhall.string filenameM
           exceptionMay <- Dhall.extract ( Dhall.maybe spdxLicenseExceptionId ) exceptionMayM
           return ( SPDX.ELicense ( SPDX.ELicenseRef ( SPDX.mkLicenseRef' ( Just filename ) ident ) ) exceptionMay )
 
-        Expr.App ( Expr.App ( V0 "and" ) a ) b ->
+        Expr.App ( Expr.App "and" a ) b ->
           SPDX.EAnd <$> go a <*> go b
 
-        Expr.App ( Expr.App ( V0 "or" ) a ) b ->
+        Expr.App ( Expr.App "or" a ) b ->
           SPDX.EOr <$> go a <*> go b
 
         _ ->
@@ -780,7 +790,7 @@ spdxLicense =
     expected =
       let
         licenseType =
-          V0 "SPDX"
+          "SPDX"
 
         licenseIdAndException
           = Expr.Pi "id" ( Dhall.expected spdxLicenseId )
@@ -1026,12 +1036,12 @@ guarded t =
   let
     extractConfVar body =
       case body of
-        Expr.App ( Expr.App ( Expr.Field ( V0 "config" ) "impl" ) compiler ) version ->
+        Expr.App ( Expr.App ( Expr.Field "config" "impl" ) compiler ) version ->
           Cabal.Impl
             <$> Dhall.extract compilerFlavor compiler
             <*> Dhall.extract versionRange version
 
-        Expr.App ( Expr.Field ( V0 "config" ) field ) x ->
+        Expr.App ( Expr.Field "config" field ) x ->
           case field of
             "os" ->
               Cabal.OS <$> Dhall.extract operatingSystem x

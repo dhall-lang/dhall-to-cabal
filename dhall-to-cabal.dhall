@@ -52,6 +52,8 @@ in  let deps =
               majorVersions "tasty" [ v "0.11", v "0.12", v "1.0", v "1.1" ]
           , tasty-golden =
               majorVersions "tasty-golden" [ v "2.3" ]
+          , tasty-hunit =
+              majorVersions "tasty-hunit" [ v "0.10.0.1" ]
           , text =
               majorVersions "text" [ v "1.2" ]
           , transformers =
@@ -338,6 +340,32 @@ in    prelude.utils.GitHub-project
                 , default-language =
                     [ prelude.types.Languages.Haskell2010 {=} ] : Optional
                                                                   types.Language
+                }
+            )
+          , prelude.unconditional.test-suite
+            "unit-tests"
+            (   prelude.defaults.TestSuite
+              ⫽ { build-depends =
+                    [ deps.base
+                    , deps.Cabal
+                    , deps.dhall
+                    , deps.dhall-to-cabal
+                    , deps.tasty
+                    , deps.tasty-hunit
+                    , deps.text
+                    ]
+                , compiler-options =
+                    prelude.defaults.CompilerOptions ⫽ { GHC = warning-options }
+                , hs-source-dirs =
+                    [ "tests" ]
+                , type =
+                    prelude.types.TestTypes.exitcode-stdio
+                    { main-is = "Tests.hs" }
+                , default-language =
+                    [ prelude.types.Languages.Haskell2010 {=} ] : Optional
+                                                                  types.Language
+                , other-modules =
+                    [ "DhallToCabal.Tests" ]
                 }
             )
           ]
