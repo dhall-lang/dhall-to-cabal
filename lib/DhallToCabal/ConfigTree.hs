@@ -81,7 +81,7 @@ rewriteConfigUse v =
    )
 
   where
-    
+
     isConfigUse (App (Field (Var x') "os") _)           | v == x' = True
     isConfigUse (App (Field (Var x') "arch") _)         | v == x' = True
     isConfigUse (App (App (Field (Var x') "impl") _) _) | v == x' = True
@@ -188,6 +188,9 @@ subExpr f = \case
 
   Note a b ->
     Note a <$> f b
+
+  ImportAlt l r ->
+    ImportAlt <$> f l <*> f r
 
   e ->
     pure e
