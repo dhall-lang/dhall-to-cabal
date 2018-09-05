@@ -23,6 +23,10 @@ let
 
           formatting = super.callPackage ./formatting.nix {};
 
+          tasty-hunit = super.callPackage ./tasty-hunit.nix {};
+
+          serialise = pkgs.haskell.lib.dontCheck super.serialise;
+
           dhall-to-cabal =
             super.callCabal2nix
               "dhall-to-cabal"
