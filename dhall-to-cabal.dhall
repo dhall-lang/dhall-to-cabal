@@ -60,7 +60,7 @@ in  let deps =
               majorVersions "transformers" [ v "0.5.2" ]
           , vector =
               majorVersions "vector" [ v "0.12" ]
-		  , show-prettyprint =
+          , show-prettyprint =
               majorVersions "show-prettyprint" [ v "0.2.1" ]
           }
 
@@ -331,7 +331,7 @@ in    prelude.utils.GitHub-project
                     , deps.tasty
                     , deps.tasty-golden
                     , deps.text
-					, deps.show-prettyprint
+                    , deps.show-prettyprint
                     ]
                 , compiler-options =
                     prelude.defaults.CompilerOptions ⫽ { GHC = warning-options }
