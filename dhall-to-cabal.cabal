@@ -232,7 +232,8 @@ test-suite golden-tests
         prettyprinter ^>=1.2.0.1,
         tasty ^>=0.11 || ^>=0.12 || ^>=1.0 || ^>=1.1,
         tasty-golden ^>=2.3,
-        text ^>=1.2
+        text ^>=1.2,
+        show-prettyprint ^>=0.2.1
 
 test-suite unit-tests
     type: exitcode-stdio-1.0
