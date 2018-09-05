@@ -7,7 +7,7 @@ import Data.Algorithm.DiffOutput
 import Data.Function ( (&) )
 import Lens.Micro ( set )
 import System.FilePath ( takeBaseName, takeDirectory, replaceExtension )
-import Test.Tasty ( defaultMain, TestTree, testGroup )
+import Test.Tasty ( defaultMain, TestTree, TestName, testGroup )
 import Test.Tasty.Golden ( findByExtension, goldenVsStringDiff )
 import Test.Tasty.Golden.Advanced ( goldenTest )
 
@@ -18,9 +18,11 @@ import qualified Data.Text.Prettyprint.Doc as Pretty
 import qualified Data.Text.Prettyprint.Doc.Render.Text as Pretty
 import qualified Dhall
 import qualified Dhall.Core
+import qualified Distribution.PackageDescription as Cabal
 import qualified Distribution.PackageDescription.Parsec as Cabal
 import qualified Distribution.PackageDescription.PrettyPrint as Cabal
 import qualified Distribution.Verbosity as Cabal
+import qualified Text.Show.Prettyprint as Pretty
 
 import CabalToDhall ( cabalToDhall, parseGenericPackageDescriptionThrows )
 import DhallLocation ( DhallLocation ( DhallLocation ) )
@@ -89,29 +91,9 @@ goldenTests = do
 
   return
     $ testGroup "golden tests"
-      [ testGroup "dhall-to-cabal"
-          [ goldenTest
-              ( takeBaseName dhallFile )
-              ( Cabal.readGenericPackageDescription Cabal.normal cabalFile )
-              ( StrictText.readFile dhallFile >>= dhallToCabal settings )
-              ( \ ( Cabal.showGenericPackageDescription -> exp ) ( Cabal.showGenericPackageDescription -> act ) -> do
-                  if exp == act then
-                      return Nothing
-                  else do
-                    putStrLn $ "Diff between expected " ++ cabalFile ++
-                               " and actual " ++ dhallFile ++ " :"
-                    let gDiff = getGroupedDiff (lines exp) (lines act)
-                    putStrLn $ ppDiff gDiff
-                    return $ Just "Generated .cabal file does not match input"
-              )
-              ( Cabal.writeGenericPackageDescription cabalFile )
-          | dhallFile <- dhallFiles
-          , let cabalFile = replaceExtension dhallFile ".cabal"
-                settings = Dhall.defaultInputSettings
-                  & set Dhall.rootDirectory ( takeDirectory dhallFile )
-                  & set Dhall.sourceName dhallFile
-          ]
-     , testGroup "cabal-to-dhall"
+      [ dhallToCabalTest "dhall-to-cabal" dhallFiles Cabal.showGenericPackageDescription
+      , dhallToCabalTest "dhall-to-cabal-strict" dhallFiles Pretty.prettyShow
+      , testGroup "cabal-to-dhall"
          [ goldenVsStringDiff
              ( takeBaseName cabalFile )
              ( \ ref new -> [ "diff", "-u", ref, new ] )
@@ -126,3 +108,30 @@ goldenTests = do
          , let dhallFile = replaceExtension cabalFile ".dhall"
          ]
     ]
+
+type ShowPackageDescription = Cabal.GenericPackageDescription -> String
+
+dhallToCabalTest :: TestName -> [FilePath] -> ShowPackageDescription -> TestTree
+dhallToCabalTest name dhallFiles showPkgDesc =
+  testGroup name
+  [ goldenTest
+    ( takeBaseName dhallFile )
+    ( Cabal.readGenericPackageDescription Cabal.normal cabalFile )
+    ( StrictText.readFile dhallFile >>= dhallToCabal settings )
+    ( \ ( showPkgDesc -> exp ) ( showPkgDesc -> act ) -> do
+        if exp == act then
+          return Nothing
+          else do
+            putStrLn $ "Diff between expected " ++ cabalFile
+                     ++ " and actual " ++ dhallFile ++ " :"
+            let gDiff = getGroupedDiff (lines exp) (lines act)
+            putStrLn $ ppDiff gDiff
+            return $ Just "Generated .cabal file does not match input"
+    )
+    ( Cabal.writeGenericPackageDescription cabalFile )
+  | dhallFile <- dhallFiles
+  , let cabalFile = replaceExtension dhallFile ".cabal"
+        settings  = Dhall.defaultInputSettings
+                    & set Dhall.rootDirectory ( takeDirectory dhallFile )
+                    & set Dhall.sourceName dhallFile
+  ]
