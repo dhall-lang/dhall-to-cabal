@@ -248,7 +248,7 @@ test-suite unit-tests
                  -fno-warn-name-shadowing
     build-depends:
         base ^>=4.10 || ^>=4.11 || ^>=4.12,
-        Cabal ^>=2.2,
+        Cabal ^>=2.4,
         dhall ^>=1.17.0,
         dhall-to-cabal -any,
         tasty ^>=0.11 || ^>=0.12 || ^>=1.0 || ^>=1.1,
