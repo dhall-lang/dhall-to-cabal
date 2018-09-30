@@ -31,10 +31,11 @@ let
 
           lens = self.callPackage ./lens.nix {};
 
+          cabal-doctest = self.callPackage ./cabal-doctest.nix { Cabal = self.callPackage ./cabal.nix {}; };
+
           dhall-to-cabal =
-            super.callCabal2nix
+            self.callCabal2nix
               "dhall-to-cabal"
-              ./.
               ( import
                   ./cabal-sdist.nix
                   { inherit ( pkgs.stdenv ) mkDerivation;
