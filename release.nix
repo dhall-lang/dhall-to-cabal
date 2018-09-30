@@ -33,6 +33,8 @@ let
 
           cabal-doctest = self.callPackage ./cabal-doctest.nix { Cabal = self.callPackage ./cabal.nix {}; };
 
+          insert-ordered-containers = self.callPackage ./insert-ordered-containers.nix {};
+
           dhall-to-cabal =
             self.callCabal2nix
               "dhall-to-cabal"
