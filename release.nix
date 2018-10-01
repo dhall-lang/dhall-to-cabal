@@ -27,8 +27,16 @@ let
 
           serialise = pkgs.haskell.lib.dontCheck super.serialise;
 
+          Cabal = self.callPackage ./cabal.nix {};
+
+          lens = self.callPackage ./lens.nix {};
+
+          cabal-doctest = self.callPackage ./cabal-doctest.nix { Cabal = self.callPackage ./cabal.nix {}; };
+
+          insert-ordered-containers = self.callPackage ./insert-ordered-containers.nix {};
+
           dhall-to-cabal =
-            super.callCabal2nix
+            self.callCabal2nix
               "dhall-to-cabal"
               ( import
                   ./cabal-sdist.nix
@@ -40,9 +48,7 @@ let
                   }
                   ./.
               )
-              {
-                Cabal = self.callPackage ./cabal.nix {};
-              };
+              {};
         };
       };
     };

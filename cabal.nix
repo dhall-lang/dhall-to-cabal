@@ -2,13 +2,13 @@
 , bytestring, containers, deepseq, Diff, directory, filepath
 , integer-logarithms, mtl, optparse-applicative, parsec, pretty
 , process, QuickCheck, stdenv, tagged, tar, tasty, tasty-golden
-, tasty-hunit, tasty-quickcheck, text, time, transformers
-, tree-diff, unix
+, tasty-hunit, tasty-quickcheck, temporary, text, time
+, transformers, tree-diff, unix
 }:
 mkDerivation {
   pname = "Cabal";
-  version = "2.2.0.1";
-  sha256 = "02b5301304df73cea3c7d544b5026b228141dc3ac1d5b08c9a206f99aa330a7b";
+  version = "2.4.0.1";
+  sha256 = "3b9bc0aa883576d80e5ab2671ffd6d05e7a1c04497ad74331feb7eaf1e4d3498";
   libraryHaskellDepends = [
     array base binary bytestring containers deepseq directory filepath
     mtl parsec pretty process text time transformers unix
@@ -17,7 +17,7 @@ mkDerivation {
     array base base-compat base-orphans bytestring containers deepseq
     Diff directory filepath integer-logarithms optparse-applicative
     pretty process QuickCheck tagged tar tasty tasty-golden tasty-hunit
-    tasty-quickcheck text tree-diff
+    tasty-quickcheck temporary text tree-diff
   ];
   doCheck = false;
   homepage = "http://www.haskell.org/cabal/";
