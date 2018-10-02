@@ -22,79 +22,83 @@
     {}
 | Afmparse :
     {}
-| AGPL_3_0_only :
+| AGPL_1_0_only :
     {}
-| AGPL_3_0_or_later :
+| AGPL_1_0_or_later :
     {}
 | AGPL_1_0 :
     {}
-| AMDPLPA :
+| AGPL_3_0_or_later :
+    {}
+| Aladdin :
+    {}
+| AGPL_3_0_only :
     {}
 | AML :
     {}
-| Aladdin :
+| AMPAS :
+    {}
+| AMDPLPA :
     {}
 | ANTLR_PD :
     {}
 | Apache_1_0 :
     {}
-| AMPAS :
-    {}
-| Apache_1_1 :
-    {}
 | Apache_2_0 :
-    {}
-| APL_1_0 :
-    {}
-| APSL_1_0 :
     {}
 | APAFML :
     {}
+| Apache_1_1 :
+    {}
+| APSL_1_0 :
+    {}
 | APSL_1_1 :
     {}
-| APSL_1_2 :
-    {}
-| Artistic_1_0_cl8 :
-    {}
-| Artistic_1_0_Perl :
+| APL_1_0 :
     {}
 | APSL_2_0 :
     {}
+| Artistic_1_0_cl8 :
+    {}
+| APSL_1_2 :
+    {}
+| Artistic_1_0_Perl :
+    {}
 | Artistic_1_0 :
-    {}
-| Artistic_2_0 :
-    {}
-| Barr :
-    {}
-| Beerware :
     {}
 | Bahyph :
     {}
-| BitTorrent_1_1 :
+| Barr :
     {}
-| Borceux :
+| Artistic_2_0 :
     {}
 | BitTorrent_1_0 :
     {}
-| BSD_2_Clause_FreeBSD :
+| BitTorrent_1_1 :
     {}
-| BSD_2_Clause_NetBSD :
+| Beerware :
     {}
 | BSD_1_Clause :
     {}
+| BSD_2_Clause_FreeBSD :
+    {}
+| Borceux :
+    {}
+| BSD_2_Clause_NetBSD :
+    {}
 | BSD_2_Clause_Patent :
     {}
-| BSD_2_Clause :
+| BSD_3_Clause_Attribution :
     {}
 | BSD_3_Clause_Clear :
     {}
-| BSD_3_Clause_LBNL :
-    {}
-| BSD_3_Clause_Attribution :
+| BSD_2_Clause :
     {}
 | BSD_3_Clause_No_Nuclear_License_2014 :
     {}
 | BSD_3_Clause_No_Nuclear_License :
+    {}
+| BSD_3_Clause_LBNL :
     {}
 | BSD_3_Clause :
     {}
@@ -264,123 +268,125 @@
     {}
 | EUPL_1_0 :
     {}
-| Eurosym :
-    {}
 | Fair :
-    {}
-| FreeImage :
-    {}
-| FSFAP :
     {}
 | Frameworx_1_0 :
     {}
+| Eurosym :
+    {}
+| FSFAP :
+    {}
 | FSFUL :
+    {}
+| FreeImage :
     {}
 | FSFULLR :
     {}
-| GFDL_1_1_only :
+| FTL :
     {}
 | GFDL_1_1_or_later :
     {}
-| FTL :
+| GFDL_1_2_only :
     {}
-| GFDL_1_2_or_later :
+| GFDL_1_1_only :
     {}
 | GFDL_1_3_only :
     {}
-| GFDL_1_2_only :
+| GFDL_1_3_or_later :
     {}
-| Giftware :
+| GFDL_1_2_or_later :
     {}
 | GL2PS :
     {}
-| GFDL_1_3_or_later :
-    {}
 | Glide :
+    {}
+| Giftware :
     {}
 | Glulxe :
     {}
-| GPL_1_0_only :
+| Gnuplot :
     {}
 | GPL_1_0_or_later :
     {}
-| Gnuplot :
+| GPL_2_0_only :
     {}
-| GPL_2_0_or_later :
+| GPL_1_0_only :
     {}
 | GPL_3_0_only :
     {}
-| GPL_2_0_only :
+| GPL_3_0_or_later :
     {}
-| GSOAP_1_3b :
+| GPL_2_0_or_later :
     {}
 | HaskellReport :
     {}
-| GPL_3_0_or_later :
-    {}
 | HPND :
+    {}
+| GSOAP_1_3b :
     {}
 | IBM_pibs :
     {}
-| IJG :
+| ICU :
     {}
 | ImageMagick :
     {}
-| ICU :
+| IMatix :
     {}
-| Imlib2 :
+| IJG :
     {}
 | Info_ZIP :
     {}
-| IMatix :
+| Intel_ACPI :
     {}
-| Intel :
+| Imlib2 :
     {}
 | Interbase_1_0 :
     {}
-| Intel_ACPI :
-    {}
 | IPA :
+    {}
+| Intel :
     {}
 | IPL_1_0 :
     {}
-| JasPer_2_0 :
+| ISC :
     {}
 | JSON :
     {}
-| ISC :
-    {}
 | LAL_1_2 :
+    {}
+| JasPer_2_0 :
     {}
 | LAL_1_3 :
     {}
-| Leptonica :
+| Latex2e :
     {}
 | LGPL_2_0_only :
     {}
-| Latex2e :
-    {}
 | LGPL_2_0_or_later :
+    {}
+| Leptonica :
     {}
 | LGPL_2_1_only :
     {}
-| LGPL_3_0_only :
+| LGPL_2_1_or_later :
     {}
 | LGPL_3_0_or_later :
     {}
-| LGPL_2_1_or_later :
+| LGPLLR :
     {}
-| Libpng :
+| LGPL_3_0_only :
     {}
 | Libtiff :
     {}
-| LGPLLR :
+| LiLiQ_P_1_1 :
     {}
-| LiLiQ_R_1_1 :
+| Libpng :
     {}
 | LiLiQ_Rplus_1_1 :
     {}
-| LiLiQ_P_1_1 :
+| Linux_OpenIB :
+    {}
+| LiLiQ_R_1_1 :
     {}
 | LPL_1_0 :
     {}
@@ -392,15 +398,17 @@
     {}
 | LPPL_1_0 :
     {}
-| LPPL_1_3a :
-    {}
 | LPPL_1_3c :
     {}
-| MirOS :
+| MakeIndex :
+    {}
+| LPPL_1_3a :
+    {}
+| MIT_0 :
     {}
 | MIT_advertising :
     {}
-| MakeIndex :
+| MirOS :
     {}
 | MIT_CMU :
     {}
@@ -434,47 +442,49 @@
     {}
 | MTLL :
     {}
-| NASA_1_3 :
-    {}
 | Naumen :
-    {}
-| NCSA :
-    {}
-| Net_SNMP :
     {}
 | NBPL_1_0 :
     {}
+| NASA_1_3 :
+    {}
+| Net_SNMP :
+    {}
 | NetCDF :
+    {}
+| NCSA :
     {}
 | Newsletr :
     {}
-| NLOD_1_0 :
+| NGPL :
     {}
 | NLPL :
     {}
-| NGPL :
+| Nokia :
     {}
-| NOSL :
+| NLOD_1_0 :
     {}
 | Noweb :
     {}
-| Nokia :
+| NPL_1_0 :
     {}
-| NPL_1_1 :
+| NOSL :
     {}
 | NPOSL_3_0 :
     {}
-| NPL_1_0 :
-    {}
 | NRL :
+    {}
+| NPL_1_1 :
     {}
 | NTP :
     {}
-| OCLC_2_0 :
+| OCCT_PL :
     {}
 | ODbL_1_0 :
     {}
-| OCCT_PL :
+| ODC_By_1_0 :
+    {}
+| OCLC_2_0 :
     {}
 | OFL_1_1 :
     {}
@@ -520,103 +530,107 @@
     {}
 | OML :
     {}
-| OSET_PL_2_1 :
-    {}
 | OSL_1_0 :
-    {}
-| OSL_2_0 :
-    {}
-| OSL_2_1 :
     {}
 | OSL_1_1 :
     {}
+| OSET_PL_2_1 :
+    {}
+| OSL_2_1 :
+    {}
 | OSL_3_0 :
+    {}
+| OSL_2_0 :
     {}
 | PDDL_1_0 :
     {}
-| PHP_3_01 :
+| PHP_3_0 :
     {}
 | Plexus :
     {}
-| PHP_3_0 :
+| PostgreSQL :
     {}
-| Psfrag :
+| PHP_3_01 :
     {}
 | Psutils :
     {}
-| PostgreSQL :
+| Python_2_0 :
     {}
-| Qhull :
+| Psfrag :
     {}
 | QPL_1_0 :
     {}
-| Python_2_0 :
-    {}
 | Rdisc :
+    {}
+| Qhull :
     {}
 | RHeCos_1_1 :
     {}
-| RPL_1_5 :
+| RPL_1_1 :
     {}
 | RPSL_1_0 :
     {}
-| RPL_1_1 :
+| RSA_MD :
     {}
-| RSCPL :
+| RPL_1_5 :
     {}
 | Ruby :
     {}
-| RSA_MD :
+| SAX_PD :
     {}
-| Saxpath :
+| RSCPL :
     {}
 | SCEA :
     {}
-| SAX_PD :
-    {}
 | Sendmail :
+    {}
+| Saxpath :
     {}
 | SGI_B_1_0 :
     {}
-| SGI_B_2_0 :
+| SGI_B_1_1 :
     {}
 | SimPL_2_0 :
     {}
-| SGI_B_1_1 :
+| SISSL_1_2 :
     {}
-| SISSL :
+| SGI_B_2_0 :
     {}
 | Sleepycat :
     {}
-| SISSL_1_2 :
+| SMLNJ :
     {}
-| SMPPL :
+| SISSL :
     {}
 | SNIA :
     {}
-| SMLNJ :
-    {}
 | Spencer_86 :
+    {}
+| SMPPL :
     {}
 | Spencer_94 :
     {}
-| SPL_1_0 :
+| Spencer_99 :
     {}
 | SugarCRM_1_1_3 :
     {}
-| Spencer_99 :
-    {}
 | SWL :
     {}
-| TCL :
-    {}
-| TMate :
-    {}
-| TORQUE_1_1 :
+| SPL_1_0 :
     {}
 | TCP_wrappers :
     {}
+| TMate :
+    {}
+| TCL :
+    {}
 | TOSL :
+    {}
+| TU_Berlin_1_0 :
+    {}
+| TORQUE_1_1 :
+    {}
+| TU_Berlin_2_0 :
     {}
 | Unicode_DFS_2015 :
     {}

@@ -17,7 +17,7 @@ in  let majorVersions = prelude.utils.majorVersions
 
 in  let deps =
           { Cabal =
-              majorVersions "Cabal" [ v "2.2" ]
+              majorVersions "Cabal" [ v "2.4" ]
           , Diff =
               majorVersions "Diff" [ v "0.3.4" ]
           , base =

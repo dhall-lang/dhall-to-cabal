@@ -129,7 +129,7 @@ library
                  -Wno-missing-local-signatures -Wno-monomorphism-restriction
                  -fno-warn-name-shadowing
     build-depends:
-        Cabal ^>=2.2,
+        Cabal ^>=2.4,
         base ^>=4.10 || ^>=4.11 || ^>=4.12,
         bytestring ^>=0.10,
         containers ^>=0.5 || ^>=0.6,
@@ -156,7 +156,7 @@ executable dhall-to-cabal
                  -Wno-missing-local-signatures -Wno-monomorphism-restriction
                  -fno-warn-name-shadowing
     build-depends:
-        Cabal ^>=2.2,
+        Cabal ^>=2.4,
         base ^>=4.10 || ^>=4.11 || ^>=4.12,
         dhall ^>=1.17.0,
         dhall-to-cabal -any,
@@ -222,7 +222,7 @@ test-suite golden-tests
                  -fno-warn-name-shadowing
     build-depends:
         base ^>=4.10 || ^>=4.11 || ^>=4.12,
-        Cabal ^>=2.2,
+        Cabal ^>=2.4,
         Diff ^>=0.3.4,
         bytestring ^>=0.10,
         dhall ^>=1.17.0,
@@ -249,7 +249,7 @@ test-suite unit-tests
                  -fno-warn-name-shadowing
     build-depends:
         base ^>=4.10 || ^>=4.11 || ^>=4.12,
-        Cabal ^>=2.2,
+        Cabal ^>=2.4,
         dhall ^>=1.17.0,
         dhall-to-cabal -any,
         tasty ^>=0.11 || ^>=0.12 || ^>=1.0 || ^>=1.1,

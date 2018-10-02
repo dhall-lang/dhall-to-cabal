@@ -10,6 +10,8 @@
     Bool
 | BinaryLiterals :
     Bool
+| BlockArguments :
+    Bool
 | CApiFFI :
     Bool
 | CPP :
@@ -136,6 +138,8 @@
     Bool
 | NumDecimals :
     Bool
+| NumericUnderscores :
+    Bool
 | OverlappingInstances :
     Bool
 | OverloadedLabels :
@@ -163,6 +167,8 @@
 | PolymorphicComponents :
     Bool
 | PostfixOperators :
+    Bool
+| QuantifiedConstraints :
     Bool
 | QuasiQuotes :
     Bool
@@ -193,6 +199,8 @@
 | ScopedTypeVariables :
     Bool
 | StandaloneDeriving :
+    Bool
+| StarIsType :
     Bool
 | StaticPointers :
     Bool

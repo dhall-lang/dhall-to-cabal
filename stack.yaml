@@ -3,9 +3,11 @@ packages:
   - .
 extra-deps:
   - dhall-1.17.0@rev:0
+  - Cabal-2.4.0.0@rev:0
   # Version 0.2.0.0 of cborg, the latest on Hackage, is broken on i386.
   - github: well-typed/cborg
     commit: master
     subdirs:
       - cborg
       - serialise
+allow-newer: true

@@ -228,7 +228,8 @@ generaliseDeclared =
 compilerOptionsDefault :: Default s a
 compilerOptionsDefault _resolve =
   ( Map.fromList
-    [ emptyListDefault "GHC" Expr.Text
+    [ emptyListDefault "Eta" Expr.Text
+    , emptyListDefault "GHC" Expr.Text
     , emptyListDefault "GHCJS" Expr.Text
     , emptyListDefault "HBC" Expr.Text
     , emptyListDefault "Helium" Expr.Text
@@ -829,6 +830,9 @@ compilerFlavor =
   in
   Dhall.InputType
     { Dhall.embed = \case
+        Cabal.Eta ->
+          constructor "Eta" ( Expr.RecordLit mempty )
+
         Cabal.GHC ->
           constructor "GHC" ( Expr.RecordLit mempty )
 
