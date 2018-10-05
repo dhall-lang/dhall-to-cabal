@@ -1,9 +1,12 @@
 {-# language OverloadedStrings #-}
 
-module DhallToCabal.Tests where
+module DhallToCabal.Tests
+  ( versionSpec
+  )
+  where
 
 import Data.Maybe ( fromMaybe )
-import Dhall.Core ( Const(..), Expr(..), Chunks(..), Var(..) )
+import Dhall.Core ( Const(..), Expr(..), Chunks(..) )
 
 import qualified Data.Text as StrictText
 import qualified Dhall
@@ -12,7 +15,6 @@ import qualified Dhall.Parser
 import qualified Dhall.TypeCheck
 import qualified DhallToCabal
 import qualified Distribution.Text as Cabal ( simpleParse )
-import qualified Distribution.Version as Cabal
 import qualified Test.Tasty
 import qualified Test.Tasty.HUnit
 

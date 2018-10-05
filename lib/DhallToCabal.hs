@@ -74,7 +74,7 @@ import qualified Distribution.Version as Cabal
 import qualified Language.Haskell.Extension as Cabal
 
 import qualified Dhall.Core as Expr
-  ( Chunks(..), Const(..), Expr(..), Var(..) )
+  ( Chunks(..), Const(..), Expr(..) )
 
 import Dhall.Extra
 import DhallToCabal.ConfigTree ( ConfigTree(..), toConfigTree )
