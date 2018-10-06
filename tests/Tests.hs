@@ -1,4 +1,7 @@
-module Main where
+module Main
+  ( main
+  )
+  where
 
 import qualified DhallToCabal.Tests
 import qualified Test.Tasty
