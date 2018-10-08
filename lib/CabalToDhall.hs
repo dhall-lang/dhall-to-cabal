@@ -23,12 +23,12 @@ import GHC.Stack
 import Numeric.Natural ( Natural )
 
 import qualified Data.ByteString as ByteString
-import qualified Data.HashMap.Strict.InsOrd as Map
 import qualified Data.Sequence as Seq
 import qualified Data.Text as StrictText
 import qualified Dhall
 import qualified Dhall.Core
 import qualified Dhall.Core as Expr ( Expr(..), Var(..) )
+import qualified Dhall.Map as Map
 import qualified Dhall.Parser
 import qualified Dhall.TypeCheck
 import qualified Distribution.Compiler as Cabal
@@ -148,7 +148,7 @@ resolvePreludeVar = \case
 
 type Default s a
    = ( PreludeReference -> Expr.Expr s a )
-   -> Map.InsOrdHashMap StrictText.Text ( Expr.Expr s a )
+   -> Map.Map StrictText.Text ( Expr.Expr s a )
 
 
 getDefault
@@ -208,7 +208,7 @@ emptyOptionalDefault
   -> Expr.Expr s a
   -> ( StrictText.Text, Expr.Expr s a )
 emptyOptionalDefault name ty =
-  ( name, Expr.OptionalLit ty Nothing )
+  ( name, Expr.App Expr.None ty )
 
 
 textFieldDefault
@@ -434,9 +434,9 @@ extractDefaultComparisonReplace ( DefaultComparisonReplace expr ) =
 
 nonDefaultFields
   :: ( Eq a )
-  => Map.InsOrdHashMap StrictText.Text ( Expr.Expr s a )
-  -> Map.InsOrdHashMap StrictText.Text ( Expr.Expr s a )
-  -> Map.InsOrdHashMap StrictText.Text ( Expr.Expr s a )
+  => Map.Map StrictText.Text ( Expr.Expr s a )
+  -> Map.Map StrictText.Text ( Expr.Expr s a )
+  -> Map.Map StrictText.Text ( Expr.Expr s a )
 nonDefaultFields defs fields =
   let
     withoutDefaults = Map.difference fields defs
@@ -471,7 +471,7 @@ withDefault _ _ expr =
 newtype RecordInputType a =
   RecordInputType
     { _unRecordInputType ::
-        Map.InsOrdHashMap Dhall.Text ( Dhall.InputType a )
+        Map.Map Dhall.Text ( Dhall.InputType a )
     }
   deriving ( Semigroup, Monoid )
 
@@ -752,9 +752,9 @@ newtype Union a =
     { _unUnion ::
         ( a ->
           ( First ( Dhall.Text, DhallExpr )
-          , Map.InsOrdHashMap Dhall.Text DhallExpr
+          , Map.Map Dhall.Text DhallExpr
           )
-        , Map.InsOrdHashMap Dhall.Text DhallExpr
+        , Map.Map Dhall.Text DhallExpr
         )
     }
   deriving ( Semigroup, Monoid )
@@ -794,7 +794,9 @@ maybeToDhall :: Dhall.InputType a -> Dhall.InputType ( Maybe a )
 maybeToDhall t =
   Dhall.InputType
     { Dhall.embed =
-        \a -> Expr.OptionalLit ( Dhall.declared t ) ( Dhall.embed t <$> a )
+        \a -> case a of
+            Nothing -> Expr.App Expr.None (Dhall.declared t)
+            Just x  -> Expr.Some ( Dhall.embed t x )
     , Dhall.declared = Expr.App Expr.Optional ( Dhall.declared t )
     }
 

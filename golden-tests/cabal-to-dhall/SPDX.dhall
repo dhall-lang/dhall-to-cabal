@@ -13,24 +13,24 @@ in    prelude.defaults.Package
             ( prelude.SPDX.or
               ( prelude.SPDX.license
                 (prelude.types.LicenseId.AGPL_3_0_or_later {=})
-                ( [ prelude.types.LicenseExceptionId.Classpath_exception_2_0 {=}
-                  ] : Optional types.LicenseExceptionId
+                ( Some
+                  (prelude.types.LicenseExceptionId.Classpath_exception_2_0 {=})
                 )
               )
               ( prelude.SPDX.licenseVersionOrLater
                 (prelude.types.LicenseId.Apache_2_0 {=})
-                ([] : Optional types.LicenseExceptionId)
+                (None types.LicenseExceptionId)
               )
             )
             ( prelude.SPDX.or
               ( prelude.SPDX.ref
                 "MyFancyLicense"
-                ([] : Optional types.LicenseExceptionId)
+                (None types.LicenseExceptionId)
               )
               ( prelude.SPDX.refWithFile
                 "MyFancierLicense"
                 "LICENSE.txt"
-                ([] : Optional types.LicenseExceptionId)
+                (None types.LicenseExceptionId)
               )
             )
           )

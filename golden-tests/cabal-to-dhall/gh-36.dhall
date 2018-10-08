@@ -21,7 +21,8 @@ in    prelude.defaults.Package
       , cabal-version =
           prelude.v "2.0"
       , library =
-          [   λ(config : types.Config)
+          Some
+          (   λ(config : types.Config)
             →       if config.impl
                        (prelude.types.Compilers.GHC {=})
                        ( prelude.unionVersionRanges
@@ -171,5 +172,5 @@ in    prelude.defaults.Package
                     ⫽ { cpp-options = [ "-DWAI_SERVLET_DEBUG" ] }
               
               else  prelude.defaults.Library
-          ] : Optional (types.Config → types.Library)
+          )
       }

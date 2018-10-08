@@ -42,10 +42,10 @@ import Data.List ( partition )
 import Data.Maybe ( fromMaybe )
 import Data.Monoid ( (<>) )
 
-import qualified Data.HashMap.Strict.InsOrd as Map
 import qualified Data.Text as StrictText
 import qualified Dhall
 import qualified Dhall.Core
+import qualified Dhall.Map as Map
 import qualified Dhall.Parser
 import qualified Dhall.TypeCheck
 import qualified Distribution.Compiler as Cabal
@@ -988,7 +988,7 @@ extension =
       sortType Dhall.genericAuto
 
     unitType =
-      Expr.Record Map.empty
+      Expr.Record mempty
 
     extract expr = do
       Expr.UnionLit k v alts <-

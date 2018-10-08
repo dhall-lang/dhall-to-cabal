@@ -16,14 +16,14 @@ import Data.Hashable ( Hashable )
 import Data.List ( sortBy )
 import Data.Ord ( comparing )
 
-import qualified Data.HashMap.Strict.InsOrd as Map
 import qualified Data.Text as StrictText
 import qualified Dhall
 import qualified Dhall.Core as Dhall ( Expr )
 import qualified Dhall.Core as Expr ( Expr(..) )
+import qualified Dhall.Map as Map
 
 
-makeUnion :: Map.InsOrdHashMap StrictText.Text ( Dhall.Type a ) -> Dhall.Type a
+makeUnion :: Map.Map StrictText.Text ( Dhall.Type a ) -> Dhall.Type a
 makeUnion alts =
   let
     extract expr = do
@@ -47,7 +47,7 @@ validateType a =
   a { Dhall.extract = join . Dhall.extract a }
 
 
-sortInsOrdHashMap :: ( Hashable k, Ord k ) => Map.InsOrdHashMap k v -> Map.InsOrdHashMap k v
+sortInsOrdHashMap :: Ord k => Map.Map k v -> Map.Map k v
 sortInsOrdHashMap =
   Map.fromList . sortBy ( comparing fst ) . Map.toList
 
