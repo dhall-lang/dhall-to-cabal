@@ -10,15 +10,15 @@ in    prelude.defaults.Package
       , source-repos =
           [   prelude.defaults.SourceRepo
             ⫽ { type =
-                  [ prelude.types.RepoType.Git {=} ] : Optional types.RepoType
+                  Some (prelude.types.RepoType.Git {=})
               , location =
-                  [ "example.com" ] : Optional Text
+                  Some "example.com"
               }
           ,   prelude.defaults.SourceRepo
             ⫽ { type =
-                  [ prelude.types.RepoType.Darcs {=} ] : Optional types.RepoType
+                  Some (prelude.types.RepoType.Darcs {=})
               , location =
-                  [ "example.org" ] : Optional Text
+                  Some "example.org"
               , kind =
                   prelude.types.RepoKind.RepoThis {=}
               }

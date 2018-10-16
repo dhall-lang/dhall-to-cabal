@@ -1,13 +1,10 @@
-resolver: lts-12.0
+resolver: lts-12.13
 packages:
   - .
 extra-deps:
-  - dhall-1.17.0@rev:0
+  - dhall-1.18.0@rev:0
   - Cabal-2.4.0.0@rev:0
-  # Version 0.2.0.0 of cborg, the latest on Hackage, is broken on i386.
-  - github: well-typed/cborg
-    commit: master
-    subdirs:
-      - cborg
-      - serialise
+  - megaparsec-7.0.1
+  - repline-0.2.0.0
+  - serialise-0.2.1.0
 allow-newer: true

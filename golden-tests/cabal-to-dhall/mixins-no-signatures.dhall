@@ -8,7 +8,8 @@ in    prelude.defaults.Package
       , version =
           prelude.v "0"
       , library =
-          [   λ(config : types.Config)
+          Some
+          (   λ(config : types.Config)
             →   prelude.defaults.Library
               ⫽ { mixins =
                     [ { package =
@@ -49,5 +50,5 @@ in    prelude.defaults.Package
                       }
                     ]
                 }
-          ] : Optional (types.Config → types.Library)
+          )
       }

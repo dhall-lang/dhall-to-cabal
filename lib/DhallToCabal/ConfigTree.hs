@@ -159,6 +159,9 @@ subExpr f = \case
   OptionalLit a b ->
     OptionalLit <$> f a <*> traverse f b
 
+  Some a ->
+    Some <$> f a
+
   Record a ->
     Record <$> traverse f a
 

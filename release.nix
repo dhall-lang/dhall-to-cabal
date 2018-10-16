@@ -17,11 +17,15 @@ let
 
           prettyprinter = self.callPackage ./prettyprinter.nix {};
 
-          dhall = super.callPackage ./dhall.nix {};
+          dhall = pkgs.haskell.lib.dontCheck (super.callPackage ./dhall.nix {});
 
-          repline = pkgs.haskell.lib.doJailbreak super.repline;
+          repline = super.callPackage ./repline.nix {};
 
           formatting = super.callPackage ./formatting.nix {};
+
+          megaparsec = super.callPackage ./megaparsec.nix {};
+
+          parser-combinators = super.callPackage ./parser-combinators.nix {};
 
           tasty-hunit = super.callPackage ./tasty-hunit.nix {};
 

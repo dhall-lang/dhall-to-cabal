@@ -10,12 +10,13 @@ in    prelude.defaults.Package
       , cabal-version =
           prelude.v "2.0"
       , library =
-          [   λ(config : types.Config)
+          Some
+          (   λ(config : types.Config)
             →       if config.os (prelude.types.OSs.OtherOS { _1 = "multics" })
               
               then    prelude.defaults.Library
                     ⫽ { exposed-modules = [ "A", "B" ] }
               
               else  prelude.defaults.Library ⫽ { exposed-modules = [ "A" ] }
-          ] : Optional (types.Config → types.Library)
+          )
       }

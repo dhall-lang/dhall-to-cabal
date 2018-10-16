@@ -29,13 +29,11 @@ in  let deps =
           , directory =
               majorVersions "directory" [ v "1.3.0.2" ]
           , dhall =
-              majorVersions "dhall" [ v "1.17.0" ]
+              majorVersions "dhall" [ v "1.18.0" ]
           , dhall-to-cabal =
               package "dhall-to-cabal" anyVersion
           , filepath =
               majorVersions "filepath" [ v "1.4" ]
-          , insert-ordered-containers =
-              majorVersions "insert-ordered-containers" [ v "0.2.1.0" ]
           , microlens =
               majorVersions
               "microlens"
@@ -178,7 +176,7 @@ in    prelude.utils.GitHub-project
       , license-files =
           [ "LICENSE" ]
       , version =
-          v "1.3.0.1"
+          v "1.4.0.0"
       , library =
           prelude.unconditional.library
           (   prelude.defaults.Library
@@ -190,7 +188,6 @@ in    prelude.utils.GitHub-project
                   , deps.contravariant
                   , deps.dhall
                   , deps.hashable
-                  , deps.insert-ordered-containers
                   , deps.text
                   , deps.transformers
                   , deps.vector
@@ -233,7 +230,6 @@ in    prelude.utils.GitHub-project
                     , deps.dhall
                     , deps.dhall-to-cabal
                     , deps.filepath
-                    , deps.insert-ordered-containers
                     , deps.microlens
                     , deps.optparse-applicative
                     , deps.prettyprinter

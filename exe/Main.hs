@@ -30,7 +30,6 @@ import DhallLocation ( preludeLocation, typesLocation, dhallFromGitHub )
 import DhallToCabal
 import qualified Paths_dhall_to_cabal as Paths
 
-import qualified Data.HashMap.Strict.InsOrd as InsOrdHashMap
 import qualified Data.Text.IO as StrictText
 import qualified Data.Text.Prettyprint.Doc as Pretty
 import qualified Data.Text.Prettyprint.Doc.Render.Text as Pretty
@@ -38,6 +37,7 @@ import qualified Dhall
 import qualified Dhall.Core as Dhall
 import qualified Dhall.Core as Expr ( Expr(..), Var(..), shift )
 import qualified Distribution.PackageDescription as Cabal
+import qualified Dhall.Map as Map
 import qualified Dhall.Parser
 import qualified Dhall.TypeCheck as Dhall
 import qualified Distribution.PackageDescription.PrettyPrint as Cabal
@@ -487,22 +487,22 @@ liftCSE subrecord name body expr =
 
       let
         intersection =
-          InsOrdHashMap.intersectionWith (==) left right
+          Map.intersectionWith (==) left right
 
       -- The right record cannot have any fields not in left.
-      guard ( InsOrdHashMap.null ( InsOrdHashMap.difference right left ) )
+      guard ( null ( Map.difference right left ) )
 
       -- We must have at least one field with a common name
-      guard ( not ( InsOrdHashMap.null intersection ) )
+      guard ( not ( null intersection ) )
 
       -- All common fields must have identical types
       guard ( and intersection )
 
       let
         extra =
-          InsOrdHashMap.difference left right
+          Map.difference left right
 
-      guard ( not ( InsOrdHashMap.null extra ) )
+      guard ( not ( null extra ) )
 
       return ( Expr.Record extra )
 
@@ -573,6 +573,12 @@ liftCSE subrecord name body expr =
           Expr.OptionalLit
             <$> go t v
             <*> ( traverse ( `go` v ) elems )
+
+        Expr.Some a ->
+          Expr.Some <$> go a v
+
+        Expr.None ->
+          pure Expr.None
 
         Expr.Record fields ->
           Expr.Record <$> traverse ( `go` v ) fields

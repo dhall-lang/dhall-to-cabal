@@ -10,7 +10,8 @@ in    prelude.defaults.Package
       , cabal-version =
           prelude.v "2.0"
       , library =
-          [   λ(config : types.Config)
+          Some
+          (   λ(config : types.Config)
             →       if config.impl
                        (prelude.types.Compilers.GHC {=})
                        ( prelude.unionVersionRanges
@@ -58,7 +59,7 @@ in    prelude.defaults.Package
                     ⫽ { build-depends =
                           [ { bounds = prelude.anyVersion, package = "A" } ]
                       }
-          ] : Optional (types.Config → types.Library)
+          )
       , license =
           prelude.types.Licenses.Unspecified {=}
       }
