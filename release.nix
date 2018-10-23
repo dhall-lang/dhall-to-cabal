@@ -39,20 +39,7 @@ let
 
           insert-ordered-containers = self.callPackage ./insert-ordered-containers.nix {};
 
-          dhall-to-cabal =
-            self.callCabal2nix
-              "dhall-to-cabal"
-              ( import
-                  ./cabal-sdist.nix
-                  { inherit ( pkgs.stdenv ) mkDerivation;
-                    inherit ( pkgs ) cabal-install;
-                    ghc = self.ghcWithPackages (hs: [
-                      (hs.callPackage ./cabal.nix {})
-                    ]);
-                  }
-                  ./.
-              )
-              {};
+          dhall-to-cabal = self.callPackage ./dhall-to-cabal.nix {};
         };
       };
     };
