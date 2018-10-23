@@ -1,11 +1,11 @@
 # dhall-to-cabal change log
 
-## NEXT
+## 1.3.1.0 -- 2018-10-23
 
 * Allow `Cabal` version 2.4.0.0. There have been consequent changes to
   the extensions, compilers and licenses recognised.
 
-* Allow `dhall` version 1.17.
+* Allow `dhall` version 1.18.
 
 * `dhall-to-cabal` and `cabal-to-dhall` now understand the `mixins`
   field properly.
@@ -15,6 +15,10 @@
 
   `prelude.types.ModuleRenaming` has been added for convenient access
   to the new constructors.
+
+* Fix issue with alpha-normalized expressions. This was identified in issue #124
+  and fixed in issue #126.
+
 
 ## 1.3.0.1 -- 2018-08-10
 
