@@ -75,7 +75,9 @@ in  let warning-options =
 
 in    prelude.utils.GitHub-project
       { owner = "ocharles", repo = "dhall-to-cabal" }
-    ⫽ { synopsis =
+    ⫽ { cabal-version =
+          v "2.4"
+      , synopsis =
           "Compile Dhall expressions to Cabal files"
       , description =
           ''
