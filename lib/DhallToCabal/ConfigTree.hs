@@ -113,9 +113,12 @@ subExpr f = \case
   App a b ->
     App <$> f a <*> f b
 
-  Let a b c d ->
-    Let a <$> traverse f b <*> f c <*> f d
-
+  Let a b  ->
+    Let <$> traverse f' a <*> f b
+       where f' (Binding c d e) =
+               Binding <$> pure c
+                       <*> traverse f d
+                       <*> f e 
   Annot a b ->
     Annot <$> f a <*> f b
 
