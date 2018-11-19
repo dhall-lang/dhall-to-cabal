@@ -35,7 +35,7 @@ import qualified Data.Text.Prettyprint.Doc as Pretty
 import qualified Data.Text.Prettyprint.Doc.Render.Text as Pretty
 import qualified Dhall
 import qualified Dhall.Core as Dhall
-import qualified Dhall.Core as Expr ( Expr(..), Var(..), shift )
+import qualified Dhall.Core as Expr ( Expr(..), Var(..), Binding(..), shift )
 import qualified Distribution.PackageDescription as Cabal
 import qualified Dhall.Map as Map
 import qualified Dhall.Parser
@@ -379,7 +379,7 @@ printType PrintTypeOptions { .. } = do
         name = fromString ( show t )
       in if shouldBeImported t && not selfContained
          then Dhall.subst ( Expr.V name 0 ) ( Expr.Var ( Expr.V "types" 0 ) `Expr.Field` name ) reduced
-         else Expr.Let name Nothing val reduced
+         else Expr.Let (pure $ Expr.Binding name Nothing val) reduced
 
     factoredType :: Expr.Expr Dhall.Parser.Src Dhall.Import
     factoredType =
@@ -398,7 +398,9 @@ printType PrintTypeOptions { .. } = do
         body = foldr ( uncurry makeLetOrImport ) expr types
 
         importing = if any shouldBeImported ( fst <$> types ) && not selfContained
-          then Expr.Let "types" Nothing ( Expr.Embed ( typesLocation dhallFromGitHub ) )
+          then Expr.Let (
+                  pure $ Expr.Binding "types" Nothing
+                    ( Expr.Embed ( typesLocation dhallFromGitHub ) ) )
           else id
 
       in
