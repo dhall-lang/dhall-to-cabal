@@ -527,8 +527,10 @@ liftCSE subrecord name body expr =
         Expr.App f a ->
           Expr.App <$> go f v <*> go a v
 
-        Expr.Let n t b e ->
-          Expr.Let n t <$> go b v <*> go e ( shiftName n v )
+        Expr.Let bs e ->
+          Expr.Let <$> traverse go' bs <*> go e shifted
+            where go' (Expr.Binding n t b) = Expr.Binding n t <$> go b v
+                  shifted = foldr (shiftName . Expr.variable) v bs 
 
         Expr.Annot a b ->
           Expr.Annot <$> go a v <*> go b v
@@ -735,7 +737,9 @@ printDefault PrintDefaultOptions {..} = do
 
   where
     withPreludeImport =
-      Expr.Let "prelude" Nothing ( Expr.Embed ( preludeLocation dhallFromGitHub ) )
+      Expr.Let
+      ( pure $ Expr.Binding "prelude" Nothing
+                ( Expr.Embed ( preludeLocation dhallFromGitHub ) ) )
 
     expr :: Expr.Expr Dhall.Parser.Src Dhall.Import
     expr =
