@@ -1,77 +1,77 @@
-    let prelude = ./dhall/prelude.dhall
+let prelude = ./dhall/prelude.dhall
 
-in  let types = ./dhall/types.dhall
+let types = ./dhall/types.dhall
 
-in  let v = prelude.v
+let v = prelude.v
 
-in  let anyVersion = prelude.anyVersion
+let anyVersion = prelude.anyVersion
 
-in  let OS = types.OS
+let OS = types.OS
 
-in  let package =
-            λ(package : Text)
-          → λ(version-range : types.VersionRange)
-          → { bounds = version-range, package = package }
+let package =
+        λ(package : Text)
+      → λ(version-range : types.VersionRange)
+      → { bounds = version-range, package = package }
 
-in  let majorVersions = prelude.utils.majorVersions
+let majorVersions = prelude.utils.majorVersions
 
-in  let deps =
-          { Cabal =
-              majorVersions "Cabal" [ v "2.4" ]
-          , Diff =
-              majorVersions "Diff" [ v "0.3.4" ]
-          , base =
-              majorVersions "base" [ v "4.10", v "4.11", v "4.12" ]
-          , bytestring =
-              majorVersions "bytestring" [ v "0.10" ]
-          , containers =
-              majorVersions "containers" [ v "0.5", v "0.6" ]
-          , directory =
-              majorVersions "directory" [ v "1.3.0.2" ]
-          , dhall =
-              majorVersions "dhall" [ v "1.18.0" ]
-          , dhall-to-cabal =
-              package "dhall-to-cabal" anyVersion
-          , filepath =
-              majorVersions "filepath" [ v "1.4" ]
-          , microlens =
-              majorVersions
-              "microlens"
-              [ v "0.1.0.0", v "0.2.0.0", v "0.3.0.0", v "0.4.0.0" ]
-          , optparse-applicative =
-              majorVersions "optparse-applicative" [ v "0.13.2", v "0.14" ]
-          , prettyprinter =
-              majorVersions "prettyprinter" [ v "1.2.0.1" ]
-          , contravariant =
-              majorVersions "contravariant" [ v "1.4", v "1.5" ]
-          , hashable =
-              majorVersions "hashable" [ v "1.2.6.1" ]
-          , tasty =
-              majorVersions "tasty" [ v "0.11", v "0.12", v "1.0", v "1.1" ]
-          , tasty-golden =
-              majorVersions "tasty-golden" [ v "2.3" ]
-          , tasty-hunit =
-              majorVersions "tasty-hunit" [ v "0.10.0.1" ]
-          , text =
-              majorVersions "text" [ v "1.2" ]
-          , transformers =
-              majorVersions "transformers" [ v "0.5.2" ]
-          , vector =
-              majorVersions "vector" [ v "0.12" ]
-          }
+let deps =
+      { Cabal =
+          majorVersions "Cabal" [ v "2.4" ]
+      , Diff =
+          majorVersions "Diff" [ v "0.3.4" ]
+      , base =
+          majorVersions "base" [ v "4.10", v "4.11", v "4.12" ]
+      , bytestring =
+          majorVersions "bytestring" [ v "0.10" ]
+      , containers =
+          majorVersions "containers" [ v "0.5", v "0.6" ]
+      , directory =
+          majorVersions "directory" [ v "1.3.0.2" ]
+      , dhall =
+          majorVersions "dhall" [ v "1.19.0" ]
+      , dhall-to-cabal =
+          package "dhall-to-cabal" anyVersion
+      , filepath =
+          majorVersions "filepath" [ v "1.4" ]
+      , microlens =
+          majorVersions
+          "microlens"
+          [ v "0.1.0.0", v "0.2.0.0", v "0.3.0.0", v "0.4.0.0" ]
+      , optparse-applicative =
+          majorVersions "optparse-applicative" [ v "0.13.2", v "0.14" ]
+      , prettyprinter =
+          majorVersions "prettyprinter" [ v "1.2.0.1" ]
+      , contravariant =
+          majorVersions "contravariant" [ v "1.4", v "1.5" ]
+      , hashable =
+          majorVersions "hashable" [ v "1.2.6.1" ]
+      , tasty =
+          majorVersions "tasty" [ v "0.11", v "0.12", v "1.0", v "1.1" ]
+      , tasty-golden =
+          majorVersions "tasty-golden" [ v "2.3" ]
+      , tasty-hunit =
+          majorVersions "tasty-hunit" [ v "0.10.0.1" ]
+      , text =
+          majorVersions "text" [ v "1.2" ]
+      , transformers =
+          majorVersions "transformers" [ v "0.5.2" ]
+      , vector =
+          majorVersions "vector" [ v "0.12" ]
+      }
 
-in  let warning-options =
-          [ "-Weverything"
-          , "-Wno-safe"
-          , "-Wno-unsafe"
-          , "-Wno-implicit-prelude"
-          , "-Wno-missed-specialisations"
-          , "-Wno-all-missed-specialisations"
-          , "-Wno-missing-import-lists"
-          , "-Wno-missing-local-signatures"
-          , "-Wno-monomorphism-restriction"
-          , "-fno-warn-name-shadowing"
-          ]
+let warning-options =
+      [ "-Weverything"
+      , "-Wno-safe"
+      , "-Wno-unsafe"
+      , "-Wno-implicit-prelude"
+      , "-Wno-missed-specialisations"
+      , "-Wno-all-missed-specialisations"
+      , "-Wno-missing-import-lists"
+      , "-Wno-missing-local-signatures"
+      , "-Wno-monomorphism-restriction"
+      , "-fno-warn-name-shadowing"
+      ]
 
 in    prelude.utils.GitHub-project
       { owner = "ocharles", repo = "dhall-to-cabal" }
@@ -88,7 +88,6 @@ in    prelude.utils.GitHub-project
           ''
       , category =
           "Distribution"
-      -- build-type simple is needed to allow tools compatible with cabal < 2.2 build the package
       , build-type =
           [ prelude.types.BuildTypes.Simple {=} ] : Optional types.BuildType
       , maintainer =
