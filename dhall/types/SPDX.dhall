@@ -1,5 +1,5 @@
-   let LicenseExceptionId : Type = ./SPDX/LicenseExceptionId.dhall
-in let LicenseId : Type = ./SPDX/LicenseId.dhall
+let LicenseExceptionId : Type = ./SPDX/LicenseExceptionId.dhall
+let LicenseId : Type = ./SPDX/LicenseId.dhall
 in   ∀(SPDX : Type)
    → ∀(license : LicenseId → Optional LicenseExceptionId → SPDX)
    → ∀(licenseVersionOrLater : LicenseId → Optional LicenseExceptionId → SPDX)

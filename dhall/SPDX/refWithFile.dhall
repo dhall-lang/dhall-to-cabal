@@ -1,5 +1,5 @@
-   let LicenseId = ../types/SPDX/LicenseId.dhall
-in let LicenseExceptionId = ../types/SPDX/LicenseExceptionId.dhall
+let LicenseId = ../types/SPDX/LicenseId.dhall
+let LicenseExceptionId = ../types/SPDX/LicenseExceptionId.dhall
 in   λ(refName : Text)
    → λ(file : Text)
    → λ(licenseExceptionIdOpt : Optional LicenseExceptionId )
