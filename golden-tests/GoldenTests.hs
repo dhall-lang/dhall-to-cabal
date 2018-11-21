@@ -95,16 +95,16 @@ goldenTests = do
           [ goldenTest
               ( takeBaseName dhallFile )
               ( Cabal.readGenericPackageDescription Cabal.normal cabalFile )
-              ( LazyText.readFile dhallFile >>= dhallToCabal dhallFile  )
-              ( \ ( Cabal.showGenericPackageDescription -> exp )
-                  ( Cabal.showGenericPackageDescription -> act ) -> do
+              ( StrictText.readFile dhallFile >>= dhallToCabal settings )
+              ( \ ( Cabal.showGenericPackageDescription -> exp ) ( Cabal.showGenericPackageDescription -> act ) -> do
                   if exp == act then
                     return Nothing
                   else do
-                    let gDiff =  getGroupedDiff (lines exp) (lines act)
-                        ppDiff' = ppDiff gDiff
-                        output = testFailedDiffOutput cabalFile dhallFile ppDiff'
-                    return $ Just output
+                    putStrLn $ "Diff between expected " ++ cabalFile ++
+                               " and actual " ++ dhallFile ++ " :"
+                    let gDiff = getGroupedDiff (lines exp) (lines act)
+                    putStrLn $ ppDiff gDiff
+                    return $ Just "Generated .cabal file does not match input"
               )
               ( Cabal.writeGenericPackageDescription cabalFile )
           | dhallFile <- dhallFiles
@@ -124,23 +124,18 @@ goldenTests = do
                         )
              )
              ( \ (LazyText.unpack -> exp) (LazyText.unpack -> act) -> do
-                let gDiff   = getGroupedDiff (lines exp) (lines act)
-                    ppDiff' = ppDiff gDiff
-                    output  = testFailedDiffOutput dhallFile cabalFile ppDiff'
-                return $ if  ppDiff' == "\n" then Nothing
-                         else Just output
+                let gDiff = getGroupedDiff (lines exp) (lines act)
+                let ppDiff' = ppDiff gDiff
+                if  ppDiff' == "\n" then
+                  return Nothing
+                else do
+                  putStrLn $ "Diff between expected " ++ dhallFile ++
+                             " and actual " ++ cabalFile ++ " :"
+                  putStrLn ppDiff'
+                  return $ Just "Generated .dhall file does not match input"
               )
               ( LazyText.writeFile dhallFile )
          | cabalFile <- cabalFiles
          , let dhallFile = replaceExtension cabalFile ".dhall"
          ]
     ]
-
-testFailedDiffOutput :: FilePath -> FilePath -> String -> String
-testFailedDiffOutput expFile actFile ppDiff =
-  unlines [ "Test output was different from '" ++ expFile ++ "'."
-          , "Output of diff between '" ++ expFile ++ "' " ++
-            "and test output using '" ++ actFile ++ "':"
-          , ppDiff
-          ]
-  
