@@ -9,7 +9,7 @@ cabal-version: 2.4
 -- 'dhall-to-cabal -- dhall-to-cabal.dhall > dhall-to-cabal.cabal'.
 -- * * * * * * * * * * * * WARNING * * * * * * * * * * * *
 name: dhall-to-cabal
-version: 1.3.1.0
+version: 1.4.0.0
 license: MIT
 license-file: LICENSE
 maintainer: ollie@ocharles.org.uk
