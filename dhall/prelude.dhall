@@ -1,30 +1,30 @@
 { types =
     { BuildTypes =
-        constructors ./types/BuildType.dhall
+        ./types/BuildType.dhall
     , OSs =
-        constructors ./types/OS.dhall
+        ./types/OS.dhall
     , Compilers =
-        constructors ./types/Compiler.dhall
+        ./types/Compiler.dhall
     , Extensions =
-        constructors ./types/Extension.dhall
+        ./types/Extension.dhall
     , Languages =
-        constructors ./types/Language.dhall
+        ./types/Language.dhall
     , Licenses =
-        constructors ./types/License.dhall
+        ./types/License.dhall
     , LicenseExceptionId =
-        constructors ./types/SPDX/LicenseExceptionId.dhall
+        ./types/SPDX/LicenseExceptionId.dhall
     , LicenseId =
-        constructors ./types/SPDX/LicenseId.dhall
+        ./types/SPDX/LicenseId.dhall
     , ModuleRenaming =
-        constructors ./types/ModuleRenaming.dhall
+        ./types/ModuleRenaming.dhall
     , TestTypes =
-        constructors ./types/TestType.dhall
+        ./types/TestType.dhall
     , RepoType =
-        constructors ./types/RepoType.dhall
+        ./types/RepoType.dhall
     , RepoKind =
-        constructors ./types/RepoKind.dhall
+        ./types/RepoKind.dhall
     , Scopes =
-        constructors ./types/Scope.dhall
+        ./types/Scope.dhall
     }
 , defaults =
     { CompilerOptions =

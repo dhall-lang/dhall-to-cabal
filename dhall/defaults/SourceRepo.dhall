@@ -14,5 +14,5 @@ in  { type =
     , subdir =
         [] : Optional Text
     , kind =
-        (constructors types.RepoKind).RepoHead {=}
+        types.RepoKind.RepoHead {=}
     }
