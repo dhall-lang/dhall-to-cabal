@@ -69,7 +69,7 @@ toConfigTree e =
 rewriteConfigUse :: Var -> Expr s a -> ConfigTree (Expr s a) (Expr s a)
 rewriteConfigUse v =
  transformMOf
-   subExpr
+   subExpressions
    ( \expr ->
        if isConfigUse expr then
          Branch
@@ -98,105 +98,3 @@ transformMOf l f = go where
   go t = l go t >>= f
 {-# INLINE transformMOf #-}
 
-
-
-subExpr
-  :: Applicative f
-  => ( Expr s a -> f ( Expr s a ) ) -> Expr s a -> f ( Expr s a )
-subExpr f = \case
-  Lam a b c ->
-    Lam a <$> f b <*> f c
-
-  Pi a b c ->
-    Pi a <$> f b <*> f c
-
-  App a b ->
-    App <$> f a <*> f b
-
-  Let a b  ->
-    Let <$> traverse f' a <*> f b
-       where f' (Binding c d e) =
-               Binding <$> pure c
-                       <*> traverse f d
-                       <*> f e 
-  Annot a b ->
-    Annot <$> f a <*> f b
-
-  BoolAnd a b ->
-    BoolAnd <$> f a <*> f b
-
-  BoolOr a b ->
-    BoolOr <$> f a <*> f b
-
-  BoolEQ a b ->
-    BoolEQ <$> f a <*> f b
-
-  BoolNE a b ->
-    BoolNE <$> f a <*> f b
-
-  BoolIf a b c ->
-    BoolIf <$> f a <*> f b <*> f c
-
-  NaturalPlus a b ->
-    NaturalPlus <$> f a <*> f b
-
-  NaturalTimes a b ->
-    NaturalTimes <$> f a <*> f b
-
-  TextLit (Chunks a b) ->
-    TextLit
-      <$>
-        ( Chunks
-            <$> traverse ( \(a,b) -> (,) <$> pure a <*> f b ) a <*> pure b
-        )
-
-  TextAppend a b ->
-    TextAppend <$> f a <*> f b
-
-  ListLit a b ->
-    ListLit <$> traverse f a <*> traverse f b
-
-  ListAppend a b ->
-    ListAppend <$> f a <*> f b
-
-  OptionalLit a b ->
-    OptionalLit <$> f a <*> traverse f b
-
-  Some a ->
-    Some <$> f a
-
-  Record a ->
-    Record <$> traverse f a
-
-  RecordLit a ->
-    RecordLit <$> traverse f a
-
-  Union a ->
-    Union <$> traverse f a
-
-  UnionLit a b c ->
-    UnionLit a <$> f b <*> traverse f c
-
-  Combine a b ->
-    Combine <$> f a <*> f b
-
-  Prefer a b ->
-    Prefer <$> f a <*> f b
-
-  Merge a b t ->
-    Merge <$> f a <*> f b <*> traverse f t
-
-  Constructors a ->
-    Constructors <$> f a
-
-  Field a b ->
-    Field <$> f a <*> pure b
-
-  Note a b ->
-    Note a <$> f b
-
-  ImportAlt l r ->
-    ImportAlt <$> f l <*> f r
-
-  e ->
-    pure e
