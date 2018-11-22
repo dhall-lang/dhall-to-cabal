@@ -2,13 +2,9 @@ resolver: lts-12.19
 packages:
   - .
 extra-deps:
-#  - dhall-1.18.0@rev:0
-  - github: dhall-lang/dhall-haskell
-    commit: c71f0e28fcc25b748cc8d751f0d0b6d63363879f
-    subdirs:
-      - dhall
-  - Cabal-2.4.0.0@rev:0
-  - megaparsec-7.0.1
+  - dhall-1.19.0
+  - Cabal-2.4.0.0
+  - megaparsec-7.0.4
   - repline-0.2.0.0
   - serialise-0.2.1.0
 allow-newer: true
