@@ -5,7 +5,7 @@
 }:
 mkDerivation {
   pname = "dhall-to-cabal";
-  version = "1.3.1.0";
+  version = "1.4.0.0";
   src = ./.;
   isLibrary = true;
   isExecutable = true;
