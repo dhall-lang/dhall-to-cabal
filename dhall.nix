@@ -6,12 +6,12 @@
 , prettyprinter, prettyprinter-ansi-terminal, QuickCheck
 , quickcheck-instances, repline, scientific, serialise, stdenv
 , tasty, tasty-hunit, tasty-quickcheck, template-haskell, text
-, transformers, unordered-containers, vector
+, transformers, unordered-containers, uri-encode, vector
 }:
 mkDerivation {
   pname = "dhall";
-  version = "1.18.0";
-  sha256 = "b528ecff4f757fa085f61636ffb8a6eb90c761106d7d20bd735bee48a6abab94";
+  version = "1.19.0";
+  sha256 = "ff111c69d347bc77f64186a3a9f56243a01fc06d7d8a3476734e02ba0727e2eb";
   isLibrary = true;
   isExecutable = true;
   libraryHaskellDepends = [
@@ -20,7 +20,8 @@ mkDerivation {
     haskeline http-client http-client-tls lens-family-core megaparsec
     memory mtl optparse-applicative parsers prettyprinter
     prettyprinter-ansi-terminal repline scientific serialise
-    template-haskell text transformers unordered-containers vector
+    template-haskell text transformers unordered-containers uri-encode
+    vector
   ];
   executableHaskellDepends = [ base ];
   testHaskellDepends = [
