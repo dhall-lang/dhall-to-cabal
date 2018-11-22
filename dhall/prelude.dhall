@@ -1,32 +1,4 @@
-{ types =
-    { BuildTypes =
-        ./types/BuildType.dhall
-    , OSs =
-        ./types/OS.dhall
-    , Compilers =
-        ./types/Compiler.dhall
-    , Extensions =
-        ./types/Extension.dhall
-    , Languages =
-        ./types/Language.dhall
-    , Licenses =
-        ./types/License.dhall
-    , LicenseExceptionId =
-        ./types/SPDX/LicenseExceptionId.dhall
-    , LicenseId =
-        ./types/SPDX/LicenseId.dhall
-    , ModuleRenaming =
-        ./types/ModuleRenaming.dhall
-    , TestTypes =
-        ./types/TestType.dhall
-    , RepoType =
-        ./types/RepoType.dhall
-    , RepoKind =
-        ./types/RepoKind.dhall
-    , Scopes =
-        ./types/Scope.dhall
-    }
-, defaults =
+{ defaults =
     { CompilerOptions =
         ./defaults/CompilerOptions.dhall
     , Library =
