@@ -4,7 +4,7 @@ packages:
 extra-deps:
 #  - dhall-1.18.0@rev:0
   - github: dhall-lang/dhall-haskell
-    commit: b7e5a0ddd19213bbacba47ded294660c2401c87e
+    commit: c71f0e28fcc25b748cc8d751f0d0b6d63363879f
     subdirs:
       - dhall
   - Cabal-2.4.0.0@rev:0
