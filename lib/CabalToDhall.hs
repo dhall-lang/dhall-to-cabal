@@ -10,8 +10,8 @@ module CabalToDhall
   ( cabalToDhall
   , parseGenericPackageDescriptionThrows
   , KnownDefault (..)
-  , PreludeReference (..)
-  , resolvePreludeVar
+  , PreludeOrTypeReference (..)
+  , resolvePreludeOrTypeVar
   , getDefault
   ) where
 
@@ -129,37 +129,46 @@ data KnownDefault
   deriving ( Bounded, Enum, Eq, Ord, Read, Show )
 
 
-data PreludeReference
+data PreludeOrTypeReference
   = PreludeDefault KnownDefault
-  | PreludeConstructorsLicense
-  | PreludeConstructorsRepoKind
-  | PreludeConstructorsScope
+  | TypeCompiler
+  | TypeLicense
+  | TypeLicenseExceptionId
+  | TypeLicenseId
+  | TypeRepoKind
+  | TypeScope
   | PreludeV
 
 
-resolvePreludeVar :: PreludeReference -> Expr.Expr s a
-resolvePreludeVar = \case
+resolvePreludeOrTypeVar :: PreludeOrTypeReference -> Expr.Expr s a
+resolvePreludeOrTypeVar = \case
   PreludeDefault typ ->
     Expr.Var "prelude" `Expr.Field` "defaults" `Expr.Field` StrictText.pack ( show typ )
   PreludeV ->
     Expr.Var "prelude" `Expr.Field` "v"
-  PreludeConstructorsLicense ->
-    Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "Licenses"
-  PreludeConstructorsRepoKind ->
-    Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "RepoKind"
-  PreludeConstructorsScope ->
-    Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "Scopes"
+  TypeCompiler ->
+    Expr.Var "types" `Expr.Field` "Compiler"
+  TypeLicense ->
+    Expr.Var "types" `Expr.Field` "License"
+  TypeLicenseExceptionId ->
+    Expr.Var "types" `Expr.Field` "LicenseExceptionId"
+  TypeLicenseId ->
+    Expr.Var "types" `Expr.Field` "LicenseId"
+  TypeRepoKind ->
+    Expr.Var "types" `Expr.Field` "RepoKind"
+  TypeScope ->
+    Expr.Var "types" `Expr.Field` "Scope"
 
 
 type Default s a
-   = ( PreludeReference -> Expr.Expr s a )
+   = ( PreludeOrTypeReference -> Expr.Expr s a )
    -> Map.Map StrictText.Text ( Expr.Expr s a )
 
 
 getDefault
   :: ( Eq s )
   => Dhall.Core.Import
-  -> ( PreludeReference -> Expr.Expr s Dhall.Core.Import )
+  -> ( PreludeOrTypeReference -> Expr.Expr s Dhall.Core.Import )
   -> KnownDefault
   -> Expr.Expr s Dhall.Core.Import
 getDefault typesLoc resolve typ = withTypesImport expr
@@ -321,7 +330,7 @@ executableDefault resolve = buildInfoDefault resolve <> specificFields
     specificFields =
       Map.singleton "scope"
         ( Expr.App
-            ( resolve PreludeConstructorsScope `Expr.Field` "Public" )
+            ( resolve TypeScope `Expr.Field` "Public" )
             ( Expr.RecordLit mempty )
         )
 
@@ -374,7 +383,7 @@ packageDefault resolve = fields
           )
       , ( "license"
         , Expr.App
-            ( resolve PreludeConstructorsLicense `Expr.Field` "AllRightsReserved" )
+            ( resolve TypeLicense `Expr.Field` "AllRightsReserved" )
             ( Expr.RecordLit mempty )
         )
       , emptyListDefault "license-files" Expr.Text
@@ -416,7 +425,7 @@ sourceRepoDefault resolve = fields
       , emptyOptionalDefault "subdir" Expr.Text
       , ( "kind"
         , Expr.App
-            ( resolve PreludeConstructorsRepoKind `Expr.Field` "RepoHead" )
+            ( resolve TypeRepoKind `Expr.Field` "RepoHead" )
             ( Expr.RecordLit mempty )
         )
       ]
@@ -461,7 +470,7 @@ compareToDefault _ expr =
 withDefault :: ( Eq a ) => KnownDefault -> Default s a -> Expr.Expr s a -> Expr.Expr s a
 withDefault typ defs ( Expr.RecordLit fields ) =
   let
-    nonDefaults = nonDefaultFields ( defs resolvePreludeVar ) fields
+    nonDefaults = nonDefaultFields ( defs resolvePreludeOrTypeVar ) fields
     name = StrictText.pack ( show typ )
   in
     if null nonDefaults
@@ -652,13 +661,11 @@ licenseToDhall =
             license "Other" ( Expr.RecordLit mempty )
           Left ( SPDX.License x ) ->
             license "SPDX" ( Dhall.embed spdxLicenseExpressionToDhall x )
-    , Dhall.declared =
-        Expr.Var "types" `Expr.Field` "License"
+    , Dhall.declared = typeLicense
     }
   where
-    license name =
-      Expr.App
-        ( Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "Licenses" `Expr.Field` name )
+    typeLicense = resolvePreludeOrTypeVar TypeLicense
+    license name = Expr.App ( typeLicense `Expr.Field` name )
 
 spdxLicenseExpressionToDhall :: Dhall.InputType SPDX.LicenseExpression
 spdxLicenseExpressionToDhall =
@@ -723,14 +730,13 @@ spdxLicenseIdToDhall =
   Dhall.InputType
     { Dhall.embed = \ident ->
         Expr.App
-          ( Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "LicenseId" `Expr.Field` identName ident )
+          ( licenseIdType `Expr.Field` identName ident )
           ( Expr.RecordLit mempty )
-    , Dhall.declared =
-        Expr.Var "types" `Expr.Field` "LicenseId"
+    , Dhall.declared = licenseIdType
     }
 
   where
-
+  licenseIdType = resolvePreludeOrTypeVar TypeLicenseId
   identName :: SPDX.LicenseId -> StrictText.Text
   identName e =
     StrictText.pack ( show e )
@@ -740,17 +746,16 @@ spdxLicenseExceptionIdToDhall =
   Dhall.InputType
     { Dhall.embed = \ident ->
         Expr.App
-          ( Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "LicenseExceptionId" `Expr.Field` identName ident )
+          ( licenseExIdType `Expr.Field` identName ident )
           ( Expr.RecordLit mempty )
-    , Dhall.declared =
-        Expr.Var "types" `Expr.Field` "LicenseExceptionId"
+    , Dhall.declared = licenseExIdType
     }
 
   where
-
-  identName :: SPDX.LicenseExceptionId -> StrictText.Text
-  identName e =
-    StrictText.pack ( show e )
+    licenseExIdType = resolvePreludeOrTypeVar TypeLicenseExceptionId
+    identName :: SPDX.LicenseExceptionId -> StrictText.Text
+    identName e =
+      StrictText.pack ( show e )
 
 newtype Union a =
   Union
@@ -831,8 +836,9 @@ compiler =
 compilerFlavor :: Dhall.InputType Cabal.CompilerFlavor
 compilerFlavor =
   let
+    compilerType = resolvePreludeOrTypeVar TypeCompiler 
     constructor k v =
-      Expr.App ( Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "Compilers" `Expr.Field` k ) v
+      Expr.App ( compilerType `Expr.Field` k ) v
 
   in
   Dhall.InputType
@@ -877,8 +883,7 @@ compilerFlavor =
 
         Cabal.YHC ->
           constructor "YHC" ( Expr.RecordLit mempty )
-    , Dhall.declared =
-        Expr.Var "types" `Expr.Field` "Compiler"
+    , Dhall.declared = compilerType
     }
 
 
@@ -1623,16 +1628,15 @@ executableScope =
     { Dhall.embed = \case
         Cabal.ExecutablePublic ->
           Expr.App
-            ( Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "Scopes" `Expr.Field` "Public" )
+            ( typeScope `Expr.Field` "Public" )
             ( Expr.RecordLit mempty )
         Cabal.ExecutablePrivate ->
           Expr.App
-            ( Expr.Var "prelude" `Expr.Field` "types" `Expr.Field` "scopes" `Expr.Field` "Private" )
+            ( typeScope `Expr.Field` "Private" )
             ( Expr.RecordLit mempty )
-    , Dhall.declared =
-        Expr.Var "types" `Expr.Field` "Scope"
+    , Dhall.declared = typeScope
     }
-
+  where typeScope = resolvePreludeOrTypeVar TypeScope
 
 foreignLibrary :: Dhall.InputType Cabal.ForeignLib
 foreignLibrary =
