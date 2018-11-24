@@ -128,8 +128,8 @@ goldenTests = do
                    gDiff = 
                      getGroupedDiff ( lines exp ) ( lines act )
                      
-                  ppDiff' = 
-                    ppDiff gDiff
+                   ppDiff' = 
+                     ppDiff gDiff
                     
                  if ppDiff' == "\n" 
                    then return Nothing
