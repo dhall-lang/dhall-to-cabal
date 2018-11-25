@@ -7,7 +7,7 @@ let v = prelude.v
 let ghcImpl =
         λ(cfg : types.Config)
       → λ(ver : types.VersionRange)
-      → cfg.impl (prelude.types.Compilers.GHC {=}) ver
+      → cfg.impl (prelude.types.Compiler.GHC {=}) ver
 
 in    ./../../dhall/defaults/Package.dhall
     ⫽ { name =

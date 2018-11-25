@@ -8,12 +8,11 @@ import Data.Function ( (&) )
 import Lens.Micro ( set )
 import System.FilePath ( takeBaseName, takeDirectory, replaceExtension )
 import Test.Tasty ( defaultMain, TestTree, testGroup )
-import Test.Tasty.Golden ( writeBinaryFile, findByExtension, goldenVsStringDiff )
+import Test.Tasty.Golden ( findByExtension )
 import Test.Tasty.Golden.Advanced ( goldenTest )
 
 import qualified Data.ByteString as BS
 import qualified Data.Text.IO as StrictText
-import qualified Data.Text.Lazy.Encoding as LazyText
 import qualified Data.Text.Lazy.IO as LazyText
 import qualified Data.Text.Lazy as LazyText
 import qualified Data.Text.Prettyprint.Doc as Pretty
