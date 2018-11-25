@@ -12,7 +12,7 @@ in    prelude.defaults.Package
       , library =
           Some
           (   λ(config : types.Config)
-            →       if config.os (prelude.types.OSs.OtherOS { _1 = "multics" })
+            →       if config.os (types.OS.OtherOS { _1 = "multics" })
               
               then    prelude.defaults.Library
                     ⫽ { exposed-modules = [ "A", "B" ] }
