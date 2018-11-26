@@ -663,7 +663,7 @@ versionToDhall :: Dhall.InputType Cabal.Version
 versionToDhall =
   Dhall.InputType
     { Dhall.embed =
-        Expr.App ( Expr.Var "prelude" `Expr.Field` "v" )
+        Expr.App ( resolveVar PreludeV )
           . Dhall.embed stringToDhall
           . show
           . Cabal.disp
