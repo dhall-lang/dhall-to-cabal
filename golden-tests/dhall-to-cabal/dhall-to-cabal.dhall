@@ -177,7 +177,7 @@ in    prelude.utils.GitHub-project
                   , "Dhall.Extra"
                   ]
               , default-language =
-                  [ types.Language.Haskell2010 {=} ] : Optional types.Language
+                  Some ( types.Language.Haskell2010 {=} )
               }
           )
       , executables =
@@ -200,7 +200,7 @@ in    prelude.utils.GitHub-project
                 , other-extensions =
                     [ types.Extension.NamedFieldPuns True ]
                 , default-language =
-                    [ types.Language.Haskell2010 {=} ] : Optional types.Language
+                    Some ( types.Language.Haskell2010 {=} )
                 }
             )
           , prelude.unconditional.executable
@@ -225,7 +225,7 @@ in    prelude.utils.GitHub-project
                 , other-extensions =
                     [ types.Extension.NamedFieldPuns True ]
                 , default-language =
-                    [ types.Language.Haskell2010 {=} ] : Optional types.Language
+                    Some ( types.Language.Haskell2010 {=} )
                 }
             )
           ]
@@ -250,7 +250,7 @@ in    prelude.utils.GitHub-project
                     types.TestType.exitcode-stdio
                     { main-is = "GoldenTests.hs" }
                 , default-language =
-                    [ types.Language.Haskell2010 {=} ] : Optional types.Language
+                    Some ( types.Language.Haskell2010 {=} )
                 }
             )
           ]
