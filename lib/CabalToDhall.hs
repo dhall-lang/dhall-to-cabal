@@ -137,10 +137,12 @@ data Reference
   | TypeCompiler
   | TypeCompilerOption
   | TypeConfig
+  | TypeCustomSetup
   | TypeExecutable
   | TypeExtension
   | TypeForeignLibrary
   | TypeLanguage
+  | TypeLibrary
   | TypeLicense
   | TypeLicenseExceptionId
   | TypeLicenseId
@@ -150,8 +152,12 @@ data Reference
   | TypeRepoKind
   | TypeRepoType
   | TypeScope
+  | TypeSourceRepo
+  | TypeSPDX
   | TypeTestSuite
-
+  | TypeVersion
+  | TypeVersionRange
+  
 resolveVar :: Reference -> Expr.Expr s a
 resolveVar = \case
   PreludeDefault typ ->
@@ -168,6 +174,8 @@ resolveVar = \case
     Expr.Var "types" `Expr.Field` "CompilerOption"
   TypeConfig ->
     Expr.Var "types" `Expr.Field` "Config"
+  TypeCustomSetup ->
+    Expr.Var "types" `Expr.Field` "CustomSetup"
   TypeExecutable ->
     Expr.Var "types" `Expr.Field` "Executable"
   TypeExtension ->
@@ -176,6 +184,8 @@ resolveVar = \case
     Expr.Var "types" `Expr.Field` "ForeignLibrary"
   TypeLanguage ->
     Expr.Var "types" `Expr.Field` "Language"
+  TypeLibrary ->
+    Expr.Var "types" `Expr.Field` "Library"
   TypeLicense ->
     Expr.Var "types" `Expr.Field` "License"
   TypeLicenseExceptionId ->
@@ -194,9 +204,17 @@ resolveVar = \case
     Expr.Var "types" `Expr.Field` "RepoType"
   TypeScope ->
     Expr.Var "types" `Expr.Field` "Scope"
+  TypeSourceRepo ->
+    Expr.Var "types" `Expr.Field` "SourceRepo"
+  TypeSPDX ->
+    Expr.Var "types" `Expr.Field` "SPDX"
   TypeTestSuite ->
     Expr.Var "types" `Expr.Field` "TestSuite"
-
+  TypeVersion ->
+    Expr.Var "types" `Expr.Field` "Version"
+  TypeVersionRange ->
+    Expr.Var "types" `Expr.Field` "VersionRange"
+   
 type Default s a
    = ( Reference -> Expr.Expr s a )
    -> Map.Map StrictText.Text ( Expr.Expr s a )
@@ -649,8 +667,7 @@ versionToDhall =
           . Dhall.embed stringToDhall
           . show
           . Cabal.disp
-    , Dhall.declared =
-        Expr.Var "types" `Expr.Field` "Version"
+    , Dhall.declared = resolveVar TypeVersion
     }
 
 
@@ -760,7 +777,7 @@ spdxLicenseExpressionToDhall =
                 ( go b )
         in go
     , Dhall.declared =
-        Expr.Var "types" `Expr.Field` "SPDX"
+        resolveVar TypeSPDX
     }
 
 spdxLicenseIdToDhall :: Dhall.InputType SPDX.LicenseId
@@ -968,8 +985,7 @@ versionRange =
 
           in
           go ( Cabal.fromVersionIntervals ( Cabal.toVersionIntervals versionRange0 ) )
-    , Dhall.declared =
-        Expr.Var "types" `Expr.Field` "VersionRange"
+    , Dhall.declared = resolveVar TypeVersionRange
     }
 
 
@@ -988,7 +1004,7 @@ sourceRepo =
       )
   )
   { Dhall.declared =
-      Expr.Var "types" `Expr.Field` "SourceRepo"
+      resolveVar TypeSourceRepo
   }
 
 
@@ -1087,8 +1103,7 @@ setupBuildInfo =
           ]
       )
   )
-    { Dhall.declared =
-        Expr.Var "types" `Expr.Field` "CustomSetup"
+    { Dhall.declared = resolveVar TypeCustomSetup
     }
 
 
@@ -1136,8 +1151,7 @@ library =
           ]
       )
   )
-    { Dhall.declared =
-        Expr.Var "types" `Expr.Field` "Library"
+    { Dhall.declared = resolveVar TypeLibrary
     }
 
 
@@ -1181,7 +1195,7 @@ condTree t =
           ( go b )
 
     configRecord =
-      Expr.Var "types" `Expr.Field` "Config"
+      resolveVar TypeConfig
 
   in
   Dhall.InputType
@@ -1608,9 +1622,11 @@ executableScope =
           Expr.App
             ( typeScope `Expr.Field` "Private" )
             ( Expr.RecordLit mempty )
-    , Dhall.declared = typeScope
+    , Dhall.declared =
+        typeScope
     }
-  where typeScope = resolveVar TypeScope
+  where typeScope =
+          resolveVar TypeScope
 
 foreignLibrary :: Dhall.InputType Cabal.ForeignLib
 foreignLibrary =
