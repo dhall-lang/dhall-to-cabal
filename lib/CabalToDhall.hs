@@ -891,53 +891,53 @@ compiler =
 compilerFlavor :: Dhall.InputType Cabal.CompilerFlavor
 compilerFlavor =
   let
-    compilerType = resolveVar TypeCompiler 
-    constructor k v =
-      Expr.App ( compilerType `Expr.Field` k ) v
+    compilerType = resolveVar TypeCompiler
+    appCompiler k v = Expr.App ( compilerType `Expr.Field` k ) v
+    compiler k = appCompiler k ( Expr.RecordLit mempty )
 
   in
   Dhall.InputType
     { Dhall.embed = \case
         Cabal.Eta ->
-          constructor "Eta" ( Expr.RecordLit mempty )
+          compiler "Eta"
 
         Cabal.GHC ->
-          constructor "GHC" ( Expr.RecordLit mempty )
+          compiler "GHC"
 
         Cabal.GHCJS ->
-          constructor "GHCJS" ( Expr.RecordLit mempty )
+          compiler "GHCJS"
 
         Cabal.HBC ->
-          constructor "HBC" ( Expr.RecordLit mempty )
+          compiler "HBC"
 
         Cabal.HaskellSuite v ->
-          constructor "HaskellSuite"
+          appCompiler "HaskellSuite"
           ( Expr.Record ( Map.singleton "_1" ( dhallString v ) ) )
 
         Cabal.Helium ->
-          constructor "Helium" ( Expr.RecordLit mempty )
+          compiler "Helium"
 
         Cabal.Hugs ->
-          constructor "Hugs" ( Expr.RecordLit mempty )
+          compiler "Hugs"
 
         Cabal.JHC ->
-          constructor "JHC" ( Expr.RecordLit mempty )
+          compiler "JHC"
 
         Cabal.LHC ->
-          constructor "LHC" ( Expr.RecordLit mempty )
+          compiler "LHC"
 
         Cabal.NHC ->
-          constructor "NHC" ( Expr.RecordLit mempty )
+          compiler "NHC"
 
         Cabal.OtherCompiler v ->
-          constructor "OtherCompiler"
+          appCompiler "OtherCompiler"
           ( Expr.Record ( Map.singleton "_1" ( dhallString v ) ) )
 
         Cabal.UHC ->
-          constructor "UHC" ( Expr.RecordLit mempty )
+          compiler "UHC"
 
         Cabal.YHC ->
-          constructor "YHC" ( Expr.RecordLit mempty )
+          compiler "YHC"
     , Dhall.declared = compilerType
     }
 
