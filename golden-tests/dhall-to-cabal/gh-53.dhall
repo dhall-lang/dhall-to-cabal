@@ -22,27 +22,21 @@ in    prelude.defaults.Package
           ]
       , library =
           [   λ(config : types.Config)
-            →       if config.impl
-                       (prelude.types.Compilers.GHC {=})
-                       (prelude.orLaterVersion (prelude.v "0.0.9"))
-              
-              then        if config.flag "wai-servlet-debug"
-                    
+            → if config.impl
+                    (prelude.types.Compilers.GHC {=})
+                    (prelude.orLaterVersion (prelude.v "0.0.9"))
+              then  if config.flag "wai-servlet-debug"
                     then    prelude.defaults.Library
                           ⫽ { c-sources =
                                 [ "java/Utils.java" ]
                             , cpp-options =
                                 [ "-DWAI_SERVLET_DEBUG" ]
                             }
-                    
                     else    prelude.defaults.Library
                           ⫽ { c-sources = [ "java/Utils.java" ] }
-              
               else  if config.flag "wai-servlet-debug"
-              
               then    prelude.defaults.Library
                     ⫽ { cpp-options = [ "-DWAI_SERVLET_DEBUG" ] }
-              
               else  prelude.defaults.Library
           ] : Optional (types.Config → types.Library)
       }

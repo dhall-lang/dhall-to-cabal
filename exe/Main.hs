@@ -379,7 +379,7 @@ printType PrintTypeOptions { .. } = do
         name = fromString ( show t )
       in if shouldBeImported t && not selfContained
          then Dhall.subst ( Expr.V name 0 ) ( Expr.Var ( Expr.V "types" 0 ) `Expr.Field` name ) reduced
-         else Expr.Let (pure $ Expr.Binding name Nothing val) reduced
+         else Expr.Let ( pure ( Expr.Binding name Nothing val ) ) reduced
 
     factoredType :: Expr.Expr Dhall.Parser.Src Dhall.Import
     factoredType =
@@ -398,9 +398,10 @@ printType PrintTypeOptions { .. } = do
         body = foldr ( uncurry makeLetOrImport ) expr types
 
         importing = if any shouldBeImported ( fst <$> types ) && not selfContained
-          then Expr.Let (
-                  pure $ Expr.Binding "types" Nothing
-                    ( Expr.Embed ( typesLocation dhallFromGitHub ) ) )
+          then Expr.Let
+               ( pure
+                 ( Expr.Binding "types" Nothing
+                   ( Expr.Embed ( typesLocation dhallFromGitHub ) ) ) )
           else id
 
       in
@@ -738,8 +739,9 @@ printDefault PrintDefaultOptions {..} = do
   where
     withPreludeImport =
       Expr.Let
-      ( pure $ Expr.Binding "prelude" Nothing
-                ( Expr.Embed ( preludeLocation dhallFromGitHub ) ) )
+      ( pure
+        ( Expr.Binding "prelude" Nothing
+          ( Expr.Embed ( preludeLocation dhallFromGitHub ) ) ) )
 
     expr :: Expr.Expr Dhall.Parser.Src Dhall.Import
     expr =

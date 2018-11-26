@@ -104,12 +104,12 @@ cabalToDhall
   -> Cabal.GenericPackageDescription
   -> Expr.Expr Dhall.Parser.Src Dhall.Core.Import
 cabalToDhall dhallLocation genericPackageDescription = 
-  Expr.Let (NonEmpty.fromList
-             [ Expr.Binding "prelude"
-               Nothing ( Expr.Embed ( preludeLocation dhallLocation ) )
-             , Expr.Binding  "types"
-               Nothing ( Expr.Embed ( typesLocation dhallLocation ) )
-             ]
+  Expr.Let ( NonEmpty.fromList
+               [ Expr.Binding "prelude"
+                 Nothing ( Expr.Embed ( preludeLocation dhallLocation ) )
+               , Expr.Binding  "types"
+                 Nothing ( Expr.Embed ( typesLocation dhallLocation ) )
+               ]
            ) $ Dhall.TypeCheck.absurd <$>
                  Dhall.embed
                  genericPackageDescriptionToDhall
