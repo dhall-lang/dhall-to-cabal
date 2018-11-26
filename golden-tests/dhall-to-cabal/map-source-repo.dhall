@@ -9,7 +9,7 @@ let updateRepo =
           ⫽ { tag =
                 [ "1.0.0" ] : Optional Text
             , kind =
-                prelude.types.RepoKind.RepoThis {=}
+                types.RepoKind.RepoThis {=}
             }
       )
 

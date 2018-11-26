@@ -17,7 +17,7 @@ import System.FilePath
   )
 
 import CabalToDhall
-  ( KnownDefault, PreludeReference (..), getDefault )
+  ( KnownDefault, Reference (..), getDefault , resolveVar)
 
 import qualified Data.Text.Prettyprint.Doc as Pretty
 import qualified Data.Text.Prettyprint.Doc.Render.Text as Pretty
@@ -112,16 +112,11 @@ meta (MetaOptions {..}) = do
           PreludeDefault typ ->
             Expr.Embed
               ( importFile ( relativeTo localDest ( defaultFile typ ) ) )
-          PreludeConstructorsLicense ->
-            Expr.Constructors ( Expr.Var "types" `Expr.Field` "License" )
-          PreludeConstructorsRepoKind ->
-            Expr.Constructors ( Expr.Var "types" `Expr.Field` "RepoKind" )
-          PreludeConstructorsScope ->
-            Expr.Constructors ( Expr.Var "types" `Expr.Field` "Scope" )
           PreludeV ->
             Expr.Embed
               ( importFile ( relativeTo localDest "./Version/v.dhall" ) )
-
+          other -> resolveVar other
+            
         expr :: Expr.Expr Dhall.Parser.Src Dhall.Core.Import
         expr =
           getDefault

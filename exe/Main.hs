@@ -25,7 +25,7 @@ import Data.Version ( showVersion )
 import Lens.Micro ( set )
 import System.FilePath ( takeDirectory )
 
-import CabalToDhall ( KnownDefault, getDefault, resolvePreludeVar )
+import CabalToDhall ( KnownDefault, getDefault, resolveVar )
 import DhallLocation ( preludeLocation, typesLocation, dhallFromGitHub )
 import DhallToCabal
 import qualified Paths_dhall_to_cabal as Paths
@@ -744,8 +744,6 @@ printDefault PrintDefaultOptions {..} = do
           ( Expr.Embed ( preludeLocation dhallFromGitHub ) ) ) )
 
     expr :: Expr.Expr Dhall.Parser.Src Dhall.Import
-    expr =
-      getDefault
-        ( typesLocation dhallFromGitHub )
-        resolvePreludeVar
-        defaultToPrint
+    expr = getDefault
+             ( typesLocation dhallFromGitHub )
+             resolveVar defaultToPrint
