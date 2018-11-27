@@ -203,13 +203,13 @@ in    prelude.utils.GitHub-project
               , hs-source-dirs =
                   [ "lib" ]
               , other-extensions =
-                  [ types.Extensions.ApplicativeDo True
-                  , types.Extensions.GADTs True
-                  , types.Extensions.GeneralizedNewtypeDeriving True
-                  , types.Extensions.LambdaCase True
-                  , types.Extensions.OverloadedStrings True
-                  , types.Extensions.RecordWildCards True
-                  , types.Extensions.TypeApplications True
+                  [ types.Extension.ApplicativeDo True
+                  , types.Extension.GADTs True
+                  , types.Extension.GeneralizedNewtypeDeriving True
+                  , types.Extension.LambdaCase True
+                  , types.Extension.OverloadedStrings True
+                  , types.Extension.RecordWildCards True
+                  , types.Extension.TypeApplications True
                   ]
               , other-modules =
                   [ "DhallToCabal.ConfigTree"
