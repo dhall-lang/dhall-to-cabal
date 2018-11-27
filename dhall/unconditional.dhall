@@ -22,8 +22,7 @@ let library
     :   ∀(library : ./types/Library.dhall)
       → Optional (./types/Guarded.dhall ./types/Library.dhall)
     =   λ(library : ./types/Library.dhall)
-      → [ unconditional ./types/Library.dhall library
-        ] : Optional (./types/Guarded.dhall ./types/Library.dhall)
+      → Some (unconditional ./types/Library.dhall library)
 
 let test-suite
     :   ∀(name : Text)

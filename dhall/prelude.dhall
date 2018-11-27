@@ -58,6 +58,6 @@
     , or =
         ./SPDX/or.dhall
     , noException =
-        [] : Optional ./types/SPDX/LicenseExceptionId.dhall
+        None (./types/SPDX/LicenseExceptionId.dhall)
     }
 }

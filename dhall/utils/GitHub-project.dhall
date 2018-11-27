@@ -14,10 +14,9 @@ let gitHubProject =
               , source-repos =
                   [   ./../defaults/SourceRepo.dhall
                     ⫽ { location =
-                          [ gitHubRoot ] : Optional Text
+                          Some gitHubRoot
                       , type =
-                          [ (./../types/RepoType.dhall).Git {=}
-                          ] : Optional ./../types/RepoType.dhall
+                          Some ((./../types/RepoType.dhall).Git {=})
                       }
                   ]
               }
