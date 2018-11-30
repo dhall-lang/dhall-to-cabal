@@ -1,8 +1,8 @@
 { mkDerivation, ansi-terminal, base, bytestring, case-insensitive
 , cborg, containers, contravariant, criterion, cryptonite, deepseq
-, Diff, directory, doctest, exceptions, filepath, haskeline
-, http-client, http-client-tls, lens-family-core, megaparsec
-, memory, mockery, mtl, optparse-applicative, parsers
+, Diff, directory, doctest, dotgen, exceptions, filepath, haskeline
+, http-client, http-client-tls, http-types, lens-family-core
+, megaparsec, memory, mockery, mtl, optparse-applicative, parsers
 , prettyprinter, prettyprinter-ansi-terminal, QuickCheck
 , quickcheck-instances, repline, scientific, serialise, stdenv
 , tasty, tasty-hunit, tasty-quickcheck, template-haskell, text
@@ -10,15 +10,15 @@
 }:
 mkDerivation {
   pname = "dhall";
-  version = "1.19.0";
-  sha256 = "ff111c69d347bc77f64186a3a9f56243a01fc06d7d8a3476734e02ba0727e2eb";
+  version = "1.19.1";
+  sha256 = "f8d32a4415c67bbae43d90780c5707cd471a408f20959d233f14b91c3577d291";
   isLibrary = true;
   isExecutable = true;
   libraryHaskellDepends = [
     ansi-terminal base bytestring case-insensitive cborg containers
-    contravariant cryptonite Diff directory exceptions filepath
-    haskeline http-client http-client-tls lens-family-core megaparsec
-    memory mtl optparse-applicative parsers prettyprinter
+    contravariant cryptonite Diff directory dotgen exceptions filepath
+    haskeline http-client http-client-tls http-types lens-family-core
+    megaparsec memory mtl optparse-applicative parsers prettyprinter
     prettyprinter-ansi-terminal repline scientific serialise
     template-haskell text transformers unordered-containers uri-encode
     vector
