@@ -10,8 +10,10 @@ module CabalToDhall
   ( cabalToDhall
   , parseGenericPackageDescriptionThrows
   , KnownDefault (..)
-  , Reference (..)
-  , resolveVar
+  , PreludeReference (..)
+  , TypeReference
+  , resolvePreludeVar
+  , resolveType
   , getDefault
   ) where
 
@@ -23,6 +25,7 @@ import GHC.Stack
 import Numeric.Natural ( Natural )
 
 import qualified Data.ByteString as ByteString
+import qualified Data.Char as Char
 import qualified Data.List.NonEmpty as NonEmpty
 import qualified Data.Sequence as Seq
 import qualified Data.Text as StrictText
@@ -128,11 +131,29 @@ data KnownDefault
   | SourceRepo
   deriving ( Bounded, Enum, Eq, Ord, Read, Show )
 
+data VersionRange
+  = AnyVersion
+  | EarlierVersion
+  | OrEarlierVersion
+  | IntersectVersionRanges
+  | UnionVersionRanges
+  | MajorBoundVersion
+  | OrLaterVersion
+  | LaterVersion
+  | ThisVersion
+  | NotThisVersion
+  | WithinVersion
+  | NoVersion
+  deriving ( Bounded, Enum, Eq, Ord, Read, Show )
 
-data Reference
+data PreludeReference
   = PreludeDefault KnownDefault
   | PreludeV
-  | TypeBenchmark
+  | PreludeVersionRange VersionRange
+  | PreludeSPDX Dhall.Text
+
+data TypeReference
+  = TypeBenchmark
   | TypeBuildType
   | TypeCompiler
   | TypeCompilerOption
@@ -157,13 +178,30 @@ data Reference
   | TypeTestSuite
   | TypeVersion
   | TypeVersionRange
-  
-resolveVar :: Reference -> Expr.Expr s a
-resolveVar = \case
+  deriving ( Bounded, Enum, Eq, Ord, Read, Show )
+
+resolveDefaultVar :: Dhall.Text -> Expr.Expr s a
+resolveDefaultVar name =
+  Expr.Var "prelude" `Expr.Field` "defaults" `Expr.Field` name
+
+resolvePreludeVar :: PreludeReference -> Expr.Expr s a 
+resolvePreludeVar = \case
   PreludeDefault typ ->
-    Expr.Var "prelude" `Expr.Field` "defaults" `Expr.Field` StrictText.pack ( show typ )
+    resolveDefaultVar ( StrictText.pack ( show typ ) )
   PreludeV ->
     Expr.Var "prelude" `Expr.Field` "v"
+  PreludeVersionRange rng ->
+    Expr.Var "prelude" `Expr.Field` StrictText.pack ( toCamelCase ( show rng ) )
+    where toCamelCase (h:xs) = Char.toLower h : xs
+          toCamelCase "" = ""  
+  PreludeSPDX field ->
+    Expr.Var "prelude" `Expr.Field` "SPDX" `Expr.Field` field
+
+resolveVersionRange :: VersionRange -> Expr.Expr s a
+resolveVersionRange = resolvePreludeVar . PreludeVersionRange
+
+resolveType :: TypeReference -> Expr.Expr s a
+resolveType = \case
   TypeBenchmark ->
     Expr.Var "types" `Expr.Field` "Benchmark"
   TypeBuildType ->
@@ -214,16 +252,15 @@ resolveVar = \case
     Expr.Var "types" `Expr.Field` "Version"
   TypeVersionRange ->
     Expr.Var "types" `Expr.Field` "VersionRange"
-   
+    
 type Default s a
-   = ( Reference -> Expr.Expr s a )
+   = ( PreludeReference -> Expr.Expr s a )
    -> Map.Map StrictText.Text ( Expr.Expr s a )
-
 
 getDefault
   :: ( Eq s )
   => Dhall.Core.Import
-  -> ( Reference -> Expr.Expr s Dhall.Core.Import )
+  -> ( PreludeReference -> Expr.Expr s Dhall.Core.Import )
   -> KnownDefault
   -> Expr.Expr s Dhall.Core.Import
 getDefault typesLoc resolve typ = withTypesImport expr
@@ -288,7 +325,6 @@ textFieldDefault name def =
   ( name
   , Expr.TextLit ( Dhall.Core.Chunks [] def )
   )
-
 
 generaliseDeclared =
   Dhall.Core.denote . fmap Dhall.TypeCheck.absurd . Dhall.declared
@@ -385,7 +421,7 @@ executableDefault resolve = buildInfoDefault resolve <> specificFields
     specificFields =
       Map.singleton "scope"
         ( Expr.App
-            ( resolve TypeScope `Expr.Field` "Public" )
+            ( resolveType TypeScope `Expr.Field` "Public" )
             ( Expr.RecordLit mempty )
         )
 
@@ -393,7 +429,7 @@ executableDefault resolve = buildInfoDefault resolve <> specificFields
 packageDefault :: Default s a
 packageDefault resolve = fields
   where
-    configType = resolveVar TypeConfig
+    configType = resolveType TypeConfig
     named name typ = Expr.Record
       ( Map.fromList
           [ ( "name"
@@ -439,7 +475,7 @@ packageDefault resolve = fields
           )
       , ( "license"
         , Expr.App
-            ( resolve TypeLicense `Expr.Field` "AllRightsReserved" )
+            ( resolveType TypeLicense `Expr.Field` "AllRightsReserved" )
             ( Expr.RecordLit mempty )
         )
       , emptyListDefault "license-files" Expr.Text
@@ -470,7 +506,7 @@ packageDefault resolve = fields
 
 
 sourceRepoDefault :: Default s a
-sourceRepoDefault resolve = fields
+sourceRepoDefault _ = fields
   where
     fields = Map.fromList
       [ emptyOptionalDefault "type" ( generaliseDeclared repoType )
@@ -481,7 +517,7 @@ sourceRepoDefault resolve = fields
       , emptyOptionalDefault "subdir" Expr.Text
       , ( "kind"
         , Expr.App
-            ( resolve TypeRepoKind `Expr.Field` "RepoHead" )
+            ( resolveType TypeRepoKind `Expr.Field` "RepoHead" )
             ( Expr.RecordLit mempty )
         )
       ]
@@ -526,13 +562,13 @@ compareToDefault _ expr =
 withDefault :: ( Eq a ) => KnownDefault -> Default s a -> Expr.Expr s a -> Expr.Expr s a
 withDefault typ defs ( Expr.RecordLit fields ) =
   let
-    nonDefaults = nonDefaultFields ( defs resolveVar ) fields
+    nonDefaults = nonDefaultFields ( defs resolvePreludeVar ) fields
     name = StrictText.pack ( show typ )
   in
     if null nonDefaults
-    then Expr.Var ( Expr.V "prelude" 0 ) `Expr.Field` "defaults" `Expr.Field` name
+    then resolveDefaultVar name
     else Expr.Prefer
-           ( Expr.Var ( Expr.V "prelude" 0 ) `Expr.Field` "defaults" `Expr.Field` name )
+           ( resolveDefaultVar name )
            ( Expr.RecordLit nonDefaults )
 withDefault _ _ expr =
   expr
@@ -663,11 +699,11 @@ versionToDhall :: Dhall.InputType Cabal.Version
 versionToDhall =
   Dhall.InputType
     { Dhall.embed =
-        Expr.App ( resolveVar PreludeV )
+        Expr.App ( resolvePreludeVar PreludeV )
           . Dhall.embed stringToDhall
           . show
           . Cabal.disp
-    , Dhall.declared = resolveVar TypeVersion
+    , Dhall.declared = resolveType TypeVersion
     }
 
 
@@ -719,7 +755,7 @@ licenseToDhall =
     , Dhall.declared = typeLicense
     }
   where
-    typeLicense = resolveVar TypeLicense
+    typeLicense = resolveType TypeLicense
     license name = Expr.App ( typeLicense `Expr.Field` name )
 
 spdxLicenseExpressionToDhall :: Dhall.InputType SPDX.LicenseExpression
@@ -731,14 +767,14 @@ spdxLicenseExpressionToDhall =
             SPDX.ELicense ( SPDX.ELicenseId ident ) exceptionMay ->
               Expr.App
                 ( Expr.App
-                    ( Expr.Var "prelude" `Expr.Field` "SPDX" `Expr.Field` "license" )
+                    ( resolvePreludeVar ( PreludeSPDX "license" ) )
                     ( Dhall.embed spdxLicenseIdToDhall ident )
                 )
                 ( Dhall.embed ( maybeToDhall spdxLicenseExceptionIdToDhall ) exceptionMay )
             SPDX.ELicense (SPDX.ELicenseIdPlus ident) exceptionMay ->
               Expr.App
                 ( Expr.App
-                    ( Expr.Var "prelude" `Expr.Field` "SPDX" `Expr.Field` "licenseVersionOrLater" )
+                    ( resolvePreludeVar ( PreludeSPDX "licenseVersionOrLater" ) )
                     ( Dhall.embed spdxLicenseIdToDhall ident )
                 )
                 ( Dhall.embed ( maybeToDhall spdxLicenseExceptionIdToDhall ) exceptionMay )
@@ -747,7 +783,7 @@ spdxLicenseExpressionToDhall =
                 Nothing ->
                   Expr.App
                     ( Expr.App
-                        ( Expr.Var "prelude" `Expr.Field` "SPDX" `Expr.Field` "ref" )
+                        ( resolvePreludeVar ( PreludeSPDX "ref" ) )
                         ( Dhall.embed stringToDhall ( SPDX.licenseRef ref ) )
                     )
                     ( Dhall.embed ( maybeToDhall spdxLicenseExceptionIdToDhall ) exceptionMay )
@@ -755,7 +791,7 @@ spdxLicenseExpressionToDhall =
                   Expr.App
                     ( Expr.App
                         ( Expr.App
-                            ( Expr.Var "prelude" `Expr.Field` "SPDX" `Expr.Field` "refWithFile" )
+                            ( resolvePreludeVar ( PreludeSPDX "refWithFile" ) )
                             ( Dhall.embed stringToDhall ( SPDX.licenseRef ref ) )
                         )
                         ( Dhall.embed stringToDhall file )
@@ -764,20 +800,20 @@ spdxLicenseExpressionToDhall =
             SPDX.EOr a b ->
               Expr.App
                 ( Expr.App
-                    ( Expr.Var "prelude" `Expr.Field` "SPDX" `Expr.Field` "or" )
+                    ( resolvePreludeVar ( PreludeSPDX  "or" ) )
                     ( go a )
                 )
                 ( go b )
             SPDX.EAnd a b ->
               Expr.App
                 ( Expr.App
-                    ( Expr.Var "prelude" `Expr.Field` "SPDX" `Expr.Field` "and" )
+                    ( resolvePreludeVar ( PreludeSPDX "and" ) )
                     ( go a )
                 )
                 ( go b )
         in go
     , Dhall.declared =
-        resolveVar TypeSPDX
+        resolveType TypeSPDX
     }
 
 spdxLicenseIdToDhall :: Dhall.InputType SPDX.LicenseId
@@ -791,7 +827,7 @@ spdxLicenseIdToDhall =
     }
 
   where
-  licenseIdType = resolveVar TypeLicenseId
+  licenseIdType = resolveType TypeLicenseId
   identName :: SPDX.LicenseId -> StrictText.Text
   identName e =
     StrictText.pack ( show e )
@@ -807,7 +843,7 @@ spdxLicenseExceptionIdToDhall =
     }
 
   where
-    licenseExIdType = resolveVar TypeLicenseExceptionId
+    licenseExIdType = resolveType TypeLicenseExceptionId
     identName :: SPDX.LicenseExceptionId -> StrictText.Text
     identName e =
       StrictText.pack ( show e )
@@ -891,7 +927,7 @@ compiler =
 compilerFlavor :: Dhall.InputType Cabal.CompilerFlavor
 compilerFlavor =
   let
-    compilerType = resolveVar TypeCompiler
+    compilerType = resolveType TypeCompiler
     appCompiler k v = Expr.App ( compilerType `Expr.Field` k ) v
     compiler k = appCompiler k ( Expr.RecordLit mempty )
 
@@ -950,26 +986,26 @@ versionRange =
           let
             go = Cabal.foldVersionRange
               -- AnyVersion
-              ( Expr.Var "prelude" `Expr.Field` "anyVersion" )
+              ( resolveVersionRange AnyVersion )
               -- ThisVersion
               ( \v -> Expr.App
-                  ( Expr.Var "prelude" `Expr.Field` "thisVersion" )
+                  ( resolveVersionRange ThisVersion )
                   ( Dhall.embed versionToDhall v )
               )
               -- LaterVersion
               ( \v -> Expr.App
-                  ( Expr.Var "prelude" `Expr.Field` "laterVersion" )
+                  ( resolveVersionRange LaterVersion )
                   ( Dhall.embed versionToDhall v )
               )
               -- EarlierVersion
               ( \v -> Expr.App
-                  ( Expr.Var "prelude" `Expr.Field` "earlierVersion" )
+                  ( resolveVersionRange EarlierVersion )
                   ( Dhall.embed versionToDhall v )
               )
               -- UnionVersionRanges
               ( \a b -> Expr.App
                   ( Expr.App
-                      ( Expr.Var "prelude" `Expr.Field` "unionVersionRanges" )
+                      ( resolveVersionRange UnionVersionRanges )
                       a
                   )
                   b
@@ -977,7 +1013,7 @@ versionRange =
               -- IntersectVersionRanges
               ( \a b -> Expr.App
                   ( Expr.App
-                      ( Expr.Var "prelude" `Expr.Field` "intersectVersionRanges" )
+                      ( resolveVersionRange IntersectVersionRanges )
                       a
                   )
                   b
@@ -985,7 +1021,7 @@ versionRange =
 
           in
           go ( Cabal.fromVersionIntervals ( Cabal.toVersionIntervals versionRange0 ) )
-    , Dhall.declared = resolveVar TypeVersionRange
+    , Dhall.declared = resolveType TypeVersionRange
     }
 
 
@@ -1004,7 +1040,7 @@ sourceRepo =
       )
   )
   { Dhall.declared =
-      resolveVar TypeSourceRepo
+      resolveType TypeSourceRepo
   }
 
 
@@ -1026,7 +1062,7 @@ repoKind =
             ( Expr.RecordLit ( Map.singleton "_1" ( dhallString str ) ) )
     , Dhall.declared = repoKindType
     }
-  where repoKindType = resolveVar TypeRepoKind
+  where repoKindType = resolveType TypeRepoKind
 
 repoType :: Dhall.InputType Cabal.RepoType
 repoType =
@@ -1055,7 +1091,7 @@ repoType =
     , Dhall.declared = repoTypeType
     }
   where
-    repoTypeType = resolveVar TypeRepoType
+    repoTypeType = resolveType TypeRepoType
     constr name = repoTypeType `Expr.Field` name
 
 
@@ -1093,7 +1129,7 @@ buildType =
 
     , Dhall.declared = buildTypeType
     }
-  where buildTypeType = resolveVar TypeBuildType
+  where buildTypeType = resolveType TypeBuildType
 
 setupBuildInfo :: Dhall.InputType Cabal.SetupBuildInfo
 setupBuildInfo =
@@ -1103,7 +1139,7 @@ setupBuildInfo =
           ]
       )
   )
-    { Dhall.declared = resolveVar TypeCustomSetup
+    { Dhall.declared = resolveType TypeCustomSetup
     }
 
 
@@ -1151,7 +1187,7 @@ library =
           ]
       )
   )
-    { Dhall.declared = resolveVar TypeLibrary
+    { Dhall.declared = resolveType TypeLibrary
     }
 
 
@@ -1195,7 +1231,7 @@ condTree t =
           ( go b )
 
     configRecord =
-      resolveVar TypeConfig
+      resolveType TypeConfig
 
   in
   Dhall.InputType
@@ -1288,7 +1324,7 @@ os =
 
     , Dhall.declared = osType
     }
-  where osType = resolveVar TypeOS
+  where osType = resolveType TypeOS
         appOS name = Expr.App ( osType `Expr.Field` name )
         os name = appOS name ( Expr.RecordLit mempty )
 
@@ -1430,7 +1466,7 @@ language =
           ]
       )
   )
-    { Dhall.declared = resolveVar TypeLanguage }
+    { Dhall.declared = resolveType TypeLanguage }
 
 extension :: Dhall.InputType Cabal.Extension
 extension =
@@ -1454,7 +1490,7 @@ extension =
   extName :: Cabal.KnownExtension -> StrictText.Text
   extName e = StrictText.pack ( show e )
 
-  extType = resolveVar TypeExtension
+  extType = resolveType TypeExtension
   
   extWith trueFalse ext = Expr.App
                           ( extType `Expr.Field` extName ext )
@@ -1478,7 +1514,7 @@ compilerOptions =
                   )
               )
           )
-    , Dhall.declared = resolveVar TypeCompilerOption 
+    , Dhall.declared = resolveType TypeCompilerOption 
     }
 
 
@@ -1491,7 +1527,7 @@ mixin =
           ]
       )
   )
-    { Dhall.declared = resolveVar TypeMixin }
+    { Dhall.declared = resolveType TypeMixin }
 
 
 includeRenaming :: Dhall.InputType Cabal.IncludeRenaming
@@ -1540,7 +1576,7 @@ moduleRenaming =
                 )
     , Dhall.declared = moduleRenamingType
     }
-  where moduleRenamingType = resolveVar TypeModuleRenaming
+  where moduleRenamingType = resolveType TypeModuleRenaming
 
 benchmark :: Dhall.InputType Cabal.Benchmark
 benchmark =
@@ -1551,7 +1587,7 @@ benchmark =
            ]
        )
   )
-    { Dhall.declared = resolveVar TypeBenchmark
+    { Dhall.declared = resolveType TypeBenchmark
     }
 
 
@@ -1564,7 +1600,7 @@ testSuite =
           ]
       )
   )
-  { Dhall.declared = resolveVar TypeTestSuite }
+  { Dhall.declared = resolveType TypeTestSuite }
 
 
 testSuiteInterface :: Dhall.InputType Cabal.TestSuiteInterface
@@ -1607,7 +1643,7 @@ executable =
           ]
       )
   )
-    { Dhall.declared = resolveVar TypeExecutable }
+    { Dhall.declared = resolveType TypeExecutable }
 
 
 executableScope :: Dhall.InputType Cabal.ExecutableScope
@@ -1625,8 +1661,7 @@ executableScope =
     , Dhall.declared =
         typeScope
     }
-  where typeScope =
-          resolveVar TypeScope
+  where typeScope = resolveType TypeScope
 
 foreignLibrary :: Dhall.InputType Cabal.ForeignLib
 foreignLibrary =
@@ -1641,7 +1676,7 @@ foreignLibrary =
           ]
       )
   )
-  { Dhall.declared = resolveVar TypeForeignLibrary }
+  { Dhall.declared = resolveType TypeForeignLibrary }
 
 
 versionInfo :: Dhall.InputType Cabal.LibVersionInfo

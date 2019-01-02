@@ -17,7 +17,7 @@ import System.FilePath
   )
 
 import CabalToDhall
-  ( KnownDefault, Reference (..), getDefault , resolveVar)
+  ( KnownDefault, PreludeReference (..), getDefault , resolvePreludeVar)
 
 import qualified Data.Text.Prettyprint.Doc as Pretty
 import qualified Data.Text.Prettyprint.Doc.Render.Text as Pretty
@@ -115,7 +115,7 @@ meta (MetaOptions {..}) = do
           PreludeV ->
             Expr.Embed
               ( importFile ( relativeTo localDest "./Version/v.dhall" ) )
-          other -> resolveVar other
+          other -> resolvePreludeVar other
             
         expr :: Expr.Expr Dhall.Parser.Src Dhall.Core.Import
         expr =
