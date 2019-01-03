@@ -191,9 +191,9 @@ resolvePreludeVar = \case
   PreludeV ->
     Expr.Var "prelude" `Expr.Field` "v"
   PreludeVersionRange rng ->
-    Expr.Var "prelude" `Expr.Field` StrictText.pack ( toCamelCase ( show rng ) )
-    where toCamelCase (h:xs) = Char.toLower h : xs
-          toCamelCase "" = ""  
+    Expr.Var "prelude" `Expr.Field` StrictText.pack ( uncapitalize ( show rng ) )
+    where uncapitalize (h:xs) = Char.toLower h : xs
+          uncapitalize "" = ""  
   PreludeSPDX field ->
     Expr.Var "prelude" `Expr.Field` "SPDX" `Expr.Field` field
 
