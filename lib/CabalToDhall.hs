@@ -17,6 +17,7 @@ module CabalToDhall
 
 import Data.Foldable ( foldMap )
 import Data.Functor.Contravariant ( (>$<), Contravariant( contramap ) )
+import Data.List.NonEmpty ( NonEmpty(..) )
 import Data.Monoid ( First(..) )
 import Data.Semigroup ( Semigroup, (<>) )
 import GHC.Stack
@@ -27,7 +28,7 @@ import qualified Data.Sequence as Seq
 import qualified Data.Text as StrictText
 import qualified Dhall
 import qualified Dhall.Core
-import qualified Dhall.Core as Expr ( Expr(..), Var(..) )
+import qualified Dhall.Core as Expr ( Expr(..), Var(..), Binding(..) )
 import qualified Dhall.Map as Map
 import qualified Dhall.Parser
 import qualified Dhall.TypeCheck
@@ -103,8 +104,10 @@ cabalToDhall
   -> Cabal.GenericPackageDescription
   -> Expr.Expr Dhall.Parser.Src Dhall.Core.Import
 cabalToDhall dhallLocation genericPackageDescription =
-  Expr.Let "prelude" Nothing ( Expr.Embed ( preludeLocation dhallLocation ) )
-    $ Expr.Let "types" Nothing ( Expr.Embed ( typesLocation dhallLocation ) )
+  Expr.Let
+    ( Expr.Binding "prelude" Nothing ( Expr.Embed ( preludeLocation dhallLocation ) )
+   :| [ Expr.Binding "types" Nothing ( Expr.Embed ( typesLocation dhallLocation ) ) ]
+    )
     $ Dhall.TypeCheck.absurd <$>
         Dhall.embed
           genericPackageDescriptionToDhall
@@ -160,7 +163,7 @@ getDefault
 getDefault typesLoc resolve typ = withTypesImport expr
   where
     withTypesImport =
-      Expr.Let "types" Nothing ( Expr.Embed typesLoc )
+      Expr.Let (Expr.Binding "types" Nothing ( Expr.Embed typesLoc ) :| [])
 
     factorBuildInfo fields =
       let

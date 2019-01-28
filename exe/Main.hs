@@ -17,6 +17,7 @@ import Data.Foldable ( asum, traverse_ )
 import Data.Function ( (&) )
 import Data.Functor.Product ( Product(..) )
 import Data.Functor.Identity ( Identity(..) )
+import Data.List.NonEmpty ( NonEmpty(..) )
 import Data.Monoid ( Any(..) )
 import Data.Maybe ( fromMaybe )
 import Data.Text (Text)
@@ -37,7 +38,7 @@ import qualified Data.Text.Prettyprint.Doc as Pretty
 import qualified Data.Text.Prettyprint.Doc.Render.Text as Pretty
 import qualified Dhall
 import qualified Dhall.Core as Dhall
-import qualified Dhall.Core as Expr ( Expr(..), Var(..), shift )
+import qualified Dhall.Core as Expr ( Expr(..), Var(..), Binding(..), shift )
 import qualified Distribution.PackageDescription as Cabal
 import qualified Dhall.Map as Map
 import qualified Dhall.Parser
@@ -457,7 +458,7 @@ printType PrintTypeOptions { .. } = do
         name = fromString ( show t )
       in if shouldBeImported t && not selfContained
          then Dhall.subst ( Expr.V name 0 ) ( Expr.Var ( Expr.V "types" 0 ) `Expr.Field` name ) reduced
-         else Expr.Let name Nothing val reduced
+         else Expr.Let (Expr.Binding name Nothing val :| []) reduced
 
     factoredType :: Expr.Expr Dhall.Parser.Src Dhall.Import
     factoredType =
@@ -476,7 +477,8 @@ printType PrintTypeOptions { .. } = do
         body = foldr ( uncurry makeLetOrImport ) expr types
 
         importing = if any shouldBeImported ( fst <$> types ) && not selfContained
-          then Expr.Let "types" Nothing ( Expr.Embed ( typesLocation dhallFromGitHub ) )
+          then Expr.Let
+                 ( Expr.Binding "types" Nothing ( Expr.Embed ( typesLocation dhallFromGitHub ) ) :| [] )
           else id
 
       in
@@ -603,8 +605,12 @@ liftCSE subrecord name body expr =
         Expr.App f a ->
           Expr.App <$> go f v <*> go a v
 
-        Expr.Let n t b e ->
-          Expr.Let n t <$> go b v <*> go e ( shiftName n v )
+        Expr.Let bs e -> _
+          -- Expr.Let <$> ((:| []) . Expr.Binding n t <$> go b v) <*> go e ( shiftName n v )
+        -- Expr.Let (Expr.Binding n t b :| []) e ->
+          -- Expr.Let <$> _ bs <*> go e ( shiftName n v )
+          -- Expr.Let n t <$> go b v <*> go e ( shiftName n v )
+          -- n t <$> go b v <*> go e ( shiftName n v )
 
         Expr.Annot a b ->
           Expr.Annot <$> go a v <*> go b v
@@ -811,7 +817,7 @@ printDefault PrintDefaultOptions {..} = do
 
   where
     withPreludeImport =
-      Expr.Let "prelude" Nothing ( Expr.Embed ( preludeLocation dhallFromGitHub ) )
+      Expr.Let (Expr.Binding "prelude" Nothing ( Expr.Embed ( preludeLocation dhallFromGitHub ) ) :| [])
 
     expr :: Expr.Expr Dhall.Parser.Src Dhall.Import
     expr =
