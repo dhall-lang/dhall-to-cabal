@@ -3,6 +3,7 @@
 {-# language NamedFieldPuns #-}
 {-# language OverloadedStrings #-}
 {-# language RecordWildCards #-}
+{-# language TupleSections #-}
 {-# language ViewPatterns #-}
 
 module Main ( main ) where
@@ -13,11 +14,11 @@ import Data.Char ( isAlphaNum )
 import Control.Monad.Trans.Class ( lift )
 import Control.Monad.Trans.State ( State, execState, get, modify, put )
 import Control.Monad.Trans.Writer ( WriterT, execWriterT, tell )
-import Data.Foldable ( asum, traverse_ )
-import Data.Function ( (&) )
+import Data.Bifunctor ( first )
+import Data.Foldable ( asum, traverse_, toList )
 import Data.Functor.Product ( Product(..) )
 import Data.Functor.Identity ( Identity(..) )
-import Data.List.NonEmpty ( NonEmpty(..) )
+import Data.List.NonEmpty ( NonEmpty(..), nonEmpty )
 import Data.Monoid ( Any(..) )
 import Data.Maybe ( fromMaybe )
 import Data.Text (Text)
@@ -586,6 +587,16 @@ liftCSE subrecord name body expr =
 
       return ( Expr.Record extra )
 
+    goLet v (Expr.Binding n t b :| bs) e =
+        (\b' -> first (b' :|))
+          <$> (Expr.Binding n t <$> go b v)
+          <*> case nonEmpty bs of
+                Nothing  -> ([],)        <$> go e v'
+                Just bs' -> first toList <$> goLet v' bs' e
+      where
+        v' = shiftName n v
+
+
     go e v | e == body =
       Pair ( Const ( Any True ) ) ( Identity ( Expr.Var v ) )
 
@@ -605,12 +616,7 @@ liftCSE subrecord name body expr =
         Expr.App f a ->
           Expr.App <$> go f v <*> go a v
 
-        Expr.Let bs e -> _
-          -- Expr.Let <$> ((:| []) . Expr.Binding n t <$> go b v) <*> go e ( shiftName n v )
-        -- Expr.Let (Expr.Binding n t b :| []) e ->
-          -- Expr.Let <$> _ bs <*> go e ( shiftName n v )
-          -- Expr.Let n t <$> go b v <*> go e ( shiftName n v )
-          -- n t <$> go b v <*> go e ( shiftName n v )
+        Expr.Let bs e -> uncurry Expr.Let <$> goLet v bs e
 
         Expr.Annot a b ->
           Expr.Annot <$> go a v <*> go b v
