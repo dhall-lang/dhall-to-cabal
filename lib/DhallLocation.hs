@@ -37,7 +37,7 @@ dhallFromGitHub =
                     Dhall.Core.Remote
                       ( Dhall.Core.URL
                           Dhall.Core.HTTPS
-                          "https://raw.githubusercontent.com"
+                          "raw.githubusercontent.com"
                           ( Dhall.Core.File
                              ( Dhall.Core.Directory [ "dhall", version, "dhall-to-cabal", "dhall-lang" ] )
                              "prelude.dhall"
@@ -61,7 +61,7 @@ dhallFromGitHub =
                     Dhall.Core.Remote
                       ( Dhall.Core.URL
                           Dhall.Core.HTTPS
-                          "https://raw.githubusercontent.com"
+                          "raw.githubusercontent.com"
                           ( Dhall.Core.File
                              ( Dhall.Core.Directory [ "dhall", version, "dhall-to-cabal", "dhall-lang" ] )
                              "types.dhall"
