@@ -1,6 +1,6 @@
-    let prelude = ./../../dhall/prelude.dhall
+let prelude = ./../../dhall/prelude.dhall
 
-in  let types = ./../../dhall/types.dhall
+let types = ./../../dhall/types.dhall
 
 in    prelude.defaults.Package
     ⫽ { name =
@@ -12,7 +12,7 @@ in    prelude.defaults.Package
       , library =
           Some
           (   λ(config : types.Config)
-            →       if config.os (prelude.types.OSs.OtherOS { _1 = "multics" })
+            →       if config.os (types.OS.OtherOS { _1 = "multics" })
               
               then    prelude.defaults.Library
                     ⫽ { exposed-modules = [ "A", "B" ] }

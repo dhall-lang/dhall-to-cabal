@@ -1,6 +1,6 @@
-    let prelude = ../../dhall/prelude.dhall 
+    let prelude = ../../dhall/prelude.dhall
 
-in  let types = ../../dhall/types.dhall 
+in  let types = ../../dhall/types.dhall
 
 in  let v = prelude.v
 
@@ -133,7 +133,7 @@ in    prelude.utils.GitHub-project
           , "dhall/types/SetupBuildInfo.dhall"
           ]
       , license =
-          prelude.types.Licenses.MIT {=}
+          types.License.MIT {=}
       , license-files =
           [ "LICENSE" ]
       , version =
@@ -163,13 +163,13 @@ in    prelude.utils.GitHub-project
               , hs-source-dirs =
                   [ "lib" ]
               , other-extensions =
-                  [ prelude.types.Extensions.ApplicativeDo True
-                  , prelude.types.Extensions.GADTs True
-                  , prelude.types.Extensions.GeneralizedNewtypeDeriving True
-                  , prelude.types.Extensions.LambdaCase True
-                  , prelude.types.Extensions.OverloadedStrings True
-                  , prelude.types.Extensions.RecordWildCards True
-                  , prelude.types.Extensions.TypeApplications True
+                  [ types.Extensions.ApplicativeDo True
+                  , types.Extensions.GADTs True
+                  , types.Extensions.GeneralizedNewtypeDeriving True
+                  , types.Extensions.LambdaCase True
+                  , types.Extensions.OverloadedStrings True
+                  , types.Extensions.RecordWildCards True
+                  , types.Extensions.TypeApplications True
                   ]
               , other-modules =
                   [ "DhallToCabal.ConfigTree"
@@ -177,8 +177,7 @@ in    prelude.utils.GitHub-project
                   , "Dhall.Extra"
                   ]
               , default-language =
-                  [ prelude.types.Languages.Haskell2010 {=} ] : Optional
-                                                                types.Language
+                  [ types.Languages.Haskell2010 {=} ] : Optional types.Language
               }
           )
       , executables =
@@ -199,10 +198,9 @@ in    prelude.utils.GitHub-project
                 , main-is =
                     "Main.hs"
                 , other-extensions =
-                    [ prelude.types.Extensions.NamedFieldPuns True ]
+                    [ types.Extensions.NamedFieldPuns True ]
                 , default-language =
-                    [ prelude.types.Languages.Haskell2010 {=} ] : Optional
-                                                                  types.Language
+                    [ types.Languages.Haskell2010 {=} ] : Optional types.Language
                 }
             )
           , prelude.unconditional.executable
@@ -225,10 +223,9 @@ in    prelude.utils.GitHub-project
                 , main-is =
                     "Main.hs"
                 , other-extensions =
-                    [ prelude.types.Extensions.NamedFieldPuns True ]
+                    [ types.Extensions.NamedFieldPuns True ]
                 , default-language =
-                    [ prelude.types.Languages.Haskell2010 {=} ] : Optional
-                                                                  types.Language
+                    [ types.Languages.Haskell2010 {=} ] : Optional types.Language
                 }
             )
           ]
@@ -250,11 +247,10 @@ in    prelude.utils.GitHub-project
                 , hs-source-dirs =
                     [ "golden-tests" ]
                 , type =
-                    prelude.types.TestTypes.exitcode-stdio
+                    types.TestType.exitcode-stdio
                     { main-is = "GoldenTests.hs" }
                 , default-language =
-                    [ prelude.types.Languages.Haskell2010 {=} ] : Optional
-                                                                  types.Language
+                    [ types.Languages.Haskell2010 {=} ] : Optional types.Language
                 }
             )
           ]
