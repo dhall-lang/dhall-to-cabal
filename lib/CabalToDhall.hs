@@ -28,7 +28,7 @@ import qualified Data.Sequence as Seq
 import qualified Data.Text as StrictText
 import qualified Dhall
 import qualified Dhall.Core
-import qualified Dhall.Core as Expr ( Expr(..), Var(..), Binding(..) )
+import qualified Dhall.Core as Expr ( Expr(..), Var(..), Binding(..), Chunks(..) )
 import qualified Dhall.Map as Map
 import qualified Dhall.Parser
 import qualified Dhall.TypeCheck
@@ -646,6 +646,8 @@ licenseToDhall =
             license "Unspecified" ( Expr.RecordLit mempty )
           Right ( Cabal.UnknownLicense "UnspecifiedLicense" ) ->
             license "Unspecified" ( Expr.RecordLit mempty )
+          Right ( Cabal.UnknownLicense l ) ->
+            license "Unspecified" ( Expr.TextLit (Expr.Chunks [] (StrictText.pack l)) )
           Right Cabal.OtherLicense ->
             license "Other" ( Expr.RecordLit mempty )
           Left ( SPDX.License x ) ->
@@ -1546,7 +1548,12 @@ benchmark :: Dhall.InputType Cabal.Benchmark
 benchmark =
   (  runRecordInputTypeWithDefault Benchmark benchmarkDefault
        ( mconcat
-           [ recordField "main-is" ( ( \( Cabal.BenchmarkExeV10 _ s ) -> s ) . Cabal.benchmarkInterface >$< stringToDhall )
+           [ recordField "main-is" (
+                ( \case Cabal.BenchmarkExeV10 _ fp -> fp
+                        Cabal.BenchmarkUnsupported _ -> errorWithoutStackTrace "Unsupported benchmark type"
+                )
+              . Cabal.benchmarkInterface >$< stringToDhall
+              )
            , Cabal.benchmarkBuildInfo >$< buildInfoRecord
            ]
        )

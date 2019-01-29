@@ -74,7 +74,7 @@ import qualified Distribution.Version as Cabal
 import qualified Language.Haskell.Extension as Cabal
 
 import qualified Dhall.Core as Expr
-  ( Chunks(..), Const(..), Expr(..) )
+  ( Chunks(..), Const(..), Expr(..), Var(..) )
 
 import Dhall.Extra
 import DhallToCabal.ConfigTree ( ConfigTree(..), toConfigTree )
@@ -641,15 +641,6 @@ versionRange =
         Expr.App "orEarlierVersion" components ->
           Cabal.orEarlierVersion <$> Dhall.extract version components
 
-        Expr.App ( Expr.App "unionVersionRanges" a ) b ->
-          Cabal.unionVersionRanges <$> go a <*> go b
-
-        Expr.App ( Expr.App "intersectVersionRanges" a ) b ->
-          Cabal.intersectVersionRanges <$> go a <*> go b
-
-        Expr.App ( Expr.App "differenceVersionRanges" a ) b ->
-          Cabal.differenceVersionRanges <$> go a <*> go b
-
         Expr.App "invertVersionRange" components ->
           Cabal.invertVersionRange <$> go components
 
@@ -658,6 +649,15 @@ versionRange =
 
         Expr.App "majorBoundVersion" components ->
           Cabal.majorBoundVersion <$> Dhall.extract version components
+
+        Expr.App ( Expr.App "unionVersionRanges" a ) b ->
+          Cabal.unionVersionRanges <$> go a <*> go b
+
+        Expr.App ( Expr.App "intersectVersionRanges" a ) b ->
+          Cabal.intersectVersionRanges <$> go a <*> go b
+
+        Expr.App ( Expr.App "differenceVersionRanges" a ) b ->
+          Cabal.differenceVersionRanges <$> go a <*> go b
 
         _ ->
           Nothing
@@ -770,10 +770,10 @@ spdxLicense =
           exceptionMay <- Dhall.extract ( Dhall.maybe spdxLicenseExceptionId ) exceptionMayM
           return ( SPDX.ELicense ( SPDX.ELicenseRef ( SPDX.mkLicenseRef' ( Just filename ) ident ) ) exceptionMay )
 
-        Expr.App ( Expr.App "and" a ) b ->
+        Expr.App ( Expr.App ( Expr.Var (Expr.V "and" 0)) a ) b ->
           SPDX.EAnd <$> go a <*> go b
 
-        Expr.App ( Expr.App "or" a ) b ->
+        Expr.App ( Expr.App ( Expr.Var (Expr.V "or"  0)) a ) b ->
           SPDX.EOr <$> go a <*> go b
 
         _ ->
