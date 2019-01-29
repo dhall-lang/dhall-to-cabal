@@ -723,6 +723,7 @@ license =
         , ( "PublicDomain", Right Cabal.PublicDomain <$ Dhall.unit )
         , ( "AllRightsReserved", Right Cabal.AllRightsReserved<$ Dhall.unit )
         , ( "Unspecified", Right Cabal.UnspecifiedLicense <$ Dhall.unit )
+        , ( "Unknown", Right . Cabal.UnknownLicense <$> Dhall.string )
         , ( "Other", Right Cabal.OtherLicense <$ Dhall.unit )
         , ( "SPDX", Left . SPDX.License <$> spdxLicense )
         ]
