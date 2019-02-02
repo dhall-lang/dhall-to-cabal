@@ -12,12 +12,14 @@ import Data.Foldable ( for_ )
 import Data.String ( fromString )
 import System.Directory ( createDirectoryIfMissing )
 import System.FilePath
-  ( (</>), (<.>), dropTrailingPathSeparator, joinPath, normalise
+  ( (</>), (<.>), dropTrailingPathSeparator, normalise
   , splitDirectories, splitFileName, takeDirectory
   )
 
 import CabalToDhall
   ( KnownDefault, PreludeReference (..), getDefault )
+import DhallToCabal.Util
+  ( relativeTo )
 
 import qualified Data.Text.Prettyprint.Doc as Pretty
 import qualified Data.Text.Prettyprint.Doc.Render.Text as Pretty
@@ -48,27 +50,6 @@ metaOptionsParser =
 defaultFile :: KnownDefault -> FilePath
 defaultFile typ = "./defaults" </> show typ <.> "dhall"
 
-
--- | Like 'System.FilePath.makeRelative', but will introduce @..@
--- segments (and hence will misbehave in the presence of symlinks).
-relativeTo
-  :: FilePath
-     -- ^ The path to be relative to. Note that the final file-name is
-     -- ignored: @foo/bar@ is relative to @foo/@, even if @foo/bar@ is
-     -- a directory.
-  -> FilePath
-     -- ^ The path to relativise.
-  -> FilePath
-relativeTo =
-  \ ( splitDirectories . dropTrailingPathSeparator . takeDirectory . normalise -> base ) ->
-  \ ( splitDirectories . normalise -> path ) ->
-      joinPath ( go base path )
-  where
-  go ( a : as ) ( b : bs )
-    | a == b = go as bs
-    | otherwise = ( ".." <$ ( a : as ) ) ++ ( b : bs )
-  go [] bs = bs
-  go as [] = ".." <$ as
 
 importFile :: FilePath -> Dhall.Core.Import
 importFile ( splitFileName -> ( directory, filename ) ) =
