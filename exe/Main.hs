@@ -1,9 +1,7 @@
-{-# language GeneralizedNewtypeDeriving #-}
 {-# language NoMonomorphismRestriction #-}
 {-# language NamedFieldPuns #-}
 {-# language OverloadedStrings #-}
 {-# language RecordWildCards #-}
-{-# language TupleSections #-}
 {-# language ViewPatterns #-}
 
 module Main ( main ) where
