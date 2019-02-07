@@ -54,7 +54,7 @@ in  { author =
     , library =
         None (∀(config : types.Config) → types.Library)
     , license =
-        (constructors types.License).AllRightsReserved {=}
+        types.License.AllRightsReserved {=}
     , license-files =
         [] : List Text
     , maintainer =
