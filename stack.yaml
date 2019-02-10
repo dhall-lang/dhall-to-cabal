@@ -1,10 +1,8 @@
-resolver: lts-12.13
+resolver: lts-13.5
 packages:
   - .
 extra-deps:
-  - dhall-1.18.0@rev:0
-  - Cabal-2.4.0.0@rev:0
-  - megaparsec-7.0.1
-  - repline-0.2.0.0
-  - serialise-0.2.1.0
+  - dhall-1.20.1
+  - Cabal-2.4.0.0
+  - tasty-1.1.0.4
 allow-newer: true
