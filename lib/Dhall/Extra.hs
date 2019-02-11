@@ -12,7 +12,6 @@ module Dhall.Extra
   where
 
 import Control.Monad ( join )
-import Data.Hashable ( Hashable )
 import Data.List ( sortBy )
 import Data.Ord ( comparing )
 

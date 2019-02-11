@@ -94,11 +94,11 @@ meta (MetaOptions {..}) = do
             Expr.Embed
               ( importFile ( relativeTo localDest ( defaultFile typ ) ) )
           PreludeConstructorsLicense ->
-            Expr.Constructors ( Expr.Var "types" `Expr.Field` "License" )
+            Expr.Var "types" `Expr.Field` "License"
           PreludeConstructorsRepoKind ->
-            Expr.Constructors ( Expr.Var "types" `Expr.Field` "RepoKind" )
+            Expr.Var "types" `Expr.Field` "RepoKind"
           PreludeConstructorsScope ->
-            Expr.Constructors ( Expr.Var "types" `Expr.Field` "Scope" )
+            Expr.Var "types" `Expr.Field` "Scope"
           PreludeV ->
             Expr.Embed
               ( importFile ( relativeTo localDest "./Version/v.dhall" ) )

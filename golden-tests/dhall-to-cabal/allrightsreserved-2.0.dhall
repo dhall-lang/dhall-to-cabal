@@ -4,6 +4,6 @@ in   prelude.defaults.Package
   // { name = "foo"
      , version = prelude.v "0"
      , cabal-version = prelude.v "2.0"
-     , license = prelude.types.Licenses.AllRightsReserved {=}
+     , license = types.License.AllRightsReserved {=}
      , library = prelude.unconditional.library prelude.defaults.Library
      }

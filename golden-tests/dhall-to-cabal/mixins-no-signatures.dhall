@@ -15,16 +15,16 @@ in    prelude.defaults.Package
                           "foo"
                       , renaming =
                           { provides =
-                              prelude.types.ModuleRenaming.default {=}
+                              types.ModuleRenaming.default {=}
                           , requires =
-                              prelude.types.ModuleRenaming.default {=}
+                              types.ModuleRenaming.default {=}
                           }
                       }
                     , { package =
                           "bar"
                       , renaming =
                           { provides =
-                              prelude.types.ModuleRenaming.renaming
+                              types.ModuleRenaming.renaming
                               [ { rename = "Some.Module", to = "Some.Module" }
                               , { rename =
                                     "Some.Other.Module"
@@ -34,17 +34,17 @@ in    prelude.defaults.Package
                               , { rename = "Third.Module", to = "Renamed" }
                               ]
                           , requires =
-                              prelude.types.ModuleRenaming.default {=}
+                              types.ModuleRenaming.default {=}
                           }
                       }
                     , { package =
                           "baz"
                       , renaming =
                           { provides =
-                              prelude.types.ModuleRenaming.hiding
+                              types.ModuleRenaming.hiding
                               [ "Hidden", "Also.Hidden" ]
                           , requires =
-                              prelude.types.ModuleRenaming.default {=}
+                              types.ModuleRenaming.default {=}
                           }
                       }
                     ]

@@ -4,11 +4,11 @@ in   prelude.defaults.Package
   // { name = "foo"
      , version = prelude.v "0"
      , cabal-version = prelude.v "2.2"
-     , license = prelude.types.Licenses.SPDX
+     , license = types.License.SPDX
          ( prelude.SPDX.and
            ( prelude.SPDX.or
-             (prelude.SPDX.license (prelude.types.LicenseId.AGPL_3_0_or_later {=}) prelude.SPDX.noException)
-             (prelude.SPDX.licenseVersionOrLater (prelude.types.LicenseId.Apache_2_0 {=}) ([prelude.types.LicenseExceptionId.Classpath_exception_2_0 {=}] : Optional types.LicenseExceptionId))
+             (prelude.SPDX.license (types.LicenseId.AGPL_3_0_or_later {=}) prelude.SPDX.noException)
+             (prelude.SPDX.licenseVersionOrLater (types.LicenseId.Apache_2_0 {=}) ([types.LicenseExceptionId.Classpath_exception_2_0 {=}] : Optional types.LicenseExceptionId))
           )
           ( prelude.SPDX.or
             (prelude.SPDX.ref "MyFancyLicense" ([] : Optional types.LicenseExceptionId))

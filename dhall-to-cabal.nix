@@ -10,8 +10,8 @@ mkDerivation {
   isLibrary = true;
   isExecutable = true;
   libraryHaskellDepends = [
-    base bytestring Cabal containers contravariant dhall hashable text
-    transformers vector
+    base bytestring Cabal containers contravariant dhall filepath
+    hashable text transformers vector
   ];
   executableHaskellDepends = [
     base bytestring Cabal dhall directory filepath microlens
