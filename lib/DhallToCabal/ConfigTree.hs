@@ -97,4 +97,3 @@ transformMOf
 transformMOf l f = go where
   go t = l go t >>= f
 {-# INLINE transformMOf #-}
-

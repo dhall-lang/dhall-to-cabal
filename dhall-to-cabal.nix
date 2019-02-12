@@ -5,13 +5,13 @@
 }:
 mkDerivation {
   pname = "dhall-to-cabal";
-  version = "1.4.0.0";
+  version = "1.3.1.0";
   src = ./.;
   isLibrary = true;
   isExecutable = true;
   libraryHaskellDepends = [
-    base bytestring Cabal containers contravariant dhall hashable text
-    transformers vector
+    base bytestring Cabal containers contravariant dhall filepath
+    hashable text transformers vector
   ];
   executableHaskellDepends = [
     base bytestring Cabal dhall directory filepath microlens

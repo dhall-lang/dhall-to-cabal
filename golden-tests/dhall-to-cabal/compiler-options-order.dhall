@@ -23,28 +23,36 @@ in    ./../../dhall/defaults/Package.dhall
                       prelude.defaults.CompilerOptions
                     ⫽ { GHC =
                             [ "A" ]
-                          # ( if ghcImpl
-                                    config
-                                    (prelude.orLaterVersion (v "8.2"))
+                          # (       if ghcImpl
+                                       config
+                                       (prelude.orLaterVersion (v "8.2"))
+                              
                               then  [ "B" ]
+                              
                               else  [] : List Text
                             )
-                          # ( if ghcImpl
-                                    config
-                                    (prelude.orLaterVersion (v "8.4"))
+                          # (       if ghcImpl
+                                       config
+                                       (prelude.orLaterVersion (v "8.4"))
+                              
                               then  [ "C" ]
+                              
                               else  [] : List Text
                             )
-                          # ( if ghcImpl
-                                    config
-                                    (prelude.orLaterVersion (v "8.2"))
+                          # (       if ghcImpl
+                                       config
+                                       (prelude.orLaterVersion (v "8.2"))
+                              
                               then  [ "D" ]
+                              
                               else  [] : List Text
                             )
-                          # ( if ghcImpl
-                                    config
-                                    (prelude.orLaterVersion (v "8.4"))
+                          # (       if ghcImpl
+                                       config
+                                       (prelude.orLaterVersion (v "8.4"))
+                              
                               then  [ "E" ]
+                              
                               else  [] : List Text
                             )
                           # [ "F" ]

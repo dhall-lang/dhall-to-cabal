@@ -1,14 +1,14 @@
-let Version = ./../types/Version.dhall
+let Version = ../types/Version.dhall
 
-let VersionRange = ./../types/VersionRange.dhall
+let VersionRange = ../types/VersionRange.dhall
 
 let Versions =
       { unionVersionRanges =
-          ./../VersionRange/unionVersionRanges.dhall
+          ../VersionRange/unionVersionRanges.dhall
       , majorBoundVersion =
-          ./../VersionRange/majorBoundVersion.dhall
+          ../VersionRange/majorBoundVersion.dhall
       , noVersion =
-          ./../VersionRange/noVersion.dhall
+          ../VersionRange/noVersion.dhall
       }
 
 let majorVersions

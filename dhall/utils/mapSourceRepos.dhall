@@ -1,6 +1,6 @@
-let SourceRepo = ./../types/SourceRepo.dhall
+let SourceRepo = ../types/SourceRepo.dhall
 
-let Package = ./../types/Package.dhall
+let Package = ../types/Package.dhall
 
 let mapSourceRepos
     : (SourceRepo → SourceRepo) → Package → Package

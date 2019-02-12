@@ -28,7 +28,7 @@ import DhallLocation ( DhallLocation ( DhallLocation ) )
 import DhallToCabal ( dhallToCabal )
 
 
-  
+
 main :: IO ()
 main =
   defaultMain =<< goldenTests
@@ -124,26 +124,26 @@ goldenTests = do
              )
 
              ( \( LazyText.unpack -> exp ) ( LazyText.unpack -> act ) -> do
-                 let 
-                   gDiff = 
+                 let
+                   gDiff =
                      getGroupedDiff ( lines exp ) ( lines act )
-                     
-                   ppDiff' = 
+
+                   ppDiff' =
                      ppDiff gDiff
-                    
-                 if ppDiff' == "\n" 
+
+                 if ppDiff' == "\n"
                    then return Nothing
                    else do
-                     putStrLn 
-                       ( "Diff between expected " 
-                           ++ dhallFile 
-                           ++ " and actual " 
-                           ++ cabalFile 
+                     putStrLn
+                       ( "Diff between expected "
+                           ++ dhallFile
+                           ++ " and actual "
+                           ++ cabalFile
                            ++ " :"
                        )
-                       
+
                      putStrLn ppDiff'
-                     
+
                      return ( Just "Generated .dhall file does not match input" )
               )
               ( LazyText.writeFile dhallFile )

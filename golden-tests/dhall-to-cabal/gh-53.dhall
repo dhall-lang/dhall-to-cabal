@@ -1,6 +1,6 @@
-let prelude = ./../../dhall/prelude.dhall
+    let prelude = ../../dhall/prelude.dhall
 
-let types = ./../../dhall/types.dhall
+in  let types = ../../dhall/types.dhall
 
 in    prelude.defaults.Package
     ⫽ { cabal-version =
@@ -21,22 +21,27 @@ in    prelude.defaults.Package
             }
           ]
       , library =
-          [   λ(config : types.Config)
-            → if config.impl
-                    (types.Compiler.GHC {=})
-                    (prelude.orLaterVersion (prelude.v "0.0.9"))
-              then  if config.flag "wai-servlet-debug"
+          [   λ ( config
+                : types.Config
+                )
+            →       if    config.impl
+                          (types.Compiler.GHC {=})
+                          (prelude.orLaterVersion (prelude.v "0.0.9"))
+                    then        if    config.flag "wai-servlet-debug"
+                                then    prelude.defaults.Library
+                                      ⫽ { c-sources =
+                                            [ "java/Utils.java" ]
+                                        , cpp-options =
+                                            [ "-DWAI_SERVLET_DEBUG" ]
+                                        }
+
+                          else    prelude.defaults.Library
+                                ⫽ { c-sources = [ "java/Utils.java" ] }
+
+              else  if    config.flag "wai-servlet-debug"
                     then    prelude.defaults.Library
-                          ⫽ { c-sources =
-                                [ "java/Utils.java" ]
-                            , cpp-options =
-                                [ "-DWAI_SERVLET_DEBUG" ]
-                            }
-                    else    prelude.defaults.Library
-                          ⫽ { c-sources = [ "java/Utils.java" ] }
-              else  if config.flag "wai-servlet-debug"
-              then    prelude.defaults.Library
-                    ⫽ { cpp-options = [ "-DWAI_SERVLET_DEBUG" ] }
+                          ⫽ { cpp-options = [ "-DWAI_SERVLET_DEBUG" ] }
+
               else  prelude.defaults.Library
           ] : Optional (types.Config → types.Library)
       }

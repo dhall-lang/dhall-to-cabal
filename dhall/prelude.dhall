@@ -15,31 +15,31 @@
         ./defaults/TestSuite.dhall
     }
 , anyVersion =
-    ./VersionRange/anyVersion.dhall 
+    ./VersionRange/anyVersion.dhall
 , earlierVersion =
-    ./VersionRange/earlierVersion.dhall 
+    ./VersionRange/earlierVersion.dhall
 , orEarlierVersion =
-    ./VersionRange/orEarlierVersion.dhall 
+    ./VersionRange/orEarlierVersion.dhall
 , intersectVersionRanges =
-    ./VersionRange/intersectVersionRanges.dhall 
+    ./VersionRange/intersectVersionRanges.dhall
 , unionVersionRanges =
-    ./VersionRange/unionVersionRanges.dhall 
+    ./VersionRange/unionVersionRanges.dhall
 , majorBoundVersion =
-    ./VersionRange/majorBoundVersion.dhall 
+    ./VersionRange/majorBoundVersion.dhall
 , orLaterVersion =
-    ./VersionRange/orLaterVersion.dhall 
+    ./VersionRange/orLaterVersion.dhall
 , laterVersion =
-    ./VersionRange/laterVersion.dhall 
+    ./VersionRange/laterVersion.dhall
 , thisVersion =
-    ./VersionRange/thisVersion.dhall 
+    ./VersionRange/thisVersion.dhall
 , notThisVersion =
-    ./VersionRange/notThisVersion.dhall 
+    ./VersionRange/notThisVersion.dhall
 , withinVersion =
-    ./VersionRange/withinVersion.dhall 
+    ./VersionRange/withinVersion.dhall
 , v =
-    ./Version/v.dhall 
+    ./Version/v.dhall
 , noVersion =
-    ./VersionRange/noVersion.dhall 
+    ./VersionRange/noVersion.dhall
 , utils =
     ./utils/package.dhall
 , unconditional =
