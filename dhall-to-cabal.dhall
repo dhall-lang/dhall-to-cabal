@@ -91,7 +91,6 @@ in    prelude.utils.GitHub-project
       -- build-type simple is needed to allow tools compatible with cabal < 2.2 build the package
       , build-type =
           Some ( types.BuildType.Simple {=} )
-          [ types.BuildType.Simple {=} ] : Optional types.BuildType
       , maintainer =
           "ollie@ocharles.org.uk"
       , author =
