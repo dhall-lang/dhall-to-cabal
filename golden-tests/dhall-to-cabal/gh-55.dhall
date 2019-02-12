@@ -15,7 +15,8 @@ in    ./../../dhall/defaults/Package.dhall
       , version =
           v "1"
       , library =
-          [   λ(config : types.Config)
+          Some
+          (   λ(config : types.Config)
             →   prelude.defaults.Library
               ⫽ { exposed-modules =
                       [ "Module1" ]
@@ -40,5 +41,5 @@ in    ./../../dhall/defaults/Package.dhall
                     
                     else  [] : List Text
                 }
-          ] : Optional (../../dhall/types/Guarded.dhall types.Library)
+          )
       }

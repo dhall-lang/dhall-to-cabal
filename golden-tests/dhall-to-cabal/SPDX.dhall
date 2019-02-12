@@ -19,20 +19,18 @@ in    prelude.defaults.Package
               )
               ( prelude.SPDX.licenseVersionOrLater
                 (types.LicenseId.Apache_2_0 {=})
-                ( [ types.LicenseExceptionId.Classpath_exception_2_0 {=}
-                  ] : Optional types.LicenseExceptionId
-                )
+                (Some (types.LicenseExceptionId.Classpath_exception_2_0 {=}))
               )
             )
             ( prelude.SPDX.or
               ( prelude.SPDX.ref
                 "MyFancyLicense"
-                ([] : Optional types.LicenseExceptionId)
+                (None types.LicenseExceptionId)
               )
               ( prelude.SPDX.refWithFile
                 "MyFancierLicense"
                 "LICENSE.txt"
-                ([] : Optional types.LicenseExceptionId)
+                (None types.LicenseExceptionId)
               )
             )
           )

@@ -6,8 +6,6 @@ let v = prelude.v
 
 let anyVersion = prelude.anyVersion
 
-let OS = types.OS
-
 let package =
         λ(package : Text)
       → λ(version-range : types.VersionRange)

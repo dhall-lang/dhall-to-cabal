@@ -10,7 +10,8 @@ in    prelude.defaults.Package
       , version =
           v "0"
       , library =
-          [   λ(config : types.Config)
+          Some
+          (   λ(config : types.Config)
             →   prelude.defaults.Library
               ⫽ { compiler-options =
                       prelude.defaults.CompilerOptions
@@ -34,5 +35,5 @@ in    prelude.defaults.Package
                             )
                       }
                 }
-          ] : Optional (types.Config → types.Library)
+          )
       }

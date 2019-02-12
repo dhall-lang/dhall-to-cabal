@@ -15,7 +15,8 @@ in    ../../dhall/defaults/Package.dhall
       , version =
           v "1"
       , library =
-          [   λ(config : types.Config)
+          Some
+          (   λ(config : types.Config)
             →   prelude.defaults.Library
               ⫽ { build-depends =
                       [ { package = "A", bounds = prelude.anyVersion } ]
@@ -36,5 +37,5 @@ in    ../../dhall/defaults/Package.dhall
                         else  [] : List types.Dependency
                       )
                 }
-          ] : Optional (types.Config → types.Library)
+          )
       }

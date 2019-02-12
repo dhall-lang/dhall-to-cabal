@@ -5,12 +5,7 @@ let types = ../../dhall/types.dhall
 let updateRepo =
       prelude.utils.mapSourceRepos
       (   λ(srcRepo : types.SourceRepo)
-        →   srcRepo
-          ⫽ { tag =
-                [ "1.0.0" ] : Optional Text
-            , kind =
-                types.RepoKind.RepoThis {=}
-            }
+        → srcRepo ⫽ { tag = Some "1.0.0", kind = types.RepoKind.RepoThis {=} }
       )
 
 let project = prelude.utils.GitHub-project { owner = "owner", repo = "repo" }
