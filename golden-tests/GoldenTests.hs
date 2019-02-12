@@ -122,6 +122,7 @@ goldenTests = do
                         . cabalToDhall dhallLocation
                         )
              )
+
              ( \( LazyText.unpack -> exp ) ( LazyText.unpack -> act ) -> do
                  let
                    gDiff =

@@ -90,7 +90,7 @@ in    prelude.utils.GitHub-project
           "Distribution"
       -- build-type simple is needed to allow tools compatible with cabal < 2.2 build the package
       , build-type =
-          [ types.BuildType.Simple {=} ] : Optional types.BuildType
+          Some ( types.BuildType.Simple {=} )
       , maintainer =
           "ollie@ocharles.org.uk"
       , author =
@@ -208,13 +208,13 @@ in    prelude.utils.GitHub-project
               , hs-source-dirs =
                   [ "lib" ]
               , other-extensions =
-                  [ types.Extensions.ApplicativeDo True
-                  , types.Extensions.GADTs True
-                  , types.Extensions.GeneralizedNewtypeDeriving True
-                  , types.Extensions.LambdaCase True
-                  , types.Extensions.OverloadedStrings True
-                  , types.Extensions.RecordWildCards True
-                  , types.Extensions.TypeApplications True
+                  [ types.Extension.ApplicativeDo True
+                  , types.Extension.GADTs True
+                  , types.Extension.GeneralizedNewtypeDeriving True
+                  , types.Extension.LambdaCase True
+                  , types.Extension.OverloadedStrings True
+                  , types.Extension.RecordWildCards True
+                  , types.Extension.TypeApplications True
                   ]
               , other-modules =
                   [ "DhallToCabal.ConfigTree"
@@ -223,8 +223,7 @@ in    prelude.utils.GitHub-project
                   , "Paths_dhall_to_cabal"
                   ]
               , default-language =
-                  [ types.Languages.Haskell2010 {=} ] : Optional
-                                                                types.Language
+                  Some ( types.Language.Haskell2010 {=} )
               }
           )
       , executables =
@@ -251,14 +250,13 @@ in    prelude.utils.GitHub-project
                 , main-is =
                     "Main.hs"
                 , other-extensions =
-                    [ types.Extensions.NamedFieldPuns True ]
+                    [ types.Extension.NamedFieldPuns True ]
                 , other-modules =
                     [ "Paths_dhall_to_cabal" ]
                 , autogen-modules =
                     [ "Paths_dhall_to_cabal" ]
                 , default-language =
-                    [ types.Languages.Haskell2010 {=} ] : Optional
-                                                                  types.Language
+                    Some ( types.Language.Haskell2010 {=} )
                 }
             )
           , prelude.unconditional.executable
@@ -280,14 +278,13 @@ in    prelude.utils.GitHub-project
                 , main-is =
                     "Main.hs"
                 , other-extensions =
-                    [ types.Extensions.NamedFieldPuns True ]
+                    [ types.Extension.NamedFieldPuns True ]
                 , other-modules =
                     [ "Paths_dhall_to_cabal" ]
                 , autogen-modules =
                     [ "Paths_dhall_to_cabal" ]
                 , default-language =
-                    [ types.Languages.Haskell2010 {=} ] : Optional
-                                                                  types.Language
+                    Some ( types.Language.Haskell2010 {=} )
                 }
             )
           , prelude.unconditional.executable
@@ -307,8 +304,7 @@ in    prelude.utils.GitHub-project
                 , hs-source-dirs =
                     [ "meta" ]
                 , default-language =
-                    [ types.Languages.Haskell2010 {=} ] : Optional
-                                                                  types.Language
+                    Some ( types.Language.Haskell2010 {=} )
                 , compiler-options =
                     prelude.defaults.CompilerOptions ⫽ { GHC = warning-options }
                 , main-is =
@@ -342,8 +338,7 @@ in    prelude.utils.GitHub-project
                     types.TestType.exitcode-stdio
                     { main-is = "GoldenTests.hs" }
                 , default-language =
-                    [ types.Languages.Haskell2010 {=} ] : Optional
-                                                                  types.Language
+                    Some ( types.Language.Haskell2010 {=} )
                 }
             )
           , prelude.unconditional.test-suite
@@ -366,8 +361,7 @@ in    prelude.utils.GitHub-project
                     types.TestType.exitcode-stdio
                     { main-is = "Tests.hs" }
                 , default-language =
-                    [ types.Languages.Haskell2010 {=} ] : Optional
-                                                                  types.Language
+                    Some ( types.Language.Haskell2010 {=} )
                 , other-modules =
                     [ "DhallToCabal.Tests" ]
                 }

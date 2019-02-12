@@ -1,6 +1,6 @@
-   let prelude = ../../dhall/prelude.dhall
-in let types = ../../dhall/types.dhall
-in let v = prelude.v
+let prelude = ../../dhall/prelude.dhall 
+let types = ../../dhall/types.dhall 
+let v = prelude.v
 in   prelude.defaults.Package
   // { name = "foo"
      , version = v "0"

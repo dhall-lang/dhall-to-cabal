@@ -814,11 +814,10 @@ printDefault PrintDefaultOptions {..} = do
 
   where
     withPreludeImport =
-      Expr.Let (Expr.Binding "prelude" Nothing ( Expr.Embed ( preludeLocation dhallFromGitHub ) ) :| [])
+      Expr.Let (Expr.Binding "prelude" Nothing
+                  ( Expr.Embed ( preludeLocation dhallFromGitHub ) ) :| [])
 
     expr :: Expr.Expr Dhall.Parser.Src Dhall.Import
-    expr =
-      getDefault
-        ( typesLocation dhallFromGitHub )
-        resolvePreludeVar
-        defaultToPrint
+    expr = getDefault
+             ( typesLocation dhallFromGitHub )
+             resolvePreludeVar defaultToPrint

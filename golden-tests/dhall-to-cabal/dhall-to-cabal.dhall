@@ -1,62 +1,62 @@
-    let prelude = ../../dhall/prelude.dhall
+let prelude = ../../dhall/prelude.dhall
 
-in  let types = ../../dhall/types.dhall
+let types = ../../dhall/types.dhall
 
-in  let v = prelude.v
+let v = prelude.v
 
-in  let anyVersion = prelude.anyVersion
+let anyVersion = prelude.anyVersion
 
-in  let OS = types.OS
+let OS = types.OS
 
-in  let package =
-            λ(package : Text)
-          → λ(version-range : types.VersionRange)
-          → { bounds = version-range, package = package }
+let package =
+        λ(package : Text)
+      → λ(version-range : types.VersionRange)
+      → { bounds = version-range, package = package }
 
-in  let majorVersions = prelude.utils.majorVersions
+let majorVersions = prelude.utils.majorVersions
 
-in  let deps =
-          { Cabal =
-              majorVersions "Cabal" [ v "2.0" ]
-          , Diff =
-              majorVersions "Diff" [ v "0.3.4" ]
-          , base =
-              majorVersions "base" [ v "4.10" ]
-          , bytestring =
-              majorVersions "bytestring" [ v "0.10" ]
-          , containers =
-              majorVersions "containers" [ v "0.5" ]
-          , dhall =
-              majorVersions "dhall" [ v "1.12.0" ]
-          , dhall-to-cabal =
-              package "dhall-to-cabal" anyVersion
-          , filepath =
-              majorVersions "filepath" [ v "1.4" ]
-          , insert-ordered-containers =
-              majorVersions "insert-ordered-containers" [ v "0.2.1.0" ]
-          , optparse-applicative =
-              majorVersions "optparse-applicative" [ v "0.13.2", v "0.14" ]
-          , prettyprinter =
-              majorVersions "prettyprinter" [ v "1.2.0.1" ]
-          , contravariant =
-              majorVersions "contravariant" [ v "1.4" ]
-          , hashable =
-              majorVersions "hashable" [ v "1.2.6.1" ]
-          , tasty =
-              majorVersions "tasty" [ v "0.11" ]
-          , tasty-golden =
-              majorVersions "tasty-golden" [ v "2.3" ]
-          , text =
-              majorVersions "text" [ v "1.2" ]
-          , formatting =
-              majorVersions "formatting" [ v "6.3.1" ]
-          , transformers =
-              majorVersions "transformers" [ v "0.5.2" ]
-          , trifecta =
-              majorVersions "trifecta" [ v "1.7" ]
-          , vector =
-              majorVersions "vector" [ v "0.12" ]
-          }
+let deps =
+      { Cabal =
+          majorVersions "Cabal" [ v "2.0" ]
+      , Diff =
+          majorVersions "Diff" [ v "0.3.4" ]
+      , base =
+          majorVersions "base" [ v "4.10" ]
+      , bytestring =
+          majorVersions "bytestring" [ v "0.10" ]
+      , containers =
+          majorVersions "containers" [ v "0.5" ]
+      , dhall =
+          majorVersions "dhall" [ v "1.12.0" ]
+      , dhall-to-cabal =
+          package "dhall-to-cabal" anyVersion
+      , filepath =
+          majorVersions "filepath" [ v "1.4" ]
+      , insert-ordered-containers =
+          majorVersions "insert-ordered-containers" [ v "0.2.1.0" ]
+      , optparse-applicative =
+          majorVersions "optparse-applicative" [ v "0.13.2", v "0.14" ]
+      , prettyprinter =
+          majorVersions "prettyprinter" [ v "1.2.0.1" ]
+      , contravariant =
+          majorVersions "contravariant" [ v "1.4" ]
+      , hashable =
+          majorVersions "hashable" [ v "1.2.6.1" ]
+      , tasty =
+          majorVersions "tasty" [ v "0.11" ]
+      , tasty-golden =
+          majorVersions "tasty-golden" [ v "2.3" ]
+      , text =
+          majorVersions "text" [ v "1.2" ]
+      , formatting =
+          majorVersions "formatting" [ v "6.3.1" ]
+      , transformers =
+          majorVersions "transformers" [ v "0.5.2" ]
+      , trifecta =
+          majorVersions "trifecta" [ v "1.7" ]
+      , vector =
+          majorVersions "vector" [ v "0.12" ]
+      }
 
 in    prelude.utils.GitHub-project
       { owner = "ocharles", repo = "dhall-to-cabal" }
@@ -163,13 +163,13 @@ in    prelude.utils.GitHub-project
               , hs-source-dirs =
                   [ "lib" ]
               , other-extensions =
-                  [ types.Extensions.ApplicativeDo True
-                  , types.Extensions.GADTs True
-                  , types.Extensions.GeneralizedNewtypeDeriving True
-                  , types.Extensions.LambdaCase True
-                  , types.Extensions.OverloadedStrings True
-                  , types.Extensions.RecordWildCards True
-                  , types.Extensions.TypeApplications True
+                  [ types.Extension.ApplicativeDo True
+                  , types.Extension.GADTs True
+                  , types.Extension.GeneralizedNewtypeDeriving True
+                  , types.Extension.LambdaCase True
+                  , types.Extension.OverloadedStrings True
+                  , types.Extension.RecordWildCards True
+                  , types.Extension.TypeApplications True
                   ]
               , other-modules =
                   [ "DhallToCabal.ConfigTree"
@@ -177,7 +177,7 @@ in    prelude.utils.GitHub-project
                   , "Dhall.Extra"
                   ]
               , default-language =
-                  [ types.Languages.Haskell2010 {=} ] : Optional types.Language
+                  Some ( types.Language.Haskell2010 {=} )
               }
           )
       , executables =
@@ -198,9 +198,9 @@ in    prelude.utils.GitHub-project
                 , main-is =
                     "Main.hs"
                 , other-extensions =
-                    [ types.Extensions.NamedFieldPuns True ]
+                    [ types.Extension.NamedFieldPuns True ]
                 , default-language =
-                    [ types.Languages.Haskell2010 {=} ] : Optional types.Language
+                    Some ( types.Language.Haskell2010 {=} )
                 }
             )
           , prelude.unconditional.executable
@@ -223,9 +223,9 @@ in    prelude.utils.GitHub-project
                 , main-is =
                     "Main.hs"
                 , other-extensions =
-                    [ types.Extensions.NamedFieldPuns True ]
+                    [ types.Extension.NamedFieldPuns True ]
                 , default-language =
-                    [ types.Languages.Haskell2010 {=} ] : Optional types.Language
+                    Some ( types.Language.Haskell2010 {=} )
                 }
             )
           ]
@@ -250,7 +250,7 @@ in    prelude.utils.GitHub-project
                     types.TestType.exitcode-stdio
                     { main-is = "GoldenTests.hs" }
                 , default-language =
-                    [ types.Languages.Haskell2010 {=} ] : Optional types.Language
+                    Some ( types.Language.Haskell2010 {=} )
                 }
             )
           ]
