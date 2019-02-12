@@ -1,6 +1,11 @@
 # dhall-to-cabal change log
 
-## Next
+## 1.3.2.0 -- 2019-02-12
+
+* Use `dhall` version 1.20.1.
+
+* `prelude.dhall` no longer provides types (as this isn't supported in
+  Dhall 1.20.1). Instead, there is now a new `types.dhall` file.
 
 * `dhall-to-cabal` now accepts`--output-stdout`, `--output-dir-cwd
   DIR`, and `--output-dir-input DIR` flags control the destination of
