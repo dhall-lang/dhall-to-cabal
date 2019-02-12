@@ -3,6 +3,7 @@ let GitHubProject : Type = { owner : Text, repo : Text }
 let gitHubProject =
         λ(github : GitHubProject)
       → let gitHubRoot = "https://github.com/${github.owner}/${github.repo}"
+        
         in    ../defaults/Package.dhall
             ⫽ { name =
                   github.repo

@@ -15,7 +15,8 @@ in    ../../dhall/defaults/Package.dhall
       , version =
           ../../dhall/Version/v.dhall "1"
       , library =
-          [   λ(config : types.Config)
+          Some
+          (   λ(config : types.Config)
             →   prelude.defaults.Library
               ⫽ { exposed-modules =
                     [ "Foo", "Bar" ]
@@ -58,5 +59,5 @@ in    ../../dhall/defaults/Package.dhall
                           # [ "F" ]
                       }
                 }
-          ] : Optional (types.Config → types.Library)
+          )
       }

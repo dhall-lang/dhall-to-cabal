@@ -1,5 +1,5 @@
 { type :
-    Optional ./RepoType.dhall 
+    Optional ./RepoType.dhall
 , location :
     Optional Text
 , module :
@@ -11,5 +11,5 @@
 , subdir :
     Optional Text
 , kind :
-    ./RepoKind.dhall 
+    ./RepoKind.dhall
 }

@@ -15,24 +15,31 @@ in    ./../../dhall/defaults/Package.dhall
       , version =
           v "1"
       , library =
-          [   λ(config : types.Config)
+          Some
+          (   λ(config : types.Config)
             →   prelude.defaults.Library
               ⫽ { exposed-modules =
                       [ "Module1" ]
-                    # ( if ghcImpl
-                              config
-                              (prelude.orLaterVersion (v "7.1.3"))
+                    # (       if ghcImpl
+                                 config
+                                 (prelude.orLaterVersion (v "7.1.3"))
+                        
                         then  [ "Module2" ]
+                        
                         else  [] : List Text
                       )
                 , other-modules =
-                    if ghcImpl config (prelude.orLaterVersion (v "7.1.3"))
+                          if ghcImpl config (prelude.orLaterVersion (v "7.1.3"))
+                    
                     then  [ "OtherModule" ]
+                    
                     else  [] : List Text
                 , cpp-options =
-                    if ghcImpl config (prelude.orLaterVersion (v "7.1.3"))
+                          if ghcImpl config (prelude.orLaterVersion (v "7.1.3"))
+                    
                     then  [ "-DCOND1" ]
+                    
                     else  [] : List Text
                 }
-          ] : Optional (../../dhall/types/Guarded.dhall types.Library)
+          )
       }

@@ -1,4 +1,4 @@
-  ./BuildInfo.dhall 
+  ./BuildInfo.dhall
 ⩓ { exposed-modules :
       List Text
   , reexported-modules :

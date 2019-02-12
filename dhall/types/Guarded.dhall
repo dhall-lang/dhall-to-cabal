@@ -1,1 +1,1 @@
-λ(A : Type) → ./Config.dhall  → A
+λ(A : Type) → ./Config.dhall → A

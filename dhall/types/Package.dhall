@@ -1,19 +1,19 @@
 { author :
     Text
 , benchmarks :
-    List { benchmark : ./Guarded.dhall  ./Benchmark.dhall , name : Text }
+    List { benchmark : ./Guarded.dhall ./Benchmark.dhall, name : Text }
 , bug-reports :
     Text
 , build-type :
-    Optional ./BuildType.dhall 
+    Optional ./BuildType.dhall
 , cabal-version :
-    ./Version.dhall 
+    ./Version.dhall
 , category :
     Text
 , copyright :
     Text
 , custom-setup :
-    Optional ./CustomSetup.dhall 
+    Optional ./CustomSetup.dhall
 , data-dir :
     Text
 , data-files :
@@ -21,7 +21,7 @@
 , description :
     Text
 , executables :
-    List { executable : ./Guarded.dhall  ./Executable.dhall , name : Text }
+    List { executable : ./Guarded.dhall ./Executable.dhall, name : Text }
 , extra-doc-files :
     List Text
 , extra-source-files :
@@ -31,13 +31,13 @@
 , flags :
     List { default : Bool, description : Text, manual : Bool, name : Text }
 , foreign-libraries :
-    List { foreign-lib : ./Guarded.dhall  ./ForeignLibrary.dhall , name : Text }
+    List { foreign-lib : ./Guarded.dhall ./ForeignLibrary.dhall, name : Text }
 , homepage :
     Text
 , library :
-    Optional (./Guarded.dhall  ./Library.dhall )
+    Optional (./Guarded.dhall ./Library.dhall)
 , license :
-    ./License.dhall 
+    ./License.dhall
 , license-files :
     List Text
 , maintainer :
@@ -47,19 +47,19 @@
 , package-url :
     Text
 , source-repos :
-    List ./SourceRepo.dhall 
+    List ./SourceRepo.dhall
 , stability :
     Text
 , sub-libraries :
-    List { library : ./Guarded.dhall  ./Library.dhall , name : Text }
+    List { library : ./Guarded.dhall ./Library.dhall, name : Text }
 , synopsis :
     Text
 , test-suites :
-    List { name : Text, test-suite : ./Guarded.dhall  ./TestSuite.dhall  }
+    List { name : Text, test-suite : ./Guarded.dhall ./TestSuite.dhall }
 , tested-with :
-    List { compiler : ./Compiler.dhall , version : ./VersionRange.dhall  }
+    List { compiler : ./Compiler.dhall, version : ./VersionRange.dhall }
 , version :
-    ./Version.dhall 
+    ./Version.dhall
 , x-fields :
     List { _1 : Text, _2 : Text }
 }
