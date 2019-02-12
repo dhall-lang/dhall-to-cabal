@@ -1,6 +1,6 @@
-let prelude = ./../../dhall/prelude.dhall
+let prelude = ../../dhall/prelude.dhall
 
-let types = ./../../dhall/types.dhall
+let types = ../../dhall/types.dhall
 
 let updateRepo =
       prelude.utils.mapSourceRepos
@@ -23,8 +23,8 @@ in  updateRepo
             [ { name =
                   "foo"
               , executable =
-                    λ(config : ./../../dhall/types/Config.dhall)
-                  →   ./../../dhall/defaults/Executable.dhall
+                    λ(config : ../../dhall/types/Config.dhall)
+                  →   ../../dhall/defaults/Executable.dhall
                     ⫽ { main-is = "Main.hs" }
               }
             ]

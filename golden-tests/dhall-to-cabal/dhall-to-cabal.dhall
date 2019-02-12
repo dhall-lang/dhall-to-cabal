@@ -1,6 +1,6 @@
-let prelude = ./../../dhall/prelude.dhall
+let prelude = ../../dhall/prelude.dhall
 
-let types = ./../../dhall/types.dhall
+let types = ../../dhall/types.dhall
 
 let v = prelude.v
 

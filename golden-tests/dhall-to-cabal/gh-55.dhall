@@ -1,6 +1,6 @@
-let prelude = ./../../dhall/prelude.dhall
+let prelude = ../../dhall/prelude.dhall
 
-let types = ./../../dhall/types.dhall
+let types = ../../dhall/types.dhall
 
 let v = prelude.v
 
@@ -13,7 +13,7 @@ in    ./../../dhall/defaults/Package.dhall
     ⫽ { name =
           "Name"
       , version =
-          ./../../dhall/Version/v.dhall "1"
+          v "1"
       , library =
           [   λ(config : types.Config)
             →   prelude.defaults.Library
@@ -34,5 +34,5 @@ in    ./../../dhall/defaults/Package.dhall
                     then  [ "-DCOND1" ]
                     else  [] : List Text
                 }
-          ] : Optional (./../../dhall/types/Guarded.dhall types.Library)
+          ] : Optional (../../dhall/types/Guarded.dhall types.Library)
       }
