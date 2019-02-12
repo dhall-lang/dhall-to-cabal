@@ -32,12 +32,12 @@ let majorVersions
                   (Optional VersionRange)
                   (   λ(r : VersionRange)
                     → Some
-                        ( Versions.unionVersionRanges
-                          (Versions.majorBoundVersion v)
-                          r
-                        )
+                      ( Versions.unionVersionRanges
+                        (Versions.majorBoundVersion v)
+                        r
+                      )
                   )
-                  (Some ( Versions.majorBoundVersion v))
+                  (Some (Versions.majorBoundVersion v))
               )
               (None VersionRange)
             )

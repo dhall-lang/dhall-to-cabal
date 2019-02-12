@@ -1,9 +1,9 @@
 { os :
-    ./OS.dhall  → Bool
+    ./OS.dhall → Bool
 , arch :
-    ./Arch.dhall  → Bool
+    ./Arch.dhall → Bool
 , impl :
-    ./Compiler.dhall  → ./VersionRange.dhall  → Bool
+    ./Compiler.dhall → ./VersionRange.dhall → Bool
 , flag :
     Text → Bool
 }

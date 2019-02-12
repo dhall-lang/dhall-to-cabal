@@ -1,11 +1,11 @@
 { autogen-modules :
     List Text
 , build-depends :
-    List ./Dependency.dhall 
+    List ./Dependency.dhall
 , build-tool-depends :
-    List { component : Text, package : Text, version : ./VersionRange.dhall  }
+    List { component : Text, package : Text, version : ./VersionRange.dhall }
 , build-tools :
-    List { exe : Text, version : ./VersionRange.dhall  }
+    List { exe : Text, version : ./VersionRange.dhall }
 , buildable :
     Bool
 , c-sources :
@@ -13,13 +13,13 @@
 , cc-options :
     List Text
 , compiler-options :
-    ./CompilerOptions.dhall 
+    ./CompilerOptions.dhall
 , cpp-options :
     List Text
 , default-extensions :
-    List ./Extension.dhall 
+    List ./Extension.dhall
 , default-language :
-    Optional ./Language.dhall 
+    Optional ./Language.dhall
 , extra-framework-dirs :
     List Text
 , extra-ghci-libraries :
@@ -43,21 +43,21 @@
 , ld-options :
     List Text
 , other-extensions :
-    List ./Extension.dhall 
+    List ./Extension.dhall
 , other-languages :
-    List ./Language.dhall 
+    List ./Language.dhall
 , other-modules :
     List Text
 , pkgconfig-depends :
-    List { name : Text, version : ./VersionRange.dhall  }
+    List { name : Text, version : ./VersionRange.dhall }
 , profiling-options :
-    ./CompilerOptions.dhall 
+    ./CompilerOptions.dhall
 , shared-options :
-    ./CompilerOptions.dhall 
+    ./CompilerOptions.dhall
 , static-options :
-    ./CompilerOptions.dhall 
+    ./CompilerOptions.dhall
 , mixins :
-    List ./Mixin.dhall 
+    List ./Mixin.dhall
 , asm-options :
     List Text
 , asm-sources :

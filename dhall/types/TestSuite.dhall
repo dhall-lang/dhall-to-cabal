@@ -1,1 +1,1 @@
-./BuildInfo.dhall  ⩓ { type : ./TestType.dhall  }
+./BuildInfo.dhall ⩓ { type : ./TestType.dhall }
