@@ -1,1 +1,1 @@
-./BuildInfo.dhall  ⩓ { main-is : Text, scope : ./Scope.dhall  }
+./BuildInfo.dhall ⩓ { main-is : Text, scope : ./Scope.dhall }

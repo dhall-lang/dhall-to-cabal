@@ -1,1 +1,1 @@
-{ setup-depends : List ./Dependency.dhall  }
+{ setup-depends : List ./Dependency.dhall }

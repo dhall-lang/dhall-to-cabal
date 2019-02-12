@@ -19,16 +19,20 @@ in    ../../dhall/defaults/Package.dhall
             →   prelude.defaults.Library
               ⫽ { build-depends =
                       [ { package = "A", bounds = prelude.anyVersion } ]
-                    # ( if ghcImpl
+                    # (       if ghcImpl
                                  config
                                  (prelude.orLaterVersion (v "8.2"))
+                        
                         then  [ { package = "B", bounds = prelude.anyVersion } ]
+                        
                         else  [] : List types.Dependency
                       )
-                    # ( if ghcImpl
+                    # (       if ghcImpl
                                  config
                                  (prelude.orLaterVersion (v "8.4"))
+                        
                         then  [ { package = "C", bounds = prelude.anyVersion } ]
+                        
                         else  [] : List types.Dependency
                       )
                 }
