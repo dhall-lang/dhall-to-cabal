@@ -1,5 +1,9 @@
 # dhall-to-cabal change log
 
+## Next
+
+* Use `dhall` version 1.21.0.
+
 ## 1.3.2.0 -- 2019-02-12
 
 * Use `dhall` version 1.20.1.
