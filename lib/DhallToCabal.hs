@@ -486,13 +486,12 @@ foreignLib =
 
 
 foreignLibType :: Dhall.Type Cabal.ForeignLibType
-foreignLibType =
-  makeUnion
-    ( Map.fromList
-        [ ( "Shared", Cabal.ForeignLibNativeShared <$ Dhall.unit )
-        , ( "Static", Cabal.ForeignLibNativeStatic <$ Dhall.unit )
-        ]
-    )
+foreignLibType = Dhall.union
+  ( mconcat
+    [ Cabal.ForeignLibNativeShared <$ Dhall.constructor "Shared" Dhall.unit
+    , Cabal.ForeignLibNativeStatic <$ Dhall.constructor "Static" Dhall.unit
+    ]
+  )
 
 
 
