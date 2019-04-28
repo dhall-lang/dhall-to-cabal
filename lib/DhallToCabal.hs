@@ -922,13 +922,12 @@ pkgconfigName =
 
 
 executableScope :: Dhall.Type Cabal.ExecutableScope
-executableScope =
-  makeUnion
-    ( Map.fromList
-        [ ( "Public", Cabal.ExecutablePublic <$ Dhall.unit )
-        , ( "Private", Cabal.ExecutablePrivate <$ Dhall.unit )
-        ]
-    )
+executableScope = Dhall.union
+  ( mconcat
+    [ Cabal.ExecutablePublic <$ Dhall.constructor "Public" Dhall.unit
+    , Cabal.ExecutablePrivate <$ Dhall.constructor "Private" Dhall.unit
+    ]
+  )
 
 
 
