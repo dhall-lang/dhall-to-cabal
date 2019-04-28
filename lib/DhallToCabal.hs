@@ -957,11 +957,8 @@ moduleReexport =
 
 
 foreignLibOption :: Dhall.Type Cabal.ForeignLibOption
-foreignLibOption =
-  makeUnion
-    ( Map.fromList
-        [ ( "Standalone", Cabal.ForeignLibStandalone <$ Dhall.unit ) ]
-    )
+foreignLibOption = Dhall.union $
+  Cabal.ForeignLibStandalone <$ Dhall.constructor "Standalone" Dhall.unit
 
 
 versionInfo :: Dhall.Type Cabal.LibVersionInfo
