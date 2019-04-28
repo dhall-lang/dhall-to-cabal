@@ -419,20 +419,16 @@ testSuite =
 
 
 testSuiteInterface :: Dhall.Type Cabal.TestSuiteInterface
-testSuiteInterface =
-  makeUnion
-    ( Map.fromList
-        [ ( "exitcode-stdio"
-          , Cabal.TestSuiteExeV10 ( Cabal.mkVersion [ 1, 0 ] )
-              <$> Dhall.record ( Dhall.field "main-is" Dhall.string )
-          )
-        , ( "detailed"
-          , Cabal.TestSuiteLibV09 ( Cabal.mkVersion [ 0, 9 ] )
-              <$> Dhall.record ( Dhall.field "module" moduleName )
-          )
-        ]
-    )
-
+testSuiteInterface = Dhall.union
+  ( mconcat
+    [ Cabal.TestSuiteExeV10 ( Cabal.mkVersion [ 1, 0 ] )
+        <$> Dhall.constructor "exitcode-stdio"
+              ( Dhall.record ( Dhall.field "main-is" Dhall.string ) )
+    , Cabal.TestSuiteLibV09 ( Cabal.mkVersion [ 0, 9 ] )
+        <$> Dhall.constructor "detailed"
+              ( Dhall.record ( Dhall.field "module" moduleName ) )
+    ]
+  )
 
 
 
