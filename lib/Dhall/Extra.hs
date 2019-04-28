@@ -35,7 +35,7 @@ makeUnion alts =
       Dhall.extract t v
 
     expected =
-      sortExpr ( Expr.Union ( Dhall.expected <$> alts ) )
+      sortExpr ( Expr.Union ( Just . Dhall.expected <$> alts ) )
 
   in Dhall.Type { .. }
 

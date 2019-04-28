@@ -775,9 +775,9 @@ runUnion ( Union ( f, t ) ) =
               error $ "Union did not match anything. Given " ++ show a
 
             ( First ( Just ( k, v ) ), alts ) ->
-              Expr.UnionLit k v alts
+              Expr.UnionLit k v ( Just <$> alts )
     , Dhall.declared =
-        sortExpr ( Expr.Union t )
+        sortExpr ( Expr.Union ( Just <$> t ) )
     }
 
 

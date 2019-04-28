@@ -998,7 +998,7 @@ extension =
       ext <-
         Dhall.extract
           knownExtension
-          ( Expr.UnionLit k ( Expr.RecordLit mempty ) ( unitType <$ alts ) )
+          ( Expr.UnionLit k ( Expr.RecordLit mempty ) ( Just unitType <$ alts ) )
 
       case v of
         Expr.BoolLit True ->
@@ -1013,7 +1013,7 @@ extension =
     expected =
       case Dhall.expected knownExtension of
         Expr.Union alts ->
-          sortExpr ( Expr.Union ( Expr.Bool <$ alts ) )
+          sortExpr ( Expr.Union ( Just Expr.Bool <$ alts ) )
 
         _ ->
           error "Could not derive extension type"

@@ -44,7 +44,6 @@ dhallFromGitHub =
                           )
                           Nothing
                           Nothing
-                          Nothing
                       )
                 }
           , Dhall.Core.importMode =
@@ -66,7 +65,6 @@ dhallFromGitHub =
                              ( Dhall.Core.Directory [ "dhall", version, "dhall-to-cabal", "dhall-lang" ] )
                              "types.dhall"
                           )
-                          Nothing
                           Nothing
                           Nothing
                       )
