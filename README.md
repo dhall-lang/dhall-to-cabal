@@ -30,16 +30,20 @@ To see the full schema supported by `dhall-to-cabal`, you can run
 `dhall-to-cabal --print-type`. (In the future, we will have more human-ready
 documentation - we'd love your help here!)
 
-Once you have your Dhall file ready, run it through `dhall-to-cabal` and
-redirect the output to a Cabal file:
+Once you have your Dhall file ready, point `dhall-to-cabal` at it:
 
 ``` shell
-dhall-to-cabal input.dhall > output.cabal
+dhall-to-cabal input.dhall
 ```
 
-(Replace the names `input.dhall` and `output.dhall`).
+(Replace the name `input.dhall` with your actual input file).
 
-That's it!
+That's it! `dhall-to-cabal` does the rest - it will figure out what
+the `.cabal` file should be called, and write it out next to the
+input.
+
+If you'd rather put the file somewhere else, have a look at
+`dhall-to-cabal --help` and use one of the `--output-*` options.
 
 ### cabal-to-dhall
 
