@@ -975,40 +975,20 @@ versionInfo =
 extension :: Dhall.Type Cabal.Extension
 extension =
   let
-    knownExtension =
-      sortType Dhall.genericAuto
+    extName :: Cabal.KnownExtension -> StrictText.Text
+    extName e =
+      StrictText.pack ( show e )
 
-    unitType =
-      Expr.Record mempty
+    enableDisable ext enabled = if enabled
+      then Cabal.EnableExtension ext
+      else Cabal.DisableExtension ext
 
-    extract expr = do
-      Expr.UnionLit k v alts <-
-        return expr
-
-      ext <-
-        Dhall.extract
-          knownExtension
-          ( Expr.UnionLit k ( Expr.RecordLit mempty ) ( Just unitType <$ alts ) )
-
-      case v of
-        Expr.BoolLit True ->
-          return ( Cabal.EnableExtension ext )
-
-        Expr.BoolLit False ->
-          return ( Cabal.DisableExtension ext )
-
-        _ ->
-          Nothing
-
-    expected =
-      case Dhall.expected knownExtension of
-        Expr.Union alts ->
-          sortExpr ( Expr.Union ( Just Expr.Bool <$ alts ) )
-
-        _ ->
-          error "Could not derive extension type"
-
-  in Dhall.Type { .. }
+    constr :: Cabal.KnownExtension -> Dhall.UnionType Cabal.Extension
+    constr ext = Dhall.constructor
+      ( extName ext )
+      ( enableDisable ext <$> Dhall.bool )
+  in
+    Dhall.union ( foldMap constr [ minBound .. maxBound ] )
 
 
 
