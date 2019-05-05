@@ -2,6 +2,8 @@
 
 ## Next
 
+* Educated `--print-type` about `Scope` and `ModuleRenaming`.
+
 * Use `dhall` version 1.21.0.
 
 ## 1.3.2.0 -- 2019-02-12

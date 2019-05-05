@@ -82,6 +82,8 @@ data KnownType
   | SPDX
   | LicenseId
   | LicenseExceptionId
+  | Scope
+  | ModuleRenaming
   deriving (Bounded, Enum, Eq, Ord, Read, Show)
 
 
@@ -450,6 +452,8 @@ printType PrintTypeOptions { .. } = do
           SPDX -> Dhall.expected spdxLicense
           LicenseId -> Dhall.expected spdxLicenseId
           LicenseExceptionId -> Dhall.expected spdxLicenseExceptionId
+          Scope -> Dhall.expected executableScope
+          ModuleRenaming -> Dhall.expected moduleRenaming
       )
 
     makeLetOrImport t val reduced =
