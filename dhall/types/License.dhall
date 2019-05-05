@@ -1,33 +1,24 @@
-< AGPL :
+< GPL :
     Optional ./Version.dhall
-| AllRightsReserved :
-    {}
-| Apache :
+| AGPL :
     Optional ./Version.dhall
-| BSD2 :
-    {}
-| BSD3 :
-    {}
-| BSD4 :
-    {}
-| GPL :
-    Optional ./Version.dhall
-| ISC :
-    {}
 | LGPL :
     Optional ./Version.dhall
-| MIT :
-    {}
+| BSD2
+| BSD3
+| BSD4
+| MIT
+| ISC
 | MPL :
     ./Version.dhall
-| Other :
-    {}
-| PublicDomain :
-    {}
-| Unspecified :
-    {}
+| Apache :
+    Optional ./Version.dhall
+| PublicDomain
+| AllRightsReserved
+| Unspecified
 | Unknown :
     Text
+| Other
 | SPDX :
     ./SPDX.dhall
 >

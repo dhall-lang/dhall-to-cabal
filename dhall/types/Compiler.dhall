@@ -1,27 +1,16 @@
-< Eta :
-    {}
-| GHC :
-    {}
-| GHCJS :
-    {}
-| HBC :
-    {}
+< Eta
+| GHC
+| GHCJS
+| HBC
 | HaskellSuite :
     { _1 : Text }
-| Helium :
-    {}
-| Hugs :
-    {}
-| JHC :
-    {}
-| LHC :
-    {}
-| NHC :
-    {}
+| Helium
+| Hugs
+| JHC
+| LHC
+| NHC
 | OtherCompiler :
     { _1 : Text }
-| UHC :
-    {}
-| YHC :
-    {}
+| UHC
+| YHC
 >

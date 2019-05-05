@@ -12,11 +12,11 @@ in    prelude.defaults.Package
           ( prelude.SPDX.and
             ( prelude.SPDX.or
               ( prelude.SPDX.license
-                (types.LicenseId.AGPL_3_0_or_later {=})
-                (Some (types.LicenseExceptionId.Classpath_exception_2_0 {=}))
+                types.LicenseId.AGPL_3_0_or_later
+                (Some types.LicenseExceptionId.Classpath_exception_2_0)
               )
               ( prelude.SPDX.licenseVersionOrLater
-                (types.LicenseId.Apache_2_0 {=})
+                types.LicenseId.Apache_2_0
                 (None types.LicenseExceptionId)
               )
             )

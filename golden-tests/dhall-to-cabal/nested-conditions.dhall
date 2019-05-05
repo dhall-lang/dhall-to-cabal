@@ -18,7 +18,7 @@ in    prelude.defaults.Package
                     ⫽ { GHC =
                             [ "-Weverything" ]
                           # (       if config.impl
-                                       (types.Compiler.GHC {=})
+                                       types.Compiler.GHC
                                        (prelude.orLaterVersion (v "8.2"))
                               
                               then  [ "-Wno-redundant-constraints" ] : List Text
@@ -26,7 +26,7 @@ in    prelude.defaults.Package
                               else  [] : List Text
                             )
                           # (       if config.impl
-                                       (types.Compiler.GHC {=})
+                                       types.Compiler.GHC
                                        (prelude.orLaterVersion (v "8.4"))
                               
                               then  [ "-Wno-missing-export-lists" ] : List Text

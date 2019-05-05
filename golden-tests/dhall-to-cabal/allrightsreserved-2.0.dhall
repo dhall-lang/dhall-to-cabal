@@ -10,7 +10,7 @@ in    prelude.defaults.Package
       , cabal-version =
           prelude.v "2.0"
       , license =
-          types.License.AllRightsReserved {=}
+          types.License.AllRightsReserved
       , library =
           prelude.unconditional.library prelude.defaults.Library
       }
