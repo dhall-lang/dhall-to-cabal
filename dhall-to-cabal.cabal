@@ -231,7 +231,7 @@ test-suite golden-tests
         filepath ^>=1.4,
         microlens ^>=0.1.0.0 || ^>=0.2.0.0 || ^>=0.3.0.0 || ^>=0.4.0.0,
         prettyprinter ^>=1.2.0.1,
-        tasty ^>=0.11 || ^>=0.12 || ^>=1.0 || ^>=1.1,
+        tasty ^>=0.11 || ^>=0.12 || ^>=1.0 || ^>=1.1 || ^>=1.2,
         tasty-golden ^>=2.3,
         text ^>=1.2
 
@@ -252,6 +252,6 @@ test-suite unit-tests
         Cabal ^>=2.4,
         dhall ^>=1.21.0,
         dhall-to-cabal -any,
-        tasty ^>=0.11 || ^>=0.12 || ^>=1.0 || ^>=1.1,
+        tasty ^>=0.11 || ^>=0.12 || ^>=1.0 || ^>=1.1 || ^>=1.2,
         tasty-hunit ^>=0.10.0.1,
         text ^>=1.2
