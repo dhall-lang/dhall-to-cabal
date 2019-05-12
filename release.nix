@@ -45,7 +45,7 @@ let
 
           quickcheck-instances = self.callPackage ./quickcheck-instances.nix {};
 
-          splitmix = self.callPackage ./splitmix.nix {};
+          splitmix = self.callPackage ./splitmix.nix { base-compat-batteries = self.callPackage ./base-compat-batteries.nix {}; };
 
           transformers-compat = self.callPackage ./transformers-compat.nix {};
 
