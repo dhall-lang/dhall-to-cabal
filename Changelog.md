@@ -2,6 +2,10 @@
 
 ## Next
 
+* Fix `cabal-to-dhall` output for unknown licenses using `cabal` spec
+  version below `2.0`. Now it uses values of type `License.Unknown Text` 
+  for them.
+
 * Use `dhall` version 1.21.0.
 
 ## 1.3.2.0 -- 2019-02-12
