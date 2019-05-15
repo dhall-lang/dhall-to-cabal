@@ -4,6 +4,10 @@
 
 * Educated `--print-type` about `Scope` and `ModuleRenaming`.
 
+* Fix `cabal-to-dhall` output for unknown licenses using `cabal` spec
+  version below `2.0`. Now it uses values of type `License.Unknown Text` 
+  for them.
+
 * Improved `--print-type` and `--print-default` output to use
   multi-binding `let`.
 
