@@ -9,6 +9,9 @@
 
 * Use `dhall` version 1.23.0.
 
+* Improved `--print-type` and `--print-default` output to use
+  multi-binding `let`.
+
 ## 1.3.2.0 -- 2019-02-12
 
 * Use `dhall` version 1.20.1.
