@@ -160,6 +160,7 @@ in    prelude.utils.GitHub-project
               ⫽ { build-depends =
                     [ deps.Cabal
                     , deps.base
+                    , deps.containers
                     , deps.dhall
                     , deps.dhall-to-cabal
                     , deps.directory

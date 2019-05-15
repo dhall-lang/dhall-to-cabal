@@ -8,17 +8,16 @@
 module Main ( main ) where
 
 import Control.Applicative ( (<**>), optional, (<|>) )
-import Control.Monad ( guard )
+import Control.Monad ( guard, join )
 import Data.Char ( isAlphaNum )
-import Control.Monad.Trans.State ( State, execState, modify )
-import Data.Foldable ( asum, toList, traverse_ )
+import Data.Foldable ( asum, foldl', toList )
 import Data.Function ( (&) )
 import Data.List.NonEmpty ( NonEmpty(..) )
 import Data.Maybe ( fromMaybe )
 import Data.Text (Text)
 import Data.String ( fromString )
 import Data.Version ( showVersion )
-import Lens.Micro ( set )
+import Lens.Micro ( ASetter, over, set )
 import System.Directory ( createDirectoryIfMissing )
 import System.FilePath ( (</>), (<.>), addTrailingPathSeparator, normalise, takeDirectory )
 
@@ -28,12 +27,13 @@ import DhallToCabal
 import DhallToCabal.Util ( relativeTo )
 import qualified Paths_dhall_to_cabal as Paths
 
+import qualified Data.Map as UnorderedMap
 import qualified Data.Text.IO as StrictText
 import qualified Data.Text.Prettyprint.Doc as Pretty
 import qualified Data.Text.Prettyprint.Doc.Render.Text as Pretty
 import qualified Dhall
 import qualified Dhall.Core as Dhall
-import qualified Dhall.Core as Expr ( Expr(..), Var(..), Binding(..), shift )
+import qualified Dhall.Core as Expr ( Expr(..), Var(..), Binding(..) )
 import qualified Dhall.Lint as Lint
 import qualified Dhall.Map as Map
 import qualified Dhall.Parser
@@ -400,383 +400,408 @@ addBinding name val =
     ( Expr.Binding name Nothing val :| [] )
 
 
+dhallType :: KnownType -> Dhall.Expr Dhall.Parser.Src a
+dhallType t = fmap Dhall.absurd
+  ( case t of
+      Config -> configRecordType
+      Library -> Dhall.expected library
+      ForeignLibrary -> Dhall.expected foreignLib
+      Executable -> Dhall.expected executable
+      Benchmark -> Dhall.expected benchmark
+      TestSuite -> Dhall.expected testSuite
+      BuildInfo -> buildInfoType
+      SourceRepo -> Dhall.expected sourceRepo
+      RepoType -> Dhall.expected repoType
+      RepoKind -> Dhall.expected repoKind
+      Compiler -> Dhall.expected compilerFlavor
+      OS -> Dhall.expected operatingSystem
+      Extension -> Dhall.expected extension
+      CompilerOptions -> Dhall.expected compilerOptions
+      Arch -> Dhall.expected arch
+      Language -> Dhall.expected language
+      License -> Dhall.expected license
+      BuildType -> Dhall.expected buildType
+      Package -> Dhall.expected genericPackageDescription
+      VersionRange -> Dhall.expected versionRange
+      Version -> Dhall.expected version
+      SPDX -> Dhall.expected spdxLicense
+      LicenseId -> Dhall.expected spdxLicenseId
+      LicenseExceptionId -> Dhall.expected spdxLicenseExceptionId
+      Scope -> Dhall.expected executableScope
+      ModuleRenaming -> Dhall.expected moduleRenaming
+      ForeignLibOption -> Dhall.expected foreignLibOption
+      ForeignLibType -> Dhall.expected foreignLibType
+  )
+
+
+factored :: KnownType -> Expr.Expr Dhall.Parser.Src KnownType
+factored rootType =
+  foldl' step ( dhallType rootType ) [ minBound .. maxBound ]
+  where
+    step expr factorType =
+      fmap
+        ( fromMaybe factorType )
+        ( cse
+          ( isCandidateSubrecord factorType )
+          ( dhallType factorType )
+          expr
+        )
+
+
 printType :: PrintTypeOptions -> IO ()
 printType PrintTypeOptions { .. } = do
   Pretty.renderIO
     System.IO.stdout
     ( Pretty.layoutSmart opts
-        ( Pretty.pretty factoredType )
+        ( Pretty.pretty ( Lint.lint result ) )
     )
 
   putStrLn ""
 
   where
 
-    dhallType :: KnownType -> Dhall.Expr Dhall.Parser.Src a
-    dhallType t = fmap Dhall.absurd
-      ( case t of
-          Config -> configRecordType
-          Library -> Dhall.expected library
-          ForeignLibrary -> Dhall.expected foreignLib
-          Executable -> Dhall.expected executable
-          Benchmark -> Dhall.expected benchmark
-          TestSuite -> Dhall.expected testSuite
-          BuildInfo -> buildInfoType
-          SourceRepo -> Dhall.expected sourceRepo
-          RepoType -> Dhall.expected repoType
-          RepoKind -> Dhall.expected repoKind
-          Compiler -> Dhall.expected compilerFlavor
-          OS -> Dhall.expected operatingSystem
-          Extension -> Dhall.expected extension
-          CompilerOptions -> Dhall.expected compilerOptions
-          Arch -> Dhall.expected arch
-          Language -> Dhall.expected language
-          License -> Dhall.expected license
-          BuildType -> Dhall.expected buildType
-          Package -> Dhall.expected genericPackageDescription
-          VersionRange -> Dhall.expected versionRange
-          Version -> Dhall.expected version
-          SPDX -> Dhall.expected spdxLicense
-          LicenseId -> Dhall.expected spdxLicenseId
-          LicenseExceptionId -> Dhall.expected spdxLicenseExceptionId
-          Scope -> Dhall.expected executableScope
-          ModuleRenaming -> Dhall.expected moduleRenaming
-          ForeignLibOption -> Dhall.expected foreignLibOption
-          ForeignLibType -> Dhall.expected foreignLibType
-      )
+    linkedType =
+      join . mapWithBindings linkType . factored
 
-    makeLetOrImport t val reduced =
+    linkType var t =
       let
         name = fromString ( show t )
       in if shouldBeImported t && not selfContained
-         then Dhall.subst ( Expr.V name 0 ) ( Expr.Var ( Expr.V "types" 0 ) `Expr.Field` name ) reduced
-         else addBinding name val reduced
+         then Expr.Var ( var "types" ) `Expr.Field` name
+         else Expr.Var ( var name )
 
-    factoredType :: Expr.Expr Dhall.Parser.Src Dhall.Import
-    factoredType =
-      let
-        body =
-          execState
-            ( traverse_ step [ minBound .. maxBound ] )
-            ( dhallType typeToPrint )
+    bindTypes expr =
+      foldl' bindType expr [ minBound .. maxBound ]
 
-        importing =
-          addBinding
-            "types"
-            ( Expr.Embed ( typesLocation dhallFromGitHub ) )
+    bindType expr t =
+      addBinding
+        ( fromString ( show t ) )
+        ( linkedType t )
+        expr
 
-      in
-        Lint.lint ( importing body )
+    bindImport =
+      addBinding
+        "types"
+        ( Expr.Embed ( typesLocation dhallFromGitHub ) )
 
-    step
-      :: (Eq a)
-      => KnownType
-         -- ^ Name of the type we're trying to factor out
-      -> State ( Expr.Expr Dhall.Parser.Src a ) ()
-    step factorType =
-      modify ( tryCSE factorType )
-
-    tryCSE
-      :: (Eq a)
-      => KnownType -- ^ The type we're factoring out
-      -> Expr.Expr Dhall.Parser.Src a
-      -> Expr.Expr Dhall.Parser.Src a
-    tryCSE factorType expr =
-      let
-        name = fromString ( show factorType )
-        subrecord = isCandidateSubrecord factorType
-      in
-        makeLetOrImport
-          factorType
-          ( dhallType factorType )
-          ( liftCSE subrecord name ( dhallType factorType ) expr )
+    -- Unconditionally add everything, since lint will remove the
+    -- redundant bindings.
+    result =
+      bindImport
+        ( bindTypes ( linkedType typeToPrint ) )
 
 
--- | This will always shift the variable name provided, even if
--- nothing is lifted out.
---
--- No variables should be free in the expression to lift.
-liftCSE
-  :: (Eq s, Eq a)
+transformOf :: ASetter a b a b -> (b -> b) -> a -> b
+transformOf l f = go where go = f . over l go
+
+
+-- | No variables should be free in the expression to lift.
+cse
+  :: ( Eq s, Eq a )
   => Bool
      -- ^ Should we attempt to find the subexpression as a sub-record?
-  -> Text
-     -- ^ The name of the binding
   -> Expr.Expr s a
-     -- ^ The common subexpression to lift
+     -- ^ The common subexpression to lift.
   -> Expr.Expr s a
-     -- ^ The expression to remove a common subexpression from
-  -> Expr.Expr s a
-liftCSE subrecord name body expr =
-  let
-    v0 =
-      Expr.V name 0
-
-  in
-    go True v0 ( Expr.shift 1 v0 expr )
+     -- ^ The expression to remove a common subexpression from.
+  -> Expr.Expr s ( Maybe a )
+     -- ^ 'Nothing' if it's representing a lifted subexpression.
+cse subrecord ( fmap Just -> body ) ( fmap Just -> expr ) =
+  case transformOf Dhall.subExpressions go expr of
+    -- Don't lift the whole thing out - it's not a win.
+    Expr.Embed Nothing ->
+      body
+    expr' ->
+      expr'
 
   where
 
-    shiftName n v | n == name =
-      shiftVar 1 v
+    go e | e == body =
+      Expr.Embed Nothing
 
-    shiftName _ v =
-        v
+    go e | subrecord, Just extra <- subtractRecordFields e body =
+      Expr.CombineTypes ( Expr.Embed Nothing ) extra
 
-    shiftVar delta ( Expr.V name' n ) =
-      Expr.V name' ( n + delta )
+    go e =
+      e
 
-    subtractRecordFields a b = do
-      guard subrecord
 
-      Expr.Record left <-
-        return a
+subtractRecordFields
+  :: ( Eq s, Eq a )
+  => Expr.Expr s a
+  -> Expr.Expr s a
+  -> Maybe ( Expr.Expr s a )
+subtractRecordFields a b = do
 
-      Expr.Record right <-
-        return b
+  Expr.Record left <-
+    return a
 
-      let
-        intersection =
-          Map.intersectionWith (==) left right
+  Expr.Record right <-
+    return b
 
-      -- The right record cannot have any fields not in left.
-      guard ( null ( Map.difference right left ) )
+  let
+    intersection =
+      Map.intersectionWith (==) left right
 
-      -- We must have at least one field with a common name
-      guard ( not ( null intersection ) )
+  -- The right record cannot have any fields not in left.
+  guard ( null ( Map.difference right left ) )
 
-      -- All common fields must have identical types
-      guard ( and intersection )
+  -- We must have at least one field with a common name
+  guard ( not ( null intersection ) )
 
-      let
-        extra =
-          Map.difference left right
+  -- All common fields must have identical types
+  guard ( and intersection )
 
-      guard ( not ( null extra ) )
+  let
+    extra =
+      Map.difference left right
 
-      return ( Expr.Record extra )
+  guard ( not ( null extra ) )
 
-    -- Only lift it out if it's not the whole expression.
-    go False v e | e == body =
-      Expr.Var v
+  return ( Expr.Record extra )
 
-    go _ v ( ( `subtractRecordFields` body ) -> Just extra ) =
-      Expr.CombineTypes ( Expr.Var v ) extra
 
-    go toplevel v e =
-      case e of
-        Expr.Lam n t b ->
-          Expr.Lam n t ( go False ( shiftName n v ) b )
+chunkExprs
+  :: ( Applicative f )
+  => ( Expr.Expr s a -> f ( Expr.Expr t b ) )
+  -> Dhall.Chunks s a -> f ( Dhall.Chunks t b )
+chunkExprs f ( Dhall.Chunks chunks final ) =
+  flip Dhall.Chunks final <$> traverse ( traverse f ) chunks
 
-        Expr.Pi n t b ->
-          Expr.Pi n ( go False v t ) ( go False ( shiftName n v ) b )
 
-        Expr.App f a ->
-          Expr.App ( go False v f ) ( go False v a )
+-- | The return value of this should be linted.
+mapWithBindings
+  :: ( ( Text -> Expr.Var ) -> a -> b )
+  -> Expr.Expr s a
+  -> Expr.Expr s b
+mapWithBindings f =
+  go UnorderedMap.empty
 
-        Expr.Let bs e ->
-          go' ( toList bs ) v
-            where
-              -- Since we lint afterwards, it's fine to transform one
-              -- let with many bindings into many lets with one
-              -- binding each.
-              go' ( Expr.Binding n t b : bs ) v' =
-                Expr.Let
-                  ( pure
-                    ( Expr.Binding n t
-                      ( go False v' b )
-                    )
+  where
+
+    outermostVar bindings n =
+      Expr.V n ( fromMaybe 0 ( UnorderedMap.lookup n bindings ) )
+
+    shiftName =
+      UnorderedMap.alter ( Just . succ . fromMaybe 0 )
+
+    go bindings = \case
+      Expr.Lam n t b ->
+        Expr.Lam n
+          ( go bindings t )
+          ( go ( shiftName n bindings ) b )
+
+      Expr.Pi n t b ->
+        Expr.Pi n ( go bindings t ) ( go ( shiftName n bindings ) b )
+
+      Expr.App f a ->
+        Expr.App ( go bindings f ) ( go bindings a )
+
+      Expr.Let bs e ->
+        go' ( toList bs ) bindings
+          where
+            -- Since we lint afterwards, it's fine to transform one
+            -- let with many bindings into many lets with one
+            -- binding each.
+            go' ( Expr.Binding n t b : bs ) bindings' =
+              Expr.Let
+                ( pure
+                  ( Expr.Binding n
+                    ( fmap ( go bindings' ) t )
+                    ( go bindings' b )
                   )
-                  ( go' bs ( shiftName n v' ) )
-              go' [] v' =
-                go toplevel v' e
+                )
+                ( go' bs ( shiftName n bindings' ) )
+            go' [] bindings' =
+              go bindings' e
 
-        Expr.Annot a b ->
-          Expr.Annot ( go False v a ) ( go False v b )
+      Expr.Annot a b ->
+        Expr.Annot ( go bindings a ) ( go bindings b )
 
-        Expr.BoolAnd a b ->
-          Expr.BoolAnd ( go False v a ) ( go False v b )
+      Expr.BoolAnd a b ->
+        Expr.BoolAnd ( go bindings a ) ( go bindings b )
 
-        Expr.BoolOr a b ->
-          Expr.BoolOr ( go False v a ) ( go False v b )
+      Expr.BoolOr a b ->
+        Expr.BoolOr ( go bindings a ) ( go bindings b )
 
-        Expr.BoolEQ a b ->
-          Expr.BoolEQ ( go False v a ) ( go False v b )
+      Expr.BoolEQ a b ->
+        Expr.BoolEQ ( go bindings a ) ( go bindings b )
 
-        Expr.BoolNE a b ->
-          Expr.BoolNE ( go False v a ) ( go False v b )
+      Expr.BoolNE a b ->
+        Expr.BoolNE ( go bindings a ) ( go bindings b )
 
-        Expr.BoolIf a b c ->
-          Expr.BoolIf ( go False v a ) ( go False v b ) ( go False v c )
+      Expr.BoolIf a b c ->
+        Expr.BoolIf ( go bindings a ) ( go bindings b ) ( go bindings c )
 
-        Expr.NaturalPlus a b ->
-          Expr.NaturalPlus ( go False v a ) ( go False v b )
+      Expr.NaturalPlus a b ->
+        Expr.NaturalPlus ( go bindings a ) ( go bindings b )
 
-        Expr.NaturalTimes a b ->
-          Expr.NaturalTimes ( go False v a ) ( go False v b )
+      Expr.NaturalTimes a b ->
+        Expr.NaturalTimes ( go bindings a ) ( go bindings b )
 
-        Expr.ListAppend a b ->
-          Expr.ListAppend ( go False v a ) ( go False v b )
+      Expr.ListAppend a b ->
+        Expr.ListAppend ( go bindings a ) ( go bindings b )
 
-        Expr.Combine a b ->
-          Expr.Combine ( go False v a ) ( go False v b )
+      Expr.Combine a b ->
+        Expr.Combine ( go bindings a ) ( go bindings b )
 
-        Expr.Prefer a b ->
-          Expr.Prefer ( go False v a ) ( go False v b )
+      Expr.Prefer a b ->
+        Expr.Prefer ( go bindings a ) ( go bindings b )
 
-        Expr.TextAppend a b ->
-          Expr.TextAppend ( go False v a ) ( go False v b )
+      Expr.TextAppend a b ->
+        Expr.TextAppend ( go bindings a ) ( go bindings b )
 
-        Expr.ListLit t elems ->
-          Expr.ListLit
-            ( fmap ( go False v ) t )
-            ( fmap ( go False v ) elems )
+      Expr.ListLit t elems ->
+        Expr.ListLit
+          ( fmap ( go bindings ) t )
+          ( fmap ( go bindings ) elems )
 
-        Expr.OptionalLit t elems ->
-          Expr.OptionalLit
-            ( go False v t )
-            ( fmap ( go False v ) elems )
+      Expr.OptionalLit t elems ->
+        Expr.OptionalLit
+          ( go bindings t )
+          ( fmap ( go bindings ) elems )
 
-        Expr.Some a ->
-          Expr.Some ( go False v a )
+      Expr.Some a ->
+        Expr.Some ( go bindings a )
 
-        Expr.None ->
-          Expr.None
+      Expr.None ->
+        Expr.None
 
-        Expr.Record fields ->
-          Expr.Record ( fmap ( go False v ) fields )
+      Expr.Record fields ->
+        Expr.Record ( fmap ( go bindings ) fields )
 
-        Expr.RecordLit fields ->
-          Expr.RecordLit ( fmap ( go False v ) fields )
+      Expr.RecordLit fields ->
+        Expr.RecordLit ( fmap ( go bindings ) fields )
 
-        Expr.Union fields ->
-          Expr.Union ( fmap ( fmap ( go False v ) ) fields )
+      Expr.Union fields ->
+        Expr.Union ( fmap ( fmap ( go bindings ) ) fields )
 
-        Expr.UnionLit n a fields ->
-          Expr.UnionLit n ( go False v a ) ( fmap ( fmap ( go False v ) ) fields )
+      Expr.UnionLit n a fields ->
+        Expr.UnionLit n ( go bindings a ) ( fmap ( fmap ( go bindings ) ) fields )
 
-        Expr.Merge a b t ->
-          Expr.Merge ( go False v a ) ( go False v b ) ( fmap ( go False v ) t )
+      Expr.Merge a b t ->
+        Expr.Merge ( go bindings a ) ( go bindings b ) ( fmap ( go bindings ) t )
 
-        Expr.Field e f ->
-          Expr.Field ( go False v e ) f
+      Expr.Field e f ->
+        Expr.Field ( go bindings e ) f
 
-        Expr.Note s e ->
-          Expr.Note s ( go False v e )
+      Expr.Note s e ->
+        Expr.Note s ( go bindings e )
 
-        Expr.CombineTypes a b ->
-          Expr.CombineTypes ( go False v a ) ( go False v b )
+      Expr.CombineTypes a b ->
+        Expr.CombineTypes ( go bindings a ) ( go bindings b )
 
-        Expr.Project e fs ->
-          Expr.Project ( go False v e ) fs
+      Expr.Project e fs ->
+        Expr.Project ( go bindings e ) fs
 
-        Expr.ImportAlt l r ->
-          Expr.ImportAlt ( go False v l ) ( go False v r )
+      Expr.ImportAlt l r ->
+        Expr.ImportAlt ( go bindings l ) ( go bindings r )
 
-        Expr.IntegerToDouble ->
-          Expr.IntegerToDouble
+      Expr.IntegerToDouble ->
+        Expr.IntegerToDouble
 
-        Expr.Embed{} ->
-          e
+      Expr.Embed a ->
+        Expr.Embed
+          ( f ( outermostVar bindings ) a )
 
-        Expr.Const{} ->
-          e
+      Expr.Const c ->
+        Expr.Const c
 
-        Expr.Var{} ->
-          e
+      Expr.Var v ->
+        Expr.Var v
 
-        Expr.Bool{} ->
-          e
+      Expr.Bool ->
+        Expr.Bool
 
-        Expr.BoolLit{} ->
-          e
+      Expr.BoolLit b ->
+        Expr.BoolLit b
 
-        Expr.Natural{} ->
-          e
+      Expr.Natural ->
+        Expr.Natural
 
-        Expr.NaturalLit{} ->
-          e
+      Expr.NaturalLit n ->
+        Expr.NaturalLit n
 
-        Expr.NaturalFold{} ->
-          e
+      Expr.NaturalFold ->
+        Expr.NaturalFold
 
-        Expr.NaturalBuild{} ->
-          e
+      Expr.NaturalBuild ->
+        Expr.NaturalBuild
 
-        Expr.NaturalIsZero{} ->
-          e
+      Expr.NaturalIsZero ->
+        Expr.NaturalIsZero
 
-        Expr.NaturalEven{} ->
-          e
+      Expr.NaturalEven ->
+        Expr.NaturalEven
 
-        Expr.NaturalOdd{} ->
-          e
+      Expr.NaturalOdd ->
+        Expr.NaturalOdd
 
-        Expr.NaturalToInteger{} ->
-          e
+      Expr.NaturalToInteger ->
+        Expr.NaturalToInteger
 
-        Expr.NaturalShow{} ->
-          e
+      Expr.NaturalShow ->
+        Expr.NaturalShow
 
-        Expr.Integer{} ->
-          e
+      Expr.Integer ->
+        Expr.Integer
 
-        Expr.IntegerShow{} ->
-          e
+      Expr.IntegerShow ->
+        Expr.IntegerShow
 
-        Expr.IntegerLit{} ->
-          e
+      Expr.IntegerLit n ->
+        Expr.IntegerLit n
 
-        Expr.Double{} ->
-          e
+      Expr.Double ->
+        Expr.Double
 
-        Expr.DoubleShow{} ->
-          e
+      Expr.DoubleShow ->
+        Expr.DoubleShow
 
-        Expr.DoubleLit{} ->
-          e
+      Expr.DoubleLit n ->
+        Expr.DoubleLit n
 
-        Expr.Text{} ->
-          e
+      Expr.Text ->
+        Expr.Text
 
-        Expr.TextLit{} ->
-          e
+      Expr.TextLit t ->
+        Expr.TextLit ( over chunkExprs ( go bindings ) t )
 
-        Expr.TextShow ->
-          e
+      Expr.TextShow ->
+        Expr.TextShow
 
-        Expr.List ->
-          e
+      Expr.List ->
+        Expr.List
 
-        Expr.ListBuild ->
-          e
+      Expr.ListBuild ->
+        Expr.ListBuild
 
-        Expr.ListFold ->
-          e
+      Expr.ListFold ->
+        Expr.ListFold
 
-        Expr.ListLength ->
-          e
+      Expr.ListLength ->
+        Expr.ListLength
 
-        Expr.ListHead ->
-          e
+      Expr.ListHead ->
+        Expr.ListHead
 
-        Expr.ListLast ->
-          e
+      Expr.ListLast ->
+        Expr.ListLast
 
-        Expr.ListIndexed ->
-          e
+      Expr.ListIndexed ->
+        Expr.ListIndexed
 
-        Expr.ListReverse ->
-          e
+      Expr.ListReverse ->
+        Expr.ListReverse
 
-        Expr.Optional ->
-          e
+      Expr.Optional ->
+        Expr.Optional
 
-        Expr.OptionalFold ->
-          e
+      Expr.OptionalFold ->
+        Expr.OptionalFold
 
-        Expr.OptionalBuild ->
-          e
+      Expr.OptionalBuild ->
+        Expr.OptionalBuild
 
 
 printVersion :: IO ()
