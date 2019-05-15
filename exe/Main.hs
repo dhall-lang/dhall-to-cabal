@@ -478,15 +478,10 @@ printType PrintTypeOptions { .. } = do
         initialState :: CSEState Dhall.Import
         initialState = CSEState mempty ( dhallType typeToPrint )
 
-        CSEState types expr =
+        CSEState types body =
           execState
             ( traverse_ step [ minBound .. maxBound ] )
             initialState
-
-        -- Note: right fold here, though the above traversal is a left
-        -- fold. We need the types we factor out last to be the
-        -- outermost-bound.
-        body = foldr ( uncurry makeLetOrImport ) expr types
 
         importing = if any shouldBeImported ( fst <$> types ) && not selfContained
           then addBinding
@@ -523,7 +518,11 @@ printType PrintTypeOptions { .. } = do
         case liftCSE subrecord name ( dhallType factorType ) expr of
           Just expr' -> do
             tell (Any True)
-            return expr'
+            -- Note that the substitution/binding only happens in this
+            -- branch, rather than the branch where no expression was
+            -- lifted out - otherwise, as the variables aren't shifted
+            -- in the latter case, we can get into trouble.
+            return $ makeLetOrImport factorType ( dhallType factorType ) expr'
           Nothing ->
             return expr
 
