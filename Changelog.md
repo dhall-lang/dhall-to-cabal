@@ -1,5 +1,10 @@
 # dhall-to-cabal change log
 
+## Next -- [YYYY-MM-DD]
+
+* Remove `dhall/types/CustomSetup.dhall` in favour of the identical
+  `dhall/types/SetupBuildInfo.dhall`.
+
 ## 1.3.3.0 -- 2019-05-15
 
 * All constructors that previously took an empty record now use the
