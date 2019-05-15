@@ -34,6 +34,8 @@ module DhallToCabal
   , version
   , configRecordType
   , buildInfoType
+  , executableScope
+  , moduleRenaming
 
   , sortExpr
   ) where
