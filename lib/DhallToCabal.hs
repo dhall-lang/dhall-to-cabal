@@ -38,6 +38,11 @@ module DhallToCabal
   , moduleRenaming
   , foreignLibOption
   , foreignLibType
+  , setupBuildInfo
+  , dependency
+  , testSuiteInterface
+  , mixin
+  , flag
 
   , sortExpr
   ) where

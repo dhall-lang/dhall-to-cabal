@@ -14,8 +14,7 @@
 , copyright :
     Text
 , custom-setup :
-    Optional
-    { setup-depends : List { package : Text, bounds : ./VersionRange.dhall } }
+    Optional ./SetupBuildInfo.dhall
 , data-dir :
     Text
 , data-files :
@@ -31,7 +30,7 @@
 , extra-tmp-files :
     List Text
 , flags :
-    List { name : Text, default : Bool, description : Text, manual : Bool }
+    List ./Flag.dhall
 , foreign-libraries :
     List { name : Text, foreign-lib : ./Config.dhall → ./ForeignLibrary.dhall }
 , homepage :

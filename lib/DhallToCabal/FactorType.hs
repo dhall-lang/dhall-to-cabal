@@ -40,6 +40,7 @@ data KnownType
   | Benchmark
   | Executable
   | TestSuite
+  | SetupBuildInfo
   | BuildInfo
   | Config
   | SourceRepo
@@ -53,15 +54,19 @@ data KnownType
   | Language
   | License
   | BuildType
+  | Dependency
   | VersionRange
   | Version
   | SPDX
   | LicenseId
   | LicenseExceptionId
   | Scope
+  | Mixin
   | ModuleRenaming
   | ForeignLibOption
   | ForeignLibType
+  | TestType
+  | Flag
   deriving (Bounded, Enum, Eq, Ord, Read, Show)
 
 
@@ -83,6 +88,7 @@ dhallType t = fmap Dhall.absurd
       Executable -> Dhall.expected executable
       Benchmark -> Dhall.expected benchmark
       TestSuite -> Dhall.expected testSuite
+      SetupBuildInfo -> Dhall.expected setupBuildInfo
       BuildInfo -> buildInfoType
       SourceRepo -> Dhall.expected sourceRepo
       RepoType -> Dhall.expected repoType
@@ -96,15 +102,19 @@ dhallType t = fmap Dhall.absurd
       License -> Dhall.expected license
       BuildType -> Dhall.expected buildType
       Package -> Dhall.expected genericPackageDescription
+      Dependency -> Dhall.expected dependency
       VersionRange -> Dhall.expected versionRange
       Version -> Dhall.expected version
       SPDX -> Dhall.expected spdxLicense
       LicenseId -> Dhall.expected spdxLicenseId
       LicenseExceptionId -> Dhall.expected spdxLicenseExceptionId
       Scope -> Dhall.expected executableScope
+      Mixin -> Dhall.expected mixin
       ModuleRenaming -> Dhall.expected moduleRenaming
       ForeignLibOption -> Dhall.expected foreignLibOption
       ForeignLibType -> Dhall.expected foreignLibType
+      TestType -> Dhall.expected testSuiteInterface
+      Flag -> Dhall.expected flag
   )
 
 

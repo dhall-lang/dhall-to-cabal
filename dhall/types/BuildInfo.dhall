@@ -6,7 +6,7 @@
 , autogen-modules :
     List Text
 , build-depends :
-    List { package : Text, bounds : ./VersionRange.dhall }
+    List ./Dependency.dhall
 , build-tool-depends :
     List { package : Text, component : Text, version : ./VersionRange.dhall }
 , build-tools :
@@ -60,12 +60,7 @@
 , ld-options :
     List Text
 , mixins :
-    List
-    { package :
-        Text
-    , renaming :
-        { provides : ./ModuleRenaming.dhall, requires : ./ModuleRenaming.dhall }
-    }
+    List ./Mixin.dhall
 , other-extensions :
     List ./Extension.dhall
 , other-languages :
