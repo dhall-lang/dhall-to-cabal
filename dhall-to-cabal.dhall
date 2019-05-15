@@ -42,8 +42,6 @@ let deps =
           majorVersions "prettyprinter" [ v "1.2.0.1" ]
       , contravariant =
           majorVersions "contravariant" [ v "1.4", v "1.5" ]
-      , hashable =
-          majorVersions "hashable" [ v "1.2.6.1" ]
       , tasty =
           majorVersions "tasty" [ v "0.11", v "0.12", v "1.0", v "1.1", v "1.2" ]
       , tasty-golden =
@@ -118,7 +116,6 @@ in    prelude.utils.GitHub-project
                   , deps.contravariant
                   , deps.dhall
                   , deps.filepath
-                  , deps.hashable
                   , deps.text
                   , deps.transformers
                   , deps.vector
