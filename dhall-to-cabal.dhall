@@ -118,6 +118,7 @@ in    prelude.utils.GitHub-project
                   , deps.contravariant
                   , deps.dhall
                   , deps.filepath
+                  , deps.microlens
                   , deps.text
                   , deps.transformers
                   , deps.vector
@@ -130,6 +131,7 @@ in    prelude.utils.GitHub-project
                   [ "CabalToDhall"
                   , "DhallLocation"
                   , "DhallToCabal"
+                  , "DhallToCabal.FactorType"
                   , "DhallToCabal.Util"
                   ]
               , hs-source-dirs =
