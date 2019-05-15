@@ -7,18 +7,13 @@
 
 module Main ( main ) where
 
-import Control.Applicative ( (<**>), Const(..), optional, (<|>) )
+import Control.Applicative ( (<**>), optional, (<|>) )
 import Control.Monad ( guard )
 import Data.Char ( isAlphaNum )
-import Control.Monad.Trans.Class ( lift )
-import Control.Monad.Trans.State ( State, execState, get, modify, put )
-import Control.Monad.Trans.Writer ( WriterT, execWriterT, tell )
-import Data.Foldable ( asum, traverse_ )
+import Control.Monad.Trans.State ( State, execState, modify )
+import Data.Foldable ( asum, toList, traverse_ )
 import Data.Function ( (&) )
-import Data.Functor.Product ( Product(..) )
-import Data.Functor.Identity ( Identity(..) )
 import Data.List.NonEmpty ( NonEmpty(..) )
-import Data.Monoid ( Any(..) )
 import Data.Maybe ( fromMaybe )
 import Data.Text (Text)
 import Data.String ( fromString )
@@ -33,17 +28,17 @@ import DhallToCabal
 import DhallToCabal.Util ( relativeTo )
 import qualified Paths_dhall_to_cabal as Paths
 
-import qualified Data.List.NonEmpty as NonEmpty
 import qualified Data.Text.IO as StrictText
 import qualified Data.Text.Prettyprint.Doc as Pretty
 import qualified Data.Text.Prettyprint.Doc.Render.Text as Pretty
 import qualified Dhall
 import qualified Dhall.Core as Dhall
 import qualified Dhall.Core as Expr ( Expr(..), Var(..), Binding(..), shift )
-import qualified Distribution.PackageDescription as Cabal
+import qualified Dhall.Lint as Lint
 import qualified Dhall.Map as Map
 import qualified Dhall.Parser
 import qualified Dhall.TypeCheck as Dhall
+import qualified Distribution.PackageDescription as Cabal
 import qualified Distribution.PackageDescription.PrettyPrint as Cabal
 import qualified Distribution.Types.PackageId as Cabal
 import qualified Distribution.Types.PackageName as Cabal
@@ -58,9 +53,11 @@ data Command
   | PrintVersion
 
 
-
+-- Note: this needs to be in topological order of CSEability, from
+-- big to small.
 data KnownType
-  = Library
+  = Package
+  | Library
   | ForeignLibrary
   | Benchmark
   | Executable
@@ -78,7 +75,6 @@ data KnownType
   | Language
   | License
   | BuildType
-  | Package
   | VersionRange
   | Version
   | SPDX
@@ -396,36 +392,12 @@ opts =
     { Pretty.layoutPageWidth = Pretty.AvailablePerLine 80 1.0 }
 
 
-
-data CSEState a = CSEState
-  { _factoredOutTypes :: [ ( KnownType, Expr.Expr Dhall.Parser.Src a ) ]
-    -- ^ Things we've already factored out (which may undergo further factoring themselves).
-  , _rootType :: Expr.Expr Dhall.Parser.Src a
-    -- ^ The original type, which we started factoring things from.
-  }
-
-
-traverseTypes
-  :: ( Applicative f )
-  => ( Expr.Expr Dhall.Parser.Src a -> f ( Expr.Expr Dhall.Parser.Src b ) )
-  -> CSEState a
-  -> f ( CSEState b )
-traverseTypes f (CSEState types root) =
-  CSEState
-    <$> traverse (traverse f) types
-    <*> f root
-
-
+-- Note: the expression is linted afterwards, so this can do the
+-- drop-dead simple thing of adding a new `let` each time.
 addBinding :: Text -> Dhall.Expr s a -> Dhall.Expr s a -> Dhall.Expr s a
-addBinding name val = \case
-  Expr.Let bindings body ->
-    Expr.Let
-      ( Expr.Binding name Nothing val `NonEmpty.cons` bindings )
-      body
-  expr ->
-    Expr.Let
-      ( Expr.Binding name Nothing val :| [] )
-      expr
+addBinding name val =
+  Expr.Let
+    ( Expr.Binding name Nothing val :| [] )
 
 
 printType :: PrintTypeOptions -> IO ()
@@ -483,58 +455,47 @@ printType PrintTypeOptions { .. } = do
     factoredType :: Expr.Expr Dhall.Parser.Src Dhall.Import
     factoredType =
       let
-        initialState :: CSEState Dhall.Import
-        initialState = CSEState mempty ( dhallType typeToPrint )
-
-        CSEState types body =
+        body =
           execState
             ( traverse_ step [ minBound .. maxBound ] )
-            initialState
+            ( dhallType typeToPrint )
 
-        importing = if any shouldBeImported ( fst <$> types ) && not selfContained
-          then addBinding
-                 "types"
-                 ( Expr.Embed ( typesLocation dhallFromGitHub ) )
-          else id
+        importing =
+          addBinding
+            "types"
+            ( Expr.Embed ( typesLocation dhallFromGitHub ) )
 
       in
-        importing body
+        Lint.lint ( importing body )
 
     step
       :: (Eq a)
       => KnownType
          -- ^ Name of the type we're trying to factor out
-      -> State ( CSEState a ) ()
-    step factorType = do
-      Any usedFactor <- execWriterT
-        ( lift . put =<< traverseTypes ( tryCSE factorType ) =<< lift get )
-      let
-        addingUsedFactor =
-          if usedFactor then ( ( factorType, ( dhallType factorType ) ) : ) else id
-      modify $ \ ( CSEState types expr ) -> CSEState ( addingUsedFactor types ) expr
+      -> State ( Expr.Expr Dhall.Parser.Src a ) ()
+    step factorType =
+      modify ( tryCSE factorType )
 
     tryCSE
-      :: (Eq a, Monad m)
+      :: (Eq a)
       => KnownType -- ^ The type we're factoring out
       -> Expr.Expr Dhall.Parser.Src a
-      -> WriterT Any m ( Expr.Expr Dhall.Parser.Src a )
+      -> Expr.Expr Dhall.Parser.Src a
     tryCSE factorType expr =
       let
         name = fromString ( show factorType )
         subrecord = isCandidateSubrecord factorType
       in
-        case liftCSE subrecord name ( dhallType factorType ) expr of
-          Just expr' -> do
-            tell (Any True)
-            -- Note that the substitution/binding only happens in this
-            -- branch, rather than the branch where no expression was
-            -- lifted out - otherwise, as the variables aren't shifted
-            -- in the latter case, we can get into trouble.
-            return $ makeLetOrImport factorType ( dhallType factorType ) expr'
-          Nothing ->
-            return expr
+        makeLetOrImport
+          factorType
+          ( dhallType factorType )
+          ( liftCSE subrecord name ( dhallType factorType ) expr )
 
 
+-- | This will always shift the variable name provided, even if
+-- nothing is lifted out.
+--
+-- No variables should be free in the expression to lift.
 liftCSE
   :: (Eq s, Eq a)
   => Bool
@@ -545,25 +506,14 @@ liftCSE
      -- ^ The common subexpression to lift
   -> Expr.Expr s a
      -- ^ The expression to remove a common subexpression from
-  -> Maybe (Expr.Expr s a)
-  -- ^ 'Just' the CSE-ed expression, or Nothing if the subexpression wasn't found.
+  -> Expr.Expr s a
 liftCSE subrecord name body expr =
   let
     v0 =
       Expr.V name 0
 
   in
-    case go ( Expr.shift 1 v0 expr ) v0 of
-      Pair ( Const ( Any False ) ) _ ->
-        -- There was nothing to lift
-        Nothing
-
-      Pair _ ( Identity reduced ) | reduced == Expr.Var v0 ->
-        -- We lifted the whole expression out. This is not a win, so don't bother.
-        Nothing
-
-      Pair _ ( Identity reduced ) ->
-        Just reduced
+    go True v0 ( Expr.shift 1 v0 expr )
 
   where
 
@@ -606,216 +556,227 @@ liftCSE subrecord name body expr =
 
       return ( Expr.Record extra )
 
-    go e v | e == body =
-      Pair ( Const ( Any True ) ) ( Identity ( Expr.Var v ) )
+    -- Only lift it out if it's not the whole expression.
+    go False v e | e == body =
+      Expr.Var v
 
-    go ( ( `subtractRecordFields` body ) -> Just extra ) v =
-      Pair
-        ( Const ( Any True ) )
-        ( Identity ( Expr.CombineTypes ( Expr.Var v ) extra ) )
+    go _ v ( ( `subtractRecordFields` body ) -> Just extra ) =
+      Expr.CombineTypes ( Expr.Var v ) extra
 
-    go e v =
+    go toplevel v e =
       case e of
         Expr.Lam n t b ->
-          Expr.Lam n t <$> go b ( shiftName n v )
+          Expr.Lam n t ( go False ( shiftName n v ) b )
 
         Expr.Pi n t b ->
-          Expr.Pi n <$> go t v <*> go b ( shiftName n v )
+          Expr.Pi n ( go False v t ) ( go False ( shiftName n v ) b )
 
         Expr.App f a ->
-          Expr.App <$> go f v <*> go a v
+          Expr.App ( go False v f ) ( go False v a )
 
         Expr.Let bs e ->
-          Expr.Let <$> traverse go' bs <*> go e shifted
-            where go' (Expr.Binding n t b) = Expr.Binding n t <$> go b v
-                  shifted = foldr (shiftName . Expr.variable) v bs
+          go' ( toList bs ) v
+            where
+              -- Since we lint afterwards, it's fine to transform one
+              -- let with many bindings into many lets with one
+              -- binding each.
+              go' ( Expr.Binding n t b : bs ) v' =
+                Expr.Let
+                  ( pure
+                    ( Expr.Binding n t
+                      ( go False v' b )
+                    )
+                  )
+                  ( go' bs ( shiftName n v' ) )
+              go' [] v' =
+                go toplevel v' e
 
         Expr.Annot a b ->
-          Expr.Annot <$> go a v <*> go b v
+          Expr.Annot ( go False v a ) ( go False v b )
 
         Expr.BoolAnd a b ->
-          Expr.BoolAnd <$> go a v <*> go b v
+          Expr.BoolAnd ( go False v a ) ( go False v b )
 
         Expr.BoolOr a b ->
-          Expr.BoolOr <$> go a v <*> go b v
+          Expr.BoolOr ( go False v a ) ( go False v b )
 
         Expr.BoolEQ a b ->
-          Expr.BoolEQ <$> go a v <*> go b v
+          Expr.BoolEQ ( go False v a ) ( go False v b )
 
         Expr.BoolNE a b ->
-          Expr.BoolNE <$> go a v <*> go b v
+          Expr.BoolNE ( go False v a ) ( go False v b )
 
         Expr.BoolIf a b c ->
-          Expr.BoolIf <$> go a v <*> go b v <*> go c v
+          Expr.BoolIf ( go False v a ) ( go False v b ) ( go False v c )
 
         Expr.NaturalPlus a b ->
-          Expr.NaturalPlus <$> go a v <*> go b v
+          Expr.NaturalPlus ( go False v a ) ( go False v b )
 
         Expr.NaturalTimes a b ->
-          Expr.NaturalTimes <$> go a v <*> go b v
+          Expr.NaturalTimes ( go False v a ) ( go False v b )
 
         Expr.ListAppend a b ->
-          Expr.ListAppend <$> go a v <*> go b v
+          Expr.ListAppend ( go False v a ) ( go False v b )
 
         Expr.Combine a b ->
-          Expr.Combine <$> go a v <*> go b v
+          Expr.Combine ( go False v a ) ( go False v b )
 
         Expr.Prefer a b ->
-          Expr.Prefer <$> go a v <*> go b v
+          Expr.Prefer ( go False v a ) ( go False v b )
 
         Expr.TextAppend a b ->
-          Expr.TextAppend <$> go a v <*> go b v
+          Expr.TextAppend ( go False v a ) ( go False v b )
 
         Expr.ListLit t elems ->
           Expr.ListLit
-            <$> ( traverse ( `go` v ) t )
-            <*> ( traverse ( `go` v ) elems )
+            ( fmap ( go False v ) t )
+            ( fmap ( go False v ) elems )
 
         Expr.OptionalLit t elems ->
           Expr.OptionalLit
-            <$> go t v
-            <*> ( traverse ( `go` v ) elems )
+            ( go False v t )
+            ( fmap ( go False v ) elems )
 
         Expr.Some a ->
-          Expr.Some <$> go a v
+          Expr.Some ( go False v a )
 
         Expr.None ->
-          pure Expr.None
+          Expr.None
 
         Expr.Record fields ->
-          Expr.Record <$> traverse ( `go` v ) fields
+          Expr.Record ( fmap ( go False v ) fields )
 
         Expr.RecordLit fields ->
-          Expr.RecordLit <$> traverse ( `go` v ) fields
+          Expr.RecordLit ( fmap ( go False v ) fields )
 
         Expr.Union fields ->
-          Expr.Union <$> traverse ( traverse ( `go` v ) ) fields
+          Expr.Union ( fmap ( fmap ( go False v ) ) fields )
 
         Expr.UnionLit n a fields ->
-          Expr.UnionLit n <$> go a v <*> traverse ( traverse ( `go` v ) ) fields
+          Expr.UnionLit n ( go False v a ) ( fmap ( fmap ( go False v ) ) fields )
 
         Expr.Merge a b t ->
-          Expr.Merge <$> go a v <*> go b v <*> traverse ( `go` v ) t
+          Expr.Merge ( go False v a ) ( go False v b ) ( fmap ( go False v ) t )
 
         Expr.Field e f ->
-          Expr.Field <$> go e v <*> pure f
+          Expr.Field ( go False v e ) f
 
         Expr.Note s e ->
-          Expr.Note s <$> go e v
+          Expr.Note s ( go False v e )
 
         Expr.CombineTypes a b ->
-          Expr.CombineTypes <$> go a v <*> go b v
+          Expr.CombineTypes ( go False v a ) ( go False v b )
 
         Expr.Project e fs ->
-          Expr.Project <$> go e v <*> pure fs
+          Expr.Project ( go False v e ) fs
 
         Expr.ImportAlt l r ->
-          Expr.ImportAlt <$> go l v <*> go r v
+          Expr.ImportAlt ( go False v l ) ( go False v r )
 
         Expr.IntegerToDouble ->
-          pure Expr.IntegerToDouble
+          Expr.IntegerToDouble
 
         Expr.Embed{} ->
-          pure e
+          e
 
         Expr.Const{} ->
-          pure e
+          e
 
         Expr.Var{} ->
-          pure e
+          e
 
         Expr.Bool{} ->
-          pure e
+          e
 
         Expr.BoolLit{} ->
-          pure e
+          e
 
         Expr.Natural{} ->
-          pure e
+          e
 
         Expr.NaturalLit{} ->
-          pure e
+          e
 
         Expr.NaturalFold{} ->
-          pure e
+          e
 
         Expr.NaturalBuild{} ->
-          pure e
+          e
 
         Expr.NaturalIsZero{} ->
-          pure e
+          e
 
         Expr.NaturalEven{} ->
-          pure e
+          e
 
         Expr.NaturalOdd{} ->
-          pure e
+          e
 
         Expr.NaturalToInteger{} ->
-          pure e
+          e
 
         Expr.NaturalShow{} ->
-          pure e
+          e
 
         Expr.Integer{} ->
-          pure e
+          e
 
         Expr.IntegerShow{} ->
-          pure e
+          e
 
         Expr.IntegerLit{} ->
-          pure e
+          e
 
         Expr.Double{} ->
-          pure e
+          e
 
         Expr.DoubleShow{} ->
-          pure e
+          e
 
         Expr.DoubleLit{} ->
-          pure e
+          e
 
         Expr.Text{} ->
-          pure e
+          e
 
         Expr.TextLit{} ->
-          pure e
+          e
 
         Expr.TextShow ->
-          pure e
+          e
 
         Expr.List ->
-          pure e
+          e
 
         Expr.ListBuild ->
-          pure e
+          e
 
         Expr.ListFold ->
-          pure e
+          e
 
         Expr.ListLength ->
-          pure e
+          e
 
         Expr.ListHead ->
-          pure e
+          e
 
         Expr.ListLast ->
-          pure e
+          e
 
         Expr.ListIndexed ->
-          pure e
+          e
 
         Expr.ListReverse ->
-          pure e
+          e
 
         Expr.Optional ->
-          pure e
+          e
 
         Expr.OptionalFold ->
-          pure e
+          e
 
         Expr.OptionalBuild ->
-          pure e
+          e
 
 
 printVersion :: IO ()
@@ -828,7 +789,7 @@ printDefault PrintDefaultOptions {..} = do
   Pretty.renderIO
     System.IO.stdout
     ( Pretty.layoutSmart opts
-        ( Pretty.pretty ( withPreludeImport expr ) )
+        ( Pretty.pretty ( Lint.lint ( withPreludeImport expr ) ) )
     )
 
   putStrLn ""
