@@ -104,7 +104,7 @@ in    prelude.utils.GitHub-project
       , license-files =
           [ "LICENSE" ]
       , version =
-          v "1.3.2.0"
+          v "1.3.3.0"
       , library =
           prelude.unconditional.library
           (   prelude.defaults.Library

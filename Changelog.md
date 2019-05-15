@@ -1,6 +1,6 @@
 # dhall-to-cabal change log
 
-## Next
+## 1.3.3.0 -- 2019-05-15
 
 * All constructors that previously took an empty record now use the
   new nullary syntax instead. This is a breaking change for user code.
