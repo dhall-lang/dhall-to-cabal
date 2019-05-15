@@ -35,21 +35,15 @@ let
 
           lens = self.callPackage ./lens.nix {};
 
-          base-compat-batteries = self.callPackage ./base-compat-batteries.nix {};
-
           cabal-doctest = self.callPackage ./cabal-doctest.nix { Cabal = self.callPackage ./cabal.nix {}; };
 
           insert-ordered-containers = self.callPackage ./insert-ordered-containers.nix {};
 
-          QuickCheck = self.callPackage ./QuickCheck.nix {};
-
-          quickcheck-instances = self.callPackage ./quickcheck-instances.nix {};
-
-          splitmix = self.callPackage ./splitmix.nix { base-compat-batteries = self.callPackage ./base-compat-batteries.nix {}; };
+          dhall-to-cabal = self.callPackage ./dhall-to-cabal.nix {};
 
           transformers-compat = self.callPackage ./transformers-compat.nix {};
 
-          dhall-to-cabal = self.callPackage ./dhall-to-cabal.nix {};
+          quickcheck-instances = self.callPackage ./quickcheck-instances.nix {};
         };
       };
     };
