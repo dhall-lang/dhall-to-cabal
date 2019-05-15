@@ -19,6 +19,8 @@ import Data.Text (Text)
 import Lens.Micro ( ASetter, over )
 
 import DhallToCabal
+import Dhall.Extra
+  ( sortExpr )
 
 import qualified Data.Map as UnorderedMap
 import qualified Dhall
@@ -108,7 +110,7 @@ dhallType t = fmap Dhall.absurd
 
 factored :: KnownType -> Expr.Expr Dhall.Parser.Src KnownType
 factored rootType =
-  foldl' step ( dhallType rootType ) [ minBound .. maxBound ]
+  sortExpr ( foldl' step ( dhallType rootType ) [ minBound .. maxBound ] )
   where
     step expr factorType =
       fmap
