@@ -25,6 +25,7 @@ import qualified Data.Text.Prettyprint.Doc as Pretty
 import qualified Data.Text.Prettyprint.Doc.Render.Text as Pretty
 import qualified Dhall.Core
 import qualified Dhall.Core as Expr ( Expr(..) )
+import qualified Dhall.Lint as Lint
 import qualified Dhall.Parser
 import qualified Options.Applicative as OptParse
 import qualified System.IO
@@ -130,7 +131,7 @@ meta (MetaOptions {..}) = do
       Pretty.renderIO
         hnd
         ( Pretty.layoutSmart prettyOpts
-            ( Pretty.pretty expr )
+            ( Pretty.pretty ( Lint.lint expr ) )
         )
 
 
