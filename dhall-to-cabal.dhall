@@ -27,7 +27,7 @@ let deps =
       , directory =
           majorVersions "directory" [ v "1.3.0.2" ]
       , dhall =
-          majorVersions "dhall" [ v "1.21.0" ]
+          majorVersions "dhall" [ v "1.23.0" ]
       , dhall-to-cabal =
           package "dhall-to-cabal" anyVersion
       , filepath =
@@ -85,7 +85,7 @@ in    prelude.utils.GitHub-project
       , category =
           "Distribution"
       , build-type =
-          Some (types.BuildType.Simple {=})
+          Some types.BuildType.Simple
       , maintainer =
           "ollie@ocharles.org.uk"
       , author =
@@ -100,7 +100,7 @@ in    prelude.utils.GitHub-project
           , "golden-tests/cabal-to-dhall/*.cabal"
           ]
       , license =
-          types.License.MIT {=}
+          types.License.MIT
       , license-files =
           [ "LICENSE" ]
       , version =
@@ -148,7 +148,7 @@ in    prelude.utils.GitHub-project
                   , "Paths_dhall_to_cabal"
                   ]
               , default-language =
-                  Some (types.Language.Haskell2010 {=})
+                  Some types.Language.Haskell2010
               }
           )
       , executables =
@@ -181,7 +181,7 @@ in    prelude.utils.GitHub-project
                 , autogen-modules =
                     [ "Paths_dhall_to_cabal" ]
                 , default-language =
-                    Some (types.Language.Haskell2010 {=})
+                    Some types.Language.Haskell2010
                 }
             )
           , prelude.unconditional.executable
@@ -209,14 +209,14 @@ in    prelude.utils.GitHub-project
                 , autogen-modules =
                     [ "Paths_dhall_to_cabal" ]
                 , default-language =
-                    Some (types.Language.Haskell2010 {=})
+                    Some types.Language.Haskell2010
                 }
             )
           , prelude.unconditional.executable
             "dhall-to-cabal-meta"
             (   prelude.defaults.Executable
               ⫽ { scope =
-                    types.Scope.Private {=}
+                    types.Scope.Private
                 , build-depends =
                     [ deps.base
                     , deps.directory
@@ -229,7 +229,7 @@ in    prelude.utils.GitHub-project
                 , hs-source-dirs =
                     [ "meta" ]
                 , default-language =
-                    Some (types.Language.Haskell2010 {=})
+                    Some types.Language.Haskell2010
                 , compiler-options =
                     prelude.defaults.CompilerOptions ⫽ { GHC = warning-options }
                 , main-is =
@@ -262,7 +262,7 @@ in    prelude.utils.GitHub-project
                 , type =
                     types.TestType.exitcode-stdio { main-is = "GoldenTests.hs" }
                 , default-language =
-                    Some (types.Language.Haskell2010 {=})
+                    Some types.Language.Haskell2010
                 }
             )
           , prelude.unconditional.test-suite
@@ -284,7 +284,7 @@ in    prelude.utils.GitHub-project
                 , type =
                     types.TestType.exitcode-stdio { main-is = "Tests.hs" }
                 , default-language =
-                    Some (types.Language.Haskell2010 {=})
+                    Some types.Language.Haskell2010
                 , other-modules =
                     [ "DhallToCabal.Tests" ]
                 }

@@ -421,20 +421,16 @@ testSuite =
 
 
 testSuiteInterface :: Dhall.Type Cabal.TestSuiteInterface
-testSuiteInterface =
-  makeUnion
-    ( Map.fromList
-        [ ( "exitcode-stdio"
-          , Cabal.TestSuiteExeV10 ( Cabal.mkVersion [ 1, 0 ] )
-              <$> Dhall.record ( Dhall.field "main-is" Dhall.string )
-          )
-        , ( "detailed"
-          , Cabal.TestSuiteLibV09 ( Cabal.mkVersion [ 0, 9 ] )
-              <$> Dhall.record ( Dhall.field "module" moduleName )
-          )
-        ]
-    )
-
+testSuiteInterface = Dhall.union
+  ( mconcat
+    [ Cabal.TestSuiteExeV10 ( Cabal.mkVersion [ 1, 0 ] )
+        <$> Dhall.constructor "exitcode-stdio"
+              ( Dhall.record ( Dhall.field "main-is" Dhall.string ) )
+    , Cabal.TestSuiteLibV09 ( Cabal.mkVersion [ 0, 9 ] )
+        <$> Dhall.constructor "detailed"
+              ( Dhall.record ( Dhall.field "module" moduleName ) )
+    ]
+  )
 
 
 
@@ -492,13 +488,12 @@ foreignLib =
 
 
 foreignLibType :: Dhall.Type Cabal.ForeignLibType
-foreignLibType =
-  makeUnion
-    ( Map.fromList
-        [ ( "Shared", Cabal.ForeignLibNativeShared <$ Dhall.unit )
-        , ( "Static", Cabal.ForeignLibNativeStatic <$ Dhall.unit )
-        ]
-    )
+foreignLibType = Dhall.union
+  ( mconcat
+    [ Cabal.ForeignLibNativeShared <$ Dhall.constructor "Shared" Dhall.unit
+    , Cabal.ForeignLibNativeStatic <$ Dhall.constructor "Static" Dhall.unit
+    ]
+  )
 
 
 
@@ -709,27 +704,26 @@ buildType =
 
 
 license :: Dhall.Type (Either SPDX.License Cabal.License)
-license =
-  makeUnion
-    ( Map.fromList
-        [ ( "GPL", Right . Cabal.GPL <$> Dhall.maybe version )
-        , ( "AGPL", Right . Cabal.AGPL <$> Dhall.maybe version )
-        , ( "LGPL", Right . Cabal.LGPL <$> Dhall.maybe version )
-        , ( "BSD2", Right Cabal.BSD2 <$ Dhall.unit )
-        , ( "BSD3", Right Cabal.BSD3 <$ Dhall.unit )
-        , ( "BSD4", Right Cabal.BSD4 <$ Dhall.unit )
-        , ( "MIT", Right Cabal.MIT <$ Dhall.unit )
-        , ( "ISC", Right Cabal.ISC <$ Dhall.unit )
-        , ( "MPL", Right . Cabal.MPL <$> version )
-        , ( "Apache", Right . Cabal.Apache <$> Dhall.maybe version )
-        , ( "PublicDomain", Right Cabal.PublicDomain <$ Dhall.unit )
-        , ( "AllRightsReserved", Right Cabal.AllRightsReserved<$ Dhall.unit )
-        , ( "Unspecified", Right Cabal.UnspecifiedLicense <$ Dhall.unit )
-        , ( "Unknown", Right . Cabal.UnknownLicense <$> Dhall.string )
-        , ( "Other", Right Cabal.OtherLicense <$ Dhall.unit )
-        , ( "SPDX", Left . SPDX.License <$> spdxLicense )
-        ]
-    )
+license = Dhall.union
+  ( mconcat
+    [ Right . Cabal.GPL <$> Dhall.constructor "GPL" ( Dhall.maybe version )
+    , Right . Cabal.AGPL <$> Dhall.constructor "AGPL" ( Dhall.maybe version )
+    , Right . Cabal.LGPL <$> Dhall.constructor "LGPL" ( Dhall.maybe version )
+    , Right Cabal.BSD2 <$ Dhall.constructor "BSD2" Dhall.unit
+    , Right Cabal.BSD3 <$ Dhall.constructor "BSD3" Dhall.unit
+    , Right Cabal.BSD4 <$ Dhall.constructor "BSD4" Dhall.unit
+    , Right Cabal.MIT <$ Dhall.constructor "MIT" Dhall.unit
+    , Right Cabal.ISC <$ Dhall.constructor "ISC" Dhall.unit
+    , Right . Cabal.MPL <$> Dhall.constructor "MPL" version
+    , Right . Cabal.Apache <$> Dhall.constructor "Apache" ( Dhall.maybe version )
+    , Right Cabal.PublicDomain <$ Dhall.constructor "PublicDomain" Dhall.unit
+    , Right Cabal.AllRightsReserved <$ Dhall.constructor "AllRightsReserved" Dhall.unit
+    , Right Cabal.UnspecifiedLicense <$ Dhall.constructor "Unspecified" Dhall.unit
+    , Right . Cabal.UnknownLicense <$> Dhall.constructor "Unknown" Dhall.string
+    , Right Cabal.OtherLicense <$ Dhall.constructor "Other" Dhall.unit
+    , Left . SPDX.License <$> Dhall.constructor "SPDX" spdxLicense
+    ]
+  )
 
 
 spdxLicense :: Dhall.Type SPDX.LicenseExpression
@@ -930,13 +924,12 @@ pkgconfigName =
 
 
 executableScope :: Dhall.Type Cabal.ExecutableScope
-executableScope =
-  makeUnion
-    ( Map.fromList
-        [ ( "Public", Cabal.ExecutablePublic <$ Dhall.unit )
-        , ( "Private", Cabal.ExecutablePrivate <$ Dhall.unit )
-        ]
-    )
+executableScope = Dhall.union
+  ( mconcat
+    [ Cabal.ExecutablePublic <$ Dhall.constructor "Public" Dhall.unit
+    , Cabal.ExecutablePrivate <$ Dhall.constructor "Private" Dhall.unit
+    ]
+  )
 
 
 
@@ -966,11 +959,8 @@ moduleReexport =
 
 
 foreignLibOption :: Dhall.Type Cabal.ForeignLibOption
-foreignLibOption =
-  makeUnion
-    ( Map.fromList
-        [ ( "Standalone", Cabal.ForeignLibStandalone <$ Dhall.unit ) ]
-    )
+foreignLibOption = Dhall.union $
+  Cabal.ForeignLibStandalone <$ Dhall.constructor "Standalone" Dhall.unit
 
 
 versionInfo :: Dhall.Type Cabal.LibVersionInfo
@@ -987,40 +977,20 @@ versionInfo =
 extension :: Dhall.Type Cabal.Extension
 extension =
   let
-    knownExtension =
-      sortType Dhall.genericAuto
+    extName :: Cabal.KnownExtension -> StrictText.Text
+    extName e =
+      StrictText.pack ( show e )
 
-    unitType =
-      Expr.Record mempty
+    enableDisable ext enabled = if enabled
+      then Cabal.EnableExtension ext
+      else Cabal.DisableExtension ext
 
-    extract expr = do
-      Expr.UnionLit k v alts <-
-        return expr
-
-      ext <-
-        Dhall.extract
-          knownExtension
-          ( Expr.UnionLit k ( Expr.RecordLit mempty ) ( unitType <$ alts ) )
-
-      case v of
-        Expr.BoolLit True ->
-          return ( Cabal.EnableExtension ext )
-
-        Expr.BoolLit False ->
-          return ( Cabal.DisableExtension ext )
-
-        _ ->
-          Nothing
-
-    expected =
-      case Dhall.expected knownExtension of
-        Expr.Union alts ->
-          sortExpr ( Expr.Union ( Expr.Bool <$ alts ) )
-
-        _ ->
-          error "Could not derive extension type"
-
-  in Dhall.Type { .. }
+    constr :: Cabal.KnownExtension -> Dhall.UnionType Cabal.Extension
+    constr ext = Dhall.constructor
+      ( extName ext )
+      ( enableDisable ext <$> Dhall.bool )
+  in
+    Dhall.union ( foldMap constr [ minBound .. maxBound ] )
 
 
 
@@ -1331,26 +1301,21 @@ includeRenaming =
 
 
 moduleRenaming :: Dhall.Type Cabal.ModuleRenaming
-moduleRenaming =
-  makeUnion
-    ( Map.fromList
-      [ ( "renaming"
-        , fmap Cabal.ModuleRenaming
-            ( Dhall.list
-              ( Dhall.record
-                ( (,) <$> Dhall.field "rename" moduleName <*> Dhall.field "to" moduleName )
+moduleRenaming = Dhall.union
+  ( mconcat
+    [ Cabal.ModuleRenaming
+        <$> Dhall.constructor "renaming"
+              ( Dhall.list
+                ( Dhall.record
+                  ( (,) <$> Dhall.field "rename" moduleName <*> Dhall.field "to" moduleName )
+                )
               )
-            )
-        )
-      , ( "default"
-        , Dhall.record ( pure Cabal.DefaultRenaming )
-        )
-      , ( "hiding"
-        , fmap Cabal.HidingRenaming
-            ( Dhall.list moduleName )
-        )
-      ]
-    )
+    , Cabal.DefaultRenaming
+        <$ Dhall.constructor "default" Dhall.unit
+    , Cabal.HidingRenaming
+        <$> Dhall.constructor "hiding" ( Dhall.list moduleName )
+    ]
+  )
 
 
 sortType :: Dhall.Type a -> Dhall.Type a

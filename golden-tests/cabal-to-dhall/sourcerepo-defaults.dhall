@@ -9,18 +9,14 @@ in    prelude.defaults.Package
           prelude.v "0"
       , source-repos =
           [   prelude.defaults.SourceRepo
-            ⫽ { type =
-                  Some (types.RepoType.Git {=})
-              , location =
-                  Some "example.com"
-              }
+            ⫽ { type = Some types.RepoType.Git, location = Some "example.com" }
           ,   prelude.defaults.SourceRepo
             ⫽ { type =
-                  Some (types.RepoType.Darcs {=})
+                  Some types.RepoType.Darcs
               , location =
                   Some "example.org"
               , kind =
-                  types.RepoKind.RepoThis {=}
+                  types.RepoKind.RepoThis
               }
           ]
       }

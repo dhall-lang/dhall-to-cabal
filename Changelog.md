@@ -2,6 +2,13 @@
 
 ## Next
 
+* All constructors that previously took an empty record now use the
+  new nullary syntax instead. This is a breaking change for user code.
+  For example, instead of `types.Compiler.GHC {=}`, now you just write
+  `types.Compiler.GHC`.
+
+* Use `dhall` version 1.23.0.
+
 * Educated `--print-type` about `Scope` and `ModuleRenaming`.
 
 * Fix `cabal-to-dhall` output for unknown licenses using `cabal` spec
@@ -10,8 +17,6 @@
 
 * Improved `--print-type` and `--print-default` output to use
   multi-binding `let`.
-
-* Use `dhall` version 1.21.0.
 
 ## 1.3.2.0 -- 2019-02-12
 

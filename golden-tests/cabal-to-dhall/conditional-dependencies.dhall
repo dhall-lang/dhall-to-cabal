@@ -13,14 +13,14 @@ in    prelude.defaults.Package
           Some
           (   λ(config : types.Config)
             →       if config.impl
-                       (types.Compiler.GHC {=})
+                       types.Compiler.GHC
                        ( prelude.unionVersionRanges
                          (prelude.thisVersion (prelude.v "8.2"))
                          (prelude.laterVersion (prelude.v "8.2"))
                        )
               
               then        if config.impl
-                             (types.Compiler.GHC {=})
+                             types.Compiler.GHC
                              ( prelude.unionVersionRanges
                                (prelude.thisVersion (prelude.v "8.4"))
                                (prelude.laterVersion (prelude.v "8.4"))
@@ -42,7 +42,7 @@ in    prelude.defaults.Package
                             }
               
               else  if config.impl
-                       (types.Compiler.GHC {=})
+                       types.Compiler.GHC
                        ( prelude.unionVersionRanges
                          (prelude.thisVersion (prelude.v "8.4"))
                          (prelude.laterVersion (prelude.v "8.4"))
@@ -61,5 +61,5 @@ in    prelude.defaults.Package
                       }
           )
       , license =
-          types.License.Unspecified {=}
+          types.License.Unspecified
       }

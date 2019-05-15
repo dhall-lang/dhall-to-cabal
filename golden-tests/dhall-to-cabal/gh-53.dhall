@@ -24,7 +24,7 @@ in    prelude.defaults.Package
           Some
           (   λ(config : types.Config)
             →       if config.impl
-                       (types.Compiler.GHC {=})
+                       types.Compiler.GHC
                        (prelude.orLaterVersion (prelude.v "0.0.9"))
               
               then        if config.flag "wai-servlet-debug"

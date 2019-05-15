@@ -40,6 +40,10 @@ let
           insert-ordered-containers = self.callPackage ./insert-ordered-containers.nix {};
 
           dhall-to-cabal = self.callPackage ./dhall-to-cabal.nix {};
+
+          transformers-compat = self.callPackage ./transformers-compat.nix {};
+
+          quickcheck-instances = self.callPackage ./quickcheck-instances.nix {};
         };
       };
     };

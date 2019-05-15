@@ -1,10 +1,10 @@
   ./BuildInfo.dhall
 ⩓ { type :
-      < Shared : {} | Static : {} >
+      < Shared | Static >
   , options :
-      List < Standalone : {} >
+      List < Standalone >
   , lib-version-info :
-      Optional { age : Natural, current : Natural, revision : Natural }
+      Optional { current : Natural, revision : Natural, age : Natural }
   , lib-version-linux :
       Optional ./Version.dhall
   , mod-def-files :

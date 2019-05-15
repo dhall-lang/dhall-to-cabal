@@ -1,1 +1,1 @@
-< Configure : {} | Custom : {} | Make : {} | Simple : {} >
+< Configure | Custom | Make | Simple >

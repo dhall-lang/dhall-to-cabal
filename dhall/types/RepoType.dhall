@@ -1,19 +1,11 @@
-< Bazaar :
-    {}
-| CVS :
-    {}
-| Darcs :
-    {}
-| Git :
-    {}
-| GnuArch :
-    {}
-| Mercurial :
-    {}
-| Monotone :
-    {}
+< Bazaar
+| CVS
+| Darcs
+| Git
+| GnuArch
+| Mercurial
+| Monotone
 | OtherRepoType :
     { _1 : Text }
-| SVN :
-    {}
+| SVN
 >

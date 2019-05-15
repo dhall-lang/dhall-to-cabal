@@ -16,7 +16,7 @@ let gitHubProject =
                     ⫽ { location =
                           Some gitHubRoot
                       , type =
-                          Some ((../types/RepoType.dhall).Git {=})
+                          Some (../types/RepoType.dhall).Git
                       }
                   ]
               }
