@@ -647,7 +647,7 @@ licenseToDhall =
           Right ( Cabal.UnknownLicense "UnspecifiedLicense" ) ->
             license "Unspecified" ( Expr.RecordLit mempty )
           Right ( Cabal.UnknownLicense l ) ->
-            license "Unspecified" ( Expr.TextLit (Expr.Chunks [] (StrictText.pack l)) )
+            license "Unknown" ( Expr.TextLit (Expr.Chunks [] (StrictText.pack l)) )
           Right Cabal.OtherLicense ->
             license "Other" ( Expr.RecordLit mempty )
           Left ( SPDX.License x ) ->
