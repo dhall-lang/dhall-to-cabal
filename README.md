@@ -79,7 +79,7 @@ to terminate". In terms of features, we have a language with:
 To give you an example of a Dhall expression, let's jump straight in and see an
 example of a Dhall expression that can be used with `dhall-to-cabal`:
 
-```
+```haskell
     let GitHub-project =
           https://raw.githubusercontent.com/ocharles/dhall-to-cabal/1.0.0/dhall/GitHub-project.dhall
 
@@ -144,7 +144,7 @@ this build system.
 
 A small example Cabal file is
 
-```
+```cabal
 name: example
 cabal-version: 2.0
 build-type: Simple
@@ -248,7 +248,7 @@ project.
   Haskell *web applications* look like? Does the separate of `library`,
   `executable`, and `test-suite` make sense here? Maybe we'd rather:
   
-  ```
+  ```haskell
   servant-project {
     api-route = "My.API.Route"
     server = "My.API.Server"
