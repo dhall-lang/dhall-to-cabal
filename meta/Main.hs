@@ -133,6 +133,8 @@ meta (MetaOptions {..}) = do
         ( Pretty.layoutSmart prettyOpts
             ( Pretty.pretty ( Lint.lint expr ) )
         )
+      -- Pretty.renderIO doesn't give us a final newline, so add that ourselves.
+      System.IO.hPutStr hnd "\n"
 
 
 -- Shamelessly taken from dhall-format
