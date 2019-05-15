@@ -1,8 +1,4 @@
-resolver: lts-13.7
+resolver: nightly-2019-04-28
 packages:
   - .
-extra-deps:
-  - dhall-1.20.1
-  - Cabal-2.4.0.0
-  - tasty-1.1.0.4
 
