@@ -54,9 +54,17 @@ defaultFile typ = "./defaults" </> show typ <.> "dhall"
 importFile :: FilePath -> Dhall.Core.Import
 importFile ( splitFileName -> ( directory, filename ) ) =
   let
-    components =
+    rawComponents =
       fromString <$>
         splitDirectories ( dropTrailingPathSeparator directory )
+    ( components, relativity ) =
+      case rawComponents of
+        ".." : rest -> ( rest, Dhall.Core.Parent )
+        -- `splitFileName "foo"` produces (".", "foo"). It'd be OK to
+        -- leave the dot component in, but we might as well remove it
+        -- for neatness.
+        "." : rest -> ( rest, Dhall.Core.Here )
+        _ -> ( rawComponents, Dhall.Core.Here )
   in
     Dhall.Core.Import
       { Dhall.Core.importHashed =
@@ -65,7 +73,7 @@ importFile ( splitFileName -> ( directory, filename ) ) =
                 Nothing
             , Dhall.Core.importType =
                 Dhall.Core.Local
-                  Dhall.Core.Here
+                  relativity
                   ( Dhall.Core.File
                      ( Dhall.Core.Directory ( reverse components ) )
                      ( fromString filename )
