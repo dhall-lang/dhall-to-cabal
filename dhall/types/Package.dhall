@@ -13,7 +13,7 @@
 , copyright :
     Text
 , custom-setup :
-    Optional ./CustomSetup.dhall
+    Optional ./SetupBuildInfo.dhall
 , data-dir :
     Text
 , data-files :

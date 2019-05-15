@@ -82,5 +82,5 @@ in  { author =
     , x-fields =
         [] : List { _1 : Text, _2 : Text }
     , custom-setup =
-        None types.CustomSetup
+        None types.SetupBuildInfo
     }

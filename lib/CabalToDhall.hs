@@ -1029,7 +1029,7 @@ setupBuildInfo =
       )
   )
     { Dhall.declared =
-        Expr.Var "types" `Expr.Field` "CustomSetup"
+        Expr.Var "types" `Expr.Field` "SetupBuildInfo"
     }
 
 

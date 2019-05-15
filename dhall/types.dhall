@@ -10,8 +10,6 @@
     ./types/CompilerOptions.dhall
 , Config =
     ./types/Config.dhall
-, CustomSetup =
-    ./types/CustomSetup.dhall
 , Dependency =
     ./types/Dependency.dhall
 , Executable =
