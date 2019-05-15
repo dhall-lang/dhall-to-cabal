@@ -1,3 +1,4 @@
+{-# language LambdaCase #-}
 {-# language NoMonomorphismRestriction #-}
 {-# language NamedFieldPuns #-}
 {-# language OverloadedStrings #-}
@@ -32,6 +33,7 @@ import DhallToCabal
 import DhallToCabal.Util ( relativeTo )
 import qualified Paths_dhall_to_cabal as Paths
 
+import qualified Data.List.NonEmpty as NonEmpty
 import qualified Data.Text.IO as StrictText
 import qualified Data.Text.Prettyprint.Doc as Pretty
 import qualified Data.Text.Prettyprint.Doc.Render.Text as Pretty
@@ -412,6 +414,17 @@ traverseTypes f (CSEState types root) =
     <*> f root
 
 
+addBinding :: Text -> Dhall.Expr s a -> Dhall.Expr s a -> Dhall.Expr s a
+addBinding name val = \case
+  Expr.Let bindings body ->
+    Expr.Let
+      ( Expr.Binding name Nothing val `NonEmpty.cons` bindings )
+      body
+  expr ->
+    Expr.Let
+      ( Expr.Binding name Nothing val :| [] )
+      expr
+
 
 printType :: PrintTypeOptions -> IO ()
 printType PrintTypeOptions { .. } = do
@@ -461,7 +474,7 @@ printType PrintTypeOptions { .. } = do
         name = fromString ( show t )
       in if shouldBeImported t && not selfContained
          then Dhall.subst ( Expr.V name 0 ) ( Expr.Var ( Expr.V "types" 0 ) `Expr.Field` name ) reduced
-         else Expr.Let (Expr.Binding name Nothing val :| []) reduced
+         else addBinding name val reduced
 
     factoredType :: Expr.Expr Dhall.Parser.Src Dhall.Import
     factoredType =
@@ -480,8 +493,9 @@ printType PrintTypeOptions { .. } = do
         body = foldr ( uncurry makeLetOrImport ) expr types
 
         importing = if any shouldBeImported ( fst <$> types ) && not selfContained
-          then Expr.Let
-                 ( Expr.Binding "types" Nothing ( Expr.Embed ( typesLocation dhallFromGitHub ) ) :| [] )
+          then addBinding
+                 "types"
+                 ( Expr.Embed ( typesLocation dhallFromGitHub ) )
           else id
 
       in
@@ -818,8 +832,9 @@ printDefault PrintDefaultOptions {..} = do
 
   where
     withPreludeImport =
-      Expr.Let (Expr.Binding "prelude" Nothing
-                  ( Expr.Embed ( preludeLocation dhallFromGitHub ) ) :| [])
+      addBinding
+        "prelude"
+        ( Expr.Embed ( preludeLocation dhallFromGitHub ) )
 
     expr :: Expr.Expr Dhall.Parser.Src Dhall.Import
     expr = getDefault

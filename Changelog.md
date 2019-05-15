@@ -4,6 +4,9 @@
 
 * Educated `--print-type` about `Scope` and `ModuleRenaming`.
 
+* Improved `--print-type` and `--print-default` output to use
+  multi-binding `let`.
+
 * Use `dhall` version 1.21.0.
 
 ## 1.3.2.0 -- 2019-02-12
