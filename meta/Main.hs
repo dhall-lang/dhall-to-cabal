@@ -25,6 +25,7 @@ import qualified Data.Text.Prettyprint.Doc as Pretty
 import qualified Data.Text.Prettyprint.Doc.Render.Text as Pretty
 import qualified Dhall.Core
 import qualified Dhall.Core as Expr ( Expr(..) )
+import qualified Dhall.Lint as Lint
 import qualified Dhall.Parser
 import qualified Options.Applicative as OptParse
 import qualified System.IO
@@ -54,9 +55,17 @@ defaultFile typ = "./defaults" </> show typ <.> "dhall"
 importFile :: FilePath -> Dhall.Core.Import
 importFile ( splitFileName -> ( directory, filename ) ) =
   let
-    components =
+    rawComponents =
       fromString <$>
         splitDirectories ( dropTrailingPathSeparator directory )
+    ( components, relativity ) =
+      case rawComponents of
+        ".." : rest -> ( rest, Dhall.Core.Parent )
+        -- `splitFileName "foo"` produces (".", "foo"). It'd be OK to
+        -- leave the dot component in, but we might as well remove it
+        -- for neatness.
+        "." : rest -> ( rest, Dhall.Core.Here )
+        _ -> ( rawComponents, Dhall.Core.Here )
   in
     Dhall.Core.Import
       { Dhall.Core.importHashed =
@@ -65,7 +74,7 @@ importFile ( splitFileName -> ( directory, filename ) ) =
                 Nothing
             , Dhall.Core.importType =
                 Dhall.Core.Local
-                  Dhall.Core.Here
+                  relativity
                   ( Dhall.Core.File
                      ( Dhall.Core.Directory ( reverse components ) )
                      ( fromString filename )
@@ -122,8 +131,10 @@ meta (MetaOptions {..}) = do
       Pretty.renderIO
         hnd
         ( Pretty.layoutSmart prettyOpts
-            ( Pretty.pretty expr )
+            ( Pretty.pretty ( Lint.lint expr ) )
         )
+      -- Pretty.renderIO doesn't give us a final newline, so add that ourselves.
+      System.IO.hPutStr hnd "\n"
 
 
 -- Shamelessly taken from dhall-format
