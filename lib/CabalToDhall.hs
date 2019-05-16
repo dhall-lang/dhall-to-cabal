@@ -1237,27 +1237,52 @@ os =
 
 arch :: Dhall.InputType Cabal.Arch
 arch =
-  runUnion
-    ( mconcat
-        [ unionAlt "I386" ( \x -> case x of Cabal.I386 -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "X86_64" ( \x -> case x of Cabal.X86_64 -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "PPC" ( \x -> case x of Cabal.PPC -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "PPC64" ( \x -> case x of Cabal.PPC64 -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "Sparc" ( \x -> case x of Cabal.Sparc -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "Arm" ( \x -> case x of Cabal.Arm -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "Mips" ( \x -> case x of Cabal.Mips -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "SH" ( \x -> case x of Cabal.SH -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "IA64" ( \x -> case x of Cabal.IA64 -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "S390" ( \x -> case x of Cabal.S390 -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "Alpha" ( \x -> case x of Cabal.Alpha -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "Hppa" ( \x -> case x of Cabal.Hppa -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "Rs6000" ( \x -> case x of Cabal.Rs6000 -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "M68k" ( \x -> case x of Cabal.M68k -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "Vax" ( \x -> case x of Cabal.Vax -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "JavaScript" ( \x -> case x of Cabal.JavaScript -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "OtherArch" ( \x -> case x of Cabal.OtherArch s -> Just s ; _ -> Nothing ) ( runRecordInputType ( recordField "_1" stringToDhall ) )
-        ]
-    )
+  Dhall.InputType
+    { Dhall.embed = \case
+        Cabal.I386 ->
+          arch "I386"
+        Cabal.X86_64 ->
+          arch "X86_64"
+        Cabal.PPC ->
+          arch "PPC"
+        Cabal.PPC64 ->
+          arch "PPC64"
+        Cabal.Sparc ->
+          arch "Sparc"
+        Cabal.Arm ->
+          arch "Arm"
+        Cabal.Mips ->
+          arch "Mips"
+        Cabal.SH ->
+          arch "SH"
+        Cabal.IA64 ->
+          arch "IA64"
+        Cabal.S390 ->
+          arch "S390"
+        Cabal.Alpha ->
+          arch "Alpha"
+        Cabal.Hppa ->
+          arch "Hppa"
+        Cabal.Rs6000 ->
+          arch "Rs6000"
+        Cabal.M68k ->
+          arch "M68k"
+        Cabal.Vax ->
+          arch "Vax"
+        Cabal.JavaScript ->
+          arch "JavaScript"
+        Cabal.AArch64 ->
+          arch "AArch64"
+        Cabal.OtherArch s ->
+          Expr.App
+            ( arch "OtherArch" )
+            ( Expr.RecordLit ( Map.singleton "_1" ( dhallString s ) ) )
+    , Dhall.declared =
+        Expr.Var "types" `Expr.Field` "Arch"
+    }
+  where
+  arch name =
+    Expr.Var "types" `Expr.Field` "Arch" `Expr.Field` name
 
 
 buildInfoRecord :: RecordInputType Cabal.BuildInfo
