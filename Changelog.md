@@ -5,6 +5,9 @@
 * Remove `dhall/types/CustomSetup.dhall` in favour of the identical
   `dhall/types/SetupBuildInfo.dhall`.
 
+* `cabal-to-dhall` no longer generates bogus output for an unknown
+  kind of `source-repository` stanza.
+
 ## 1.3.3.0 -- 2019-05-15
 
 * All constructors that previously took an empty record now use the
