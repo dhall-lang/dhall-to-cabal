@@ -904,7 +904,7 @@ repoKind =
           Expr.Var "types" `Expr.Field` "RepoKind" `Expr.Field` "RepoHead"
         Cabal.RepoKindUnknown str ->
           Expr.App
-            ( Expr.Var "types" `Expr.Field` "RepoKind" `Expr.Field` "RepoThis" )
+            ( Expr.Var "types" `Expr.Field` "RepoKind" `Expr.Field` "RepoKindUnknown" )
             ( Expr.RecordLit ( Map.singleton "_1" ( dhallString str ) ) )
     , Dhall.declared =
         Expr.Var "types" `Expr.Field` "RepoKind"

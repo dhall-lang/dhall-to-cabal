@@ -5,6 +5,9 @@
 * Remove `dhall/types/CustomSetup.dhall` in favour of the identical
   `dhall/types/SetupBuildInfo.dhall`.
 
+* `cabal-to-dhall` no longer generates bogus output for an unknown
+  kind of `source-repository` stanza.
+
 * Added `dhall/types/ForeignLibOption.dhall`, also available as
   `types.ForeignLibOption`, and `--print-type ForeignLibOption`.
   Likewise `ForeignLibType`.
