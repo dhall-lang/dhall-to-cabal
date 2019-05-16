@@ -1390,17 +1390,22 @@ pkgconfigName =
 
 language :: Dhall.InputType Cabal.Language
 language =
-  ( runUnion
-      ( mconcat
-          [ unionAlt "Haskell2010" ( \x -> case x of Cabal.Haskell2010 -> Just () ; _ -> Nothing ) Dhall.inject
-          , unionAlt "UnknownLanguage" ( \x -> case x of Cabal.UnknownLanguage s -> Just s ; _ -> Nothing ) ( runRecordInputType ( recordField "_1" stringToDhall ) )
-          , unionAlt "Haskell98" ( \x -> case x of Cabal.Haskell98 -> Just () ; _ -> Nothing ) Dhall.inject
-          ]
-      )
-  )
-    { Dhall.declared =
+  Dhall.InputType
+    { Dhall.embed = \case
+        Cabal.Haskell2010 ->
+          lang "Haskell2010"
+        Cabal.Haskell98 ->
+          lang "Haskell98"
+        Cabal.UnknownLanguage s ->
+          Expr.App
+            ( lang "UnknownLanguage" )
+            ( Expr.RecordLit ( Map.singleton "_1" ( dhallString s ) ) )
+    , Dhall.declared =
         Expr.Var "types" `Expr.Field` "Language"
     }
+  where
+    lang name =
+      Expr.Var "types" `Expr.Field` "Language" `Expr.Field` name
 
 extension :: Dhall.InputType Cabal.Extension
 extension =
