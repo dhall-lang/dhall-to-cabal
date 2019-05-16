@@ -1,0 +1,7 @@
+cabal-version: 2.4
+name: foo
+version: 2
+
+source-repository blargh
+  type: git
+  location: https://example.com
