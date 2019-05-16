@@ -8,6 +8,10 @@
 * `cabal-to-dhall` no longer generates bogus output for an unknown
   kind of `source-repository` stanza.
 
+* Added `dhall/types/ForeignLibOption.dhall`, also available as
+  `types.ForeignLibOption`, and `--print-type ForeignLibOption`.
+  Likewise `ForeignLibType`.
+
 ## 1.3.3.0 -- 2019-05-15
 
 * All constructors that previously took an empty record now use the
