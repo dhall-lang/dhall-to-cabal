@@ -37,6 +37,7 @@ module DhallToCabal
   , executableScope
   , moduleRenaming
   , foreignLibOption
+  , foreignLibType
 
   , sortExpr
   ) where

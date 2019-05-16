@@ -1,6 +1,6 @@
   ./BuildInfo.dhall
 ⩓ { type :
-      < Shared | Static >
+      ./ForeignLibType.dhall
   , options :
       List ./ForeignLibOption.dhall
   , lib-version-info :

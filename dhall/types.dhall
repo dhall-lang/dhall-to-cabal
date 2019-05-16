@@ -22,6 +22,8 @@
     ./types/Flag.dhall
 , ForeignLibOption =
     ./types/ForeignLibOption.dhall
+, ForeignLibType =
+    ./types/ForeignLibType.dhall
 , ForeignLibrary =
     ./types/ForeignLibrary.dhall
 , Language =

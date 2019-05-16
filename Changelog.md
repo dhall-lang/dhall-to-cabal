@@ -7,6 +7,7 @@
 
 * Added `dhall/types/ForeignLibOption.dhall`, also available as
   `types.ForeignLibOption`, and `--print-type ForeignLibOption`.
+  Likewise `ForeignLibType`.
 
 ## 1.3.3.0 -- 2019-05-15
 

@@ -1651,9 +1651,15 @@ foreignLibOption =
 
 foreignLibType :: Dhall.InputType Cabal.ForeignLibType
 foreignLibType =
-  runUnion
-    ( mconcat
-        [ unionAlt "Shared" ( \x -> case x of Cabal.ForeignLibNativeShared -> Just () ; _ -> Nothing ) Dhall.inject
-        , unionAlt "Static" ( \x -> case x of Cabal.ForeignLibNativeStatic -> Just () ; _ -> Nothing ) Dhall.inject
-        ]
-    )
+  Dhall.InputType
+    { Dhall.embed = \case
+        Cabal.ForeignLibNativeShared ->
+          ty "Shared"
+        Cabal.ForeignLibNativeStatic ->
+          ty "Static"
+    , Dhall.declared =
+        Expr.Var "types" `Expr.Field` "ForeignLibType"
+    }
+  where
+  ty name =
+    Expr.Var "types" `Expr.Field` "ForeignLibType" `Expr.Field` name

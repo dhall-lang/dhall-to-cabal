@@ -87,6 +87,7 @@ data KnownType
   | Scope
   | ModuleRenaming
   | ForeignLibOption
+  | ForeignLibType
   deriving (Bounded, Enum, Eq, Ord, Read, Show)
 
 
@@ -469,6 +470,7 @@ printType PrintTypeOptions { .. } = do
           Scope -> Dhall.expected executableScope
           ModuleRenaming -> Dhall.expected moduleRenaming
           ForeignLibOption -> Dhall.expected foreignLibOption
+          ForeignLibType -> Dhall.expected foreignLibType
       )
 
     makeLetOrImport t val reduced =
