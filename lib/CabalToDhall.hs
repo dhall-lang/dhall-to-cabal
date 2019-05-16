@@ -1556,32 +1556,28 @@ testSuite =
 
 testSuiteInterface :: Dhall.InputType Cabal.TestSuiteInterface
 testSuiteInterface =
-  runUnion
-    ( mconcat
-        [ unionAlt
-            "exitcode-stdio"
-            ( \x ->
-                case x of
-                  Cabal.TestSuiteExeV10 _ main ->
-                    Just main
-
-                  _ ->
-                    Nothing
+  Dhall.InputType
+    { Dhall.embed = \case
+        Cabal.TestSuiteExeV10 _ main ->
+          Expr.App
+            ( interface "exitcode-stdio" )
+            ( Dhall.embed
+              ( runRecordInputType ( recordField "main-is" stringToDhall ) )
+              main
             )
-            ( runRecordInputType ( recordField "main-is" stringToDhall ) )
-        , unionAlt
-            "detailed"
-            ( \x ->
-                case x of
-                  Cabal.TestSuiteLibV09 _ m ->
-                    Just m
-
-                  _ ->
-                    Nothing
+        Cabal.TestSuiteLibV09 _ m ->
+          Expr.App
+            ( interface "detailed" )
+            ( Dhall.embed
+              ( runRecordInputType ( recordField "module" moduleName ) )
+              m
             )
-            ( runRecordInputType ( recordField "module" moduleName ) )
-        ]
-    )
+    , Dhall.declared =
+        Expr.Var "types" `Expr.Field` "TestType"
+    }
+  where
+  interface name =
+    Expr.Var "types" `Expr.Field` "TestType" `Expr.Field` name
 
 
 executable :: Dhall.InputType Cabal.Executable
