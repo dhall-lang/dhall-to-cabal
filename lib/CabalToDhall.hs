@@ -18,9 +18,7 @@ module CabalToDhall
 import Data.Foldable ( foldMap )
 import Data.Functor.Contravariant ( (>$<), Contravariant( contramap ) )
 import Data.List.NonEmpty ( NonEmpty(..) )
-import Data.Monoid ( First(..) )
 import Data.Semigroup ( Semigroup, (<>) )
-import GHC.Stack
 import Numeric.Natural ( Natural )
 
 import qualified Data.ByteString as ByteString
@@ -75,10 +73,6 @@ import qualified Language.Haskell.Extension as Cabal
 import DhallLocation ( DhallLocation(..) )
 import DhallToCabal ( sortExpr )
 import DhallToCabal.ConfigTree ( ConfigTree(..) )
-
-
-type DhallExpr =
-  Dhall.Core.Expr Dhall.Parser.Src Dhall.TypeCheck.X
 
 
 dhallString :: String -> Expr.Expr s a
@@ -742,48 +736,6 @@ spdxLicenseExceptionIdToDhall =
   identName :: SPDX.LicenseExceptionId -> StrictText.Text
   identName e =
     StrictText.pack ( show e )
-
-newtype Union a =
-  Union
-    { _unUnion ::
-        ( a ->
-          ( First ( Dhall.Text, DhallExpr )
-          , Map.Map Dhall.Text DhallExpr
-          )
-        , Map.Map Dhall.Text DhallExpr
-        )
-    }
-  deriving ( Semigroup, Monoid )
-
-
-runUnion :: ( HasCallStack, Show a ) => Union a -> Dhall.InputType a
-runUnion ( Union ( f, t ) ) =
-  Dhall.InputType
-    { Dhall.embed =
-        \a ->
-          case f a of
-            ( First Nothing, _ ) ->
-              error $ "Union did not match anything. Given " ++ show a
-
-            ( First ( Just ( k, v ) ), alts ) ->
-              Expr.UnionLit k v ( Just <$> alts )
-    , Dhall.declared =
-        sortExpr ( Expr.Union ( Just <$> t ) )
-    }
-
-
-unionAlt :: Dhall.Text -> ( a -> Maybe b ) -> Dhall.InputType b -> Union a
-unionAlt k f t =
-  Union
-    ( \a ->
-        case f a of
-          Nothing ->
-            ( mempty, Map.singleton k ( Dhall.declared t ) )
-
-          Just _ ->
-            ( First ( fmap ( \b -> ( k, Dhall.embed t b ) ) ( f a ) ), mempty )
-    , Map.singleton k ( Dhall.declared t )
-    )
 
 
 maybeToDhall :: Dhall.InputType a -> Dhall.InputType ( Maybe a )
