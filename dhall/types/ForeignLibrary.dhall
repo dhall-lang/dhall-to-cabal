@@ -1,8 +1,8 @@
   ./BuildInfo.dhall
 ⩓ { type :
-      < Shared | Static >
+      ./ForeignLibType.dhall
   , options :
-      List < Standalone >
+      List ./ForeignLibOption.dhall
   , lib-version-info :
       Optional { current : Natural, revision : Natural, age : Natural }
   , lib-version-linux :

@@ -86,6 +86,8 @@ data KnownType
   | LicenseExceptionId
   | Scope
   | ModuleRenaming
+  | ForeignLibOption
+  | ForeignLibType
   deriving (Bounded, Enum, Eq, Ord, Read, Show)
 
 
@@ -467,6 +469,8 @@ printType PrintTypeOptions { .. } = do
           LicenseExceptionId -> Dhall.expected spdxLicenseExceptionId
           Scope -> Dhall.expected executableScope
           ModuleRenaming -> Dhall.expected moduleRenaming
+          ForeignLibOption -> Dhall.expected foreignLibOption
+          ForeignLibType -> Dhall.expected foreignLibType
       )
 
     makeLetOrImport t val reduced =
