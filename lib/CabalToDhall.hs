@@ -1640,9 +1640,13 @@ versionInfo =
 
 foreignLibOption :: Dhall.InputType Cabal.ForeignLibOption
 foreignLibOption =
-  runUnion
-    ( unionAlt "Standalone" ( \x -> case x of Cabal.ForeignLibStandalone -> Just () ) Dhall.inject
-    )
+  Dhall.InputType
+    { Dhall.embed = \case
+        Cabal.ForeignLibStandalone ->
+          Expr.Var "types" `Expr.Field` "ForeignLibOption" `Expr.Field` "Standalone"
+    , Dhall.declared =
+        Expr.Var "types" `Expr.Field` "ForeignLibOption"
+    }
 
 
 foreignLibType :: Dhall.InputType Cabal.ForeignLibType
