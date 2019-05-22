@@ -200,8 +200,8 @@ self-centered arguments:
   would view [Lua](https://www.lua.org/) and would like to explore that more in
   the future.
 
-* I wanted to help drive Dhall development, as before even getting stuck in I
-  believed it was a worth-while project. I think even the 1.0 release of
+* I wanted to help drive Dhall development, as I believed it was a worthwhile
+  project before even getting stuck in it. I think even the 1.0 release of
   dhall-to-cabal has been of value - I've reported 18 issues (14 of which have
   been closed, usually fixed!), and I think we're starting to have discussions
   in Dhall that are helping drive the overall project forward.
