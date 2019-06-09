@@ -4,16 +4,16 @@
 , doctest, dotgen, exceptions, filepath, foldl, haskeline
 , http-client, http-client-tls, http-types, lens-family-core
 , megaparsec, memory, mockery, mtl, optparse-applicative, parsers
-, prettyprinter, prettyprinter-ansi-terminal, QuickCheck
-, quickcheck-instances, repline, scientific, serialise, stdenv
-, tasty, tasty-hunit, tasty-quickcheck, template-haskell, text
-, transformers, transformers-compat, turtle, unordered-containers
-, uri-encode, vector
+, prettyprinter, prettyprinter-ansi-terminal, profunctors
+, QuickCheck, quickcheck-instances, repline, scientific, serialise
+, stdenv, tasty, tasty-hunit, tasty-quickcheck, template-haskell
+, text, transformers, transformers-compat, turtle
+, unordered-containers, uri-encode, vector
 }:
 mkDerivation {
   pname = "dhall";
-  version = "1.23.0";
-  sha256 = "eda7b9d1baad8214f83aaf7e7ce5e374c32a62f58ca69734024fb3f254bc9d1c";
+  version = "1.24.0";
+  sha256 = "67ff6ff2bcd3c3fed0a598f8038f62a18676a419f7f7773a07804a5cc89404d8";
   isLibrary = true;
   isExecutable = true;
   libraryHaskellDepends = [
@@ -22,16 +22,16 @@ mkDerivation {
     dotgen exceptions filepath haskeline http-client http-client-tls
     http-types lens-family-core megaparsec memory mtl
     optparse-applicative parsers prettyprinter
-    prettyprinter-ansi-terminal repline scientific serialise
-    template-haskell text transformers transformers-compat
+    prettyprinter-ansi-terminal profunctors repline scientific
+    serialise template-haskell text transformers transformers-compat
     unordered-containers uri-encode vector
   ];
   executableHaskellDepends = [ base ];
   testHaskellDepends = [
     base bytestring cborg containers deepseq directory doctest filepath
-    foldl mockery prettyprinter QuickCheck quickcheck-instances
-    serialise tasty tasty-hunit tasty-quickcheck text transformers
-    turtle vector
+    foldl megaparsec mockery prettyprinter QuickCheck
+    quickcheck-instances serialise tasty tasty-hunit tasty-quickcheck
+    text transformers turtle vector
   ];
   benchmarkHaskellDepends = [
     base bytestring containers criterion directory serialise text

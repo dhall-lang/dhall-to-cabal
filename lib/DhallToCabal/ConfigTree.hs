@@ -7,6 +7,7 @@ module DhallToCabal.ConfigTree ( ConfigTree(..), toConfigTree ) where
 import Control.Monad
 import Data.Semigroup ( Semigroup ( (<>) ) )
 import Dhall.Core hiding ( Const )
+import Dhall.Optics ( transformMOf )
 
 
 -- | 'ConfigTree' captures a logic-monad like expansion of the result of
@@ -87,13 +88,3 @@ rewriteConfigUse v =
     isConfigUse (App (App (Field (Var x') "impl") _) _) | v == x' = True
     isConfigUse (App (Field (Var x') "flag") _)         | v == x' = True
     isConfigUse _ = False
-
-
--- | Transform every element in a tree using a user supplied 'Traversal' in a
--- bottom-up manner with a monadic effect.
-transformMOf
-  :: Monad m =>
-  ( ( t -> m b ) -> t -> m a ) -> ( a -> m b ) -> t -> m b
-transformMOf l f = go where
-  go t = l go t >>= f
-{-# INLINE transformMOf #-}
