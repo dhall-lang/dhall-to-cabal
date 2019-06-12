@@ -333,7 +333,9 @@ mapWithBindings f =
         Expr.CombineTypes ( go bindings a ) ( go bindings b )
 
       Expr.Project e fs ->
-        Expr.Project ( go bindings e ) fs
+        Expr.Project
+          ( go bindings e )
+          ( go bindings <$> fs )
 
       Expr.ImportAlt l r ->
         Expr.ImportAlt ( go bindings l ) ( go bindings r )
