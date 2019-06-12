@@ -14,6 +14,9 @@
 
 * Support `prettyprinter` 1.3.
 
+* Teach `--print-type` about `Dependency`, `SetupBuildInfo`, `TestType`,
+  `Mixin` and `Flag`.
+
 ## 1.3.3.0 -- 2019-05-15
 
 * All constructors that previously took an empty record now use the
