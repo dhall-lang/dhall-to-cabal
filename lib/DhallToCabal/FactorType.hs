@@ -16,7 +16,8 @@ import Control.Monad ( guard )
 import Data.Foldable ( foldl', toList )
 import Data.Maybe ( fromMaybe )
 import Data.Text (Text)
-import Lens.Micro ( ASetter, over )
+import Dhall.Optics ( transformOf )
+import Lens.Micro ( over )
 
 import DhallToCabal
 import Dhall.Extra
@@ -130,10 +131,6 @@ factored rootType =
           ( dhallType factorType )
           expr
         )
-
-
-transformOf :: ASetter a b a b -> (b -> b) -> a -> b
-transformOf l f = go where go = f . over l go
 
 
 -- | No variables should be free in the expression to lift.
