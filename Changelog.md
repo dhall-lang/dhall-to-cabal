@@ -12,6 +12,8 @@
   `types.ForeignLibOption`, and `--print-type ForeignLibOption`.
   Likewise `ForeignLibType`.
 
+* Support `prettyprinter` 1.3.
+
 ## 1.3.3.0 -- 2019-05-15
 
 * All constructors that previously took an empty record now use the

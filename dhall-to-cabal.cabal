@@ -95,7 +95,7 @@ executable dhall-to-cabal
         filepath ^>=1.4,
         microlens ^>=0.1.0.0 || ^>=0.2.0.0 || ^>=0.3.0.0 || ^>=0.4.0.0,
         optparse-applicative ^>=0.13.2 || ^>=0.14,
-        prettyprinter ^>=1.2.0.1,
+        prettyprinter ^>=1.2.0.1 || ^>=1.3.0,
         text ^>=1.2,
         transformers ^>=0.5.2
 
@@ -119,7 +119,7 @@ executable cabal-to-dhall
         bytestring ^>=0.10,
         dhall-to-cabal -any,
         optparse-applicative ^>=0.13.2 || ^>=0.14,
-        prettyprinter ^>=1.2.0.1,
+        prettyprinter ^>=1.2.0.1 || ^>=1.3.0,
         text ^>=1.2
 
 executable dhall-to-cabal-meta
@@ -139,7 +139,7 @@ executable dhall-to-cabal-meta
         dhall-to-cabal -any,
         filepath ^>=1.4,
         optparse-applicative ^>=0.13.2 || ^>=0.14,
-        prettyprinter ^>=1.2.0.1
+        prettyprinter ^>=1.2.0.1 || ^>=1.3.0
 
 test-suite golden-tests
     type: exitcode-stdio-1.0
@@ -160,7 +160,7 @@ test-suite golden-tests
         dhall-to-cabal -any,
         filepath ^>=1.4,
         microlens ^>=0.1.0.0 || ^>=0.2.0.0 || ^>=0.3.0.0 || ^>=0.4.0.0,
-        prettyprinter ^>=1.2.0.1,
+        prettyprinter ^>=1.2.0.1 || ^>=1.3.0,
         tasty ^>=0.11 || ^>=0.12 || ^>=1.0 || ^>=1.1 || ^>=1.2,
         tasty-golden ^>=2.3,
         text ^>=1.2
