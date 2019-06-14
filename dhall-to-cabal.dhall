@@ -73,7 +73,17 @@ let warning-options =
       , "-fno-warn-name-shadowing"
       ]
 
-in    prelude.utils.GitHub-project
+let addWarningOptions =
+        λ(component : types.BuildInfo)
+      →   component
+        ⫽ { compiler-options =
+                component.compiler-options
+              ⫽ { GHC = component.compiler-options.GHC # warning-options }
+          }
+
+in  prelude.utils.mapBuildInfo
+    addWarningOptions
+    (   prelude.utils.GitHub-project
       { owner = "ocharles", repo = "dhall-to-cabal" }
     ⫽ { cabal-version =
           v "2.4"
@@ -125,8 +135,6 @@ in    prelude.utils.GitHub-project
                   , deps.transformers
                   , deps.vector
                   ]
-              , compiler-options =
-                  prelude.defaults.CompilerOptions ⫽ { GHC = warning-options }
               , autogen-modules =
                   [ "Paths_dhall_to_cabal" ]
               , exposed-modules =
@@ -175,8 +183,6 @@ in    prelude.utils.GitHub-project
                     , deps.text
                     , deps.transformers
                     ]
-                , compiler-options =
-                    prelude.defaults.CompilerOptions ⫽ { GHC = warning-options }
                 , hs-source-dirs =
                     [ "exe" ]
                 , main-is =
@@ -203,8 +209,6 @@ in    prelude.utils.GitHub-project
                     , deps.prettyprinter
                     , deps.text
                     ]
-                , compiler-options =
-                    prelude.defaults.CompilerOptions ⫽ { GHC = warning-options }
                 , hs-source-dirs =
                     [ "cabal-to-dhall" ]
                 , main-is =
@@ -237,8 +241,6 @@ in    prelude.utils.GitHub-project
                     [ "meta" ]
                 , default-language =
                     Some types.Language.Haskell2010
-                , compiler-options =
-                    prelude.defaults.CompilerOptions ⫽ { GHC = warning-options }
                 , main-is =
                     "Main.hs"
                 }
@@ -262,8 +264,6 @@ in    prelude.utils.GitHub-project
                     , deps.tasty-golden
                     , deps.text
                     ]
-                , compiler-options =
-                    prelude.defaults.CompilerOptions ⫽ { GHC = warning-options }
                 , hs-source-dirs =
                     [ "golden-tests" ]
                 , type =
@@ -284,8 +284,6 @@ in    prelude.utils.GitHub-project
                     , deps.tasty-hunit
                     , deps.text
                     ]
-                , compiler-options =
-                    prelude.defaults.CompilerOptions ⫽ { GHC = warning-options }
                 , hs-source-dirs =
                     [ "tests" ]
                 , type =
@@ -298,3 +296,4 @@ in    prelude.utils.GitHub-project
             )
           ]
       }
+)

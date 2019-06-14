@@ -1,0 +1,42 @@
+cabal-version: 2.2
+name: pkg
+version: 0
+
+custom-setup
+    setup-depends: setup ^>=1.0
+
+library
+    build-depends:
+        library ^>=1.0,
+        injected ^>=1.0
+
+library sublib
+    build-depends:
+        sublib ^>=1.0,
+        injected ^>=1.0
+
+foreign-library flib
+    type: native-static
+    build-depends:
+        flib ^>=1.0,
+        injected ^>=1.0
+
+executable exe
+    main-is: Exe.hs
+    build-depends:
+        exe ^>=1.0,
+        injected ^>=1.0
+
+test-suite tests
+    type: exitcode-stdio-1.0
+    main-is: Test.hs
+    build-depends:
+        tests ^>=1.0,
+        injected ^>=1.0
+
+benchmark bench
+    type: exitcode-stdio-1.0
+    main-is: Bench.hs
+    build-depends:
+        bench ^>=1.0,
+        injected ^>=1.0
