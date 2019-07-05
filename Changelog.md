@@ -2,6 +2,8 @@
 
 ## Next -- [YYYY-MM-DD]
 
+## 1.3.4.0 -- 2019-07-05
+
 * Add compatibility for `optparse-applicative-0.15`.
 
 * Remove `dhall/types/CustomSetup.dhall` in favour of the identical
@@ -18,6 +20,8 @@
 
 * Teach `--print-type` about `Dependency`, `SetupBuildInfo`, `TestType`,
   `Mixin` and `Flag`.
+
+* Use `dhall` version 1.24.
 
 ## 1.3.3.0 -- 2019-05-15
 
