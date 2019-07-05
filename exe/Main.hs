@@ -7,18 +7,12 @@
 
 module Main ( main ) where
 
-import Control.Applicative ( (<**>), Const(..), optional, (<|>) )
-import Control.Monad ( guard )
+import Control.Applicative ( (<**>), optional, (<|>) )
+import Control.Monad ( join )
 import Data.Char ( isAlphaNum )
-import Control.Monad.Trans.Class ( lift )
-import Control.Monad.Trans.State ( State, execState, get, modify, put )
-import Control.Monad.Trans.Writer ( WriterT, execWriterT, tell )
-import Data.Foldable ( asum, traverse_ )
+import Data.Foldable ( asum, foldl' )
 import Data.Function ( (&) )
-import Data.Functor.Product ( Product(..) )
-import Data.Functor.Identity ( Identity(..) )
 import Data.List.NonEmpty ( NonEmpty(..) )
-import Data.Monoid ( Any(..) )
 import Data.Maybe ( fromMaybe )
 import Data.Text (Text)
 import Data.String ( fromString )
@@ -30,20 +24,19 @@ import System.FilePath ( (</>), (<.>), addTrailingPathSeparator, normalise, take
 import CabalToDhall ( KnownDefault, getDefault, resolvePreludeVar )
 import DhallLocation ( preludeLocation, typesLocation, dhallFromGitHub )
 import DhallToCabal
+import DhallToCabal.FactorType ( KnownType(..), factored, mapWithBindings )
 import DhallToCabal.Util ( relativeTo )
 import qualified Paths_dhall_to_cabal as Paths
 
-import qualified Data.List.NonEmpty as NonEmpty
 import qualified Data.Text.IO as StrictText
 import qualified Data.Text.Prettyprint.Doc as Pretty
 import qualified Data.Text.Prettyprint.Doc.Render.Text as Pretty
 import qualified Dhall
 import qualified Dhall.Core as Dhall
-import qualified Dhall.Core as Expr ( Expr(..), Var(..), Binding(..), shift )
-import qualified Distribution.PackageDescription as Cabal
-import qualified Dhall.Map as Map
+import qualified Dhall.Core as Expr ( Expr(..), Binding(..) )
+import qualified Dhall.Lint as Lint
 import qualified Dhall.Parser
-import qualified Dhall.TypeCheck as Dhall
+import qualified Distribution.PackageDescription as Cabal
 import qualified Distribution.PackageDescription.PrettyPrint as Cabal
 import qualified Distribution.Types.PackageId as Cabal
 import qualified Distribution.Types.PackageName as Cabal
@@ -58,54 +51,11 @@ data Command
   | PrintVersion
 
 
-
-data KnownType
-  = Library
-  | ForeignLibrary
-  | Benchmark
-  | Executable
-  | TestSuite
-  | BuildInfo
-  | Config
-  | SourceRepo
-  | RepoType
-  | RepoKind
-  | Compiler
-  | OS
-  | Extension
-  | CompilerOptions
-  | Arch
-  | Language
-  | License
-  | BuildType
-  | Package
-  | VersionRange
-  | Version
-  | SPDX
-  | LicenseId
-  | LicenseExceptionId
-  | Scope
-  | ModuleRenaming
-  | ForeignLibOption
-  | ForeignLibType
-  deriving (Bounded, Enum, Eq, Ord, Read, Show)
-
-
--- | A 'Benchmark' is a proper subrecord of an 'Executable', but we
--- don't want to write 'Executable' in terms of 'Benchmark'! Hence,
--- limit which types we will do the common-field extraction for to
--- only 'BuildInfo', for the time being.
-isCandidateSubrecord :: KnownType -> Bool
-isCandidateSubrecord BuildInfo = True
-isCandidateSubrecord _ = False
-
-
 shouldBeImported :: KnownType -> Bool
 shouldBeImported Extension = True
 shouldBeImported LicenseId = True
 shouldBeImported LicenseExceptionId = True
 shouldBeImported _ = False
-
 
 
 data DhallToCabalOptions = DhallToCabalOptions
@@ -396,36 +346,12 @@ opts =
     { Pretty.layoutPageWidth = Pretty.AvailablePerLine 80 1.0 }
 
 
-
-data CSEState a = CSEState
-  { _factoredOutTypes :: [ ( KnownType, Expr.Expr Dhall.Parser.Src a ) ]
-    -- ^ Things we've already factored out (which may undergo further factoring themselves).
-  , _rootType :: Expr.Expr Dhall.Parser.Src a
-    -- ^ The original type, which we started factoring things from.
-  }
-
-
-traverseTypes
-  :: ( Applicative f )
-  => ( Expr.Expr Dhall.Parser.Src a -> f ( Expr.Expr Dhall.Parser.Src b ) )
-  -> CSEState a
-  -> f ( CSEState b )
-traverseTypes f (CSEState types root) =
-  CSEState
-    <$> traverse (traverse f) types
-    <*> f root
-
-
+-- Note: the expression is linted afterwards, so this can do the
+-- drop-dead simple thing of adding a new `let` each time.
 addBinding :: Text -> Dhall.Expr s a -> Dhall.Expr s a -> Dhall.Expr s a
-addBinding name val = \case
-  Expr.Let bindings body ->
-    Expr.Let
-      ( Expr.Binding name Nothing val `NonEmpty.cons` bindings )
-      body
-  expr ->
-    Expr.Let
-      ( Expr.Binding name Nothing val :| [] )
-      expr
+addBinding name val =
+  Expr.Let
+    ( Expr.Binding name Nothing val :| [] )
 
 
 printType :: PrintTypeOptions -> IO ()
@@ -433,389 +359,42 @@ printType PrintTypeOptions { .. } = do
   Pretty.renderIO
     System.IO.stdout
     ( Pretty.layoutSmart opts
-        ( Pretty.pretty factoredType )
+        ( Pretty.pretty ( Lint.lint result ) )
     )
 
   putStrLn ""
 
   where
 
-    dhallType :: KnownType -> Dhall.Expr Dhall.Parser.Src a
-    dhallType t = fmap Dhall.absurd
-      ( case t of
-          Config -> configRecordType
-          Library -> Dhall.expected library
-          ForeignLibrary -> Dhall.expected foreignLib
-          Executable -> Dhall.expected executable
-          Benchmark -> Dhall.expected benchmark
-          TestSuite -> Dhall.expected testSuite
-          BuildInfo -> buildInfoType
-          SourceRepo -> Dhall.expected sourceRepo
-          RepoType -> Dhall.expected repoType
-          RepoKind -> Dhall.expected repoKind
-          Compiler -> Dhall.expected compilerFlavor
-          OS -> Dhall.expected operatingSystem
-          Extension -> Dhall.expected extension
-          CompilerOptions -> Dhall.expected compilerOptions
-          Arch -> Dhall.expected arch
-          Language -> Dhall.expected language
-          License -> Dhall.expected license
-          BuildType -> Dhall.expected buildType
-          Package -> Dhall.expected genericPackageDescription
-          VersionRange -> Dhall.expected versionRange
-          Version -> Dhall.expected version
-          SPDX -> Dhall.expected spdxLicense
-          LicenseId -> Dhall.expected spdxLicenseId
-          LicenseExceptionId -> Dhall.expected spdxLicenseExceptionId
-          Scope -> Dhall.expected executableScope
-          ModuleRenaming -> Dhall.expected moduleRenaming
-          ForeignLibOption -> Dhall.expected foreignLibOption
-          ForeignLibType -> Dhall.expected foreignLibType
-      )
+    linkedType =
+      join . mapWithBindings linkType . factored
 
-    makeLetOrImport t val reduced =
+    linkType var t =
       let
         name = fromString ( show t )
       in if shouldBeImported t && not selfContained
-         then Dhall.subst ( Expr.V name 0 ) ( Expr.Var ( Expr.V "types" 0 ) `Expr.Field` name ) reduced
-         else addBinding name val reduced
-
-    factoredType :: Expr.Expr Dhall.Parser.Src Dhall.Import
-    factoredType =
-      let
-        initialState :: CSEState Dhall.Import
-        initialState = CSEState mempty ( dhallType typeToPrint )
-
-        CSEState types body =
-          execState
-            ( traverse_ step [ minBound .. maxBound ] )
-            initialState
-
-        importing = if any shouldBeImported ( fst <$> types ) && not selfContained
-          then addBinding
-                 "types"
-                 ( Expr.Embed ( typesLocation dhallFromGitHub ) )
-          else id
-
-      in
-        importing body
-
-    step
-      :: (Eq a)
-      => KnownType
-         -- ^ Name of the type we're trying to factor out
-      -> State ( CSEState a ) ()
-    step factorType = do
-      Any usedFactor <- execWriterT
-        ( lift . put =<< traverseTypes ( tryCSE factorType ) =<< lift get )
-      let
-        addingUsedFactor =
-          if usedFactor then ( ( factorType, ( dhallType factorType ) ) : ) else id
-      modify $ \ ( CSEState types expr ) -> CSEState ( addingUsedFactor types ) expr
-
-    tryCSE
-      :: (Eq a, Monad m)
-      => KnownType -- ^ The type we're factoring out
-      -> Expr.Expr Dhall.Parser.Src a
-      -> WriterT Any m ( Expr.Expr Dhall.Parser.Src a )
-    tryCSE factorType expr =
-      let
-        name = fromString ( show factorType )
-        subrecord = isCandidateSubrecord factorType
-      in
-        case liftCSE subrecord name ( dhallType factorType ) expr of
-          Just expr' -> do
-            tell (Any True)
-            -- Note that the substitution/binding only happens in this
-            -- branch, rather than the branch where no expression was
-            -- lifted out - otherwise, as the variables aren't shifted
-            -- in the latter case, we can get into trouble.
-            return $ makeLetOrImport factorType ( dhallType factorType ) expr'
-          Nothing ->
-            return expr
-
-
-liftCSE
-  :: (Eq s, Eq a)
-  => Bool
-     -- ^ Should we attempt to find the subexpression as a sub-record?
-  -> Text
-     -- ^ The name of the binding
-  -> Expr.Expr s a
-     -- ^ The common subexpression to lift
-  -> Expr.Expr s a
-     -- ^ The expression to remove a common subexpression from
-  -> Maybe (Expr.Expr s a)
-  -- ^ 'Just' the CSE-ed expression, or Nothing if the subexpression wasn't found.
-liftCSE subrecord name body expr =
-  let
-    v0 =
-      Expr.V name 0
-
-  in
-    case go ( Expr.shift 1 v0 expr ) v0 of
-      Pair ( Const ( Any False ) ) _ ->
-        -- There was nothing to lift
-        Nothing
-
-      Pair _ ( Identity reduced ) | reduced == Expr.Var v0 ->
-        -- We lifted the whole expression out. This is not a win, so don't bother.
-        Nothing
-
-      Pair _ ( Identity reduced ) ->
-        Just reduced
-
-  where
-
-    shiftName n v | n == name =
-      shiftVar 1 v
-
-    shiftName _ v =
-        v
-
-    shiftVar delta ( Expr.V name' n ) =
-      Expr.V name' ( n + delta )
-
-    subtractRecordFields a b = do
-      guard subrecord
-
-      Expr.Record left <-
-        return a
-
-      Expr.Record right <-
-        return b
-
-      let
-        intersection =
-          Map.intersectionWith (==) left right
-
-      -- The right record cannot have any fields not in left.
-      guard ( null ( Map.difference right left ) )
-
-      -- We must have at least one field with a common name
-      guard ( not ( null intersection ) )
-
-      -- All common fields must have identical types
-      guard ( and intersection )
-
-      let
-        extra =
-          Map.difference left right
-
-      guard ( not ( null extra ) )
-
-      return ( Expr.Record extra )
-
-    go e v | e == body =
-      Pair ( Const ( Any True ) ) ( Identity ( Expr.Var v ) )
-
-    go ( ( `subtractRecordFields` body ) -> Just extra ) v =
-      Pair
-        ( Const ( Any True ) )
-        ( Identity ( Expr.CombineTypes ( Expr.Var v ) extra ) )
-
-    go e v =
-      case e of
-        Expr.Lam n t b ->
-          Expr.Lam n t <$> go b ( shiftName n v )
-
-        Expr.Pi n t b ->
-          Expr.Pi n <$> go t v <*> go b ( shiftName n v )
-
-        Expr.App f a ->
-          Expr.App <$> go f v <*> go a v
-
-        Expr.Let bs e ->
-          Expr.Let <$> traverse go' bs <*> go e shifted
-            where go' (Expr.Binding n t b) = Expr.Binding n t <$> go b v
-                  shifted = foldr (shiftName . Expr.variable) v bs
-
-        Expr.Annot a b ->
-          Expr.Annot <$> go a v <*> go b v
-
-        Expr.BoolAnd a b ->
-          Expr.BoolAnd <$> go a v <*> go b v
-
-        Expr.BoolOr a b ->
-          Expr.BoolOr <$> go a v <*> go b v
-
-        Expr.BoolEQ a b ->
-          Expr.BoolEQ <$> go a v <*> go b v
-
-        Expr.BoolNE a b ->
-          Expr.BoolNE <$> go a v <*> go b v
-
-        Expr.BoolIf a b c ->
-          Expr.BoolIf <$> go a v <*> go b v <*> go c v
-
-        Expr.NaturalPlus a b ->
-          Expr.NaturalPlus <$> go a v <*> go b v
-
-        Expr.NaturalTimes a b ->
-          Expr.NaturalTimes <$> go a v <*> go b v
-
-        Expr.ListAppend a b ->
-          Expr.ListAppend <$> go a v <*> go b v
-
-        Expr.Combine a b ->
-          Expr.Combine <$> go a v <*> go b v
-
-        Expr.Prefer a b ->
-          Expr.Prefer <$> go a v <*> go b v
-
-        Expr.TextAppend a b ->
-          Expr.TextAppend <$> go a v <*> go b v
-
-        Expr.ListLit t elems ->
-          Expr.ListLit
-            <$> ( traverse ( `go` v ) t )
-            <*> ( traverse ( `go` v ) elems )
-
-        Expr.OptionalLit t elems ->
-          Expr.OptionalLit
-            <$> go t v
-            <*> ( traverse ( `go` v ) elems )
-
-        Expr.Some a ->
-          Expr.Some <$> go a v
-
-        Expr.None ->
-          pure Expr.None
-
-        Expr.Record fields ->
-          Expr.Record <$> traverse ( `go` v ) fields
-
-        Expr.RecordLit fields ->
-          Expr.RecordLit <$> traverse ( `go` v ) fields
-
-        Expr.Union fields ->
-          Expr.Union <$> traverse ( traverse ( `go` v ) ) fields
-
-        Expr.UnionLit n a fields ->
-          Expr.UnionLit n <$> go a v <*> traverse ( traverse ( `go` v ) ) fields
-
-        Expr.Merge a b t ->
-          Expr.Merge <$> go a v <*> go b v <*> traverse ( `go` v ) t
-
-        Expr.Field e f ->
-          Expr.Field <$> go e v <*> pure f
-
-        Expr.Note s e ->
-          Expr.Note s <$> go e v
-
-        Expr.CombineTypes a b ->
-          Expr.CombineTypes <$> go a v <*> go b v
-
-        Expr.Project e fs ->
-          Expr.Project <$> go e v <*> pure fs
-
-        Expr.ImportAlt l r ->
-          Expr.ImportAlt <$> go l v <*> go r v
-
-        Expr.IntegerToDouble ->
-          pure Expr.IntegerToDouble
-
-        Expr.Embed{} ->
-          pure e
-
-        Expr.Const{} ->
-          pure e
-
-        Expr.Var{} ->
-          pure e
-
-        Expr.Bool{} ->
-          pure e
-
-        Expr.BoolLit{} ->
-          pure e
-
-        Expr.Natural{} ->
-          pure e
-
-        Expr.NaturalLit{} ->
-          pure e
-
-        Expr.NaturalFold{} ->
-          pure e
-
-        Expr.NaturalBuild{} ->
-          pure e
-
-        Expr.NaturalIsZero{} ->
-          pure e
-
-        Expr.NaturalEven{} ->
-          pure e
-
-        Expr.NaturalOdd{} ->
-          pure e
-
-        Expr.NaturalToInteger{} ->
-          pure e
-
-        Expr.NaturalShow{} ->
-          pure e
-
-        Expr.Integer{} ->
-          pure e
-
-        Expr.IntegerShow{} ->
-          pure e
-
-        Expr.IntegerLit{} ->
-          pure e
-
-        Expr.Double{} ->
-          pure e
-
-        Expr.DoubleShow{} ->
-          pure e
-
-        Expr.DoubleLit{} ->
-          pure e
-
-        Expr.Text{} ->
-          pure e
-
-        Expr.TextLit{} ->
-          pure e
-
-        Expr.TextShow ->
-          pure e
-
-        Expr.List ->
-          pure e
-
-        Expr.ListBuild ->
-          pure e
-
-        Expr.ListFold ->
-          pure e
-
-        Expr.ListLength ->
-          pure e
-
-        Expr.ListHead ->
-          pure e
-
-        Expr.ListLast ->
-          pure e
-
-        Expr.ListIndexed ->
-          pure e
-
-        Expr.ListReverse ->
-          pure e
-
-        Expr.Optional ->
-          pure e
-
-        Expr.OptionalFold ->
-          pure e
-
-        Expr.OptionalBuild ->
-          pure e
+         then Expr.Var ( var "types" ) `Expr.Field` name
+         else Expr.Var ( var name )
+
+    bindTypes expr =
+      foldl' bindType expr [ minBound .. maxBound ]
+
+    bindType expr t =
+      addBinding
+        ( fromString ( show t ) )
+        ( linkedType t )
+        expr
+
+    bindImport =
+      addBinding
+        "types"
+        ( Expr.Embed ( typesLocation dhallFromGitHub ) )
+
+    -- Unconditionally add everything, since lint will remove the
+    -- redundant bindings.
+    result =
+      bindImport
+        ( bindTypes ( linkedType typeToPrint ) )
 
 
 printVersion :: IO ()
@@ -828,7 +407,7 @@ printDefault PrintDefaultOptions {..} = do
   Pretty.renderIO
     System.IO.stdout
     ( Pretty.layoutSmart opts
-        ( Pretty.pretty ( withPreludeImport expr ) )
+        ( Pretty.pretty ( Lint.lint ( withPreludeImport expr ) ) )
     )
 
   putStrLn ""

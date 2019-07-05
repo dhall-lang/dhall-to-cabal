@@ -41,7 +41,7 @@ let deps =
           "optparse-applicative"
           [ v "0.13.2", v "0.14", v "0.15" ]
       , prettyprinter =
-          majorVersions "prettyprinter" [ v "1.2.0.1" ]
+          majorVersions "prettyprinter" [ v "1.2.0.1", v "1.3.0" ]
       , contravariant =
           majorVersions "contravariant" [ v "1.4", v "1.5" ]
       , tasty =
@@ -120,6 +120,7 @@ in    prelude.utils.GitHub-project
                   , deps.contravariant
                   , deps.dhall
                   , deps.filepath
+                  , deps.microlens
                   , deps.text
                   , deps.transformers
                   , deps.vector
@@ -132,6 +133,7 @@ in    prelude.utils.GitHub-project
                   [ "CabalToDhall"
                   , "DhallLocation"
                   , "DhallToCabal"
+                  , "DhallToCabal.FactorType"
                   , "DhallToCabal.Util"
                   ]
               , hs-source-dirs =
@@ -162,6 +164,7 @@ in    prelude.utils.GitHub-project
               ⫽ { build-depends =
                     [ deps.Cabal
                     , deps.base
+                    , deps.containers
                     , deps.dhall
                     , deps.dhall-to-cabal
                     , deps.directory
