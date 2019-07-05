@@ -2,6 +2,8 @@
 
 ## Next -- [YYYY-MM-DD]
 
+* Add compatibility for `optparse-applicative-0.15`.
+
 * Remove `dhall/types/CustomSetup.dhall` in favour of the identical
   `dhall/types/SetupBuildInfo.dhall`.
 

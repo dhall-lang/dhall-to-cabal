@@ -37,7 +37,9 @@ let deps =
           "microlens"
           [ v "0.1.0.0", v "0.2.0.0", v "0.3.0.0", v "0.4.0.0" ]
       , optparse-applicative =
-          majorVersions "optparse-applicative" [ v "0.13.2", v "0.14" ]
+          majorVersions
+          "optparse-applicative"
+          [ v "0.13.2", v "0.14", v "0.15" ]
       , prettyprinter =
           majorVersions "prettyprinter" [ v "1.2.0.1", v "1.3.0" ]
       , contravariant =
