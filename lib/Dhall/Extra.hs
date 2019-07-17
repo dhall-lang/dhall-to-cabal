@@ -25,21 +25,16 @@ validateType a =
   a { Dhall.extract = join . Dhall.extract a }
 
 
-sortInsOrdHashMap :: Ord k => Map.Map k v -> Map.Map k v
-sortInsOrdHashMap =
-  Map.fromList . sortBy ( comparing fst ) . Map.toList
-
-
 sortExpr :: Dhall.Expr s a -> Dhall.Expr s a
 sortExpr = \case
   Expr.RecordLit r ->
-    Expr.RecordLit ( sortInsOrdHashMap r )
+    Expr.RecordLit ( Map.sort r )
 
   Expr.Record r ->
-    Expr.Record ( sortInsOrdHashMap r )
+    Expr.Record ( Map.sort r )
 
   Expr.Union r ->
-    Expr.Union ( sortInsOrdHashMap r )
+    Expr.Union ( Map.sort r )
 
   e ->
     e
