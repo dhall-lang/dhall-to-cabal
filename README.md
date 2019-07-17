@@ -79,15 +79,14 @@ to terminate". In terms of features, we have a language with:
 To give you an example of a Dhall expression, let's jump straight in and see an
 example of a Dhall expression that can be used with `dhall-to-cabal`:
 
-```haskell
-    let GitHub-project =
-          https://raw.githubusercontent.com/ocharles/dhall-to-cabal/1.0.0/dhall/GitHub-project.dhall
+```dhall
+let GitHub-project =
+      https://raw.githubusercontent.com/dhall-lang/dhall-to-cabal/1.3.4.0/dhall/utils/GitHub-project.dhall
 
-in  let prelude =
-          https://raw.githubusercontent.com/ocharles/dhall-to-cabal/1.0.0/dhall/prelude.dhall
+let prelude =
+      https://raw.githubusercontent.com/dhall-lang/dhall-to-cabal/1.3.4.0/dhall/prelude.dhall
 
-in    GitHub-project
-      { owner = "ocharles", repo = "example" }
+in    GitHub-project { owner = "ocharles", repo = "example" }
     ⫽ { version =
           prelude.v "1.0.0"
       , library =
@@ -100,11 +99,11 @@ in    GitHub-project
                         prelude.majorBoundVersion (prelude.v "4")
                     }
                   ]
-              , exposed-modules = 
+              , exposed-modules =
                   [ "Hello.World" ]
               }
           )
-      } 
+      }
 ```
 
 We can see quite a few features in use here. Ignoring what this file actually
@@ -145,10 +144,9 @@ this build system.
 A small example Cabal file is
 
 ```cabal
+cabal-version: 2.2
 name: example
-cabal-version: 2.0
-build-type: Simple
-license: UnspecifiedLicense
+version: 1.0.0
 homepage: https://github.com/ocharles/example
 bug-reports: https://github.com/ocharles/example/issues
 
