@@ -294,13 +294,8 @@ mapWithBindings f =
           ( fmap ( go bindings ) t )
           ( fmap ( go bindings ) elems )
 
-      Expr.OptionalLit t elems ->
-        Expr.OptionalLit
-          ( go bindings t )
-          ( fmap ( go bindings ) elems )
-
-      Expr.Some a ->
-        Expr.Some ( go bindings a )
+      Expr.Some e ->
+        Expr.Some ( go bindings e )
 
       Expr.None ->
         Expr.None
@@ -343,6 +338,9 @@ mapWithBindings f =
       Expr.Embed a ->
         Expr.Embed
           ( f ( outermostVar bindings ) a )
+
+      Expr.ToMap e t ->
+        Expr.ToMap ( go bindings e ) ( fmap ( go bindings ) t )
 
       Expr.Const c ->
         Expr.Const c

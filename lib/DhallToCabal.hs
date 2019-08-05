@@ -238,10 +238,10 @@ version =
     go =
       \case
         Expr.App "v" ( Expr.TextLit ( Expr.Chunks [] text ) ) ->
-          return ( parse text )
+          pure ( parse text )
 
         e ->
-          error ( show e )
+          Dhall.extractError ( pack ( show e ) )
 
     expected =
       Expr.Pi "Version" ( Expr.Const Expr.Type )
@@ -622,10 +622,10 @@ versionRange =
     go =
       \case
         "anyVersion" ->
-          return Cabal.anyVersion
+          pure Cabal.anyVersion
 
         "noVersion" ->
-          return Cabal.noVersion
+          pure Cabal.noVersion
 
         Expr.App "thisVersion" components ->
           Cabal.thisVersion <$> Dhall.extract version components
@@ -663,8 +663,8 @@ versionRange =
         Expr.App ( Expr.App "differenceVersionRanges" a ) b ->
           Cabal.differenceVersionRanges <$> go a <*> go b
 
-        _ ->
-          Nothing
+        e ->
+          Dhall.typeError e expected
 
     expected =
       let
@@ -780,8 +780,8 @@ spdxLicense =
         Expr.App ( Expr.App ( Expr.Var (Expr.V "or"  0)) a ) b ->
           SPDX.EOr <$> go a <*> go b
 
-        _ ->
-          Nothing
+        e ->
+          Dhall.typeError e expected
 
     expected =
       let
