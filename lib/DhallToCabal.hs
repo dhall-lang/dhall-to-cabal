@@ -241,7 +241,7 @@ version =
           pure ( parse text )
 
         e ->
-          Dhall.extractError ( pack ( show e ) )
+          Dhall.extractError ( StrictText.pack ( show e ) )
 
     expected =
       Expr.Pi "Version" ( Expr.Const Expr.Type )
