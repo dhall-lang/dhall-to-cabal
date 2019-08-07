@@ -41,6 +41,10 @@ versionSpec =
         ) ]
 
 
+extract x y =
+  either ( const Nothing ) Just ( Dhall.toMonadic ( Dhall.extract x y ) )
+
+
 testExtraction
   :: ( Eq a, Show a )
   => Test.Tasty.TestName
@@ -53,17 +57,17 @@ testExtraction testName t expr expected =
     testName
     [ Test.Tasty.HUnit.testCase
         "original"
-        ( Just expected Test.Tasty.HUnit.@=? Dhall.extract t expr )
+        ( Just expected Test.Tasty.HUnit.@=? extract t expr )
     , Test.Tasty.HUnit.testCase
         "alphaNormalize"
         ( Just expected
             Test.Tasty.HUnit.@=?
-              Dhall.extract t ( Dhall.Core.alphaNormalize expr )
+              extract t ( Dhall.Core.alphaNormalize expr )
         )
     , Test.Tasty.HUnit.testCase
         "betaNormalize"
         ( Just expected
             Test.Tasty.HUnit.@=?
-              Dhall.extract t ( Dhall.Core.normalize expr )
+              extract t ( Dhall.Core.normalize expr )
         )
     ]
