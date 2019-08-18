@@ -6,4 +6,6 @@
       List { original : { package : Optional Text, name : Text }, name : Text }
   , signatures :
       List Text
+  , visibility :
+      ./LibraryVisibility.dhall
   }

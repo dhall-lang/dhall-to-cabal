@@ -58,6 +58,7 @@ data KnownType
   | Dependency
   | VersionRange
   | Version
+  | PkgconfigVersionRange
   | SPDX
   | LicenseId
   | LicenseExceptionId
@@ -68,6 +69,8 @@ data KnownType
   | ForeignLibType
   | TestType
   | Flag
+  | LibraryName
+  | LibraryVisibility
   deriving (Bounded, Enum, Eq, Ord, Read, Show)
 
 
@@ -116,6 +119,9 @@ dhallType t = fmap absurd
       ForeignLibType -> Dhall.expected foreignLibType
       TestType -> Dhall.expected testSuiteInterface
       Flag -> Dhall.expected flag
+      PkgconfigVersionRange -> Dhall.expected pkgconfigVersionRange
+      LibraryName -> Dhall.expected libraryName
+      LibraryVisibility -> Dhall.expected libraryVisibility
   )
 
 

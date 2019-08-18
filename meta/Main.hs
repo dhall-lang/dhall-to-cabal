@@ -89,6 +89,9 @@ typeFile = \case
   TestType -> "types/TestType.dhall"
   Mixin -> "types/Mixin.dhall"
   Flag -> "types/Flag.dhall"
+  PkgconfigVersionRange -> "types/PkgconfigVersionRange.dhall"
+  LibraryName -> "types/LibraryName.dhall"
+  LibraryVisibility -> "types/LibraryVisibility.dhall"
 
 
 importFile :: FilePath -> Dhall.Core.Import
@@ -184,6 +187,8 @@ meta (MetaOptions {..}) = do
             Expr.Var "types" `Expr.Field` "RepoKind"
           PreludeConstructorsScope ->
             Expr.Var "types" `Expr.Field` "Scope"
+          PreludeConstructorsLibraryVisibility ->
+            Expr.Var "types" `Expr.Field` "LibraryVisibility"
           PreludeV ->
             Expr.Embed
               ( importFile ( relativeTo localDest "./Version/v.dhall" ) )

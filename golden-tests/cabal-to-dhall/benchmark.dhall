@@ -8,8 +8,7 @@ in    prelude.defaults.Package
                   λ(config : types.Config)
                 →   prelude.defaults.Benchmark
                   ⫽ { compiler-options =
-                          prelude.defaults.CompilerOptions
-                        ⫽ { GHC = [ "-O2" ] : List Text }
+                        prelude.defaults.CompilerOptions ⫽ { GHC = [ "-O2" ] }
                     , main-is =
                         "Main.hs"
                     }

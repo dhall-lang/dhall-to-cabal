@@ -3,6 +3,8 @@
     List Text
 , asm-sources :
     List Text
+, autogen-includes :
+    List Text
 , autogen-modules :
     List Text
 , build-depends :
@@ -34,6 +36,8 @@
 , default-language :
     Optional ./Language.dhall
 , extra-bundled-libs :
+    List Text
+, extra-dyn-lib-flavours :
     List Text
 , extra-framework-dirs :
     List Text
@@ -68,7 +72,7 @@
 , other-modules :
     List Text
 , pkgconfig-depends :
-    List { name : Text, version : ./VersionRange.dhall }
+    List { name : Text, version : ./PkgconfigVersionRange.dhall }
 , profiling-options :
     ./CompilerOptions.dhall
 , shared-options :

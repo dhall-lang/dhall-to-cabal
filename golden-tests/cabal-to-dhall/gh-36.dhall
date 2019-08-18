@@ -43,7 +43,7 @@ in    prelude.defaults.Package
                           
                           then        if config.flag "wai-servlet-debug"
                                 
-                                then    prelude.defaults.Library
+                                then    prelude.defaults.MainLibrary
                                       ⫽ { c-sources =
                                             [ "java/Utils.java" ]
                                         , cpp-options =
@@ -53,7 +53,7 @@ in    prelude.defaults.Package
                                             ]
                                         }
                                 
-                                else    prelude.defaults.Library
+                                else    prelude.defaults.MainLibrary
                                       ⫽ { c-sources =
                                             [ "java/Utils.java" ]
                                         , cpp-options =
@@ -62,7 +62,7 @@ in    prelude.defaults.Package
                           
                           else  if config.flag "wai-servlet-debug"
                           
-                          then    prelude.defaults.Library
+                          then    prelude.defaults.MainLibrary
                                 ⫽ { cpp-options =
                                       [ "-DINTEROP"
                                       , "-DPURE_JAVA_WITH"
@@ -70,7 +70,7 @@ in    prelude.defaults.Package
                                       ]
                                   }
                           
-                          else    prelude.defaults.Library
+                          else    prelude.defaults.MainLibrary
                                 ⫽ { cpp-options =
                                       [ "-DINTEROP", "-DPURE_JAVA_WITH" ]
                                   }
@@ -84,14 +84,14 @@ in    prelude.defaults.Package
                     
                     then        if config.flag "wai-servlet-debug"
                           
-                          then    prelude.defaults.Library
+                          then    prelude.defaults.MainLibrary
                                 ⫽ { c-sources =
                                       [ "java/Utils.java" ]
                                   , cpp-options =
                                       [ "-DINTEROP", "-DWAI_SERVLET_DEBUG" ]
                                   }
                           
-                          else    prelude.defaults.Library
+                          else    prelude.defaults.MainLibrary
                                 ⫽ { c-sources =
                                       [ "java/Utils.java" ]
                                   , cpp-options =
@@ -100,12 +100,12 @@ in    prelude.defaults.Package
                     
                     else  if config.flag "wai-servlet-debug"
                     
-                    then    prelude.defaults.Library
+                    then    prelude.defaults.MainLibrary
                           ⫽ { cpp-options =
                                 [ "-DINTEROP", "-DWAI_SERVLET_DEBUG" ]
                             }
                     
-                    else    prelude.defaults.Library
+                    else    prelude.defaults.MainLibrary
                           ⫽ { cpp-options = [ "-DINTEROP" ] }
               
               else  if config.impl
@@ -121,7 +121,7 @@ in    prelude.defaults.Package
                     
                     then        if config.flag "wai-servlet-debug"
                           
-                          then    prelude.defaults.Library
+                          then    prelude.defaults.MainLibrary
                                 ⫽ { c-sources =
                                       [ "java/Utils.java" ]
                                   , cpp-options =
@@ -130,7 +130,7 @@ in    prelude.defaults.Package
                                       ]
                                   }
                           
-                          else    prelude.defaults.Library
+                          else    prelude.defaults.MainLibrary
                                 ⫽ { c-sources =
                                       [ "java/Utils.java" ]
                                   , cpp-options =
@@ -139,12 +139,12 @@ in    prelude.defaults.Package
                     
                     else  if config.flag "wai-servlet-debug"
                     
-                    then    prelude.defaults.Library
+                    then    prelude.defaults.MainLibrary
                           ⫽ { cpp-options =
                                 [ "-DPURE_JAVA_WITH", "-DWAI_SERVLET_DEBUG" ]
                             }
                     
-                    else    prelude.defaults.Library
+                    else    prelude.defaults.MainLibrary
                           ⫽ { cpp-options = [ "-DPURE_JAVA_WITH" ] }
               
               else  if config.impl
@@ -156,22 +156,22 @@ in    prelude.defaults.Package
               
               then        if config.flag "wai-servlet-debug"
                     
-                    then    prelude.defaults.Library
+                    then    prelude.defaults.MainLibrary
                           ⫽ { c-sources =
                                 [ "java/Utils.java" ]
                             , cpp-options =
                                 [ "-DWAI_SERVLET_DEBUG" ]
                             }
                     
-                    else    prelude.defaults.Library
+                    else    prelude.defaults.MainLibrary
                           ⫽ { c-sources = [ "java/Utils.java" ] }
               
               else  if config.flag "wai-servlet-debug"
               
-              then    prelude.defaults.Library
+              then    prelude.defaults.MainLibrary
                     ⫽ { cpp-options = [ "-DWAI_SERVLET_DEBUG" ] }
               
-              else  prelude.defaults.Library
+              else  prelude.defaults.MainLibrary
           )
       , name =
           "wai-servlet"

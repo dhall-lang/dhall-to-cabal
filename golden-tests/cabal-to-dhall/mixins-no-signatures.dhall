@@ -6,7 +6,7 @@ in    prelude.defaults.Package
     ⫽ { library =
           Some
           (   λ(config : types.Config)
-            →   prelude.defaults.Library
+            →   prelude.defaults.MainLibrary
               ⫽ { mixins =
                     [ { package =
                           "foo"

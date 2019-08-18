@@ -91,7 +91,7 @@ in    GitHub-project { owner = "ocharles", repo = "example" }
           prelude.v "1.0.0"
       , library =
           prelude.unconditional.library
-          (   prelude.defaults.Library
+          (   prelude.defaults.MainLibrary
             ⫽ { build-depends =
                   [ { package =
                         "base"

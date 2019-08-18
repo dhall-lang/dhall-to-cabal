@@ -10,10 +10,10 @@ in    prelude.defaults.Package
           (   λ(config : types.Config)
             →       if config.os (types.OS.OtherOS { _1 = "multics" })
               
-              then    prelude.defaults.Library
+              then    prelude.defaults.MainLibrary
                     ⫽ { exposed-modules = [ "A", "B" ] }
               
-              else  prelude.defaults.Library ⫽ { exposed-modules = [ "A" ] }
+              else  prelude.defaults.MainLibrary ⫽ { exposed-modules = [ "A" ] }
           )
       , name =
           "test"

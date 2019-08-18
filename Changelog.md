@@ -7,6 +7,30 @@
 * New utility function, `prelude.utils.mapBuildInfo`, which maps over
   the common fields of all non-setup components.
 
+* Port to Cabal 3.0. Included changes:
+
+  * `types.CompilerOptions` now only knows about options for GHC and
+    GHCJS.
+
+  * `types.Dependency` now has a `library-names` field, to identify
+    which library components of the dependency package to use. These
+    can be build with `types.LibraryName`. `prelude.majorVersions`
+    reflects this with a third parameter.
+
+  * `types.BuildInfo.pkgconfig-depends.version` is now its own type,
+    `types.PkgconfigVersionRange`. There are functions to construct it
+    under `prelude.pkg-config`.
+
+  * `prelude.defaults.Library` has been split into `MainLibrary` and
+    `NamedLibrary`. Use `MainLibrary` in the `library` field, and
+    `NamedLibrary` in the `sub-libraries` field.
+
+  * New `types.Library` field, `visibility`, and a new type,
+    `types.LibraryVisibility`.
+
+  * New `types.BuildInfo` fields, `autogen-includes` and
+    `extra-dyn-lib-flavours`.
+
 ## 1.3.4.0 -- 2019-07-05
 
 * Add compatibility for `optparse-applicative-0.15`.

@@ -1,0 +1,6 @@
+cabal-version: 3.0
+name:          multilib
+version:       0
+
+library
+    default-language: Haskell2010

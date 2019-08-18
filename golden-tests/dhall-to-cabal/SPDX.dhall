@@ -35,5 +35,5 @@ in    prelude.defaults.Package
             )
           )
       , library =
-          prelude.unconditional.library prelude.defaults.Library
+          prelude.unconditional.library prelude.defaults.MainLibrary
       }

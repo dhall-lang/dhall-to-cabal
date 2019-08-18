@@ -45,6 +45,7 @@
 | BSD_3_Clause_No_Nuclear_License
 | BSD_3_Clause_No_Nuclear_License_2014
 | BSD_3_Clause_No_Nuclear_Warranty
+| BSD_3_Clause_Open_MPI
 | BSD_4_Clause
 | BSD_4_Clause_UC
 | BSD_Protection
@@ -55,6 +56,8 @@
 | Beerware
 | BitTorrent_1_0
 | BitTorrent_1_1
+| Blessing
+| BlueOak_1_0_0
 | Borceux
 | Bzip2_1_0_5
 | Bzip2_1_0_6
@@ -90,6 +93,7 @@
 | CC_BY_SA_2_5
 | CC_BY_SA_3_0
 | CC_BY_SA_4_0
+| CC_PDDC
 | CDDL_1_0
 | CDDL_1_1
 | CDLA_Permissive_1_0
@@ -100,6 +104,8 @@
 | CECILL_2_1
 | CECILL_B
 | CECILL_C
+| CERN_OHL_1_1
+| CERN_OHL_1_2
 | CNRI_Jython
 | CNRI_Python
 | CNRI_Python_GPL_Compatible
@@ -110,6 +116,8 @@
 | Caldera
 | ClArtistic
 | Condor_1_1
+| Copyleft_next_0_3_0
+| Copyleft_next_0_3_1
 | Crossword
 | CrystalStacker
 | Cube
@@ -160,6 +168,7 @@
 | Glulxe
 | Gnuplot
 | HPND
+| HPND_sell_variant
 | HaskellReport
 | IBM_pibs
 | ICU
@@ -174,6 +183,7 @@
 | Intel
 | Intel_ACPI
 | Interbase_1_0
+| JPNIC
 | JSON
 | JasPer_2_0
 | LAL_1_2
@@ -198,6 +208,7 @@
 | LiLiQ_R_1_1
 | LiLiQ_Rplus_1_1
 | Libpng
+| Libpng_2_0
 | Libtiff
 | Linux_OpenIB
 | MIT
@@ -245,6 +256,9 @@
 | ODbL_1_0
 | OFL_1_0
 | OFL_1_1
+| OGL_UK_1_0
+| OGL_UK_2_0
+| OGL_UK_3_0
 | OGTSL
 | OLDAP_1_1
 | OLDAP_1_2
@@ -274,6 +288,7 @@
 | PDDL_1_0
 | PHP_3_0
 | PHP_3_01
+| Parity_6_0_0
 | Plexus
 | PostgreSQL
 | Psfrag
@@ -294,21 +309,26 @@
 | SGI_B_1_0
 | SGI_B_1_1
 | SGI_B_2_0
+| SHL_0_5
+| SHL_0_51
 | SISSL
 | SISSL_1_2
 | SMLNJ
 | SMPPL
 | SNIA
 | SPL_1_0
+| SSPL_1_0
 | SWL
 | Saxpath
 | Sendmail
+| Sendmail_8_23
 | SimPL_2_0
 | Sleepycat
 | Spencer_86
 | Spencer_94
 | Spencer_99
 | SugarCRM_1_1_3
+| TAPR_OHL_1_0
 | TCL
 | TCP_wrappers
 | TMate

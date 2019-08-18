@@ -1,8 +1,10 @@
 { defaults =
     { CompilerOptions =
         ./defaults/CompilerOptions.dhall
-    , Library =
-        ./defaults/Library.dhall
+    , MainLibrary =
+        ./defaults/MainLibrary.dhall
+    , NamedLibrary =
+        ./defaults/NamedLibrary.dhall
     , Benchmark =
         ./defaults/Benchmark.dhall
     , Executable =
@@ -44,6 +46,24 @@
     ./utils/package.dhall
 , unconditional =
     ./unconditional.dhall
+, pkg-config =
+    { anyVersion =
+        ./PkgconfigVersionRange/anyVersion.dhall
+    , thisVersion =
+        ./PkgconfigVersionRange/thisVersion.dhall
+    , laterVersion =
+        ./PkgconfigVersionRange/laterVersion.dhall
+    , earlierVersion =
+        ./PkgconfigVersionRange/earlierVersion.dhall
+    , orLaterVersion =
+        ./PkgconfigVersionRange/orLaterVersion.dhall
+    , orEarlierVersion =
+        ./PkgconfigVersionRange/orEarlierVersion.dhall
+    , unionVersionRanges =
+        ./PkgconfigVersionRange/unionVersionRanges.dhall
+    , intersectVersionRanges =
+        ./PkgconfigVersionRange/intersectVersionRanges.dhall
+    }
 , SPDX =
     { license =
         ./SPDX/license.dhall

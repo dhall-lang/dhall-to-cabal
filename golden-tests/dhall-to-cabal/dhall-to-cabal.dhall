@@ -9,51 +9,51 @@ let anyVersion = prelude.anyVersion
 let package =
         λ(package : Text)
       → λ(version-range : types.VersionRange)
-      → { bounds = version-range, package = package }
+      → { bounds = version-range, package = package, library-names = [ types.LibraryName.main-library ] }
 
 let majorVersions = prelude.utils.majorVersions
 
 let deps =
       { Cabal =
-          majorVersions "Cabal" [ v "2.0" ]
+          majorVersions "Cabal" [ v "2.0" ] [ types.LibraryName.main-library ]
       , Diff =
-          majorVersions "Diff" [ v "0.3.4" ]
+          majorVersions "Diff" [ v "0.3.4" ] [ types.LibraryName.main-library ]
       , base =
-          majorVersions "base" [ v "4.10" ]
+          majorVersions "base" [ v "4.10" ] [ types.LibraryName.main-library ]
       , bytestring =
-          majorVersions "bytestring" [ v "0.10" ]
+          majorVersions "bytestring" [ v "0.10" ] [ types.LibraryName.main-library ]
       , containers =
-          majorVersions "containers" [ v "0.5" ]
+          majorVersions "containers" [ v "0.5" ] [ types.LibraryName.main-library ]
       , dhall =
-          majorVersions "dhall" [ v "1.12.0" ]
+          majorVersions "dhall" [ v "1.12.0" ] [ types.LibraryName.main-library ]
       , dhall-to-cabal =
           package "dhall-to-cabal" anyVersion
       , filepath =
-          majorVersions "filepath" [ v "1.4" ]
+          majorVersions "filepath" [ v "1.4" ] [ types.LibraryName.main-library ]
       , insert-ordered-containers =
-          majorVersions "insert-ordered-containers" [ v "0.2.1.0" ]
+          majorVersions "insert-ordered-containers" [ v "0.2.1.0" ] [ types.LibraryName.main-library ]
       , optparse-applicative =
-          majorVersions "optparse-applicative" [ v "0.13.2", v "0.14" ]
+          majorVersions "optparse-applicative" [ v "0.13.2", v "0.14" ] [ types.LibraryName.main-library ]
       , prettyprinter =
-          majorVersions "prettyprinter" [ v "1.2.0.1" ]
+          majorVersions "prettyprinter" [ v "1.2.0.1" ] [ types.LibraryName.main-library ]
       , contravariant =
-          majorVersions "contravariant" [ v "1.4" ]
+          majorVersions "contravariant" [ v "1.4" ] [ types.LibraryName.main-library ]
       , hashable =
-          majorVersions "hashable" [ v "1.2.6.1" ]
+          majorVersions "hashable" [ v "1.2.6.1" ] [ types.LibraryName.main-library ]
       , tasty =
-          majorVersions "tasty" [ v "0.11" ]
+          majorVersions "tasty" [ v "0.11" ] [ types.LibraryName.main-library ]
       , tasty-golden =
-          majorVersions "tasty-golden" [ v "2.3" ]
+          majorVersions "tasty-golden" [ v "2.3" ] [ types.LibraryName.main-library ]
       , text =
-          majorVersions "text" [ v "1.2" ]
+          majorVersions "text" [ v "1.2" ] [ types.LibraryName.main-library ]
       , formatting =
-          majorVersions "formatting" [ v "6.3.1" ]
+          majorVersions "formatting" [ v "6.3.1" ] [ types.LibraryName.main-library ]
       , transformers =
-          majorVersions "transformers" [ v "0.5.2" ]
+          majorVersions "transformers" [ v "0.5.2" ] [ types.LibraryName.main-library ]
       , trifecta =
-          majorVersions "trifecta" [ v "1.7" ]
+          majorVersions "trifecta" [ v "1.7" ] [ types.LibraryName.main-library ]
       , vector =
-          majorVersions "vector" [ v "0.12" ]
+          majorVersions "vector" [ v "0.12" ] [ types.LibraryName.main-library ]
       }
 
 in    prelude.utils.GitHub-project
@@ -138,7 +138,7 @@ in    prelude.utils.GitHub-project
           v "1.0.0"
       , library =
           prelude.unconditional.library
-          (   prelude.defaults.Library
+          (   prelude.defaults.MainLibrary
             ⫽ { build-depends =
                   [ deps.Cabal
                   , deps.base

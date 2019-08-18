@@ -1,3 +1,7 @@
+let Dependency = ../types/Dependency.dhall
+
+let LibraryName = ../types/LibraryName.dhall
+
 let Version = ../types/Version.dhall
 
 let VersionRange = ../types/VersionRange.dhall
@@ -12,9 +16,10 @@ let Versions =
       }
 
 let majorVersions
-    : Text → List Version → { package : Text, bounds : VersionRange }
+    : Text → List Version → List LibraryName → Dependency
     =   λ(package : Text)
       → λ(versions : List Version)
+      → λ(library-names : List LibraryName)
       → { package =
             package
         , bounds =
@@ -44,6 +49,8 @@ let majorVersions
             VersionRange
             (λ(a : VersionRange) → a)
             Versions.noVersion
+        , library-names =
+            library-names
         }
 
 in  majorVersions

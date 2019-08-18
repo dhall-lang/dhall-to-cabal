@@ -9,55 +9,58 @@ let anyVersion = prelude.anyVersion
 let package =
         λ(package : Text)
       → λ(version-range : types.VersionRange)
-      → { bounds = version-range, package = package }
+      → { bounds = version-range, package = package, library-names = [ types.LibraryName.main-library ] }
 
 let majorVersions = prelude.utils.majorVersions
 
 let deps =
       { Cabal =
-          majorVersions "Cabal" [ v "2.4" ]
+          majorVersions "Cabal" [ v "3.0" ] [ types.LibraryName.main-library ]
       , Diff =
-          majorVersions "Diff" [ v "0.3.4" ]
+          majorVersions "Diff" [ v "0.3.4" ] [ types.LibraryName.main-library ]
       , base =
-          majorVersions "base" [ v "4.10", v "4.11", v "4.12" ]
+          majorVersions "base" [ v "4.10", v "4.11", v "4.12" ] [ types.LibraryName.main-library ]
       , bytestring =
-          majorVersions "bytestring" [ v "0.10" ]
+          majorVersions "bytestring" [ v "0.10" ] [ types.LibraryName.main-library ]
       , containers =
-          majorVersions "containers" [ v "0.5", v "0.6" ]
+          majorVersions "containers" [ v "0.5", v "0.6" ] [ types.LibraryName.main-library ]
       , directory =
-          majorVersions "directory" [ v "1.3.0.2" ]
+          majorVersions "directory" [ v "1.3.0.2" ] [ types.LibraryName.main-library ]
       , dhall =
-          majorVersions "dhall" [ v "1.26.0" ]
+          majorVersions "dhall" [ v "1.26.0" ] [ types.LibraryName.main-library ]
       , dhall-to-cabal =
           package "dhall-to-cabal" anyVersion
       , filepath =
-          majorVersions "filepath" [ v "1.4" ]
+          majorVersions "filepath" [ v "1.4" ] [ types.LibraryName.main-library ]
       , microlens =
           majorVersions
           "microlens"
           [ v "0.1.0.0", v "0.2.0.0", v "0.3.0.0", v "0.4.0.0" ]
+          [ types.LibraryName.main-library ]
       , optparse-applicative =
           majorVersions
           "optparse-applicative"
           [ v "0.13.2", v "0.14", v "0.15" ]
+          [ types.LibraryName.main-library ]
       , prettyprinter =
-          majorVersions "prettyprinter" [ v "1.2.0.1", v "1.3.0" ]
+          majorVersions "prettyprinter" [ v "1.2.0.1", v "1.3.0" ] [ types.LibraryName.main-library ]
       , contravariant =
-          majorVersions "contravariant" [ v "1.4", v "1.5" ]
+          majorVersions "contravariant" [ v "1.4", v "1.5" ] [ types.LibraryName.main-library ]
       , tasty =
           majorVersions
           "tasty"
           [ v "0.11", v "0.12", v "1.0", v "1.1", v "1.2" ]
+          [ types.LibraryName.main-library ]
       , tasty-golden =
-          majorVersions "tasty-golden" [ v "2.3" ]
+          majorVersions "tasty-golden" [ v "2.3" ] [ types.LibraryName.main-library ]
       , tasty-hunit =
-          majorVersions "tasty-hunit" [ v "0.10.0.1" ]
+          majorVersions "tasty-hunit" [ v "0.10.0.1" ] [ types.LibraryName.main-library ]
       , text =
-          majorVersions "text" [ v "1.2" ]
+          majorVersions "text" [ v "1.2" ] [ types.LibraryName.main-library ]
       , transformers =
-          majorVersions "transformers" [ v "0.5.2" ]
+          majorVersions "transformers" [ v "0.5.2" ] [ types.LibraryName.main-library ]
       , vector =
-          majorVersions "vector" [ v "0.12" ]
+          majorVersions "vector" [ v "0.12" ] [ types.LibraryName.main-library ]
       }
 
 let warning-options =
@@ -125,7 +128,7 @@ in  prelude.utils.mapBuildInfo
             v "1.3.4.0"
         , library =
             prelude.unconditional.library
-            (   prelude.defaults.Library
+            (   prelude.defaults.MainLibrary
               ⫽ { build-depends =
                     [ deps.Cabal
                     , deps.bytestring

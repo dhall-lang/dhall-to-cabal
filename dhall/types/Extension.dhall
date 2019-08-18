@@ -43,6 +43,8 @@
     Bool
 | DerivingStrategies :
     Bool
+| DerivingVia :
+    Bool
 | DisambiguateRecordFields :
     Bool
 | DoAndIfThenElse :
@@ -54,6 +56,8 @@
 | EmptyCase :
     Bool
 | EmptyDataDecls :
+    Bool
+| EmptyDataDeriving :
     Bool
 | ExistentialQuantification :
     Bool
@@ -78,6 +82,8 @@
 | GADTs :
     Bool
 | GHCForeignImportPrim :
+    Bool
+| GeneralisedNewtypeDeriving :
     Bool
 | GeneralizedNewtypeDeriving :
     Bool

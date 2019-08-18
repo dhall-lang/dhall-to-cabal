@@ -17,14 +17,14 @@ in    ../../dhall/defaults/Package.dhall
       , library =
           Some
           (   λ(config : types.Config)
-            →   prelude.defaults.Library
+            →   prelude.defaults.MainLibrary
               ⫽ { build-depends =
-                      [ { package = "A", bounds = prelude.anyVersion } ]
+                      [ { package = "A", bounds = prelude.anyVersion, library-names = [ types.LibraryName.main-library ] } ]
                     # (       if ghcImpl
                                  config
                                  (prelude.orLaterVersion (v "8.2"))
                         
-                        then  [ { package = "B", bounds = prelude.anyVersion } ]
+                        then  [ { package = "B", bounds = prelude.anyVersion, library-names = [ types.LibraryName.main-library ] } ]
                         
                         else  [] : List types.Dependency
                       )
@@ -32,7 +32,7 @@ in    ../../dhall/defaults/Package.dhall
                                  config
                                  (prelude.orLaterVersion (v "8.4"))
                         
-                        then  [ { package = "C", bounds = prelude.anyVersion } ]
+                        then  [ { package = "C", bounds = prelude.anyVersion, library-names = [ types.LibraryName.main-library ] } ]
                         
                         else  [] : List types.Dependency
                       )
