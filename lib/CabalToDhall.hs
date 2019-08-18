@@ -197,7 +197,7 @@ emptyListDefault
   -> Expr.Expr s a
   -> ( StrictText.Text, Expr.Expr s a )
 emptyListDefault name ty =
-  ( name, Expr.ListLit ( Just ty ) mempty )
+  ( name, Expr.ListLit ( Just ( Expr.App Expr.List ty ) ) mempty )
 
 
 emptyOptionalDefault
@@ -755,7 +755,7 @@ listOf t =
     { Dhall.embed =
         \a ->
           Expr.ListLit
-            ( foldl ( \_ _ -> Nothing ) ( Just ( Dhall.declared t ) ) a )
+            ( foldl ( \_ _ -> Nothing ) ( Just ( Expr.App Expr.List ( Dhall.declared t ) ) ) a )
             ( foldMap ( pure . Dhall.embed t ) a )
     , Dhall.declared = Expr.App Expr.List ( Dhall.declared t )
     }
@@ -1399,7 +1399,7 @@ compilerOptions =
                   ( map
                       ( \( c, opts ) ->
                           ( StrictText.pack ( show c )
-                          , Expr.ListLit ( Just Expr.Text ) ( dhallString <$> Seq.fromList opts )
+                          , Expr.ListLit ( Just ( Expr.App Expr.List Expr.Text ) ) ( dhallString <$> Seq.fromList opts )
                           )
                       )
                       xs
