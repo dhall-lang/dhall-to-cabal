@@ -3,10 +3,8 @@ let prelude = ./../../dhall/prelude.dhall
 let types = ./../../dhall/types.dhall
 
 in    prelude.defaults.Package
-    ⫽ { name =
-          "wai-servlet"
-      , version =
-          prelude.v "0.1.5.0"
+    ⫽ { cabal-version =
+          prelude.v "2.0"
       , flags =
           [ { default =
                 False
@@ -18,8 +16,6 @@ in    prelude.defaults.Package
                 "wai-servlet-debug"
             }
           ]
-      , cabal-version =
-          prelude.v "2.0"
       , library =
           Some
           (   λ(config : types.Config)
@@ -173,4 +169,8 @@ in    prelude.defaults.Package
               
               else  prelude.defaults.Library
           )
+      , name =
+          "wai-servlet"
+      , version =
+          prelude.v "0.1.5.0"
       }
