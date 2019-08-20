@@ -2,6 +2,8 @@
 
 ## Next -- [YYYY-MM-DD]
 
+* Use `dhall` version 1.25.
+
 ## 1.3.4.0 -- 2019-07-05
 
 * Add compatibility for `optparse-applicative-0.15`.

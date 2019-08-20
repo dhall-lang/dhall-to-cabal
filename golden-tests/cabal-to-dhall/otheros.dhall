@@ -3,11 +3,7 @@ let prelude = ./../../dhall/prelude.dhall
 let types = ./../../dhall/types.dhall
 
 in    prelude.defaults.Package
-    ⫽ { name =
-          "test"
-      , version =
-          prelude.v "0"
-      , cabal-version =
+    ⫽ { cabal-version =
           prelude.v "2.0"
       , library =
           Some
@@ -19,4 +15,8 @@ in    prelude.defaults.Package
               
               else  prelude.defaults.Library ⫽ { exposed-modules = [ "A" ] }
           )
+      , name =
+          "test"
+      , version =
+          prelude.v "0"
       }

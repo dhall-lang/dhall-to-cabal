@@ -1,3 +1,5 @@
 resolver: nightly-2019-06-12
 packages:
   - .
+extra-deps:
+  - dhall-1.25.0

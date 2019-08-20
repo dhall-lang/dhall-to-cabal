@@ -5,18 +5,18 @@ let types = ./../../dhall/types.dhall
 in    prelude.defaults.Package
     ⫽ { name =
           "test"
-      , version =
-          prelude.v "0"
       , source-repos =
           [   prelude.defaults.SourceRepo
-            ⫽ { type = Some types.RepoType.Git, location = Some "example.com" }
+            ⫽ { location = Some "example.com", type = Some types.RepoType.Git }
           ,   prelude.defaults.SourceRepo
-            ⫽ { type =
-                  Some types.RepoType.Darcs
+            ⫽ { kind =
+                  types.RepoKind.RepoThis
               , location =
                   Some "example.org"
-              , kind =
-                  types.RepoKind.RepoThis
+              , type =
+                  Some types.RepoType.Darcs
               }
           ]
+      , version =
+          prelude.v "0"
       }

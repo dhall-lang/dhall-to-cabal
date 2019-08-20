@@ -44,6 +44,20 @@ let
           transformers-compat = self.callPackage ./transformers-compat.nix {};
 
           quickcheck-instances = self.callPackage ./quickcheck-instances.nix {};
+
+          MonadRandom = self.callPackage ./MonadRandom.nix {};
+
+          either = self.callPackage ./either.nix {};
+
+          semigroupoids = self.callPackage ./semigroupoids.nix {};
+
+          base-orphans = self.callPackage ./base-orphans.nix {};
+
+          profunctors = self.callPackage ./profunctors.nix {};
+
+          th-lift-instances = self.callPackage ./th-lift-instances.nix {};
+
+          th-lift = self.callPackage ./th-lift.nix {};
         };
       };
     };

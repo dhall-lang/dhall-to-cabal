@@ -3,19 +3,15 @@ let prelude = ./../../dhall/prelude.dhall
 let types = ./../../dhall/types.dhall
 
 in    prelude.defaults.Package
-    ⫽ { name =
-          "blah"
-      , version =
-          prelude.v "1"
-      , benchmarks =
+    ⫽ { benchmarks =
           [ { benchmark =
                   λ(config : types.Config)
                 →   prelude.defaults.Benchmark
-                  ⫽ { main-is =
-                        "Main.hs"
-                    , compiler-options =
+                  ⫽ { compiler-options =
                           prelude.defaults.CompilerOptions
                         ⫽ { GHC = [ "-O2" ] : List Text }
+                    , main-is =
+                        "Main.hs"
                     }
             , name =
                 "fancy-benchmark"
@@ -23,4 +19,8 @@ in    prelude.defaults.Package
           ]
       , cabal-version =
           prelude.v "2.0"
+      , name =
+          "blah"
+      , version =
+          prelude.v "1"
       }

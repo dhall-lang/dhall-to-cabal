@@ -3,11 +3,7 @@ let prelude = ./../../dhall/prelude.dhall
 let types = ./../../dhall/types.dhall
 
 in    prelude.defaults.Package
-    ⫽ { name =
-          "blah"
-      , version =
-          prelude.v "1"
-      , cabal-version =
+    ⫽ { cabal-version =
           prelude.v "2.0"
       , executables =
           [ { executable =
@@ -17,4 +13,8 @@ in    prelude.defaults.Package
                 "hello"
             }
           ]
+      , name =
+          "blah"
+      , version =
+          prelude.v "1"
       }

@@ -3,11 +3,7 @@ let prelude = ./../../dhall/prelude.dhall
 let types = ./../../dhall/types.dhall
 
 in    prelude.defaults.Package
-    ⫽ { name =
-          "foo"
-      , version =
-          prelude.v "0"
-      , license =
+    ⫽ { license =
           types.License.SPDX
           ( prelude.SPDX.and
             ( prelude.SPDX.or
@@ -32,4 +28,8 @@ in    prelude.defaults.Package
               )
             )
           )
+      , name =
+          "foo"
+      , version =
+          prelude.v "0"
       }

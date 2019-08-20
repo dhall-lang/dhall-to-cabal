@@ -3,11 +3,7 @@ let prelude = ./../../dhall/prelude.dhall
 let types = ./../../dhall/types.dhall
 
 in    prelude.defaults.Package
-    ⫽ { name =
-          "mixins-test"
-      , version =
-          prelude.v "0"
-      , library =
+    ⫽ { library =
           Some
           (   λ(config : types.Config)
             →   prelude.defaults.Library
@@ -51,4 +47,8 @@ in    prelude.defaults.Package
                     ]
                 }
           )
+      , name =
+          "mixins-test"
+      , version =
+          prelude.v "0"
       }
