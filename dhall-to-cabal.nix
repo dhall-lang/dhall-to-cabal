@@ -1,20 +1,20 @@
 { mkDerivation, base, bytestring, Cabal, containers, contravariant
-, dhall, Diff, directory, filepath, hashable, microlens
-, optparse-applicative, prettyprinter, stdenv, tasty, tasty-golden
-, tasty-hunit, text, transformers, vector
+, dhall, Diff, directory, filepath, microlens, optparse-applicative
+, prettyprinter, stdenv, tasty, tasty-golden, tasty-hunit, text
+, transformers, vector
 }:
 mkDerivation {
   pname = "dhall-to-cabal";
-  version = "1.3.1.0";
+  version = "1.3.4.0";
   src = ./.;
   isLibrary = true;
   isExecutable = true;
   libraryHaskellDepends = [
     base bytestring Cabal containers contravariant dhall filepath
-    hashable text transformers vector
+    microlens text transformers vector
   ];
   executableHaskellDepends = [
-    base bytestring Cabal dhall directory filepath microlens
+    base bytestring Cabal containers dhall directory filepath microlens
     optparse-applicative prettyprinter text transformers
   ];
   testHaskellDepends = [
