@@ -4,6 +4,9 @@
 
 * Use `dhall` version 1.25.
 
+* New utility function, `prelude.utils.mapBuildInfo`, which maps over
+  the common fields of all non-setup components.
+
 ## 1.3.4.0 -- 2019-07-05
 
 * Add compatibility for `optparse-applicative-0.15`.

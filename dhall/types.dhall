@@ -2,6 +2,8 @@
     ./types/Arch.dhall
 , Benchmark =
     ./types/Benchmark.dhall
+, BuildInfo =
+    ./types/BuildInfo.dhall
 , BuildType =
     ./types/BuildType.dhall
 , Compiler =
