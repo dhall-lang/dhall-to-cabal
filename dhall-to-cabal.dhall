@@ -73,16 +73,20 @@ let warning-options =
       , "-fno-warn-name-shadowing"
       ]
 
-let addWarningOptions =
+let addCommonBuildInfo =
         λ(component : types.BuildInfo)
       →   component
         ⫽ { compiler-options =
                 component.compiler-options
               ⫽ { GHC = component.compiler-options.GHC # warning-options }
+          , build-depends =
+              [ deps.base, deps.dhall ] # component.build-depends
+          , default-language =
+              Some types.Language.Haskell2010
           }
 
 in  prelude.utils.mapBuildInfo
-    addWarningOptions
+    addCommonBuildInfo
     (   prelude.utils.GitHub-project
         { owner = "ocharles", repo = "dhall-to-cabal" }
       ⫽ { cabal-version =
@@ -124,11 +128,9 @@ in  prelude.utils.mapBuildInfo
             (   prelude.defaults.Library
               ⫽ { build-depends =
                     [ deps.Cabal
-                    , deps.base
                     , deps.bytestring
                     , deps.containers
                     , deps.contravariant
-                    , deps.dhall
                     , deps.filepath
                     , deps.microlens
                     , deps.text
@@ -161,8 +163,6 @@ in  prelude.utils.mapBuildInfo
                     , "Dhall.Extra"
                     , "Paths_dhall_to_cabal"
                     ]
-                , default-language =
-                    Some types.Language.Haskell2010
                 }
             )
         , executables =
@@ -171,9 +171,7 @@ in  prelude.utils.mapBuildInfo
               (   prelude.defaults.Executable
                 ⫽ { build-depends =
                       [ deps.Cabal
-                      , deps.base
                       , deps.containers
-                      , deps.dhall
                       , deps.dhall-to-cabal
                       , deps.directory
                       , deps.filepath
@@ -193,17 +191,13 @@ in  prelude.utils.mapBuildInfo
                       [ "Paths_dhall_to_cabal" ]
                   , autogen-modules =
                       [ "Paths_dhall_to_cabal" ]
-                  , default-language =
-                      Some types.Language.Haskell2010
                   }
               )
             , prelude.unconditional.executable
               "cabal-to-dhall"
               (   prelude.defaults.Executable
                 ⫽ { build-depends =
-                      [ deps.base
-                      , deps.dhall
-                      , deps.bytestring
+                      [ deps.bytestring
                       , deps.dhall-to-cabal
                       , deps.optparse-applicative
                       , deps.prettyprinter
@@ -219,8 +213,6 @@ in  prelude.utils.mapBuildInfo
                       [ "Paths_dhall_to_cabal" ]
                   , autogen-modules =
                       [ "Paths_dhall_to_cabal" ]
-                  , default-language =
-                      Some types.Language.Haskell2010
                   }
               )
             , prelude.unconditional.executable
@@ -229,9 +221,7 @@ in  prelude.utils.mapBuildInfo
                 ⫽ { scope =
                       types.Scope.Private
                   , build-depends =
-                      [ deps.base
-                      , deps.directory
-                      , deps.dhall
+                      [ deps.directory
                       , deps.dhall-to-cabal
                       , deps.filepath
                       , deps.optparse-applicative
@@ -239,8 +229,6 @@ in  prelude.utils.mapBuildInfo
                       ]
                   , hs-source-dirs =
                       [ "meta" ]
-                  , default-language =
-                      Some types.Language.Haskell2010
                   , main-is =
                       "Main.hs"
                   }
@@ -251,11 +239,9 @@ in  prelude.utils.mapBuildInfo
               "golden-tests"
               (   prelude.defaults.TestSuite
                 ⫽ { build-depends =
-                      [ deps.base
-                      , deps.Cabal
+                      [ deps.Cabal
                       , deps.Diff
                       , deps.bytestring
-                      , deps.dhall
                       , deps.dhall-to-cabal
                       , deps.filepath
                       , deps.microlens
@@ -269,17 +255,13 @@ in  prelude.utils.mapBuildInfo
                   , type =
                       types.TestType.exitcode-stdio
                       { main-is = "GoldenTests.hs" }
-                  , default-language =
-                      Some types.Language.Haskell2010
                   }
               )
             , prelude.unconditional.test-suite
               "unit-tests"
               (   prelude.defaults.TestSuite
                 ⫽ { build-depends =
-                      [ deps.base
-                      , deps.Cabal
-                      , deps.dhall
+                      [ deps.Cabal
                       , deps.dhall-to-cabal
                       , deps.tasty
                       , deps.tasty-hunit
@@ -289,8 +271,6 @@ in  prelude.utils.mapBuildInfo
                       [ "tests" ]
                   , type =
                       types.TestType.exitcode-stdio { main-is = "Tests.hs" }
-                  , default-language =
-                      Some types.Language.Haskell2010
                   , other-modules =
                       [ "DhallToCabal.Tests" ]
                   }
