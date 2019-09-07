@@ -5,14 +5,22 @@ in  { author =
         ""
     , flags =
         [] : List
-             { default : Bool, description : Text, manual : Bool, name : Text }
+               { default :
+                   Bool
+               , description :
+                   Text
+               , manual :
+                   Bool
+               , name :
+                   Text
+               }
     , benchmarks =
         [] : List
-             { name :
-                 Text
-             , benchmark :
-                 ∀(config : types.Config) → types.Benchmark
-             }
+               { name :
+                   Text
+               , benchmark :
+                   ∀(config : types.Config) → types.Benchmark
+               }
     , bug-reports =
         ""
     , build-type =
@@ -31,11 +39,11 @@ in  { author =
         ""
     , executables =
         [] : List
-             { name :
-                 Text
-             , executable :
-                 ∀(config : types.Config) → types.Executable
-             }
+               { name :
+                   Text
+               , executable :
+                   ∀(config : types.Config) → types.Executable
+               }
     , extra-doc-files =
         [] : List Text
     , extra-source-files =
@@ -44,11 +52,11 @@ in  { author =
         [] : List Text
     , foreign-libraries =
         [] : List
-             { name :
-                 Text
-             , foreign-lib :
-                 ∀(config : types.Config) → types.ForeignLibrary
-             }
+               { name :
+                   Text
+               , foreign-lib :
+                   ∀(config : types.Config) → types.ForeignLibrary
+               }
     , homepage =
         ""
     , library =
@@ -67,16 +75,20 @@ in  { author =
         ""
     , sub-libraries =
         [] : List
-             { name : Text, library : ∀(config : types.Config) → types.Library }
+               { name :
+                   Text
+               , library :
+                   ∀(config : types.Config) → types.Library
+               }
     , synopsis =
         ""
     , test-suites =
         [] : List
-             { name :
-                 Text
-             , test-suite :
-                 ∀(config : types.Config) → types.TestSuite
-             }
+               { name :
+                   Text
+               , test-suite :
+                   ∀(config : types.Config) → types.TestSuite
+               }
     , tested-with =
         [] : List { compiler : types.Compiler, version : types.VersionRange }
     , x-fields =

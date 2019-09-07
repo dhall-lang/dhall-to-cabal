@@ -20,22 +20,26 @@ in    prelude.defaults.Package
           Some
           (   λ(config : types.Config)
             →       if config.impl
-                       types.Compiler.GHC
-                       ( prelude.unionVersionRanges
-                         (prelude.thisVersion (prelude.v "0.0.9.7"))
-                         (prelude.laterVersion (prelude.v "0.0.9.7"))
-                       )
+                         types.Compiler.GHC
+                         ( prelude.unionVersionRanges
+                             (prelude.thisVersion (prelude.v "0.0.9.7"))
+                             (prelude.laterVersion (prelude.v "0.0.9.7"))
+                         )
               
               then        if config.impl
-                             types.Compiler.GHC
-                             (prelude.earlierVersion (prelude.v "0.7.0.2"))
+                               types.Compiler.GHC
+                               (prelude.earlierVersion (prelude.v "0.7.0.2"))
                     
                     then        if config.impl
-                                   types.Compiler.GHC
-                                   ( prelude.unionVersionRanges
-                                     (prelude.thisVersion (prelude.v "0.0.9"))
-                                     (prelude.laterVersion (prelude.v "0.0.9"))
-                                   )
+                                     types.Compiler.GHC
+                                     ( prelude.unionVersionRanges
+                                         ( prelude.thisVersion
+                                             (prelude.v "0.0.9")
+                                         )
+                                         ( prelude.laterVersion
+                                             (prelude.v "0.0.9")
+                                         )
+                                     )
                           
                           then        if config.flag "wai-servlet-debug"
                                 
@@ -72,11 +76,11 @@ in    prelude.defaults.Package
                                   }
                     
                     else  if config.impl
-                             types.Compiler.GHC
-                             ( prelude.unionVersionRanges
-                               (prelude.thisVersion (prelude.v "0.0.9"))
-                               (prelude.laterVersion (prelude.v "0.0.9"))
-                             )
+                               types.Compiler.GHC
+                               ( prelude.unionVersionRanges
+                                   (prelude.thisVersion (prelude.v "0.0.9"))
+                                   (prelude.laterVersion (prelude.v "0.0.9"))
+                               )
                     
                     then        if config.flag "wai-servlet-debug"
                           
@@ -105,15 +109,15 @@ in    prelude.defaults.Package
                           ⫽ { cpp-options = [ "-DINTEROP" ] }
               
               else  if config.impl
-                       types.Compiler.GHC
-                       (prelude.earlierVersion (prelude.v "0.7.0.2"))
+                         types.Compiler.GHC
+                         (prelude.earlierVersion (prelude.v "0.7.0.2"))
               
               then        if config.impl
-                             types.Compiler.GHC
-                             ( prelude.unionVersionRanges
-                               (prelude.thisVersion (prelude.v "0.0.9"))
-                               (prelude.laterVersion (prelude.v "0.0.9"))
-                             )
+                               types.Compiler.GHC
+                               ( prelude.unionVersionRanges
+                                   (prelude.thisVersion (prelude.v "0.0.9"))
+                                   (prelude.laterVersion (prelude.v "0.0.9"))
+                               )
                     
                     then        if config.flag "wai-servlet-debug"
                           
@@ -144,11 +148,11 @@ in    prelude.defaults.Package
                           ⫽ { cpp-options = [ "-DPURE_JAVA_WITH" ] }
               
               else  if config.impl
-                       types.Compiler.GHC
-                       ( prelude.unionVersionRanges
-                         (prelude.thisVersion (prelude.v "0.0.9"))
-                         (prelude.laterVersion (prelude.v "0.0.9"))
-                       )
+                         types.Compiler.GHC
+                         ( prelude.unionVersionRanges
+                             (prelude.thisVersion (prelude.v "0.0.9"))
+                             (prelude.laterVersion (prelude.v "0.0.9"))
+                         )
               
               then        if config.flag "wai-servlet-debug"
                     
