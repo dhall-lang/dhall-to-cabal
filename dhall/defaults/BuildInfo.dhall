@@ -7,7 +7,13 @@ in  { autogen-modules =
         [] : List { bounds : types.VersionRange, package : Text }
     , build-tool-depends =
         [] : List
-             { component : Text, package : Text, version : types.VersionRange }
+               { component :
+                   Text
+               , package :
+                   Text
+               , version :
+                   types.VersionRange
+               }
     , build-tools =
         [] : List { exe : Text, version : types.VersionRange }
     , buildable =

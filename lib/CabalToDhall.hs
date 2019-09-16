@@ -17,8 +17,8 @@ module CabalToDhall
 
 import Data.Foldable ( foldMap )
 import Data.Functor.Contravariant ( (>$<), Contravariant( contramap ) )
-import Data.List.NonEmpty ( NonEmpty(..) )
 import Data.Semigroup ( Semigroup, (<>) )
+import Data.Void ( absurd )
 import Numeric.Natural ( Natural )
 
 import qualified Data.ByteString as ByteString
@@ -26,7 +26,7 @@ import qualified Data.Sequence as Seq
 import qualified Data.Text as StrictText
 import qualified Dhall
 import qualified Dhall.Core
-import qualified Dhall.Core as Expr ( Expr(..), Var(..), Binding(..), Chunks(..) )
+import qualified Dhall.Core as Expr ( Expr(..), Var(..), Chunks(..), makeBinding )
 import qualified Dhall.Map as Map
 import qualified Dhall.Parser
 import qualified Dhall.TypeCheck
@@ -97,15 +97,15 @@ cabalToDhall
   :: DhallLocation
   -> Cabal.GenericPackageDescription
   -> Expr.Expr Dhall.Parser.Src Dhall.Core.Import
-cabalToDhall dhallLocation genericPackageDescription =
-  Expr.Let
-    ( Expr.Binding "prelude" Nothing ( Expr.Embed ( preludeLocation dhallLocation ) )
-   :| [ Expr.Binding "types" Nothing ( Expr.Embed ( typesLocation dhallLocation ) ) ]
-    )
-    $ Dhall.TypeCheck.absurd <$>
-        Dhall.embed
-          genericPackageDescriptionToDhall
-          genericPackageDescription
+cabalToDhall dhallLocation genericPackageDescription
+  = Expr.Let
+      ( Expr.makeBinding "prelude" ( Expr.Embed ( preludeLocation dhallLocation ) ) )
+  $ Expr.Let
+      ( Expr.makeBinding "types" ( Expr.Embed ( typesLocation dhallLocation ) ) )
+  $ absurd <$>
+      Dhall.embed
+        genericPackageDescriptionToDhall
+        genericPackageDescription
 
 
 -- Note: the Show instance is used by --print-type.
@@ -157,7 +157,7 @@ getDefault
 getDefault typesLoc resolve typ = withTypesImport expr
   where
     withTypesImport =
-      Expr.Let (Expr.Binding "types" Nothing ( Expr.Embed typesLoc ) :| [])
+      Expr.Let ( Expr.makeBinding "types" ( Expr.Embed typesLoc ) )
 
     factorBuildInfo fields =
       let
@@ -219,7 +219,7 @@ textFieldDefault name def =
 
 
 generaliseDeclared =
-  Dhall.Core.denote . fmap Dhall.TypeCheck.absurd . Dhall.declared
+  Dhall.Core.denote . fmap absurd . Dhall.declared
 
 
 compilerOptionsDefault :: Default s a

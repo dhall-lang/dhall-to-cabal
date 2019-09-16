@@ -27,7 +27,7 @@ let deps =
       , directory =
           majorVersions "directory" [ v "1.3.0.2" ]
       , dhall =
-          majorVersions "dhall" [ v "1.25.0" ]
+          majorVersions "dhall" [ v "1.26.0" ]
       , dhall-to-cabal =
           package "dhall-to-cabal" anyVersion
       , filepath =

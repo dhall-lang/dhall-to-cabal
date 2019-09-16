@@ -12,9 +12,7 @@ import Control.Monad ( join )
 import Data.Char ( isAlphaNum )
 import Data.Foldable ( asum, foldl' )
 import Data.Function ( (&) )
-import Data.List.NonEmpty ( NonEmpty(..) )
 import Data.Maybe ( fromMaybe )
-import Data.Text (Text)
 import Data.String ( fromString )
 import Data.Version ( showVersion )
 import Lens.Micro ( set )
@@ -33,7 +31,7 @@ import qualified Data.Text.Prettyprint.Doc as Pretty
 import qualified Data.Text.Prettyprint.Doc.Render.Text as Pretty
 import qualified Dhall
 import qualified Dhall.Core as Dhall
-import qualified Dhall.Core as Expr ( Expr(..), Binding(..) )
+import qualified Dhall.Core as Expr ( Expr(..) )
 import qualified Dhall.Lint as Lint
 import qualified Dhall.Parser
 import qualified Distribution.PackageDescription as Cabal
@@ -346,14 +344,6 @@ opts =
     { Pretty.layoutPageWidth = Pretty.AvailablePerLine 80 1.0 }
 
 
--- Note: the expression is linted afterwards, so this can do the
--- drop-dead simple thing of adding a new `let` each time.
-addBinding :: Text -> Dhall.Expr s a -> Dhall.Expr s a -> Dhall.Expr s a
-addBinding name val =
-  Expr.Let
-    ( Expr.Binding name Nothing val :| [] )
-
-
 printType :: PrintTypeOptions -> IO ()
 printType PrintTypeOptions { .. } = do
   Pretty.renderIO
@@ -380,15 +370,19 @@ printType PrintTypeOptions { .. } = do
       foldl' bindType expr [ minBound .. maxBound ]
 
     bindType expr t =
-      addBinding
-        ( fromString ( show t ) )
-        ( linkedType t )
+      Expr.Let
+        ( Dhall.makeBinding
+          ( fromString ( show t ) )
+          ( linkedType t )
+        )
         expr
 
     bindImport =
-      addBinding
-        "types"
-        ( Expr.Embed ( typesLocation dhallFromGitHub ) )
+      Expr.Let
+        ( Dhall.makeBinding
+            "types"
+            ( Expr.Embed ( typesLocation dhallFromGitHub ) )
+        )
 
     -- Unconditionally add everything, since lint will remove the
     -- redundant bindings.
@@ -414,9 +408,11 @@ printDefault PrintDefaultOptions {..} = do
 
   where
     withPreludeImport =
-      addBinding
-        "prelude"
-        ( Expr.Embed ( preludeLocation dhallFromGitHub ) )
+      Expr.Let
+        ( Dhall.makeBinding
+            "prelude"
+            ( Expr.Embed ( preludeLocation dhallFromGitHub ) )
+        )
 
     expr :: Expr.Expr Dhall.Parser.Src Dhall.Import
     expr = getDefault
