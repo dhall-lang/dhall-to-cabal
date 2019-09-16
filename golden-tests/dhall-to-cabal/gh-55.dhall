@@ -17,7 +17,7 @@ in    ./../../dhall/defaults/Package.dhall
       , library =
           Some
           (   λ(config : types.Config)
-            →   prelude.defaults.Library
+            →   prelude.defaults.MainLibrary
               ⫽ { exposed-modules =
                       [ "Module1" ]
                     # (       if ghcImpl

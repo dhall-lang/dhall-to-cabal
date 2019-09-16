@@ -7,7 +7,7 @@ let f =
       →   buildInfo
         ⫽ { build-depends =
                 buildInfo.build-depends
-              # [ prelude.utils.majorVersions "injected" [ prelude.v "1.0" ] ]
+              # [ prelude.utils.majorVersions "injected" [ prelude.v "1.0" ] [ types.LibraryName.main-library ] ]
           }
 
 in  prelude.utils.mapBuildInfo
@@ -20,18 +20,19 @@ in  prelude.utils.mapBuildInfo
         , library =
             Some
             (   λ(config : types.Config)
-              →   prelude.defaults.Library
+              →   prelude.defaults.MainLibrary
                 ⫽ { build-depends =
                       [ prelude.utils.majorVersions
                         "library"
                         [ prelude.v "1.0" ]
+                        [ types.LibraryName.main-library ]
                       ]
                   }
             )
         , custom-setup =
             Some
             { setup-depends =
-                [ prelude.utils.majorVersions "setup" [ prelude.v "1.0" ] ]
+                [ prelude.utils.majorVersions "setup" [ prelude.v "1.0" ] [ types.LibraryName.main-library ] ]
             }
         , benchmarks =
             [ { name =
@@ -45,6 +46,7 @@ in  prelude.utils.mapBuildInfo
                           [ prelude.utils.majorVersions
                             "bench"
                             [ prelude.v "1.0" ]
+                            [ types.LibraryName.main-library ]
                           ]
                       }
               }
@@ -61,6 +63,7 @@ in  prelude.utils.mapBuildInfo
                           [ prelude.utils.majorVersions
                             "exe"
                             [ prelude.v "1.0" ]
+                            [ types.LibraryName.main-library ]
                           ]
                       }
               }
@@ -80,6 +83,7 @@ in  prelude.utils.mapBuildInfo
                           [ prelude.utils.majorVersions
                             "flib"
                             [ prelude.v "1.0" ]
+                            [ types.LibraryName.main-library ]
                           ]
                       }
               }
@@ -89,11 +93,12 @@ in  prelude.utils.mapBuildInfo
                   "sublib"
               , library =
                     λ(config : types.Config)
-                  →   prelude.defaults.Library
+                  →   prelude.defaults.NamedLibrary
                     ⫽ { build-depends =
                           [ prelude.utils.majorVersions
                             "sublib"
                             [ prelude.v "1.0" ]
+                            [ types.LibraryName.main-library ]
                           ]
                       }
               }
@@ -110,6 +115,7 @@ in  prelude.utils.mapBuildInfo
                           [ prelude.utils.majorVersions
                             "tests"
                             [ prelude.v "1.0" ]
+                            [ types.LibraryName.main-library ]
                           ]
                       }
               }

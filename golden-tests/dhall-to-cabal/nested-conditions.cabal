@@ -1,20 +1,16 @@
 cabal-version: 2.2
-name: foo
-version: 0
-license: NONE
+name:          foo
+version:       0
 
 library
-    
+    ghc-options: -Weverything
+
     if impl(ghc >=8.2)
-        
-        if impl(ghc >=8.4)
-            ghc-options: -Weverything -Wno-redundant-constraints
-                         -Wno-missing-export-lists
-        else
-            ghc-options: -Weverything -Wno-redundant-constraints
+        ghc-options: -Wno-redundant-constraints
+
     else
-        
-        if impl(ghc >=8.4)
-            ghc-options: -Weverything -Wno-missing-export-lists
-        else
-            ghc-options: -Weverything
+
+    if impl(ghc >=8.4)
+        ghc-options: -Wno-missing-export-lists
+
+    else

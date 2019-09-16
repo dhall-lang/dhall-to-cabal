@@ -1,0 +1,12 @@
+cabal-version: 3.0
+name: multilib
+version: 0
+
+library
+  default-language: Haskell2010
+  build-depends:
+    A,
+    B:{b1, b2, b3} >= 3,
+    B:{b2} < 3.5,
+    C:{C, c1},
+    D:{}

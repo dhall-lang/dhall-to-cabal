@@ -4,7 +4,7 @@ let types = ../types.dhall
 in  { autogen-modules =
         [] : List Text
     , build-depends =
-        [] : List { bounds : types.VersionRange, package : Text }
+        [] : List types.Dependency
     , build-tool-depends =
         [] : List
                { component :
@@ -59,7 +59,7 @@ in  { autogen-modules =
     , other-modules =
         [] : List Text
     , pkgconfig-depends =
-        [] : List { name : Text, version : types.VersionRange }
+        [] : List { name : Text, version : types.PkgconfigVersionRange }
     , profiling-options =
         ./CompilerOptions.dhall
     , shared-options =
@@ -85,5 +85,9 @@ in  { autogen-modules =
     , extra-lib-flavours =
         [] : List Text
     , extra-bundled-libs =
+        [] : List Text
+    , autogen-includes =
+        [] : List Text
+    , extra-dyn-lib-flavours =
         [] : List Text
     }

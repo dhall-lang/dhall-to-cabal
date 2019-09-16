@@ -22,18 +22,48 @@ in    prelude.defaults.Package
                                    (prelude.laterVersion (prelude.v "8.4"))
                                )
                     
-                    then    prelude.defaults.Library
+                    then    prelude.defaults.MainLibrary
                           ⫽ { build-depends =
-                                [ { bounds = prelude.anyVersion, package = "A" }
-                                , { bounds = prelude.anyVersion, package = "B" }
-                                , { bounds = prelude.anyVersion, package = "C" }
+                                [ { bounds =
+                                      prelude.anyVersion
+                                  , library-names =
+                                      [ types.LibraryName.main-library ]
+                                  , package =
+                                      "A"
+                                  }
+                                , { bounds =
+                                      prelude.anyVersion
+                                  , library-names =
+                                      [ types.LibraryName.main-library ]
+                                  , package =
+                                      "B"
+                                  }
+                                , { bounds =
+                                      prelude.anyVersion
+                                  , library-names =
+                                      [ types.LibraryName.main-library ]
+                                  , package =
+                                      "C"
+                                  }
                                 ]
                             }
                     
-                    else    prelude.defaults.Library
+                    else    prelude.defaults.MainLibrary
                           ⫽ { build-depends =
-                                [ { bounds = prelude.anyVersion, package = "A" }
-                                , { bounds = prelude.anyVersion, package = "B" }
+                                [ { bounds =
+                                      prelude.anyVersion
+                                  , library-names =
+                                      [ types.LibraryName.main-library ]
+                                  , package =
+                                      "A"
+                                  }
+                                , { bounds =
+                                      prelude.anyVersion
+                                  , library-names =
+                                      [ types.LibraryName.main-library ]
+                                  , package =
+                                      "B"
+                                  }
                                 ]
                             }
               
@@ -44,16 +74,35 @@ in    prelude.defaults.Package
                              (prelude.laterVersion (prelude.v "8.4"))
                          )
               
-              then    prelude.defaults.Library
+              then    prelude.defaults.MainLibrary
                     ⫽ { build-depends =
-                          [ { bounds = prelude.anyVersion, package = "A" }
-                          , { bounds = prelude.anyVersion, package = "C" }
+                          [ { bounds =
+                                prelude.anyVersion
+                            , library-names =
+                                [ types.LibraryName.main-library ]
+                            , package =
+                                "A"
+                            }
+                          , { bounds =
+                                prelude.anyVersion
+                            , library-names =
+                                [ types.LibraryName.main-library ]
+                            , package =
+                                "C"
+                            }
                           ]
                       }
               
-              else    prelude.defaults.Library
+              else    prelude.defaults.MainLibrary
                     ⫽ { build-depends =
-                          [ { bounds = prelude.anyVersion, package = "A" } ]
+                          [ { bounds =
+                                prelude.anyVersion
+                            , library-names =
+                                [ types.LibraryName.main-library ]
+                            , package =
+                                "A"
+                            }
+                          ]
                       }
           )
       , license =

@@ -34,6 +34,10 @@
     ./types/Language.dhall
 , Library =
     ./types/Library.dhall
+, LibraryName =
+    ./types/LibraryName.dhall
+, LibraryVisibility =
+    ./types/LibraryVisibility.dhall
 , License =
     ./types/License.dhall
 , LicenseExceptionId =
@@ -48,6 +52,8 @@
     ./types/OS.dhall
 , Package =
     ./types/Package.dhall
+, PkgconfigVersionRange =
+    ./types/PkgconfigVersionRange.dhall
 , RepoKind =
     ./types/RepoKind.dhall
 , RepoType =

@@ -17,7 +17,7 @@ in    ../../dhall/defaults/Package.dhall
       , library =
           Some
           (   λ(config : types.Config)
-            →   prelude.defaults.Library
+            →   prelude.defaults.MainLibrary
               ⫽ { exposed-modules =
                     [ "Foo", "Bar" ]
                 , compiler-options =

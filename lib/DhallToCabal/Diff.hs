@@ -6,10 +6,12 @@ module DhallToCabal.Diff ( Diffable(..) ) where
 
 import Data.List ( (\\), intersect )
 
+import qualified Distribution.Compiler as Cabal
 import qualified Distribution.PackageDescription as Cabal
 import qualified Distribution.Types.ExecutableScope as Cabal
 import qualified Distribution.Types.ForeignLib as Cabal
 import qualified Distribution.Types.ForeignLibType as Cabal
+import qualified Distribution.Types.LibraryVisibility as Cabal
 import qualified Distribution.Types.UnqualComponentName as Cabal
 import qualified GHC.Generics as Generic
 
@@ -157,6 +159,24 @@ instance Diffable Cabal.ExecutableScope where
     else
       ( mempty, left, right )
 
+
+instance Diffable Cabal.LibraryVisibility where
+  diff left right =
+    if left == right then
+      ( left, mempty, mempty )
+    else
+      ( mempty, left, right )
+
+
+instance ( Diffable a ) => Diffable ( Cabal.PerCompilerFlavor a )
+
+
+instance Diffable Cabal.LibraryName where
+  diff left right =
+    if left == right then
+      ( left, Cabal.defaultLibName, Cabal.defaultLibName )
+    else
+      ( Cabal.defaultLibName, left, right )
 
 
 instance Eq a => Diffable [a] where

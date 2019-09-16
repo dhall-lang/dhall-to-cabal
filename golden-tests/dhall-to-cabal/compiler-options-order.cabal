@@ -1,22 +1,20 @@
 cabal-version: 2.2
-name: Name
-version: 1
-license: NONE
+name:          Name
+version:       1
 
 library
     exposed-modules:
         Foo
         Bar
-    
+
+    ghc-options:     A F
+
     if impl(ghc >=8.2)
-        
-        if impl(ghc >=8.4)
-            ghc-options: A B C D E F
-        else
-            ghc-options: A B D F
+        ghc-options: B D
+
     else
-        
-        if impl(ghc >=8.4)
-            ghc-options: A C E F
-        else
-            ghc-options: A F
+
+    if impl(ghc >=8.4)
+        ghc-options: C E
+
+    else

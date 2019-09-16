@@ -14,6 +14,7 @@
 | Freertos_exception_2_0
 | GCC_exception_2_0
 | GCC_exception_3_1
+| GPL_CC_1_0
 | Gnu_javamail_exception
 | I2p_gpl_java_exception
 | LLVM_exception
@@ -23,12 +24,15 @@
 | Mif_exception
 | Nokia_Qt_exception_1_1
 | OCCT_exception_1_0
+| OCaml_LGPL_linking_exception
 | OpenJDK_assembly_exception_1_0
 | Openvpn_openssl_exception
 | PS_or_PDF_font_exception_20170817
 | Qt_GPL_exception_1_0
 | Qt_LGPL_exception_1_1
 | Qwt_exception_1_0
+| Swift_exception
 | U_boot_exception_2_0
+| Universal_FOSS_exception_1_0
 | WxWindows_exception_3_1
 >

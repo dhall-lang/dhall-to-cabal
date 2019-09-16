@@ -12,7 +12,11 @@ let
           dhall-to-cabal = self.callPackage ./dhall-to-cabal.nix {};
 
           # Things we need newer versions of.
+          Cabal = self.callPackage ./overrides/Cabal.nix {};
+
           dhall = pkgs.haskell.lib.dontCheck (super.callPackage ./overrides/dhall.nix {});
+
+          ghc-paths = self.callPackage ./overrides/ghc-paths.nix {};
         };
       };
     };
