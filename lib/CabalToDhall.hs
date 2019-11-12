@@ -18,7 +18,7 @@ module CabalToDhall
 import Data.Foldable ( foldMap, toList )
 import Data.Functor.Contravariant ( (>$<), Contravariant( contramap ) )
 import Data.Semigroup ( Semigroup, (<>) )
-import Data.Void ( absurd )
+import Data.Void ( Void, absurd )
 import Numeric.Natural ( Natural )
 
 import qualified Data.ByteString as ByteString
@@ -508,7 +508,7 @@ runRecordInputType ( RecordInputType m ) =
     }
 
 
-runRecordInputTypeWithDefault :: KnownDefault -> Default Dhall.Parser.Src Dhall.TypeCheck.X -> RecordInputType a -> Dhall.InputType a
+runRecordInputTypeWithDefault :: KnownDefault -> Default Dhall.Parser.Src Void -> RecordInputType a -> Dhall.InputType a
 runRecordInputTypeWithDefault typ def m =
   let
     Dhall.InputType embed declared = runRecordInputType m
