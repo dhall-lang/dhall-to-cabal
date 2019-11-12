@@ -30,7 +30,6 @@ import qualified Dhall.Core
 import qualified Dhall.Core as Expr ( Expr(..), Var(..), Chunks(..), makeBinding )
 import qualified Dhall.Map as Map
 import qualified Dhall.Parser
-import qualified Dhall.TypeCheck
 import qualified Distribution.Compiler as Cabal
 import qualified Distribution.License as Cabal
 import qualified Distribution.ModuleName as Cabal
