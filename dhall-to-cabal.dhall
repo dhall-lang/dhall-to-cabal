@@ -19,7 +19,7 @@ let deps =
       , Diff =
           majorVersions "Diff" [ v "0.3.4", v "0.4.0" ] [ types.LibraryName.main-library ]
       , base =
-          majorVersions "base" [ v "4.10", v "4.11", v "4.12" ] [ types.LibraryName.main-library ]
+          majorVersions "base" [ v "4.11", v "4.12" ] [ types.LibraryName.main-library ]
       , bytestring =
           majorVersions "bytestring" [ v "0.10" ] [ types.LibraryName.main-library ]
       , containers =
